@@ -18,7 +18,8 @@ class DownloadMan(object):
         error_log: text files with the error message
         '''
         self.allfiles_path = os.path.join(mountpoint, allfiles)
-        self.allfiles_df = pd.read_csv(os.path.join(mountpoint, allfiles))
+        self.allfiles_df = pd.read_csv(os.path.join(mountpoint, allfiles), 
+                index_col=0)
         self.downloaded_path = os.path.join(mountpoint, downloaded_log)
         self.downloaded_df = pd.read_csv(self.downloaded_path, index_col=0)
         self.error_log_path = os.path.join(mountpoint, error_log)
@@ -80,6 +81,12 @@ class DownloadMan(object):
         md5_sum = self.allfiles_df[self.allfiles_df.filename == check_file].md5sum.iloc[0]
         other_md5_sum = self.md5sum(check_file)
         return md5_sum == other_md5_sum
+
+
+    def filesize(self, filename):
+        return_size = self.allfiles_df.loc[self.allfiles_df.filename == filename].iloc[0]['size']
+        return int(return_size)
+
 
 
 
