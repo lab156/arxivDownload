@@ -1,2 +1,8 @@
 #Ignore rootkey file
 rootkey.*
+#Jupyter stuff
+.ipynb_checkpoints
+#vim tilde files
+*~
+#python cache
+__pycache__
