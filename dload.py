@@ -5,6 +5,27 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 import sys
 
+def parse_element(elem):
+    return_dict = {}
+    for e in elem: 
+        return_dict[e.tag] = e.text # loop element and extract info
+    return return_dict
+def parse_root(root):
+        return [parse_element(child) for child in iter(root) if child.tag != 'timestamp']
+
+def parse_manifest(xml_path):
+    '''
+    input: the path of the xml manifest file 
+    output: a pandas dataframe of all the files in the src bucket
+    '''
+    with open(xml_path, 'r') as f:
+        mani = ET.parse(f)
+    root = mani.getroot()
+    return pd.DataFrame(parse_root(root))
+    
+
+
+
 class DownloadMan(object):
     def __init__(self,
             mountpoint,
@@ -68,6 +89,9 @@ class DownloadMan(object):
 
     def get_next(self):
         return self.get(self.next_file().filename)
+
+    def get_src_manifest(self, manif_name = 'src/arXiv_src_manifest.xml'):
+        return self.get(manif_name)
 
     def md5sum(self, filename):
         '''
