@@ -54,7 +54,22 @@ class Xtraction(object):
         else:
             return [d for d in self.query_results if d['tags'][0]['term']==MSC]
 
-    def extract2str(self, filename):
+    def extract_dir(self, filename, output_dir):
+        '''
+        given filename, extract a file with that name from
+        self.tar
+        '''
+        with tarfile.open(self.tar_path) as ff:
+            file_gz = ff.extractfile(filename)
+            if tarfile.is_tarfile(file_gz):
+                with tarfile.open(file_gz) as ftar: 
+                    ftar.extractall(filename)
+            else:
+                with gzip.open(file_gz,'rb') as fgz:
+                    file_str = fgz.read()
+        return file_str.decode('utf-8')
+
+    def extract_str(self, filename):
         '''
         given filename, extract a file with that name from
         self.tar
@@ -64,6 +79,15 @@ class Xtraction(object):
             with gzip.open(file_gz,'rb') as fb:
                 file_str = fb.read()
         return file_str.decode('utf-8')
+
+
+if __name__ == '__main__':
+    x = Xtraction(sys.argv[1])
+    f_lst = x.filter_MSC('math.DG')
+    for f in f_lst:
+        print('writing file %s'%f)
+        with open(os.path.join(sys.argv[2],tar2api(f) + '.tex'), 'w') as fname:
+            fname.write(x.extract_dir(f))
     
 
 
