@@ -127,7 +127,7 @@ class DownloadMan(object):
 
 if __name__ == "__main__":
     mountpoint = sys.argv[1]
-    allfiles = 'allfiles.csv'
+    allfiles = sys.argv[2]
     doun = 'downloaded_log.csv'
     error_log = 'error.log'
     D = DownloadMan(mountpoint, allfiles, doun, error_log)

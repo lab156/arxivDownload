@@ -1,0 +1,3 @@
+[submodule "arxiv.py"]
+	path = arxiv.py
+	url = https://github.com/lukasschwab/arxiv.py.git
