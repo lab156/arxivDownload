@@ -5,6 +5,7 @@ import tarfile
 import gzip
 import re
 import os.path
+import chardet
 
 def api2tar(id_str):
     '''
@@ -51,10 +52,10 @@ class Xtraction(object):
         #To query an id, from  '1804/1804.00020.gz' we just get 1804.00020
         query_id_list = [tar2api(s) for s in self.art_lst[1:]]
 
-        print('querying the arxiv')
+        sys.stdout.write('querying the arxiv \r')
         self.query_results = arxiv.query(id_list=query_id_list,
                 max_results=len(self.art_lst))
-        print('query successful')
+        sys.stdout.write('query successful     \n')
 
     def filter_MSC(self, MSC , run_api2tar=True):
         if run_api2tar:
@@ -85,30 +86,52 @@ class Xtraction(object):
         filename: /mnt/arXiv_src/src/arXiv_src_1804_001.tar
         output_dir: math.DG
         '''
-        short_name = tar2api(filename) # format 
+        short_name = tar2api(filename) # format 1804_00000
         output_path = os.path.join(self.path_dir(output_dir), short_name)
         os.mkdir(output_path)
-        with tarfile.open(self.tar_path) as ff:
+        ff = tarfile.open(self.tar_path) 
+        try:
             file_gz = ff.extractfile(filename)
-            #if tarfile.is_tarfile(file_gz):
+        except KeyError:
+            print('Check if file %s is pdf only'%filename)
+            return True
+        #if tarfile.is_tarfile(file_gz):
 #                with tarfile.open(file_gz) as ftar: 
 #                    ftar.extractall(output_path)
 #            else:
-            with gzip.open(file_gz,'rb') as fgz:
-                file_str = fgz.read()
-            try:
-                decoded_str = file_str.decode('utf-8')
-                with open(os.path.join(output_path, short_name + '.tex'),'w')\
-                        as fname:
-                    fname.write(decoded_str)
-            except UnicodeDecodeError:
-                # file_gz is not zipped so try to untar the file instead
-                print('attempting to write %s to %s'%(short_name,output_path))
-                with tarfile.open(self.tar_path) as ff:
-                    tar2 = ff.extractfile(filename)
-                    with tarfile.open(fileobj=tar2) as tars:
-                        tars.extractall(path=output_path)
-            # the file 1804/1804.01815.gz in 1804_005 has something different
+        with gzip.open(file_gz,'rb') as fgz:
+            file_str = fgz.read()
+        try:
+            with tarfile.open(self.tar_path) as ff:
+                tar2 = ff.extractfile(filename)
+                with tarfile.open(fileobj=tar2) as tars:
+                    print('extracting tar file %s to %s'\
+                            %(short_name,output_path))
+                    tars.extractall(path=output_path)
+        except tarfile.ReadError:
+        # if reading the tarfile fails then it must be compressed file
+        # detecting the encoding first is very slow
+            encoding_detected = chardet.detect(file_str)['encoding']
+            if encoding_detected == 'ascii':
+                encoding_str = 'utf-8'
+            elif encoding_detected == 'ISO-8859-1':
+                encoding_str = 'ISO-8859-1'
+            elif  encoding_detected == 'Windows-1252':
+                encoding_str = 'latin1'
+            elif  encoding_detected == 'SHIFT_JIS':
+                encoding_str = 'shift_jis'
+            elif  encoding_detected in ['GB2312','Big5']:
+                encoding_str = 'gbk'
+            elif  encoding_detected == 'windows-1251':
+                encoding_str = 'windows-1251'
+            else:
+                encoding_str = 'utf-8'
+
+            decoded_str = file_str.decode(encoding_str)
+            with open(os.path.join(output_path, short_name + '.tex'),'w')\
+                    as fname:
+                fname.write(decoded_str)
+        ff.close()
 
         return True
 
@@ -125,11 +148,11 @@ class Xtraction(object):
 
 
 if __name__ == '__main__':
-    x = Xtraction(sys.argv[1])
-    f_lst = x.filter_MSC('math.DG')
-    for f in f_lst:
-        print('writing file %s'%f)
-        x.extract_any(f, sys.argv[2])
-        #with open(os.path.join(sys.argv[2],tar2api(f) + '.tex'), 'w') as fname:
-        #    fname.write(x.extract_dir(f))
-    
+    file_lst = sys.argv[1:-1]
+    for f_path in file_lst:
+        x = Xtraction(f_path)
+        f_lst = x.filter_MSC('math.DG')
+        for f in f_lst:
+            print('writing file %s'%f)
+            x.extract_any(f, sys.argv[-1])
+   
