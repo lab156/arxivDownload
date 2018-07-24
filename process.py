@@ -71,7 +71,8 @@ class Xtraction(object):
           |_
             1804.0001   (tar_id name)
         '''
-        the_path = os.path.join(output_dir, tar_id(self.tar_path))
+        #the_path = os.path.join(output_dir, tar_id(self.tar_path))
+        the_path = output_dir
         if not os.path.exists(the_path):
             os.makedirs(the_path)
         return the_path
