@@ -7,6 +7,13 @@ import re
 import os.path
 import chardet
 
+def write_dict(dic, filename):
+    '''
+    pretty print the commentary dictionary
+    '''
+    with open(filename, 'a') as ff:
+        ff.write(''.join([str(d) + ': ' + str(dic[d]) +'\n' for d in dic]))
+
 def api2tar(id_str):
     '''
     The arxiv API produces ids in the format:
@@ -113,22 +120,23 @@ class Xtraction(object):
         # if reading the tarfile fails then it must be compressed file
         # detecting the encoding first is very slow
             encoding_detected = chardet.detect(file_str)['encoding']
-            if encoding_detected == 'ascii':
-                encoding_str = 'utf-8'
-            elif encoding_detected == 'ISO-8859-1':
-                encoding_str = 'ISO-8859-1'
-            elif  encoding_detected == 'Windows-1252':
-                encoding_str = 'latin1'
-            elif  encoding_detected == 'SHIFT_JIS':
-                encoding_str = 'shift_jis'
-            elif  encoding_detected in ['GB2312','Big5']:
-                encoding_str = 'gbk'
-            elif  encoding_detected == 'windows-1251':
-                encoding_str = 'windows-1251'
+            encoding_dict = {
+             'ascii':  'utf-8',
+            'ISO-8859-1': 'ISO-8859-1',
+            'Windows-1252': 'latin1',
+             'SHIFT_JIS': 'shift_jis',
+             'GB2312': 'gbk',
+             'Big5':  'gbk',
+            'windows-1251': 'windows-1251',
+            }
+            encoding_str = encoding_dict.get(encoding_detected, None)
+            if encoding_str:
+                decoded_str = file_str.decode(encoding_str)
             else:
-                encoding_str = 'utf-8'
-
-            decoded_str = file_str.decode(encoding_str)
+                # If no codec was detected just ignore the problem!!
+                print('Ignoring the unknown encoding: %s in file: %s'%(encoding_detected, filename))
+                decoded_str = file_str.decode(errors='ignore')
+                
             with open(os.path.join(output_path, short_name + '.tex'),'w')\
                     as fname:
                 fname.write(decoded_str)
@@ -152,7 +160,7 @@ if __name__ == '__main__':
     file_lst = sys.argv[1:-1]
     for f_path in file_lst:
         x = Xtraction(f_path)
-        f_lst = x.filter_MSC('math.DG')
+        f_lst = x.filter_MSC('math.AG')
         for f in f_lst:
             print('writing file %s'%f)
             x.extract_any(f, sys.argv[-1])
