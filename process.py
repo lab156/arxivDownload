@@ -52,7 +52,7 @@ class Xtraction(object):
             self.tar_path = tar_path
         else:
             raise(ValueError('There is no file at %s'%tar_path))
-        print('untaring file: %s'%tar_path)
+        sys.stdout.write('untaring file: %s    \r'%tar_path)
         with tarfile.open(tar_path) as ff:
             self.art_lst = [k.get_info()['name'] for k in ff.getmembers()]
 
@@ -62,7 +62,7 @@ class Xtraction(object):
         sys.stdout.write('querying the arxiv \r')
         self.query_results = arxiv.query(id_list=query_id_list,
                 max_results=len(self.art_lst))
-        sys.stdout.write('query successful     \n')
+        sys.stdout.write('query of %s successful     \n'%os.path.basename(self.tar_path))
 
     def filter_MSC(self, MSC , run_api2tar=True):
         if run_api2tar:
@@ -95,13 +95,17 @@ class Xtraction(object):
         output_dir: math.DG
         '''
         short_name = tar2api(filename) # format 1804_00000
+        commentary_dict = { 'tar_file': os.path.basename(self.tar_path) }
         output_path = os.path.join(self.path_dir(output_dir), short_name)
         os.mkdir(output_path)
         ff = tarfile.open(self.tar_path) 
         try:
             file_gz = ff.extractfile(filename)
         except KeyError:
-            print('Check if file %s is pdf only'%filename)
+            out_mess = 'Check if file %s is pdf only'%filename 
+            #print(out_mess)
+            commentary_dict['KeyError'] = out_mess
+            write_dict(commentary_dict, os.path.join(output_path, 'commentary.txt'))
             return True
         #if tarfile.is_tarfile(file_gz):
 #                with tarfile.open(file_gz) as ftar: 
@@ -113,14 +117,16 @@ class Xtraction(object):
             with tarfile.open(self.tar_path) as ff:
                 tar2 = ff.extractfile(filename)
                 with tarfile.open(fileobj=tar2) as tars:
-                    print('extracting tar file %s to %s'\
-                            %(short_name,output_path))
+                    #print('extracting tar file %s to %s'\
+                    #        %(short_name,output_path))
                     tars.extractall(path=output_path)
+                    commentary_dict['extraction_tool'] = 'tarfile'
         except tarfile.ReadError:
         # if reading the tarfile fails then it must be compressed file
         # detecting the encoding first is very slow
             encoding_detected = chardet.detect(file_str)['encoding']
             encoding_dict = {
+             'utf-8':  'utf-8',
              'ascii':  'utf-8',
             'ISO-8859-1': 'ISO-8859-1',
             'Windows-1252': 'latin1',
@@ -130,11 +136,14 @@ class Xtraction(object):
             'windows-1251': 'windows-1251',
             }
             encoding_str = encoding_dict.get(encoding_detected, None)
+            commentary_dict['encoding detected'] = encoding_detected
             if encoding_str:
                 decoded_str = file_str.decode(encoding_str)
             else:
                 # If no codec was detected just ignore the problem!!
-                print('Ignoring the unknown encoding: %s in file: %s'%(encoding_detected, filename))
+                comm_mess = 'Ignoring the unknown encoding: %s in file: %s'%(encoding_detected, filename)
+                #print(comm_mess)
+                commentary_dict['decode_message'] = comm_mess
                 decoded_str = file_str.decode(errors='ignore')
                 
             with open(os.path.join(output_path, short_name + '.tex'),'w')\
@@ -142,6 +151,7 @@ class Xtraction(object):
                 fname.write(decoded_str)
         ff.close()
 
+        write_dict(commentary_dict, os.path.join(output_path, 'commentary.txt'))
         return True
 
     def extract_str(self, filename):
@@ -162,6 +172,6 @@ if __name__ == '__main__':
         x = Xtraction(f_path)
         f_lst = x.filter_MSC('math.AG')
         for f in f_lst:
-            print('writing file %s'%f)
+            #print('writing file %s'%f)
             x.extract_any(f, sys.argv[-1])
    
