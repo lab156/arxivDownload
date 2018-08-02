@@ -43,6 +43,15 @@ def tar_id(id_str):
     name = re.match(r'.*arXiv_src_([0-9]{4})_([0-9]{3})\.tar', id_str)
     return name.group(1) + '_' + name.group(2)
 
+def year(id_str):
+    '''
+    attempts to guess the year name from the common strings.
+    searches in id_str for 4 consecutive digits and returns the first 2
+    '''
+    name = re.match(r'.*([0-9]{4}).*', id_str)
+    return name.group(1)[:2]
+    
+
     
 class Xtraction(object):
     def __init__(self, tar_path, *argv, **kwarg):
@@ -52,17 +61,28 @@ class Xtraction(object):
             self.tar_path = tar_path
         else:
             raise(ValueError('There is no file at %s'%tar_path))
-        sys.stdout.write('untaring file: %s    \r'%tar_path)
+        print('untaring file: %s    \r'%tar_path,end='\r')
         with tarfile.open(tar_path) as ff:
             self.art_lst = [k.get_info()['name'] for k in ff.getmembers()]
 
         #To query an id, from  '1804/1804.00020.gz' we just get 1804.00020
         query_id_list = [tar2api(s) for s in self.art_lst[1:]]
 
-        sys.stdout.write('querying the arxiv \r')
-        self.query_results = arxiv.query(id_list=query_id_list,
-                max_results=len(self.art_lst))
-        sys.stdout.write('query of %s successful     \n'%os.path.basename(self.tar_path))
+        print("\033[K",end='') 
+        print('querying the arxiv \r',end='\r')
+        self.query_results = []
+        i = 0
+        sl = 500 # slice length 
+        while i*sl < len(self.art_lst):
+            second_length = min((i + 1)*sl, len(self.art_lst))
+            try: 
+                self.query_results += arxiv.query(id_list=query_id_list[i*sl:second_length],
+                        max_results=(sl + 1))
+                print('query of %s successful       \r'%os.path.basename(self.tar_path),end='\r')
+            except Exception:
+                print('query of %s unsuccessful       \r'%os.path.basename(self.tar_path),end='\r')
+                break
+            i += 1
 
     def filter_MSC(self, MSC , run_api2tar=True):
         if run_api2tar:
@@ -140,7 +160,7 @@ class Xtraction(object):
             if encoding_str:
                 decoded_str = file_str.decode(encoding_str)
             else:
-                # If no codec was detected just ignore the problem!!
+                # If no codec was detected just ignore the problem :(
                 comm_mess = 'Ignoring the unknown encoding: %s in file: %s'%(encoding_detected, filename)
                 #print(comm_mess)
                 commentary_dict['decode_message'] = comm_mess
@@ -169,9 +189,12 @@ class Xtraction(object):
 if __name__ == '__main__':
     file_lst = sys.argv[1:-1]
     for f_path in file_lst:
+        print('starting extraction of  %s         \r'%os.path.basename(f_path),end='\r')
         x = Xtraction(f_path)
         f_lst = x.filter_MSC('math.AG')
         for f in f_lst:
-            #print('writing file %s'%f)
+            print("\033[K",end='') 
+            print('writing file %s               \r'%f,end='\r')
             x.extract_any(f, sys.argv[-1])
+        print('successful extraction of  %s      '%os.path.basename(f_path))
    
