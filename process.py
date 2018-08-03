@@ -23,7 +23,7 @@ def api2tar(id_str):
     The tar files have name format:
     <TarInfo '1804/1804.00020.gz' at 0x7f0ba68c8cc8>
     '''
-    name = re.match(r'.*([0-9]{4})\.([0-9]{5})',id_str)
+    name = re.match(r'.*([0-9]{4})\.([0-9]{4,5})',id_str)
     return name.group(1) + '/' + name.group(1) + '.' + name.group(2) + '.gz'
 
 def tar2api(id_str):
@@ -32,8 +32,14 @@ def tar2api(id_str):
     '1804/1804.00020.gz', '1804/1804.00239.gz', '1804/1804.00127.gz', '1804/1804.00197.gz'
     in order to get a searcheable id in the API take the leading number and the file type
     '''
-    name = re.match(r'.*([0-9]{4})\.([0-9]{5})',id_str)
-    return name.group(1) + '.' + name.group(2) 
+    name = re.match(r'.*([0-9]{4})\.([0-9]{4,5})',id_str)
+    try:
+        return_str = name.group(1) + '.' + name.group(2) 
+    except AttributeError:
+        print('Error: tar2api cannot find results in string: %s'%id_str)
+        raise ValueError
+        
+    return return_str
 
 def tar_id(id_str):
     '''
@@ -146,25 +152,46 @@ class Xtraction(object):
         # detecting the encoding first is very slow
             encoding_detected = chardet.detect(file_str)['encoding']
             encoding_dict = {
-             'utf-8':  'utf-8',
-             'ascii':  'utf-8',
-            'ISO-8859-1': 'ISO-8859-1',
-            'Windows-1252': 'latin1',
-             'SHIFT_JIS': 'shift_jis',
-             'GB2312': 'gbk',
-             'Big5':  'gbk',
-            'windows-1251': 'windows-1251',
+             'utf-8':  ['utf-8',],
+             'ascii':  ['utf-8',],
+            'ISO-8859-1': ['ISO-8859-1',],
+            'Windows-1252': ['latin1',],
+             'SHIFT_JIS': ['shift_jis',],
+             'GB2312': ['gbk', 'gb18030-2000'],
+             'Big5':  ['big5',],
+            'windows-1251': ['windows-1251',],
+            'IBM866': ['ibm866', ],
+            'Windows-1254': ['cp932', 'latin1'],
+            'TIS-620': ['cp874', ],
+            'HZ-GB-2312': ['gbk', ],
+            'KOI8-R': ['koi8-r', ],
+            'EUC-JP': ['euc_jp', ],
+            'ISO-2022-JP': ['iso2022_jp',],
+            None: None,
             }
-            encoding_str = encoding_dict.get(encoding_detected, None)
+            encoding_lst = encoding_dict.get(encoding_detected, 'Unk')
             commentary_dict['encoding detected'] = encoding_detected
-            if encoding_str:
-                decoded_str = file_str.decode(encoding_str)
+            if encoding_lst == 'Unk':
+                raise ValueError('Unknown encoding %s found in file %s in tarfile %s'%(encoding_detected,
+                                                                                      filename,
+                                                                            os.path.basename(self.tar_path)))
+            elif encoding_lst:
+                i = 0
+                while i < len(encoding_lst):
+                    try:
+                        decoded_str = file_str.decode(encoding_lst[i])
+                        break
+                    except UnicodeDecodeError:  
+                        i += 1
+                else:
+                    print('tried %s on file %s but all failed'%(str(encoding_lst), filename))
             else:
                 # If no codec was detected just ignore the problem :(
-                comm_mess = 'Ignoring the unknown encoding: %s in file: %s'%(encoding_detected, filename)
+                comm_mess = 'Unknown encoding: %s in file: %s decoding with utf8'%(encoding_detected, filename)
                 #print(comm_mess)
                 commentary_dict['decode_message'] = comm_mess
-                decoded_str = file_str.decode(errors='ignore')
+                decoded_str = file_str.decode()
+                #raise ValueError('The file: %s has an unknown encoding: %s. fix it!'%(filename, encoding_detected))
                 
             with open(os.path.join(output_path, short_name + '.tex'),'w')\
                     as fname:
