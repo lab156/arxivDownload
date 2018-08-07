@@ -11,8 +11,8 @@ def write_dict(dic, filename):
     '''
     pretty print the commentary dictionary
     '''
-    with open(filename, 'a') as ff:
-        ff.write(''.join([str(d) + ': ' + str(dic[d]) +'\n' for d in dic]))
+    with open(filename, 'a') as fw:
+        fw.write(''.join([str(d) + ': ' + str(dic[d]) +'\n' for d in dic]))
 
 def api2tar(id_str):
     '''
@@ -58,7 +58,6 @@ def year(id_str):
     return name.group(1)[:2]
     
 
-    
 class Xtraction(object):
     def __init__(self, tar_path, *argv, **kwarg):
         #get a list of all objects in the file at tar_path
@@ -68,8 +67,8 @@ class Xtraction(object):
         else:
             raise(ValueError('There is no file at %s'%tar_path))
         print('untaring file: %s    \r'%tar_path,end='\r')
-        with tarfile.open(tar_path) as ff:
-            self.art_lst = [k.get_info()['name'] for k in ff.getmembers()]
+        with tarfile.open(tar_path) as fa:
+            self.art_lst = [k.get_info()['name'] for k in fa.getmembers()]
 
         #To query an id, from  '1804/1804.00020.gz' we just get 1804.00020
         query_id_list = [tar2api(s) for s in self.art_lst[1:]]
@@ -90,6 +89,25 @@ class Xtraction(object):
                 break
             i += 1
 
+        self.encoding_dict = {
+         'utf-8':  ['utf-8',],
+         'ascii':  ['utf-8',],
+        'ISO-8859-1': ['ISO-8859-1',],
+        'Windows-1252': ['latin1',],
+         'SHIFT_JIS': ['shift_jis',],
+         'GB2312': ['gbk', 'gb18030-2000'],
+         'Big5':  ['big5',],
+        'windows-1251': ['windows-1251',],
+        'IBM866': ['ibm866', ],
+        'Windows-1254': ['cp932', 'latin1'],
+        'TIS-620': ['cp874', ],
+        'HZ-GB-2312': ['gbk', ],
+        'KOI8-R': ['koi8-r', ],
+        'EUC-JP': ['euc_jp', ],
+        'ISO-2022-JP': ['iso2022_jp',],
+        None: None,
+        }
+
     def filter_MSC(self, MSC , run_api2tar=True):
         if run_api2tar:
             return [api2tar(d.id) for d in self.query_results \
@@ -109,6 +127,68 @@ class Xtraction(object):
         if not os.path.exists(the_path):
             os.makedirs(the_path)
         return the_path
+
+    def extract_tar(self, output_dir, term):
+        '''
+        Extract the file in self.tarfile to output_dir
+        '''
+        f_lst = self.filter_MSC(term)
+        ff = tarfile.open(self.tar_path) #open the .tar file once
+        for filename in f_lst:
+            print("\033[K",end='') 
+            print('writing file %s               \r'%filename, end='\r')
+            short_name = tar2api(filename) # format 1804_00000
+            commentary_dict = { 'tar_file': os.path.basename(self.tar_path) }
+            output_path = os.path.join(self.path_dir(output_dir), short_name)
+            os.mkdir(output_path)
+            try:
+                file_gz = ff.extractfile(filename)
+            except KeyError:
+                out_mess = 'Check if file %s is pdf only'%filename 
+                commentary_dict['KeyError'] = out_mess
+                write_dict(commentary_dict, os.path.join(output_path, 'commentary.txt'))
+                return True
+            with gzip.open(file_gz,'rb') as fgz:
+                file_str = fgz.read()
+            try:
+                with tarfile.open(self.tar_path) as fb:
+                    tar2 = fb.extractfile(filename)
+                    with tarfile.open(fileobj=tar2) as tars:
+                        tars.extractall(path=output_path)
+                        commentary_dict['extraction_tool'] = 'tarfile'
+            except tarfile.ReadError:
+                encoding_detected = chardet.detect(file_str)['encoding']
+                encoding_lst = self.encoding_dict.get(encoding_detected, 'Unk')
+                commentary_dict['encoding detected'] = encoding_detected
+                if encoding_lst == 'Unk':
+                    raise ValueError('Unknown encoding %s found in file %s in tarfile %s'%(encoding_detected,
+                                                                                          filename,
+                                                                                os.path.basename(self.tar_path)))
+                elif encoding_lst:
+                    i = 0
+                    while i < len(encoding_lst):
+                        try:
+                            decoded_str = file_str.decode(encoding_lst[i])
+                            break
+                        except UnicodeDecodeError:  
+                            i += 1
+                    else:
+                        print('tried %s on file %s but all failed'%(str(encoding_lst), filename))
+                else:
+                    # If no codec was detected just ignore the problem :(
+                    comm_mess = 'Unknown encoding: %s in file: %s decoding with utf8'%(encoding_detected,
+                                                                                       filename)
+                    commentary_dict['decode_message'] = comm_mess
+                    decoded_str = file_str.decode()
+                with open(os.path.join(output_path, short_name + '.tex'),'w')\
+                        as fname:
+                    fname.write(decoded_str)
+        ff.close()
+        write_dict(commentary_dict, os.path.join(output_path, 'commentary.txt'))
+        print('successful extraction of  %s      '%os.path.basename(self.tar_path))
+        return True
+
+
 
 
     def extract_any(self, filename, output_dir):
@@ -140,8 +220,8 @@ class Xtraction(object):
         with gzip.open(file_gz,'rb') as fgz:
             file_str = fgz.read()
         try:
-            with tarfile.open(self.tar_path) as ff:
-                tar2 = ff.extractfile(filename)
+            with tarfile.open(self.tar_path) as fb:
+                tar2 = fb.extractfile(filename)
                 with tarfile.open(fileobj=tar2) as tars:
                     #print('extracting tar file %s to %s'\
                     #        %(short_name,output_path))
@@ -151,25 +231,7 @@ class Xtraction(object):
         # if reading the tarfile fails then it must be compressed file
         # detecting the encoding first is very slow
             encoding_detected = chardet.detect(file_str)['encoding']
-            encoding_dict = {
-             'utf-8':  ['utf-8',],
-             'ascii':  ['utf-8',],
-            'ISO-8859-1': ['ISO-8859-1',],
-            'Windows-1252': ['latin1',],
-             'SHIFT_JIS': ['shift_jis',],
-             'GB2312': ['gbk', 'gb18030-2000'],
-             'Big5':  ['big5',],
-            'windows-1251': ['windows-1251',],
-            'IBM866': ['ibm866', ],
-            'Windows-1254': ['cp932', 'latin1'],
-            'TIS-620': ['cp874', ],
-            'HZ-GB-2312': ['gbk', ],
-            'KOI8-R': ['koi8-r', ],
-            'EUC-JP': ['euc_jp', ],
-            'ISO-2022-JP': ['iso2022_jp',],
-            None: None,
-            }
-            encoding_lst = encoding_dict.get(encoding_detected, 'Unk')
+            encoding_lst = self.encoding_dict.get(encoding_detected, 'Unk')
             commentary_dict['encoding detected'] = encoding_detected
             if encoding_lst == 'Unk':
                 raise ValueError('Unknown encoding %s found in file %s in tarfile %s'%(encoding_detected,
@@ -191,7 +253,7 @@ class Xtraction(object):
                 #print(comm_mess)
                 commentary_dict['decode_message'] = comm_mess
                 decoded_str = file_str.decode()
-                #raise ValueError('The file: %s has an unknown encoding: %s. fix it!'%(filename, encoding_detected))
+        #raise ValueError('The file: %s has an unknown encoding: %s. fix it!'%(filename, encoding_detected))
                 
             with open(os.path.join(output_path, short_name + '.tex'),'w')\
                     as fname:
@@ -206,8 +268,8 @@ class Xtraction(object):
         given filename, extract a file with that name from
         self.tar
         '''
-        with tarfile.open(self.tar_path) as ff:
-            file_gz = ff.extractfile(filename)
+        with tarfile.open(self.tar_path) as fc:
+            file_gz = fc.extractfile(filename)
             with gzip.open(file_gz,'rb') as fb:
                 file_str = fb.read()
         return file_str.decode('utf-8')
@@ -215,13 +277,16 @@ class Xtraction(object):
 
 if __name__ == '__main__':
     file_lst = sys.argv[1:-1]
-    for f_path in file_lst:
-        print('starting extraction of  %s         \r'%os.path.basename(f_path),end='\r')
-        x = Xtraction(f_path)
-        f_lst = x.filter_MSC('math.AG')
-        for f in f_lst:
-            print("\033[K",end='') 
-            print('writing file %s               \r'%f,end='\r')
-            x.extract_any(f, sys.argv[-1])
-        print('successful extraction of  %s      '%os.path.basename(f_path))
-   
+    x = Xtraction(sys.argv[1])
+    x.extract_tar(sys.argv[-1], 'math.DG')
+
+#    for f_path in file_lst:
+#        print('starting extraction of  %s         \r'%os.path.basename(f_path),end='\r')
+#        x = Xtraction(f_path)
+#        f_lst = x.filter_MSC('math.DG')
+#        for f in f_lst:
+#            print("\033[K",end='') 
+#            print('writing file %s               \r'%f,end='\r')
+#            x.extract_any(f, sys.argv[-1])
+#        print('successful extraction of  %s      '%os.path.basename(f_path))
+#  
