@@ -15,7 +15,7 @@ class TestXtraction(unittest.TestCase):
         for f in f_lst:
             print("\033[K",end='') 
             print('writing file %s               \r'%f,end='\r')
-            x.extract_any(f, self.check_dir)
+            x.extract_any(f , self.check_dir)
         print('successful extraction of  %s      '%os.path.basename(self.f_path))
         x.extract_tar(self.check_dir2, 'math.AG')
 
@@ -26,8 +26,23 @@ class TestXtraction(unittest.TestCase):
                  '1601.00502',
                  '1601.00340',
                  '1601.00302']
+        list2 = ['\\documentclass[12pt]{amsart}\n',
+                '\\usepackage{tikz}\n',
+                '\\usepackage{amssymb}\n',
+                '\\overfullrule=10pt\n',
+                '\\parskip=0pt\n',
+                '\\raggedbottom\n',
+                '\\allowdisplaybreaks\n',
+                '\n',
+                '\\def\\Wnodal{W_{\\scriptstyle\\rm\\!nodal}}\n',
+                '\\def\\P{\\mathbb{P}}\n']
+
         self.assertEqual(list1, os.listdir(self.check_dir))
         self.assertEqual(list1, os.listdir(self.check_dir2))
+        with open(os.path.join(self.check_dir2,'1601.00103','1601.00103.tex'),'r') as tst_file:
+            self.assertEqual(list2, tst_file.readlines()[:10])
+        with open(os.path.join(self.check_dir,'1601.00103','1601.00103.tex'),'r') as tst_file:
+            self.assertEqual(list2, tst_file.readlines()[:10])
 
 
     def tearDown(self):
