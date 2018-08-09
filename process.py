@@ -153,6 +153,7 @@ class Xtraction(object):
         'TIS-620': ['cp874', ],
         'HZ-GB-2312': ['gbk', ],
         'KOI8-R': ['koi8-r', ],
+        'MacCyrillic': ['koi8-r', ],
         'EUC-JP': ['euc_jp', ],
         'ISO-2022-JP': ['iso2022_jp',],
         None: None,
@@ -350,15 +351,16 @@ class Xtraction(object):
 
 if __name__ == '__main__':
     file_lst = sys.argv[1:-1]
-#    x = Xtraction(sys.argv[1])
-#    x.extract_tar(sys.argv[-1], 'math.AG')
-
     for f_path in file_lst:
-        print('starting extraction of  %s         \r'%os.path.basename(f_path),end='\r')
         x = Xtraction(f_path)
-        f_lst = x.filter_MSC('math.AG')
-        for f in f_lst:
-            print("\033[K",end='') 
-            print('writing file %s               \r'%f,end='\r')
-            x.extract_any(f, sys.argv[-1])
-        print('successful extraction of  %s      '%os.path.basename(f_path))
+        x.extract_tar(sys.argv[-1], 'math.AG')
+
+#    for f_path in file_lst:
+#        print('starting extraction of  %s         \r'%os.path.basename(f_path),end='\r')
+#        x = Xtraction(f_path)
+#        f_lst = x.filter_MSC('math.AG')
+#        for f in f_lst:
+#            print("\033[K",end='') 
+#            print('writing file %s               \r'%f,end='\r')
+#            x.extract_any(f, sys.argv[-1])
+#        print('successful extraction of  %s      '%os.path.basename(f_path))

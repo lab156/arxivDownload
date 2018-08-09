@@ -4,7 +4,7 @@ import sys
 import shutil
 from process import Xtraction
 
-class TestXtraction(unittest.TestCase):
+class TestXtraction1(unittest.TestCase):
     def setUp(self):
         self.f_path = '/mnt/arXiv_src/src/arXiv_src_1601_001.tar'
         self.check_dir = os.path.join(os.path.curdir,'check_test')
