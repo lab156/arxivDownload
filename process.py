@@ -182,6 +182,7 @@ class Xtraction(object):
         '''
         Given file_str a raw binary string with unknown encoding,
         use encoding_dict to and chardet to try decode it and annotate the encoding used
+
         '''
         encoding_detected = chardet.detect(file_str)['encoding']
         encoding_lst = self.encoding_dict.get(encoding_detected, 'Unk')
@@ -242,7 +243,11 @@ class Xtraction(object):
                             commentary_dict['extraction_tool'] = 'tarfile'
                 except tarfile.ReadError:   
                     # this means tarfile is not a tar so we try to decode it
-                    decoded_str, comm_dict = self.decoder(file_str, filename)
+                    try:
+                        decoded_str, comm_dict = self.decoder(file_str, filename)
+                    except UnicodeDecodeError as ee:
+                        commentary_dict['decode_error'] = str(ee)
+                        decoded_str = 'Empty file goes here'
                     write_dict(comm_dict, os.path.join(output_path, 'commentary.txt'))
                     with open(os.path.join(output_path, short_name + '.tex'),'w')\
                             as fname:
