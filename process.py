@@ -146,7 +146,7 @@ class Xtraction(object):
         'Windows-1252': ['latin1',],
          'SHIFT_JIS': ['shift_jis',],
          'GB2312': ['gbk', 'gb18030-2000'],
-         'Big5':  ['big5',],
+         'Big5':  ['big5', 'gbk'],
         'windows-1251': ['windows-1251',],
         'IBM866': ['ibm866', ],
         'Windows-1254': ['cp932', 'latin1'],
@@ -155,7 +155,9 @@ class Xtraction(object):
         'KOI8-R': ['koi8-r', ],
         'MacCyrillic': ['koi8-r', ],
         'EUC-JP': ['euc_jp', ],
-        'ISO-2022-JP': ['iso2022_jp',],
+        'ISO-2022-JP': ['iso2022_jp', 'cp932', ],
+        'windows-1255': ['cp1255', ],
+        'CP949': ['cp949', ],
         None: None,
         }
 
@@ -201,7 +203,8 @@ class Xtraction(object):
                 except UnicodeDecodeError:  
                     i += 1
             else:
-                commentary_dict['decode_message'] = 'tried %s on file %s but all failed'%(str(encoding_lst),
+                decoded_str = file_str.decode(errors='ignore')
+                commentary_dict['decode_error'] = 'tried %s on file %s but all failed'%(str(encoding_lst),
                         filename)
 
         else:
@@ -245,10 +248,11 @@ class Xtraction(object):
                     # this means tarfile is not a tar so we try to decode it
                     try:
                         decoded_str, comm_dict = self.decoder(file_str, filename)
+                        commentary_dict = {**commentary_dict,**comm_dict}
                     except UnicodeDecodeError as ee:
                         commentary_dict['decode_error'] = str(ee)
                         decoded_str = 'Empty file goes here'
-                    write_dict(comm_dict, os.path.join(output_path, 'commentary.txt'))
+                    #write_dict({**commentary_dict,**comm_dict}, os.path.join(output_path, 'commentary.txt'))
                     with open(os.path.join(output_path, short_name + '.tex'),'w')\
                             as fname:
                         fname.write(decoded_str)
