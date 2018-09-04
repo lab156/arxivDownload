@@ -2,19 +2,28 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 import re
 import sys
+import nltk 
 
-def text1(root):
+#Shortcut to set default to empty string instead Nonetype
+empty_if_none = lambda s: s if s else ''
+
+
+def text1(root, ns=None):
     '''
     gets the text out of the definitions
     This functions only takes the text, formulas are ignored
     Replace newlines with a blank space.
     '''
-    def_str = root.text
-    for d in list(root):
-        def_str += d.text
-        def_str += d.tail
-    return def_str.replace('\n', ' ')
+    def_str = empty_if_none(root.text)
 
+    for d in list(root):
+        def_str += empty_if_none(d.text)
+        #If d has a <Math> child then search for tails
+        math_elements = d.findall('latexml:Math', ns)
+        for m in math_elements:
+            def_str += empty_if_none(m.tail)
+        def_str += empty_if_none(d.tail)
+    return def_str.lower().replace('\n', ' ')
 
 
 class DefinitionsXML(object):
@@ -66,7 +75,7 @@ class DefinitionsXML(object):
             pass
         else:
             self.find_definitions()
-        return [method(self.para_p(r)) for r in self.def_lst]
+        return [method(self.para_p(r), self.ns) for r in self.def_lst]
 
     def write_defs(self, path):
         '''
@@ -80,7 +89,7 @@ class DefinitionsXML(object):
 
 if __name__ == "__main__":
     '''
-    Usage: python parsing_xml.py fileList defFile
+    Usage: python parsing_xml.py fileList FileToStoreDefs
     '''
     allfiles = sys.argv[1:-1]
     defs_file = sys.argv[-1]
