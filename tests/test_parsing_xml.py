@@ -61,6 +61,45 @@ class TestDefinitionsXML(unittest.TestCase):
         str2 = dtest.get_def_text()[0]
         self.assertEqual(nltk.word_tokenize(str1), nltk.word_tokenize(str2))
 
+    def test_exact_tokenize3(self):
+        dtest = DefinitionsXML('tests/latexmled_files/math.0407523.xml')
+        list1 = ['a',
+	     'coherent',
+	     'system',
+	     'is',
+	     'injective',
+	     'if',
+	     'the',
+	     'evaluation',
+	     'morphism',
+	     'is',
+	     'injective',
+	     'as',
+	     'a',
+	     'morphism',
+	     'of',
+	     'sheaves',
+	     '.',
+	     'moreover',
+	     'is',
+	     'torsion-free',
+	     'if',
+	     'it',
+	     'is',
+	     'injective',
+	     'and',
+	     'the',
+	     'quotient',
+	     'sheaf',
+	     'is',
+	     'torsion-free',
+	     '.']
+        list2 = dtest.get_def_text()[3]
+        self.assertEqual(list1, nltk.word_tokenize(list2))
+
+
+
+
 
 
 

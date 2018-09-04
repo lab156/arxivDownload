@@ -25,6 +25,18 @@ def text1(root, ns=None):
         def_str += empty_if_none(d.tail)
     return def_str.lower().replace('\n', ' ')
 
+def recutext1(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
+    ret_str = '' #empty_if_none(root.text)
+    for el in list(root):
+        if el.tag != (nsstr + 'Math'):
+            ret_str += empty_if_none(el.text)
+            ret_str += empty_if_none(el.tail)
+            ret_str += recutext1(el, nsstr)
+        else:
+            ret_str += empty_if_none(el.tail)
+    return ret_str.lower().replace('\n', ' ')
+
+
 
 class DefinitionsXML(object):
     def __init__(self, file_path):
@@ -64,9 +76,10 @@ class DefinitionsXML(object):
         </theorem>
         This function gets a theorem root and returns the p tag
         '''
-        return root.findall('latexml:para/latexml:p', self.ns)[0]
+        #return root.findall('./latexml:para/latexml:p', self.ns)[0]
+        return root.findall('.//latexml:para', self.ns)[0]
 
-    def get_def_text(self, method=text1):
+    def get_def_text(self, method=recutext1):
         '''
         uses the method specified to get the text from 
         the definitions in self.def_lst
@@ -75,7 +88,7 @@ class DefinitionsXML(object):
             pass
         else:
             self.find_definitions()
-        return [method(self.para_p(r), self.ns) for r in self.def_lst]
+        return [method(self.para_p(r)) for r in self.def_lst]
 
     def write_defs(self, path):
         '''
