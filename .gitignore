@@ -6,3 +6,6 @@ rootkey.*
 *~
 #python cache
 __pycache__
+
+#Data file
+data
