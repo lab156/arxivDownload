@@ -9,3 +9,12 @@ __pycache__
 
 #Data file
 data
+
+# beamer presentation files
+*.aux
+*.log
+*.out
+*.pdf
+*.snm
+*.toc
+*.nav
