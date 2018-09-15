@@ -7,6 +7,11 @@
 TEXF=`ls *.tex`; latexml $TEXF.tex 2>&1 > ${TEXF%.*}.xml | tail -15 >> commentary.txt
 ```
 
+* To find directories unprocessed by latexml (don't have a latexml_errors_mess.txt file)
+```
+find ./* -maxdepth 0 -type d '!' -exec test -e "{}/latexml_errors_mess.txt" ';' -print
+```
+
 ### Notes
 * There is a limit of around 500 articles id that the API can handle.
 * In 2014 the article name format changed from YYMM.{4 digits} to 5 digits.
