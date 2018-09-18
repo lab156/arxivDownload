@@ -43,6 +43,7 @@ class DefinitionsXML(object):
         '''
         Read an xml file and parse it
         '''
+        self.file_path = file_path
         try:
             self.exml = ET.parse(file_path)
         except ET.ParseError:
@@ -77,7 +78,11 @@ class DefinitionsXML(object):
         This function gets a theorem root and returns the p tag
         '''
         #return root.findall('./latexml:para/latexml:p', self.ns)[0]
-        return root.findall('.//latexml:para', self.ns)[0]
+        try:
+            root_found = root.findall('.//latexml:para', self.ns)[0]
+        except IndexError:
+            raise ValueError('para tag not found in file: %s'%self.file_path)
+        return root_found
 
     def get_def_text(self, method=recutext1):
         '''

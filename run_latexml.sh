@@ -5,7 +5,8 @@
 # and the processed file is stored in an xml file with 
 #the same name as the original .tex file.
 
-FILE_LIST=($(find $1 -name *.tex))
+FILE_LIST=($(find $1 -iname *.tex))
+#FILE_LIST=($(find  $1 -maxdepth 1 -type d '!' -exec test -e "{}/latexml_errors_mess.txt" ';' -print))
 
 for f in ${FILE_LIST[@]}; do
      echo processing the file $f;
