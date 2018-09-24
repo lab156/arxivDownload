@@ -18,7 +18,7 @@ for f in ${FILE_LIST[@]}; do
 #    echo xfext is: $xfext
 #    echo see if this works ${f%/*}
      #latexml $f  2>&1 > ${f%.*}.xml | echo  > ${f%/*}/latexml_errors_mess.txt
-     latexml $f  2>${f%/*}/latexml_errors_mess.txt > ${f%.*}.xml 
+     /home/luis/Paquetes/LaTeXML/bin/latexml $f  2>${f%/*}/latexml_errors_mess.txt > ${f%.*}.xml 
 done
 
 

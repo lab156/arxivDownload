@@ -81,7 +81,8 @@ class DefinitionsXML(object):
         try:
             root_found = root.findall('.//latexml:para', self.ns)[0]
         except IndexError:
-            raise ValueError('para tag not found in file: %s'%self.file_path)
+            raise ValueError('para tag not found in file: %s with message: \n %s'
+                    %(self.file_path, ET.tostring(root)))
         return root_found
 
     def get_def_text(self, method=recutext1):
@@ -89,6 +90,8 @@ class DefinitionsXML(object):
         uses the method specified to get the text from 
         the definitions in self.def_lst
         '''
+        #Check if there is a list of definitions has been created
+        #If not calls the find_definitions method.
         if self.def_lst:
             pass
         else:
