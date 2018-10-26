@@ -1,5 +1,7 @@
 \documentclass{beamer}
 
+\newcommand{\Prob}{\text{Prob}}
+
 \begin{document}
 \begin{frame}
 Hypergame zwicker 1987
@@ -16,5 +18,17 @@ Machine learning is fun, it's high level, rewarding and very little coding unles
             \item The Pope's baby steps on gays.
             \item Scientist study whales from space.
     \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \title{Distributional Similarity based representations}
+    ``You shall know a word by the company it keeps''
+\end{frame}
+
+\begin{frame}
+    \title{Distributional Similarity based representations}
+    If $w_t$ is the word we care about then:
+    $$Jexp(\theta) = \prod_{t=1}^T \prod_{\substack{|j|\leq m\\ j\neq 0}} \Prob(w_{t+j}| w_t; \theta)$$
+    $$J(\theta) = \frac 1T \sum_{t=1}^T \sum{\substack{|j|\leq m\\ j\neq 0}}\log \Prob(w_{t+j}| w_t; \theta)$$
 \end{frame}
 \end{document}
