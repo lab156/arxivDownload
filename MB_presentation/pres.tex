@@ -1,5 +1,14 @@
 \documentclass{beamer}
 
+\mode<presentation>
+{
+  \usetheme{default}      % or try Darmstadt, Madrid, Warsaw, ...
+  \usecolortheme{default} % or try albatross, beaver, crane, ...
+  \usefonttheme{serif}  % or try serif, structurebold, ...
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+}
+
 \newcommand{\Prob}{\text{Prob}}
 
 \begin{document}
@@ -13,22 +22,28 @@ Machine learning is fun, it's high level, rewarding and very little coding unles
 \end{frame}
 
 \begin{frame}
-    Human language can be ambigious
+    Human language can be ambiguous
     \begin{itemize}
             \item The Pope's baby steps on gays.
             \item Scientist study whales from space.
     \end{itemize}
 \end{frame}
 
-\begin{frame}
-    \title{Distributional Similarity based representations}
-    ``You shall know a word by the company it keeps''
+\begin{frame}{Similarity based representations}
+    ``You shall know a word by the company it keeps''\\[5mm]
+    \hspace*\fill{\small John R. Firth}
+
 \end{frame}
 
 \begin{frame}
     \title{Distributional Similarity based representations}
     If $w_t$ is the word we care about then:
     $$Jexp(\theta) = \prod_{t=1}^T \prod_{\substack{|j|\leq m\\ j\neq 0}} \Prob(w_{t+j}| w_t; \theta)$$
-    $$J(\theta) = \frac 1T \sum_{t=1}^T \sum{\substack{|j|\leq m\\ j\neq 0}}\log \Prob(w_{t+j}| w_t; \theta)$$
+    $$J(\theta) = \frac 1T \sum_{t=1}^T \sum_{\substack{|j|\leq m\\ j\neq 0}}\log \Prob(w_{t+j}| w_t; \theta)$$
+\end{frame}
+
+%%%%FRAME
+\begin{frame}{How we  choose the word}
+     $$p(o|c) = \frac{\exp(u_0^T v_c)}{\sum_{w=1}^V \exp(u_w^Tv_c}$$
 \end{frame}
 \end{document}

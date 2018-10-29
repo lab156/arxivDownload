@@ -12,13 +12,16 @@ for f in ${FILE_LIST[@]}; do
      echo processing the file $f;
 #    xpath=${f%.*}
 #    echo $xpath
-#    xbase=${f##*/}
+#Only the name of the file with extension
+    xbase_with_extn=${f##*/}
+    # Only the base name of the file without extension
+    BSNM=${xbase_with_extn%.*}
 #    xfext=${xbase##*.}
 #    echo xbase is: $xbase
 #    echo xfext is: $xfext
 #    echo see if this works ${f%/*}
-     #latexml $f  2>&1 > ${f%.*}.xml | echo  > ${f%/*}/latexml_errors_mess.txt
-     /home/luis/Paquetes/LaTeXML/bin/latexml $f  2>${f%/*}/latexml_errors_mess.txt > ${f%.*}.xml 
+     #latexml $f  2>&1 > ${f%.*}.xml | echo  > ${f%/*}/ltxml_errs_mess_${f%.*}.txt
+     /home/luis/Paquetes/LaTeXML/bin/latexml $f  2>${f%/*}/ltxml_err_mess_$BSNM.txt > ${f%.*}.xml 
 done
 
 
