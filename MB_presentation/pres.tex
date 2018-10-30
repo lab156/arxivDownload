@@ -12,8 +12,34 @@
 \newcommand{\Prob}{\text{Prob}}
 
 \begin{document}
-\begin{frame}
-Hypergame zwicker 1987
+\begin{frame}{Bag of Words Model}
+    \begin{columns}[T]
+        \begin{column}{0.5\textwidth}
+            \includegraphics[width=0.9\textwidth]{sweet_caroline_lyrics.png}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+    Counts the number of times a word appears in a document and does not care about the order.
+        \end{column}
+    \end{columns}
+\end{frame}
+
+
+%%%%FRAME
+\begin{frame}{Common Terminology}
+    \begin{exampleblock}{Vocabulary}
+        All the words we are using.
+    \end{exampleblock}
+        \begin{itemize}
+            \item \textbf{Common Crawl (uncased)} 42B tokens, 1.9M vocab.
+            \item \textbf{Common Crawl (cased)} 840B tokens, 2.2M vocab.
+            \item \textbf{Twitter} 2B tweets, 27B tokens, 1.2M vocab
+            \item \textbf{Wikipedia 2014 + Gigaword 5} 6B tokens 400K vocab
+            \item \textbf{arXiv.org} 1,000,295 vocab.arxmliv.txt
+        \end{itemize}
+
+        \begin{exampleblock}{Labels or Classes}
+            In the example these were: \textbf{Definitions, Examples, Propositions, etc}.
+        \end{exampleblock}
 \end{frame}
 
 \begin{frame}
@@ -46,4 +72,21 @@ Machine learning is fun, it's high level, rewarding and very little coding unles
 \begin{frame}{How we  choose the word}
      $$p(o|c) = \frac{\exp(u_0^T v_c)}{\sum_{w=1}^V \exp(u_w^Tv_c}$$
 \end{frame}
+
+
+%%%%FRAME
+\begin{frame}{GloVe Project}
+    \includegraphics[width=\textwidth]{Glove_github_small.png}
+
+\begin{figure}
+   \includegraphics[width=0.29\textwidth]{man_woman_small.jpg}
+   \hfill
+   \includegraphics[width=0.29\textwidth]{comparative_superlative_small.jpg}
+   \hfill
+   \includegraphics[width=0.29\textwidth]{city_zip_small.jpg}
+\end{figure}
+
+\end{frame}
+
+
 \end{document}
