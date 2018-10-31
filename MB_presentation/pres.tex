@@ -10,24 +10,19 @@
 }
 
 \newcommand{\Prob}{\text{Prob}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bphi}{\pmb{\phi}}
+\newcommand{\btheta}{\pmb{\theta}}
+\newcommand{\given}{\, | \,}
+\DeclareMathOperator*{\argmax}{arg\,max}
 
 \begin{document}
-\begin{frame}{Bag of Words Model}
-    \begin{columns}[T]
-        \begin{column}{0.5\textwidth}
-            \includegraphics[width=0.9\textwidth]{sweet_caroline_lyrics.png}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-    Counts the number of times a word appears in a document and does not care about the order.
-        \end{column}
-    \end{columns}
-\end{frame}
 
 
 %%%%FRAME
 \begin{frame}{Common Terminology}
     \begin{exampleblock}{Vocabulary}
-        All the words we are using.
+        The set $V = \{w_1,w_2,\ldots, w_V\}$ of all the \textit{words} or \textit{tokens}.
     \end{exampleblock}
         \begin{itemize}
             \item \textbf{Common Crawl (uncased)} 42B tokens, 1.9M vocab.
@@ -38,16 +33,95 @@
         \end{itemize}
 
         \begin{exampleblock}{Labels or Classes}
+            The set of labels $\{y^{(1)},y^{(2)},\ldots, y^{(n)}\}$\\
             In the example these were: \textbf{Definitions, Examples, Propositions, etc}.
         \end{exampleblock}
+
+
+\end{frame}
+
+\begin{frame}{Bag of Words Model}
+    Represent a document, email, tweet as a vector $\bx=(x_1,\ldots, x_V)$
+    \begin{columns}[T]
+        \begin{column}{0.6\textwidth}
+            \includegraphics[width=0.9\textwidth]{sweet_caroline_lyrics.png}
+        \end{column}
+        \begin{column}{0.4\textwidth}
+            \begin{tabular}{|c|l|c|}
+                \hline
+                \hline
+                $V$ & UNK& Freq. \\
+                \hline
+                \hline
+                23 & oh&6\\
+                \hline
+                4500 & touching&6\\
+                \hline
+                10 & good&6\\
+                \hline
+                80 & never&5\\
+                \hline
+                50 & seem&4\\
+                \hline
+                38 & believe&3\\
+                \hline
+                99 & sweet&3\\
+                \hline
+                43 & caroline&3\\
+                \hline
+                30 & time&3\\
+                \hline
+                90 &know&2\\
+                \hline
+                54& spring&2\\
+                \hline
+                897& whooo&2\\
+                \hline
+                230 & hand&2\\
+                \hline
+                654 & reaching&2\\
+                \hline
+            \end{tabular}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Na\"ive Bayes}
+    Suppose we have a long list of $N$ labeled documents $$\{(\bx^{(i)},y^{(i)}) :\ i = 1,\ldots, N \}$$
+        And $\bx^{(i)}\given y^{(i)} $ has a Multinomial distribution with parameters $\bphi = (\phi_1,\ldots, \phi_V)$ 
+        $$\Prob(\bx\given y;\bphi) = \frac{(\sum_{j=1}^V x_j)!}{x_1!\cdots x_V!}\  \prod_{j=1}^V \phi_j^{x_j}$$
+
+        We are interested in:
+        $$\Prob(y\given \bx) = \frac{\Prob(y)\  \Prob(\bx \given y; \bphi)}{\Prob(\bx)}\propto \Prob(\bx, y,\bphi)$$
+        Since:
+        $$\Prob(\bx,y; \bphi) = \Prob(y) \ \Prob(\bx \given y; \bphi)$$
+
+\end{frame}
+
+
+%%%%FRAME
+\begin{frame}{Na\"ive Bayes (Prediction)}
+     We choose the label that maximizes the joint probability:
+     $$\hat y = \argmax_y\left\{ \Prob(\bx, y: \bphi)\right \}$$
+     Equivalently:
+     $$\hat y = \argmax_y\left\{ \log \Prob(\bx\given y: \bphi) + \log\Prob(y)\right\}$$
+     {\color{green}Reminder:} $\displaystyle \Prob(\bx\given y;\bphi) = B(\bx) \prod_{j=1}^V \phi_j^{x_j}$\\
+     Subtituting inside the log:
+     $$= \log B(\bx) + \btheta\cdot f(\bx, y)$$
+     
+\end{frame}
+
+
+%%%%FRAME
+\begin{frame}{Na\"ive Bayes (Estimation)}
+    We use the labels to find $\bphi$ as follows:
+     $$\Prob(y^{(i)}\given \bx^{(j)} ) = \delta_{i,j}$$
 \end{frame}
 
 \begin{frame}
 Nobody in this seminar has that (and I'm happy) but the hard part is the Data Mining.
-Machine learning is fun, it's high level, rewarding and very little coding unless you want to do things from scratch.
-\end{frame}
+Machine learning is fun, it's high level, rewarding and very little coding unless you want to do things from scratch.\\
 
-\begin{frame}
     Human language can be ambiguous
     \begin{itemize}
             \item The Pope's baby steps on gays.
