@@ -13,11 +13,30 @@
 \newcommand{\bx}{\mathbf{x}}
 \newcommand{\bphi}{\pmb{\phi}}
 \newcommand{\btheta}{\pmb{\theta}}
+\newcommand{\Count}{\text{count}}
 \newcommand{\given}{\, | \,}
 \DeclareMathOperator*{\argmax}{arg\,max}
 
 \begin{document}
 
+%%%%FRAME
+\begin{frame}{Natural Language Processing (NLP)}
+    Using Machine Learning techniques with Human Language.
+    \begin{itemize}
+            \item AKA Computational Linguistics.
+            \item Goes from a continuous medium (airwaves) to a discrete (text).
+            \item Really complex:
+    \begin{itemize}
+            \item The Pope's baby steps on gays.
+            \item Scientist study whales from space.
+    \end{itemize}
+    \item No A.I. program could be said to be complete without the ability to communicate in words.
+        \item Speech processing is done by electrical engineers and NLP C.S. people.
+        \item Increasing role in Search and Text Mining.
+            \item The ``Processing'' part is always preceded by a Training part.
+    \end{itemize}
+     
+\end{frame}
 
 %%%%FRAME
 \begin{frame}{Common Terminology}
@@ -106,7 +125,7 @@
      Equivalently:
      $$\hat y = \argmax_y\left\{ \log \Prob(\bx\given y: \bphi) + \log\Prob(y)\right\}$$
      {\color{green}Reminder:} $\displaystyle \Prob(\bx\given y;\bphi) = B(\bx) \prod_{j=1}^V \phi_j^{x_j}$\\
-     Subtituting inside the log:
+     Substituting inside the log:
      $$= \log B(\bx) + \btheta\cdot f(\bx, y)$$
      
 \end{frame}
@@ -115,19 +134,16 @@
 %%%%FRAME
 \begin{frame}{Na\"ive Bayes (Estimation)}
     We use the labels to find $\bphi$ as follows:
-     $$\Prob(y^{(i)}\given \bx^{(j)} ) = \delta_{i,j}$$
+    \begin{align*}
+     \hat\btheta &= \argmax_{\btheta} \left\{ \Prob(\bx, y; \btheta)\right \}\\
+      &= \argmax_{\btheta} \prod_{i=1}^N \Prob(\bx^{(i)}, y^{(i)}; \btheta)\\
+     &= \argmax_{\btheta} \sum_{i=1}^N \log \Prob(\bx^{(i)}, y^{(i)}; \btheta)\\
+    \end{align*}
+    The parameters are given by:
+    $$\phi_{y,j} = \frac{\Count(y,j)}{\sum_{j'=1}^{V}\Count(y,j') + \alpha}$$
+    Where $\alpha>0$ because no parameter can be zero.
 \end{frame}
 
-\begin{frame}
-Nobody in this seminar has that (and I'm happy) but the hard part is the Data Mining.
-Machine learning is fun, it's high level, rewarding and very little coding unless you want to do things from scratch.\\
-
-    Human language can be ambiguous
-    \begin{itemize}
-            \item The Pope's baby steps on gays.
-            \item Scientist study whales from space.
-    \end{itemize}
-\end{frame}
 
 \begin{frame}{Similarity based representations}
     ``You shall know a word by the company it keeps''\\[5mm]
