@@ -18,8 +18,8 @@
 \newcommand{\diag}{\text{diag}}
 \DeclareMathOperator*{\argmax}{arg\,max}
 
-\usepackage{pgfpages}
-\pgfpagesuselayout{4 on 1}[a4paper,border shrink=5mm]
+%\usepackage{pgfpages}
+%\pgfpagesuselayout{4 on 1}[a4paper,border shrink=5mm]
 
 \title{A Brief on Natural Language Processing}
 \author{Luis Berlioz}
@@ -32,8 +32,11 @@
     \begin{itemize}
             \item AKA Computational Linguistics.
             \item Goes from a continuous medium (airwaves) to a discrete (text).
-        \item Speech processing is done by electrical engineers and NLP C.S. people.
-            \item Really complex, consider the following headlines:
+        \item Traditionally, speech processing is done by electrical engineers and NLP by C.S. people.
+            \item Really complex, consider the following headline:
+                \begin{itemize}
+                    \item \textit{``Scientists study whales from space.''}
+                \end{itemize}
     \item No A.I. program could be said to be complete without the ability to communicate in words.
         \item Important role in Search and Text Mining.
     \end{itemize}
@@ -50,7 +53,7 @@
     \end{itemize}
 \end{frame}
 %%%%FRAME
-\begin{frame}{Common Terminology}
+\begin{frame}{Common Terminology for Classification Problemks}
     \begin{exampleblock}{Vocabulary}
         The set $V = \{w_1,w_2,\ldots, w_V\}$ of all the \textit{words} or \textit{tokens}.
     \end{exampleblock}
@@ -80,7 +83,7 @@
             \begin{tabular}{|c|l|c|}
                 \hline
                 \hline
-                $V$ & UNK& Freq. \\
+                $V$ & TOK& Freq. \\
                 \hline
                 \hline
                 23 & oh&6\\
@@ -178,6 +181,11 @@
     \begin{block}{One-hot Representation}
         It has 1 in index of the word and 0 elsewhere
         $$\text{word} \mapsto [0,0,0,\ldots,0,1,0,\ldots,0,0,0,0]$$
+        But we would like:
+        \begin{itemize}
+            \item Smaller dimension.
+            \item Similar words are close by.
+        \end{itemize}
     \end{block}
     ``You shall know a word by the company it keeps''\\[5mm]
     \hspace*\fill{\small John R. Firth}
@@ -206,8 +214,11 @@
 Let $X = U\Sigma W^T$ be the SVD of $X$
     $$ U = [u_1 \given u_2\given \cdots ]\quad \Sigma = \diag(\sigma_1,\ldots, \sigma_V)\quad W = \begin{bmatrix}-& w_1&- \\-& w_2&- \\ &\vdots& \end{bmatrix}$$
         Approximate $X$ by taking $k<V$ singular values:
-        $$\hat X = \sum_{t=1}^k \sigma_t\, u_k\, \bar w_k^T\approx X$$
-        The one-hot vector are embedded in $k$-dimensional space as the vectors $\bar w_k^T$ .
+        $$\hat X = \sum_{t=1}^k \sigma_t\, u_k\, W_k^T\approx X$$
+        \begin{itemize}
+                \item Above, $W_k^T$ are the columns of $W$.
+        \item The one-hot vector are embedded in $k$-dimensional space as the vectors $\bar w_k^T$.
+        \end{itemize}
 \end{frame}
 
 \begin{frame}{Similarity based representations}
@@ -224,7 +235,7 @@ Let $X = U\Sigma W^T$ be the SVD of $X$
 
 %%%%FRAME
 \begin{frame}{Setup of Skip-Gram}
-    Given a word $w_t$ we want to predict its \textit{context:} $$C_{w_t} = \{w_{t+j} :\ |j|\leq m \text{ and } m \neq 0\}$$
+    Given a word $w_t$ we want to predict its \textit{context:} $$C_{w_t} = \{w_{t+j} :\ |j|\leq m \text{ and } j \neq 0\}$$
     $$\mathcal J(\btheta) = \prod_{t=1}^T\  \prod_{\substack{|j|\leq m\\ j\neq 0}} \Prob(w_{t+j}\given w_t; \btheta)$$
     $$J(\btheta) = \frac 1T \sum_{t=1}^T \sum_{\substack{|j|\leq m\\ j\neq 0}}\log \Prob(w_{t+j}\given w_t; \btheta)$$
     We want to find $\hat \btheta  = \argmax_{\btheta} J(\btheta)$.
