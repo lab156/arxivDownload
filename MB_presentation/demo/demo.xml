@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?latexml searchpaths="/home/luis/MisDocumentos/arxivBulkDownload/arxivDownload/MB_presentation/demo"?>
+<?latexml class="article"?>
+<?latexml RelaxNGSchema="LaTeXML"?>
+<document xmlns="http://dlmf.nist.gov/LaTeXML" class="ltx_authors_1line">
+  <resource src="LaTeXML.css" type="text/css"/>
+  <resource src="ltx-article.css" type="text/css"/>
+  <title>A Brief LaTeXML Demo</title>
+  <creator role="author">
+    <personname>Luis Berlioz</personname>
+  </creator>
+  <abstract name="Abstract">
+    <p>Lorem ipsum dolor sit amet, mollit anim id est laborum.</p>
+  </abstract>
+  <para xml:id="p1">
+    <p>Hi there everyone <Math mode="inline" tex="\Gamma\models A" text="Gamma models A" xml:id="p1.m1">
+        <XMath>
+          <XMApp>
+            <XMTok meaning="models" role="RELOP">⊧</XMTok>
+            <XMTok name="Gamma" role="UNKNOWN">Γ</XMTok>
+            <XMTok font="italic" role="UNKNOWN">A</XMTok>
+          </XMApp>
+        </XMath>
+      </Math>:</p>
+  </para>
+  <para xml:id="p2">
+    <equation xml:id="S0.Ex1">
+      <Math mode="display" tex="{n\choose k}=\sin\left(\frac{\frac{x}{y}}{\frac{a}{b}}\right)" text="n binomial k = sine@(x / y / a / b)" xml:id="S0.Ex1.m1">
+        <XMath>
+          <XMApp>
+            <XMTok meaning="equals" role="RELOP">=</XMTok>
+            <XMDual>
+              <XMApp>
+                <XMRef idref="S0.Ex1.m1.1"/>
+                <XMRef idref="S0.Ex1.m1.2"/>
+                <XMRef idref="S0.Ex1.m1.3"/>
+              </XMApp>
+              <XMWrap>
+                <XMTok role="OPEN" stretchy="true">(</XMTok>
+                <XMApp xml:id="S0.Ex1.m1.4">
+                  <XMTok mathstyle="display" meaning="binomial" role="FRACOP" thickness="0pt" xml:id="S0.Ex1.m1.1"/>
+                  <XMTok font="italic" role="UNKNOWN" xml:id="S0.Ex1.m1.2">n</XMTok>
+                  <XMTok font="italic" role="UNKNOWN" xml:id="S0.Ex1.m1.3">k</XMTok>
+                </XMApp>
+                <XMTok role="CLOSE" stretchy="true">)</XMTok>
+              </XMWrap>
+            </XMDual>
+            <XMDual>
+              <XMApp>
+                <XMRef idref="S0.Ex1.m1.5"/>
+                <XMRef idref="S0.Ex1.m1.6"/>
+              </XMApp>
+              <XMApp>
+                <XMTok meaning="sine" role="TRIGFUNCTION" xml:id="S0.Ex1.m1.5">sin</XMTok>
+                <XMWrap>
+                  <XMTok role="OPEN" stretchy="true">(</XMTok>
+                  <XMApp xml:id="S0.Ex1.m1.6">
+                    <XMTok mathstyle="display" meaning="divide" role="FRACOP"/>
+                    <XMApp>
+                      <XMTok mathstyle="text" meaning="divide" role="FRACOP"/>
+                      <XMTok font="italic" fontsize="70%" role="UNKNOWN">x</XMTok>
+                      <XMTok font="italic" fontsize="70%" role="UNKNOWN">y</XMTok>
+                    </XMApp>
+                    <XMApp>
+                      <XMTok mathstyle="text" meaning="divide" role="FRACOP"/>
+                      <XMTok font="italic" fontsize="70%" role="UNKNOWN">a</XMTok>
+                      <XMTok font="italic" fontsize="70%" role="UNKNOWN">b</XMTok>
+                    </XMApp>
+                  </XMApp>
+                  <XMTok role="CLOSE" stretchy="true">)</XMTok>
+                </XMWrap>
+              </XMApp>
+            </XMDual>
+          </XMApp>
+        </XMath>
+      </Math>
+    </equation>
+  </para>
+</document>
