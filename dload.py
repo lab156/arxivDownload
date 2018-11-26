@@ -3,28 +3,6 @@ import subprocess
 import hashlib
 import xml.etree.ElementTree as ET
 import pandas as pd
-import sys
-
-def parse_element(elem):
-    return_dict = {}
-    for e in elem: 
-        return_dict[e.tag] = e.text # loop element and extract info
-    return return_dict
-def parse_root(root):
-        return [parse_element(child) for child in iter(root) if child.tag != 'timestamp']
-
-def parse_manifest(xml_path):
-    '''
-    input: the path of the xml manifest file 
-    output: a pandas dataframe of all the files in the src bucket
-    '''
-    with open(xml_path, 'r') as f:
-        mani = ET.parse(f)
-    root = mani.getroot()
-    return pd.DataFrame(parse_root(root))
-    
-
-
 
 class DownloadMan(object):
     def __init__(self,
@@ -59,12 +37,6 @@ class DownloadMan(object):
         idx = self.allfiles_df.filename.isin(self.downloaded_df.filename)
         return self.allfiles_df[~idx].iloc[0]
 
-    def log_error(self, err_message):
-        with open(self.error_log_path, 'a') as efile:
-            efile.write(err_message + '\n')
-        return None
-
-
     def get(self, filename):
         file_save_path = os.path.join(self.mountpoint, filename)
         file_s3_path = self.s3_url + filename
@@ -75,12 +47,10 @@ class DownloadMan(object):
                    stdout=subprocess.PIPE)
         if P.returncode:
             print('Error Downloading file: %s'%filename)
-            #with open(self.error_log_path, 'a') as efile:
-            #    efile.write(str(P.stderr) + '\n')
-            self.log_error(str(P.stderr))
-
+            with open(self.error_log_path, 'a') as efile:
+                efile.write(str(P.stderr) + '\n')
         else:
-            print('Download of file %s successful'%filename)
+            print('Dowloand of file %s successful'%filename)
             append_df = pd.DataFrame([{'filename': filename}])
             self.downloaded_df = self.downloaded_df.append(append_df,
                     ignore_index=True)
@@ -89,9 +59,6 @@ class DownloadMan(object):
 
     def get_next(self):
         return self.get(self.next_file().filename)
-
-    def get_src_manifest(self, manif_name = 'src/arXiv_src_manifest.xml'):
-        return self.get(manif_name)
 
     def md5sum(self, filename):
         '''
@@ -113,10 +80,7 @@ class DownloadMan(object):
         check_file = self.downloaded_df.iloc[index].filename
         md5_sum = self.allfiles_df[self.allfiles_df.filename == check_file].md5sum.iloc[0]
         other_md5_sum = self.md5sum(check_file)
-        return_bool = md5_sum == other_md5_sum
-        if not return_bool:
-            self.log_error('The md5 sum of the the file %s does not match'%check_file)
-        return return_bool
+        return md5_sum == other_md5_sum
 
 
     def filesize(self, filename):
@@ -125,20 +89,7 @@ class DownloadMan(object):
 
 
 
-if __name__ == "__main__":
-    mountpoint = sys.argv[1]
-    allfiles = sys.argv[2]
-    doun = 'downloaded_log.csv'
-    error_log = 'error.log'
-    D = DownloadMan(mountpoint, allfiles, doun, error_log)
-    keep_going = 0
-    while keep_going == 0:
-        print('starting a download')
-        keep_going = D.get_next()
-        if D.check_md5():
-            pass
-        else:
-            break
+
 
 
 
