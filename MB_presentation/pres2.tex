@@ -38,6 +38,7 @@
         \begin{column}{0.6\textwidth}
             \begin{itemize}
                 \item About 885 Gigabytes of .tar files.
+                \item Each .tar file is about 500 Megabytes.
                 \item \texttt{tar -tvf arXiv\_src\_1806\_033.tar}
                     \begin{itemize}
 \item \hspace{4em}      $\vdots$
@@ -49,10 +50,35 @@
 \item \hspace{4em}      $\vdots$
 \end{itemize}
 
+
             \end{itemize}
         \end{column}
     \end{columns}
-            
+\end{frame}
+
+
+%%%%FRAME
+\begin{frame}{Metadata API}
+    ArXiv gives access to all the data they display on the website:
+    \begin{columns}[T]
+        \begin{column}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{hales_article.png} 
+        \end{column}
+        \begin{column}{0.6\textwidth}
+            \begin{itemize}
+                \item \textbf{id:} http://arxiv.org/abs/1703.01352v1
+                \item \textbf{published:} 2017-03-03T22:28:47Z
+                \item \textbf{updated:} 2017-03-03T22:28:47Z
+                \item \textbf{title:} ``The Reinhardt Conjecture as an Optimal Control Problem''
+                \item \textbf{summary:} ``In 1934, Reinhardt conjectured that the shape of \ldots''
+                \item \textbf{authors:} ['Thomas Hales', ] 
+                \item \textbf{arxiv\_primary\_category:} math.OC (Optimal Control)
+                \item \textbf{49J15:} Optimal control problems involving ordinary differential equations
+                        \item ``Secondary category'': math.MG (Metric Geometry)
+                        \item \textbf{34H05:} Ordinary differential equations, Control problems.
+                    \end{itemize}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 %%%%FRAME
@@ -67,23 +93,26 @@
 		\hline
 		\textbf{Category} & \textbf{Cum. \#} & \textbf{Cum. \%} & \textbf{Curr. \%} \\
 		\hline
-		\color{blue}{math+math-ph} & 299,046 & 22.3\% & 25.6\% \\
+		\color{purple}{math+math-ph} & 299,046 & 22.3\% & 25.6\% \\
 		\hline
-		\color{brown}{hep} & 212,905 & 15.9\% & 7.8\% \\
+		\color{blue}{hep} & 212,905 & 15.9\% & 7.8\% \\
 		\hline
-		cond-mat & 210,802 & 15.7\% & 11.7\% \\
+            \color{green}{cond-mat} & 210,802 & 15.7\% & 11.7\% \\
 		\hline
-		astro-ph & 205,424 & 15.3\% & 10.7\% \\
+            \color{red}{astro-ph} & 205,424 & 15.3\% & 10.7\% \\
 		\hline
-		\color{red}{cs} & 132,409 & 9.9\% & 21.9\% \\
+		\color{orange}{cs} & 132,409 & 9.9\% & 21.9\% \\
 		\hline
 		physics & 88,632 & 6.6\% & 8.6\% \\
 		\hline
 			\end{tabular}}
+            \begin{figure}[h]
+    \includegraphics[width=\textwidth]{subm_rates.png} 
+            \end{figure}
 			\end{column}
 			\end{columns}
- 
 \end{frame}
+
 %%%%FRAME
 \begin{frame}{LaTeXML Website and github stats}
     \includegraphics[width=0.9\textwidth]{ltxml_website.png}
@@ -92,7 +121,7 @@
 \end{frame}
 
 %%%%FRAME
-\begin{frame}{LaTeXML Short Demok}
+\begin{frame}{LaTeXML Short Demo}
     \begin{columns}[T]
         \begin{column}{0.5\textwidth}
     \includegraphics[width=\textwidth]{ltxml_demo_vim.png}
@@ -121,16 +150,18 @@
      
 \end{frame}
 
+
 %%%%FRAME
-\begin{frame}{Summary}
+\begin{frame}{Dependency Parsing}
     \begin{itemize}
-            \item Example: Paragraph Classification
-            \item Classification Method: Na\"ive Bayes
-            \item Word embeddings
-            \item Example GloVe on the ArXiv 
+            \item Binary Asymmetric relations between words.
+            \item Typed with the name of the grammatical relation.
+            \item Arrow points to the dependent.
+            \item Usually forms a connected, acyclic tree with a unique head.
     \end{itemize}
 \end{frame}
-%%%%FRAME
+
+ %%%%FRAME
 \begin{frame}{Common Terminology for Classification Problemks}
     \begin{exampleblock}{Vocabulary}
         The set $V = \{w_1,w_2,\ldots, w_V\}$ of all the \textit{words} or \textit{tokens}.
@@ -197,63 +228,6 @@
     \end{columns}
 \end{frame}
 
-\begin{frame}{Na\"ive Bayes}
-    Suppose we have a long list of $N$ labeled documents $$\{(\bx^{(i)},y^{(i)}) :\ i = 1,\ldots, N \}$$
-        And $\bx^{(i)}\given y^{(i)} $ has a Multinomial distribution with parameters $\bphi = (\phi_1,\ldots, \phi_V)$ 
-        $$\Prob(\bx\given y;\bphi) = \frac{(\sum_{j=1}^V x_j)!}{x_1!\cdots x_V!}\  \prod_{j=1}^V \phi_j^{x_j}$$
-
-        We are interested in:
-        $$\Prob(y\given \bx) = \frac{\Prob(y)\  \Prob(\bx \given y; \bphi)}{\Prob(\bx)}\propto \Prob(\bx, y,\bphi)$$
-        Since:
-        $$\Prob(\bx,y; \bphi) = \Prob(y) \ \Prob(\bx \given y; \bphi)$$
-
-\end{frame}
-
-
-%%%%FRAME
-\begin{frame}{Na\"ive Bayes (Prediction)}
-     We choose the label that maximizes the joint probability:
-     $$\hat y = \argmax_y\left\{ \Prob(\bx, y: \bphi)\right \}$$
-     Equivalently:
-     $$\hat y = \argmax_y\left\{ \log \Prob(\bx\given y: \bphi) + \log\Prob(y)\right\}$$
-     {\color{green}Reminder:} $\displaystyle \Prob(\bx\given y;\bphi) = B(\bx) \prod_{j=1}^V \phi_j^{x_j}$\\
-     Substituting inside the log:
-     $$= \log B(\bx) + \btheta\cdot f(\bx, y)$$
-    Where $\btheta = [\log \phi_{y,1}, \log \phi_{b,2} ,\ldots , \log \phi_{y,V}; \log \hat y]$
-\end{frame}
-
-
-%%%%FRAME
-\begin{frame}{Na\"ive Bayes (Estimation)}
-    We use the labels to find $\bphi$ as follows:
-    \begin{align*}
-     \hat\bphi &= \argmax_{\bphi} \left\{ \Prob(\bx, y; \bphi)\right \}\\
-      &= \argmax_{\bphi} \prod_{i=1}^N \Prob(\bx^{(i)}, y^{(i)}; \bphi)\\
-     &= \argmax_{\bphi} \sum_{i=1}^N \log \Prob(\bx^{(i)}, y^{(i)}; \bphi)\\
-    \end{align*}
-    The parameters are given by:
-    $$\phi_{y,j} = \frac{\Count(y,j)}{\sum_{j'=1}^{V}\Count(y,j') + \alpha}$$
-    \begin{itemize}
-        \item $\Count(y,j)$ is the number word $j$-s in $y$ labeled documents. 
-        \item Where $\alpha>0$ because no parameter can be zero.
-    \end{itemize}
-\end{frame}
-
-%%%%FRAME
-\begin{frame}{More about Classification}
-    Other powerful methods for classification include:
-    \begin{itemize}
-            \item Random Forests
-            \item Perceptron and Logistic Regression
-    \end{itemize}
-    How can we use Neural Networks for NLP?
-    \begin{itemize}
-            \item Reduce the dimension, $V$ is too big for a NN.
-    \end{itemize}
-    \begin{figure}[c]
-        \includegraphics[width=0.6\textwidth]{nn.png}
-    \end{figure}
-\end{frame}
 
 \begin{frame}{Similarity based representations}
     \begin{block}{One-hot Representation}
@@ -261,24 +235,19 @@
         $$\text{word} \mapsto [0,0,0,\ldots,0,1,0,\ldots,0,0,0,0]$$
         But we would like:
         \begin{itemize}
-            \item Smaller dimension.
+            \item Lower dimension.
             \item Similar words are close by.
         \end{itemize}
     \end{block}
-    ``You shall know a word by the company it keeps''\\[5mm]
-    \hspace*\fill{\small John R. Firth}
 
-    We will talk about three methods
-    \begin{itemize}
-            \item SVD to co-ocurrence matrix
-            \item Skip-Gram Model
-            \item Global Vectors (GloVe)
-    \end{itemize}
+
 
 \end{frame}
 
 %%%%FRAME
 \begin{frame}{Co-ocurrence Matrix}
+    \textit{``You shall know a word by the company it keeps''}\\[4mm]
+    \hspace*\fill{\small John R. Firth}
     \begin{figure}[c]
     \includegraphics[width=0.75\textwidth]{coocurrence_matrix.png}
     \end{figure}
@@ -300,7 +269,7 @@ Let $X = U\Sigma W^T$ be the SVD of $X$
 \end{frame}
 
 \begin{frame}{Similarity based representations}
-    If $w_t$ is the word we care about and $w_{t +j}$ denotes the words to the left-right:
+    If $w_t$ is the word we care about and $w_{t +j}$ denotes the words to the left or right:
     $$\Prob(w_{t+j}\given w_t)$$
     \begin{itemize}
         \item $\Prob(w_{t-1}=\text{cauchy} \given w_t=\text{sequence})$ should be high.
@@ -314,7 +283,7 @@ Let $X = U\Sigma W^T$ be the SVD of $X$
 %%%%FRAME
 \begin{frame}{Setup of Skip-Gram}
     Given a word $w_t$ we want to predict its \textit{context:} $$C_{w_t} = \{w_{t+j} :\ |j|\leq m \text{ and } j \neq 0\}$$
-    $$\mathcal J(\btheta) = \prod_{t=1}^T\  \prod_{\substack{|j|\leq m\\ j\neq 0}} \Prob(w_{t+j}\given w_t; \btheta)$$
+    $$\hat J(\btheta) = \prod_{t=1}^T\  \prod_{\substack{|j|\leq m\\ j\neq 0}} \Prob(w_{t+j}\given w_t; \btheta)$$
     $$J(\btheta) = \frac 1T \sum_{t=1}^T \sum_{\substack{|j|\leq m\\ j\neq 0}}\log \Prob(w_{t+j}\given w_t; \btheta)$$
     We want to find $\hat \btheta  = \argmax_{\btheta} J(\btheta)$.
 \end{frame}
@@ -341,6 +310,8 @@ Let $X = U\Sigma W^T$ be the SVD of $X$
      Putting everything together:
      $$ J(U,W) = \sum_{\substack{|j|\leq m\\ j\neq 0}} u_{t+j}^Tv_t - 2m\log \sum_{n=1}^V \exp(u_n^T v_n)$$
 \end{frame}
+
+
 %%%%FRAME
 \begin{frame}{GloVe Project}
     \includegraphics[width=\textwidth]{Glove_github_small.png}
@@ -354,7 +325,30 @@ Let $X = U\Sigma W^T$ be the SVD of $X$
 \end{figure}
 
 \end{frame}
+%%%%FRAME
+\begin{frame}{Common words and Huge datasets}
+    Coping with word frequency and 
+    \begin{block}{Sampling Rate}
+        Let $w$ be a word and $z(w)$ the ratio at which it appears in the corpus. The probability of keeping the word is:
+        $$P(w) = \left(\sqrt{\frac{z(w)}{0.001}} + 1\right) \frac{0.001}{z(w)}$$
+For example, $P(w)=1$ when $z(w)\leq 0.0026$.
+    \end{block}
+    \begin{block}{Negative Sampling}
+        The process of selecting a few words that \textbf{do not} show up in the context and updating their weights.
+        $$P(w) = \frac{f(w)^{3/4}}{\sum_{j=0}^n f(w_j)^{3/4}}$$
+    \end{block}
+\end{frame}
 
+%%%%FRAME
+\begin{frame}{The Objective functions after Sampling}
+    \begin{description}
+        \item[Word2Vec:] $\displaystyle J_t(\theta) = \log \sigma(u_o^T v_c) + \sum_{j\sim P(w)}\log \sigma(-u^T_j v_c)$.
+        \item[GloVe:] $\displaystyle J(\theta) = \frac 12\sum_{i,j=1}^V f(X_{i\, j}) (u_i^T v_j - \log X_{i\, j})^2$
+    \end{description}
+    \begin{figure}[b]
+    \includegraphics[width=0.6\textwidth]{glove-fig-1.png}
+    \end{figure}
+\end{frame}
 %%%%FRAME
 \begin{frame}{Advantages of Similarity based Representation}
 
@@ -364,21 +358,5 @@ Let $X = U\Sigma W^T$ be the SVD of $X$
         \item Smaller dimension work better for input to NN.
     \end{itemize}
 \end{frame}
-
-%%%%FRAME
-\begin{frame}{The Formal Abstracts Project}
-    \begin{block}{Formal Abstracts}
-        A \textit{formal abstract}, or fabstract for short, is a formalization of the main results (constructions, definitions, proofs, conjectures) of a piece of informal mathematics, such as a research paper.
-    \end{block}
-    Big Goals, tons of applications for ML and NLP:
-    \begin{itemize}
-            \item Translate Natural language into a computer checkable format.
-            \item Detecting errors in the mathematical literature, and intelligent mathematical search tools.
-    \end{itemize}
-\begin{figure}
-   \includegraphics[width=0.45\textwidth]{lean_website.png}
-   \hfill
-   \includegraphics[width=0.45\textwidth]{fabstract_log.jpeg}
-\end{figure}
-\end{frame}
 \end{document}
+
