@@ -5,10 +5,10 @@
 {
   \usetheme{default}      % or try Darmstadt, Madrid, Warsaw, ...
   \usecolortheme{default} % or try albatross, beaver, crane, ...
-  \usefonttheme{serif}  % or try serif, structurebold, ...
+  %\usefonttheme{serif}  % or try serif, structurebold, ...
   \setbeamertemplate{navigation symbols}{}
   \setbeamertemplate{caption}[numbered]
-  \usefonttheme{structuresmallcapsserif}
+  % \usefonttheme{structuresmallcapsserif}
 }
 
 \newcommand{\Prob}{\text{Prob}}
@@ -26,9 +26,14 @@
 \title{A Brief on Natural Language Processing}
 \author{Luis Berlioz}
 \begin{document}
-\maketitle
+%\maketitle
 
+%%%%FRAME
+\begin{frame}{Overview} 
+     \tableofcontents
+\end{frame}
 
+\section{Data Pipeline}
 %%%%FRAME
 \begin{frame}{arXiV Website bulk download}
     \begin{columns}[T]
@@ -134,6 +139,35 @@
 \end{frame}
 
 %%%%FRAME
+\begin{frame}{arXMLiv 08.2018 Project}
+    \begin{columns}[T]
+        \begin{column}{0.8\textwidth}
+    Attempt to convert all the arXiv articles with LaTeXML 
+            \begin{itemize}
+                \item Takes an additional step to convert to HTML(5).
+                \item Total of 1,232,186 HTML5 documents.
+                \item The files are classified according to how well the conversion went.
+                \item Under a license because: ``the right of distribution was only given (or assumed) to arXiv itself''.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.3\textwidth}
+    \includegraphics[width=\textwidth]{ginev_profile.png}
+        \end{column}
+    \end{columns}
+    \begin{tabular}{|l|r|r|r|}
+        \hline
+        \textbf{subset ID} &  \textbf{\# of documents} & \textbf{size archived} & \textbf{size unpacked}\\
+        \hline
+        \textbf{no\_problem} &137,864& 6.9 GB &53 GB\\
+        \hline
+        \textbf{warning} &705,095 &104 GB &896 GB\\
+\hline
+ \textbf{error} &389,227 &58 GB &506 GB\\
+\hline
+    \end{tabular}
+\end{frame}
+\section{Natural Language Processing (NLP)}
+%%%%FRAME
 \begin{frame}{Natural Language Processing (NLP)}
     Using Machine Learning techniques with Human Language.
     \begin{itemize}
@@ -147,9 +181,7 @@
     \item No A.I. program could be said to be complete without the ability to communicate in words.
         \item Important role in Search and Text Mining.
     \end{itemize}
-     
 \end{frame}
-
 
 %%%%FRAME
 \begin{frame}{Dependency Parsing}
@@ -161,8 +193,9 @@
     \end{itemize}
 \end{frame}
 
+\section{Word Embeddings}
  %%%%FRAME
-\begin{frame}{Common Terminology for Classification Problemks}
+\begin{frame}{Common Terminology for Classification Problems}
     \begin{exampleblock}{Vocabulary}
         The set $V = \{w_1,w_2,\ldots, w_V\}$ of all the \textit{words} or \textit{tokens}.
     \end{exampleblock}
@@ -261,10 +294,12 @@
 Let $X = U\Sigma W^T$ be the SVD of $X$
     $$ U = [u_1 \given u_2\given \cdots ]\quad \Sigma = \diag(\sigma_1,\ldots, \sigma_V)\quad W = \begin{bmatrix}-& w_1&- \\-& w_2&- \\ &\vdots& \end{bmatrix}$$
         Approximate $X$ by taking $k<V$ singular values:
-        $$\hat X = \sum_{t=1}^k \sigma_t\, u_k\, W_k^T\approx X$$
+        $$\hat X_k = \sum_{t=1}^k \sigma_t\, u_k\, W_k^T\approx X$$
         \begin{itemize}
-                \item Above, $W_k^T$ are the columns of $W$.
+                \item Above, $W_k$ are the columns of $W$.
         \item The one-hot vector are embedded in $k$-dimensional space as the vectors $\bar w_k^T$.
+        \item For any matrix $M$ such that $\text{rank}(M) \leq k$:
+                $$|| X - \hat X_k || \leq || X - M ||$$
         \end{itemize}
 \end{frame}
 
