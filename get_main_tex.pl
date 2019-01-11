@@ -106,4 +106,8 @@ sub get_main_file {
   return $main_source;
 }
 
-print get_main_file('/home/luis/MisDocumentos/ODE2/hw1');
+$path = '/home/luis/MisDocumentos/arxivBulkDownload/math.0004134';
+$path1 = '../math.0004134';
+$path2 = '../math.0012083';
+$path3 = '../math.0012210';
+print get_main_file(@ARGV[0]);
