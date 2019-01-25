@@ -10,6 +10,10 @@ __pycache__
 #Data file
 data
 
+#databases 
+#Gotta keep all databases with this extension
+*.db
+
 # beamer presentation files
 *.aux
 *.log
