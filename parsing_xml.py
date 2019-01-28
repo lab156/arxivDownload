@@ -37,7 +37,6 @@ def recutext1(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
     return ret_str.lower().replace('\n', ' ')
 
 
-
 class DefinitionsXML(object):
     def __init__(self, file_path):
         '''
@@ -82,7 +81,7 @@ class DefinitionsXML(object):
             root_found = root.findall('.//latexml:para', self.ns)[0]
         except IndexError:
             raise ValueError('para tag not found in file: %s with message: \n %s'
-                    %(self.file_path, ET.tostring(root)))
+                    %(self.file_path, ET.tostring(root).decode('utf-8')))
         return root_found
 
     def get_def_text(self, method=recutext1):
@@ -112,8 +111,16 @@ if __name__ == "__main__":
     '''
     Usage: python parsing_xml.py fileList FileToStoreDefs
     '''
-    allfiles = sys.argv[1:-1]
-    defs_file = sys.argv[-1]
+    import argparse
+    parser = argparse.ArgumentParser(description='parsing xml commandline script')
+    parser.add_argument('file_names', type=str, nargs='+',
+            help='filenames to find definitions last position is the resulting files')
+    parser.add_argument('-l', '--logfile', help='file to write the logs', type=str)
+    args = parser.parse_args(sys.argv[1:])
+
+
+    allfiles = args.file_names[:-1]
+    defs_file = args.file_names[-1]
     for f in allfiles:
         try:
             DD = DefinitionsXML(f)
@@ -121,5 +128,14 @@ if __name__ == "__main__":
             DD.write_defs(defs_file)
         except ET.ParseError:
             print('Error parsing file: %s'%f, end='\n')
-
+        # some definitions are empty and have no para tag
+        # para_p complains about this and it is important 
+        # because I don't know the specifics about the format
+        except ValueError as e:
+            if args.logfile:
+                with open(args.logfile, 'a') as log_file:
+                    log_file.write(str(e) + '\n')
+            else:
+                raise e
+            
 
