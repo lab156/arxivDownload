@@ -129,7 +129,7 @@ if __name__ == "__main__":
         except ET.ParseError:
             print('Error parsing file: %s'%f, end='\n')
         # some definitions are empty and have no para tag
-        # para_p complains about this and it is important 
+        # para_p complains about this and it is important
         # because I don't know the specifics about the format
         except ValueError as e:
             if args.logfile:
@@ -137,5 +137,4 @@ if __name__ == "__main__":
                     log_file.write(str(e) + '\n')
             else:
                 raise e
-            
 
