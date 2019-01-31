@@ -35,9 +35,11 @@ def sample_article(f, para_per_article=2, min_words=15):
         para_lst = random.sample(para_lst_nonrand,
                 para_per_article)
     except ET.ParseError:
+        print('article %s could no be parsed'%f)
         para_lst = []
     except ValueError:
         print('article %s has few paragraphs'%f)
+        para_lst = []
 
     return_lst = []
     for p in para_lst:
