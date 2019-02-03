@@ -57,6 +57,7 @@ class DownloadMan(object):
             self.downloaded_df.to_csv(self.downloaded_path)
         return P.returncode
 
+
     def get_next(self):
         return self.get(self.next_file().filename)
 
@@ -86,11 +87,5 @@ class DownloadMan(object):
     def filesize(self, filename):
         return_size = self.allfiles_df.loc[self.allfiles_df.filename == filename].iloc[0]['size']
         return int(return_size)
-
-
-
-
-
-
 
 
