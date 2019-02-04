@@ -6,6 +6,8 @@ import gzip
 import re
 import os.path
 import chardet
+import sqlalchemy as sa
+import databases.create_db_define_models as cre
 
 def write_dict(dic, filename):
     '''
@@ -64,11 +66,10 @@ def tar2api(id_str):
     '''
     name = re.match(r'.*([0-9]{4})\.([0-9]{4,5})',id_str)
     try:
-        return_str = name.group(1) + '.' + name.group(2) 
+        return_str = name.group(1) + '.' + name.group(2)
     except AttributeError:
         print('Error: tar2api cannot find results in string: %s'%id_str)
         raise ValueError
-        
     return return_str
 
 def tar2api2(id_str, sep='/'):
@@ -84,7 +85,6 @@ def tar2api2(id_str, sep='/'):
         return name.group(1) + sep + name.group(2)
     else:
         raise Exception('No results found in string: %s'%id_str)
-    
 
 def tar_id(id_str):
     '''
@@ -101,7 +101,6 @@ def year(id_str):
     '''
     name = re.match(r'.*([0-9]{4}).*', id_str)
     return name.group(1)[:2]
-    
 
 class Xtraction(object):
     def __init__(self, tar_path, *argv, **kwarg):
@@ -130,12 +129,15 @@ class Xtraction(object):
         sl = 300 # slice length 
         while i*sl < len(self.art_lst):
             second_length = min((i + 1)*sl, len(self.art_lst))
-            try: 
-                self.query_results += arxiv.query(id_list=query_id_list[i*sl:second_length],
+            try:
+                self.query_results +=\
+                        arxiv.query(id_list=query_id_list[i*sl:second_length],
                         max_results=(sl + 1))
-                print('querying from %02d to %02d successful       \r'%(i*sl,second_length),end='\r')
+                print('querying from %02d to %02d successful       \r'\
+                        %(i*sl,second_length),end='\r')
             except Exception:
-                print('query of %s unsuccessful       \r'%os.path.basename(self.tar_path),end='\r')
+                print('query of %s unsuccessful       \r'\
+                        %os.path.basename(self.tar_path),end='\r')
                 break
             i += 1
 
@@ -338,7 +340,6 @@ class Xtraction(object):
                 commentary_dict['decode_message'] = comm_mess
                 decoded_str = file_str.decode()
         #raise ValueError('The file: %s has an unknown encoding: %s. fix it!'%(filename, encoding_detected))
-                
             with open(os.path.join(output_path, short_name + '.tex'),'w')\
                     as fname:
                 fname.write(decoded_str)
@@ -358,11 +359,34 @@ class Xtraction(object):
                 file_str = fb.read()
         return file_str.decode('utf-8')
 
+    def save_articles_to_db(self, database):
+        '''
+        Save all the articles from query_results to 
+        the database
+        '''
+        #Get the basename
+        basename = self.tar_path.split('/')[-1]
+        right_name = 'src/' + basename
+        engine = sa.create_engine(database, echo=False)
+        engine.connect()
+        SMaker = sa.orm.sessionmaker(bind=engine)
+        session = SMaker()
+        q = session.query(cre.ManifestTarFile)
+        resu = q.filter_by(filename = right_name)
+        foreign_key_id = resu.first().id
+        #assert(resu.count() == 1, 'Filename %s is not unique'%right_name)
+        #return resu.first().id
+        session.add_all([cre.new_article_register(D, foreign_key_id)\
+                for D in self.query_results])
+        session.commit()
+
+
 if __name__ == '__main__':
     file_lst = sys.argv[1:-1]
     for f_path in file_lst:
         x = Xtraction(f_path)
-        x.extract_tar(sys.argv[-1], 'math.AG')
+        x.extract_tar(sys.argv[-1], 'math.DG')
+        x.save_articles_to_db('sqlite:///arxiv1.db')
 
 #    for f_path in file_lst:
 #        print('starting extraction of  %s         \r'%os.path.basename(f_path),end='\r')

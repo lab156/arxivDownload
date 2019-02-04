@@ -1,15 +1,17 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String, BigInteger
+from sqlalchemy import Column, ForeignKey, Integer, String, BigInteger, Boolean, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
+import time
+import datetime as dt
 
 #Using the Tutorial
 #https://www.pythoncentral.io/introductory-tutorial-python-sqlalchemy/
- 
+
 Base = declarative_base()
- 
+
 class ManifestTarFile(Base):
     __tablename__ = 'manifest'
     # Here we define columns for the table person
@@ -32,10 +34,62 @@ class ManifestTarFile(Base):
     yymm = Column(String(10), nullable=False)
 
     def __repr__(self):
-        return filename.split('/')[1]
+        return self.filename.split('/')[1]
+
+class Article(Base):
+    __tablename__ = 'articles'
+    pk = Column(Integer, primary_key=True)
+    tarfile_id = Column(Integer, ForeignKey('manifest.id'), nullable=False)
+
+    # This is from the arxiv stuff
+    # This is a naming conflict because the id is the database id
+    #  ex.  http://arxiv.org/abs/1601.00104v1
+    id = Column(String(50), nullable=False)
+    guidislink = Column(Boolean)
+    updated_parsed = Column(DateTime)
+    published_parsed = Column(DateTime)
+    title = Column(String(300), nullable=False)
+    summary = Column(String(5000), nullable=False)
+
+    # ex. ['J. Ye', 'R. Gheissari', 'J. Machta', 'C. M. Newman', 'D. L. Stein']
+    authors = Column(String(1000), nullable=False)
+
+    # ex. {'name': 'D. L. Stein'}
+    author_detail = Column(String(50), nullable=False)
+    author = Column(String(50), nullable=False)
+
+    # ex. LaTeX2e, 37 pages
+    arxiv_comment = Column(String(100))
+
+    #ex. tags  ::  [{'term': 'math.AG', 'scheme': 'http://arxiv.org/schemas/atom', 'label': None}, {'term': 'math.KT', 'scheme': 'http://arxiv.org/schemas/atom', 'label': None}]
+    tags = Column(String(500), nullable=False)
+
+    #ex.  http://arxiv.org/abs/1601.00105v2
+    arxiv_url = Column(String(1000), nullable=False)
+    doi = Column(String(120))
 
 
- 
+def new_article_register(D, tarfile_id, session=None):
+    '''
+    Prepare the data that comes from an arxiv search
+    to commit to the articles table
+    '''
+    # get all the attributes except pk
+    attr_list = [a for a in Article.metadata.tables['articles'].columns.keys()\
+            if a != 'pk']
+    Time = lambda t: dt.datetime.fromtimestamp(time.mktime(t))
+    D['tarfile_id'] = tarfile_id
+    D['updated_parsed'] = Time(D['updated_parsed'])
+    D['published_parsed'] = Time(D['published_parsed'])
+    D['authors'] = repr(D['authors'])
+    D['author_detail'] = repr(D['author_detail'])
+    D['tags'] = repr(D['tags'])
+    g = Article(**{k:D[k] for k in attr_list})
+    return g
+
+
+
+
 # Create an engine that stores data in the local directory's
 # sqlalchemy_example.db file.
 #engine = create_engine('sqlite:///arxiv1.db')
@@ -43,3 +97,7 @@ class ManifestTarFile(Base):
 # Create all tables in the engine. This is equivalent to "Create Table"
 # statements in raw SQL.
 #Base.metadata.create_all(engine)
+if __name__ == '__main__':
+    db_name = sys.argv[1]
+    engine = create_engine(db_name, echo=True)
+    Base.metadata.create_all(engine)
