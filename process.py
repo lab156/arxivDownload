@@ -157,6 +157,7 @@ class Xtraction(object):
         'KOI8-R': ['koi8-r', ],
         'MacCyrillic': ['koi8-r', ],
         'EUC-JP': ['euc_jp', ],
+        'EUC-KR': ['euc_kr', ],
         'ISO-2022-JP': ['iso2022_jp', 'cp932', ],
         'windows-1255': ['cp1255', ],
         'CP949': ['cp949', ],
