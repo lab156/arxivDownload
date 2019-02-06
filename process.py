@@ -151,6 +151,7 @@ class Xtraction(object):
          'Big5':  ['big5', 'gbk'],
         'windows-1251': ['windows-1251',],
         'IBM866': ['ibm866', ],
+        'IBM855': ['ibm855', ],
         'Windows-1254': ['cp932', 'latin1'],
         'TIS-620': ['cp874', ],
         'HZ-GB-2312': ['gbk', ],
