@@ -37,3 +37,9 @@ Fatal:perl:die Perl died
 
 ### Problems
 * LateXML did not finish 2014/1411.6225/bcdr_en.tex
+
+### Queries
+* Find the authors (in general) with the most publications
+```sql
+SELECT author, count(*) AS c FROM articles GROUP BY author ORDER BY c DESC LIMIT 10;
+```
