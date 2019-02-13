@@ -165,10 +165,10 @@ class Xtraction(object):
         None: None,
         }
 
-    def filter_MSC(self, MSC , run_api2tar=True):
+    def filter_MSC(self, MSC, run_api2tar=True):
         if run_api2tar:
-            return [api2tar(d.id, self.format_found) for d in self.query_results \
-                    if d['tags'][0]['term']==MSC]
+            return [api2tar(d.id, self.format_found) 
+                    for d in self.query_results if d['tags'][0]['term']==MSC]
         else:
             return [d for d in self.query_results if d['tags'][0]['term']==MSC]
 
@@ -187,17 +187,17 @@ class Xtraction(object):
     def decoder(self, file_str, filename=''):
         '''
         Given file_str a raw binary string with unknown encoding,
-        use encoding_dict to and chardet to try decode it and annotate the encoding used
-
+        use encoding_dict to and chardet to try decode it and 
+        annotate the encoding used
         '''
         encoding_detected = chardet.detect(file_str)['encoding']
         encoding_lst = self.encoding_dict.get(encoding_detected, 'Unk')
         commentary_dict = {}
         commentary_dict['encoding detected'] = encoding_detected
         if encoding_lst == 'Unk':
-            raise ValueError('Unknown encoding %s found in file %s in tarfile %s'%(encoding_detected,
-                                                                                  filename,
-                                                                        os.path.basename(self.tar_path)))
+            raise ValueError('Unknown encoding %s found in file %s\
+                    in tarfile %s'%(encoding_detected, filename,
+                      os.path.basename(self.tar_path)))
         elif encoding_lst:
             i = 0
             while i < len(encoding_lst):
@@ -208,13 +208,14 @@ class Xtraction(object):
                     i += 1
             else:
                 decoded_str = file_str.decode(errors='ignore')
-                commentary_dict['decode_error'] = 'tried %s on file %s but all failed'%(str(encoding_lst),
-                        filename)
-
+                commentary_dict['decode_error'] = 'tried %s on file %s\
+                        but all failed'%(str(encoding_lst), filename)
         else:
-            # If no codec was detected just ignore the problem :( and use the default (utf-8)
-            comm_mess = 'Unknown encoding: %s in file: %s decoding with utf8'%(encoding_detected,
-                                                                               filename)
+            # If no codec was detected just 
+            # ignore the problem :( and use the default (utf-8)
+            comm_mess = 'Unknown encoding: %s\
+                    in file: %s decoding with utf8'%(encoding_detected,
+                            filename)
             commentary_dict['decode_message'] = comm_mess
             decoded_str = file_str.decode()
         return decoded_str, commentary_dict
@@ -231,9 +232,11 @@ class Xtraction(object):
             if self.format_found == 1:
                 short_name = tar2api(filename) # format 1804.00000
             elif self.format_found == 2:
-                short_name = tar2api2(filename, sep='.') # format 0703/math0703071.gz turn into math.0703071
+                # format 0703/math0703071.gz turn into math.0703071
+                short_name = tar2api2(filename, sep='.') 
             else:
-                raise Exception('short_name will not be defined because no format was found')
+                raise Exception('short_name will not be \
+                        defined because no format was found')
             commentary_dict = { 'tar_file': os.path.basename(self.tar_path) }
             output_path = os.path.join(self.path_dir(output_dir), short_name)
             os.mkdir(output_path)
@@ -242,7 +245,8 @@ class Xtraction(object):
                 with gzip.open(file_gz,'rb') as fgz:
                     file_str = fgz.read()
                 try:
-                    # if the subtar is another tar then extractfile will be successfull
+                    # if the subtar is another tar then extractfile 
+                    # will be successfull
                     with tarfile.open(self.tar_path) as fb:
                         tar2 = fb.extractfile(filename + '.gz')
                         with tarfile.open(fileobj=tar2) as tars:
@@ -251,14 +255,16 @@ class Xtraction(object):
                 except tarfile.ReadError:   
                     # this means tarfile is not a tar so we try to decode it
                     try:
-                        decoded_str, comm_dict = self.decoder(file_str, filename)
+                        decoded_str, comm_dict = self.decoder(file_str,
+                                filename)
                         commentary_dict = {**commentary_dict,**comm_dict}
                     except UnicodeDecodeError as ee:
                         commentary_dict['decode_error'] = str(ee)
                         decoded_str = 'Empty file goes here'
-                    #write_dict({**commentary_dict,**comm_dict}, os.path.join(output_path, 'commentary.txt'))
-                    with open(os.path.join(output_path, short_name + '.tex'),'w')\
-                            as fname:
+                    #write_dict({**commentary_dict,**comm_dict},
+                    #os.path.join(output_path, 'commentary.txt'))
+                    with open(os.path.join(output_path,
+                        short_name + '.tex'),'w') as fname:
                         fname.write(decoded_str)
             except KeyError:
                 #if the file is .pdf there is no tex and we don't care about it
@@ -286,7 +292,8 @@ class Xtraction(object):
         if self.format_found == 1:
             short_name = tar2api(filename) # format 1804.00000
         elif self.format_found == 2:
-            short_name = tar2api2(filename, sep='.') # format 0703/math0703071.gz
+            # format 0703/math0703071.gz
+            short_name = tar2api2(filename, sep='.') 
         else:
             raise Exception('short_name will not be defined becuase no format was found')
         commentary_dict = { 'tar_file': os.path.basename(self.tar_path) }
