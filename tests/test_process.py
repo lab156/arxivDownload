@@ -37,8 +37,8 @@ class TestXtraction1(unittest.TestCase):
                 '\\def\\Wnodal{W_{\\scriptstyle\\rm\\!nodal}}\n',
                 '\\def\\P{\\mathbb{P}}\n']
 
-        self.assertEqual(list1, os.listdir(self.check_dir))
-        self.assertEqual(list1, os.listdir(self.check_dir2))
+        self.assertEqual(set(list1), set(os.listdir(self.check_dir)))
+        self.assertEqual(set(list1), set(os.listdir(self.check_dir2)))
         with open(os.path.join(self.check_dir2,'1601.00103','1601.00103.tex'),'r') as tst_file:
             self.assertEqual(list2, tst_file.readlines()[:10])
         with open(os.path.join(self.check_dir,'1601.00103','1601.00103.tex'),'r') as tst_file:
