@@ -14,7 +14,10 @@ class DefiniendumExtract(object):
     '''
     def __init__(self, url, style=None):
         self.url = up.urlparse(url)
-        self.soup = bs(requests.get(url).text,'lxml')
+        if self.url.scheme == 'file':
+            self.soup = bs(open(self.url.path), 'lxml')
+        else:
+            self.soup = bs(requests.get(url).text,'lxml')
         if style:
             self.style = style
         else:
@@ -37,7 +40,12 @@ class DefiniendumExtract(object):
         '''
         This works for the wikipedia and subwiki sites
         '''
-        return self.soup.findAll(id = 'firstHeading')[0].text.strip().lower()
+        # Strip the trailing "(mathematics)" label
+        unstripped_title = self.soup.findAll(id = 'firstHeading')[0]\
+                .text
+        stripped_title = unstripped_title.replace('(mathematics)', '')\
+                .strip().lower()
+        return stripped_title
 
     def _title_stacks_proj(self):
         '''
@@ -84,29 +92,35 @@ class DefiniendumExtract(object):
         Returns a list of url that might followable
         when scraping each website
         '''
+        # If this site does not have a definition section it's better
+        # to not crawl it anymore
+        if self.defin_section():
+            pass
+        else:
+            return []
         link_lst = []
         # get the next link
         # Ex. /wiki/Differentiable_manifold
-        temp_section = self.defin_section().findNext('p')
-        while  len(link_lst) <= num_links:
-            try:
-                temp_lst = temp_section\
-                        .findChildren('a')
-                link_lst += [up.urljoin(self.url.geturl(), L['href'])\
-                        for L in temp_lst]
-            except AttributeError:
-                pass
-            try:
-                # If no more paragraphs can be found
-                # exit gracefully with what we have
-                temp_section = temp_section.findNext('p')
-            except AttributeError:
-                break
-        return link_lst
+        def search_assist(x):
+            blacklist_regex = re.compile(
+                    r'[\?\#]|File:|Help:|Special:|Portal:')
+            if x:
+                # omit links with queries (?) sections (*) and colons
+                return ('wiki' in x) and\
+                        not bool(re.search(blacklist_regex, x))
+            else:
+                #there are <a> tags with no reference
+                return False
+        link_lst = self.soup.findAll('a', href=search_assist)[: num_links]
+        return [up.urljoin(self.url.geturl(), L['href'])\
+                for L in link_lst ]
 
-#TODO: Determine if this method is better than the one being used
-# in the _next_wikipedia function
+
     def _next_subwiki(self, num_links=1):
+        if self.defin_section():
+            pass
+        else:
+            return []
         def search_assist(x):
             if x:
                 has_wiki = ('wiki' in x)
@@ -135,6 +149,7 @@ class DefiniendumExtract(object):
         return link_lst
 
     def next(self, **kwargs):
+        ### Please always return a list (possibly empty)
         option_dict = {'wikipedia': self._next_wikipedia,
          'subwiki': self._next_subwiki,
          'stacks_proj': self._next_stacks_proj,}
@@ -144,7 +159,7 @@ class DefiniendumExtract(object):
     def def_pair_or_none(self):
         definition_section = self.defin_section()
         if definition_section:
-            tmp_paragraph = definition_section.findNext('p').text 
+            tmp_paragraph = definition_section.findNext('p').text
         else:
             # Some article don't have a Definition Section
             # We have to survive that

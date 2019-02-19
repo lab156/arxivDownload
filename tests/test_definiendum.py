@@ -13,7 +13,9 @@ class TestDefiniendum(unittest.TestCase):
         cls.deadend = DefiniendumExtract(
  'https://groupprops.subwiki.org/wiki/Understanding_the_definition_of_a_group')
         cls.deadend2 = DefiniendumExtract(
-                'https://groupprops.subwiki.org/wiki/Verifying_the_group_axioms')
+            'https://groupprops.subwiki.org/wiki/Verifying_the_group_axioms')
+        cls.trailing = DefiniendumExtract(
+                'https://en.wikipedia.org/wiki/Function_(mathematics)')
 
     def test_style_detection(self):
         self.assertEqual(self.d1.style, 'wikipedia')
@@ -31,18 +33,19 @@ class TestDefiniendum(unittest.TestCase):
         self.assertRegex(self.d3.defin_section().text, '\\nDefinition.*$')
 
     def test_next(self):
-        self.assertSetEqual(set(self.d1.next()),
-                set(['https://en.wikipedia.org/wiki/Differentiable_manifold',
-                     'https://en.wikipedia.org/wiki/Differentiability_class']))
+        self.assertEqual(len(self.d1.next()), 1)
         self.assertEqual(self.d3.next()[0],
                'https://stacks.math.columbia.edu/tag/03NF')
         #Check if num_links is too large
-        self.assertEqual(len(self.d1.next(num_links=200)),38)
+        self.assertGreater(len(self.d1.next(num_links=200)),10)
         #Check if actually the size is equal to num_links
         self.assertEqual(len(self.d2.next(num_links=10)),10)
 
     def test_dead_end(self):
         self.assertIsNone(self.deadend.def_pair_or_none())
         self.assertIsNone(self.deadend2.def_pair_or_none())
+
+    def test_stripping_trailing_label(self):
+        self.assertEqual(self.trailing.title(), 'function')
 
 
