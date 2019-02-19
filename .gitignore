@@ -10,6 +10,9 @@ __pycache__
 #Data file
 data
 
+#Undesirable image files
+tmp.ps
+
 #databases 
 #Gotta keep all databases with this extension
 *.db

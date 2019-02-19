@@ -59,7 +59,11 @@ class DefiniendumExtract(object):
 
     def _defin_section_wikipedia(self):
         reg_expr = re.compile('.*definition', re.I)
-        return self.soup.findAll('span', id= reg_expr)[0]
+        try:
+            ret_search = self.soup.findAll('span', id= reg_expr)[0]
+        except IndexError:
+            ret_search = None
+        return ret_search
 
     def _defin_section_stacks_proj(self):
         return self.soup.select('.env-definition')[0]
@@ -104,13 +108,16 @@ class DefiniendumExtract(object):
 # in the _next_wikipedia function
     def _next_subwiki(self, num_links=1):
         def search_assist(x):
-            has_wiki = ('wiki' in x)
-            no_colon = not (':' in  x)
-            return has_wiki and  no_colon
-        temp_lst = self.defin_section().findAllNext('a', href=search_assist)
+            if x:
+                has_wiki = ('wiki' in x)
+                no_colon = not (':' in  x)
+                return has_wiki and  no_colon
+            else:
+                #there are <a> tags with no reference
+                return False
+        temp_lst = self.soup.findAll('a', href=search_assist)
         return [up.urljoin(self.url.geturl(), L['href'])\
                 for L in temp_lst ][: num_links]
-
 
     def _next_stacks_proj(self):
         '''
@@ -135,7 +142,13 @@ class DefiniendumExtract(object):
         return links_lst
 
     def def_pair_or_none(self):
-        tmp_paragraph = self.defin_section().findNext('p').text 
+        definition_section = self.defin_section()
+        if definition_section:
+            tmp_paragraph = definition_section.findNext('p').text 
+        else:
+            # Some article don't have a Definition Section
+            # We have to survive that
+            return None
         if self.title().lower() in tmp_paragraph.lower():
             return self.title(), tmp_paragraph
         else:

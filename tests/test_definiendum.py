@@ -12,6 +12,8 @@ class TestDefiniendum(unittest.TestCase):
                 'https://stacks.math.columbia.edu/tag/03NB')
         cls.deadend = DefiniendumExtract(
  'https://groupprops.subwiki.org/wiki/Understanding_the_definition_of_a_group')
+        cls.deadend2 = DefiniendumExtract(
+                'https://groupprops.subwiki.org/wiki/Verifying_the_group_axioms')
 
     def test_style_detection(self):
         self.assertEqual(self.d1.style, 'wikipedia')
@@ -41,3 +43,6 @@ class TestDefiniendum(unittest.TestCase):
 
     def test_dead_end(self):
         self.assertIsNone(self.deadend.def_pair_or_none())
+        self.assertIsNone(self.deadend2.def_pair_or_none())
+
+
