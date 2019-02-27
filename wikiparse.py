@@ -1,12 +1,16 @@
 from lxml import etree
 from bz2 import BZ2File
-
-#path = '/home/luis/MisDocumentos/arxivBulkDownload/enwiki-20190201-pages-articles-multistream.xml.bz2'
+import re
 
 def fast_iter(xml_file, sentinel=None):
+    '''
+    xml_file : is a readable file object
+    sentinel : is an int of the max number of pages to check
+    '''
     ns = '{http://www.mediawiki.org/xml/export-0.10/}'
     nsp = {'wiki':'http://www.mediawiki.org/xml/export-0.10/'}
     parser = etree.iterparse(xml_file, tag=ns+'page')
+    reg_expr = re.compile('== .*definition ==', re.I)
     senti = 0
     for event,elem in parser:
         text = elem.find('wiki:revision/wiki:text', namespaces=nsp)
@@ -14,7 +18,7 @@ def fast_iter(xml_file, sentinel=None):
         if '== Definition ==' in text.text:
             print(title.text)
         elem.clear()
-        text.clear()
+         text.clear()
         title.clear()
         while elem.getprevious() is not None:
             del elem.getparent()[0]
