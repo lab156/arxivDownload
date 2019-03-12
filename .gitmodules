@@ -1,6 +1,6 @@
 [submodule "arxiv.py"]
 	path = arxiv.py
 	url = https://github.com/lukasschwab/arxiv.py.git
-[submodule "dewiki"]
-	path = dewiki
-	url = https://github.com/lab156/dewiki.git
+[submodule "unwiki"]
+	path = unwiki
+	url = https://github.com/lab156/unwiki.git
