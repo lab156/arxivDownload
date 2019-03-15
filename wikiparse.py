@@ -20,7 +20,7 @@ def fast_iter(xml_file, out_file=None, sentinel=None):
             if title.text.lower() in regex_def[0][1].lower():
                 print('\033[1m' + title.text + '\033[0m', ' --- ', regex_def[0][0], ' --- ', regex_def[0][1])
                 if out_file:
-                    print(title.text, ' --- ', regex_def[0][0], ' --- ',
+                    print(title.text, ' -#-%- ', regex_def[0][0], ' -#-%- ',
                             repr(regex_def[0][1]), file=out_file)
         elem.clear()
         text.clear()
