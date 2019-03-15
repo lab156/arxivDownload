@@ -59,7 +59,7 @@ def fast_iter(xml_file, out_file=None, sentinel=None):
         #while title.getprevious() is not None:
         #    del title.getparent()[0]
 
-        if sentinel:
+        if sentinel > 0:
             if senti > sentinel:
                 break
             senti += 1
@@ -77,7 +77,7 @@ python wikiparse.py ../enwiki-20190201-pages-articles-multistream1.xml-p10p30302
             description='Parse the wikipedia dump file')
     parser.add_argument('path', help='wikipedia .bz2 file')
     parser.add_argument('-s', '--sentinel',
-            help='file to write the logs', default=None)
+            help='file to write the logs', default=0)
     parser.add_argument('-o', '--outfile', 
             help='file to write the definitions', default=None)
     args = parser.parse_args()
