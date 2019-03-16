@@ -20,15 +20,20 @@ def search_defs(page_tree, namespace={'wiki':''}):
     text = page_tree.find('wiki:revision/wiki:text', namespaces=namespace)
     title = page_tree.find('wiki:title', namespaces=namespace).text
     # takes care of articles with several definition sections
-    regex_def = re.findall(reg_expr, text.text)
+    try:
+        regex_def = re.findall(reg_expr, text.text)
+    except TypeError:
+        print('Article %s has no text'%title)
+        return []
+
     output_list =[]
     for r in regex_def:
-        defin_section = unwiki.loads(r[2])
+        defin_section = r[2]
         out_dict = {
                 'title': title,
         'section': r[1],
         'definition': defin_section,
-        'matches': title.lower() in defin_section.lower(), }
+        'matches': title.lower().strip() in defin_section.lower(), }
         output_list.append(out_dict)
     return output_list
 
@@ -48,7 +53,8 @@ def fast_iter(xml_file, out_file=None, sentinel=None):
                 sep_string , r['section'], sep_string, r['definition'])
                 if out_file:
                     print(r['title'] ,
-                sep_string , r['section'], sep_string, r['definition'])
+                sep_string , r['section'], 
+                sep_string, r['definition'], file=out_file)
         elem.clear()
         #text.clear()
         #title.clear()
