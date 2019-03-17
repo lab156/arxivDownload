@@ -54,7 +54,7 @@ def fast_iter(xml_file, out_file=None, sentinel=None):
                 if out_file:
                     print(r['title'] ,
                 sep_string , r['section'], 
-                sep_string, r['definition'], file=out_file)
+                sep_string, repr(r['definition']), file=out_file)
         elem.clear()
         #text.clear()
         #title.clear()
