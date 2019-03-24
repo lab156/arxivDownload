@@ -45,5 +45,5 @@ SELECT author, count(*) AS c FROM articles GROUP BY author ORDER BY c DESC LIMIT
 ``` 
 
 The xml_file.xml is modified by the search.py module:
-* *processed *, is False by default.
+* *processed*, is False by default.
 * *search* exists only when locate has been ran on the filesystem. It is true, when the file was found and False if the file _has_ been searched and not found.
