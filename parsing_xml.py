@@ -36,6 +36,20 @@ def recutext1(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
             ret_str += empty_if_none(el.tail)
     return ret_str.lower().replace('\n', ' ')
 
+def recutext2(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
+    ret_str = '' #empty_if_none(root.text)
+    for el in list(root):
+        if el.tag != 'math':
+            ret_str += empty_if_none(el.text)
+            ret_str += empty_if_none(el.tail)
+            ret_str += recutext2(el, nsstr)
+        else:
+            if el.attrib.get('display') == 'inline':
+                ret_str += '_inline_math_'
+            elif el.attrib.get('mode') == 'display': 
+                ret_str += '_display_math_'
+            ret_str += empty_if_none(el.tail)
+    return ret_str.lower().replace('\n', ' ')
 
 class DefinitionsXML(object):
     def __init__(self, file_path):
