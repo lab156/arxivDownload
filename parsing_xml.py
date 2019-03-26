@@ -28,7 +28,7 @@ def text1(root, ns=None):
 def recutext1(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
     ret_str = '' #empty_if_none(root.text)
     for el in list(root):
-        if el.tag != (nsstr + 'Math'):
+        if el.tag != (nsstr + 'Math') and el.tag != (nsstr + 'cite'):
             ret_str += empty_if_none(el.text)
             ret_str += empty_if_none(el.tail)
             ret_str += recutext1(el, nsstr)
@@ -36,20 +36,57 @@ def recutext1(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
             ret_str += empty_if_none(el.tail)
     return ret_str.lower().replace('\n', ' ')
 
-def recutext2(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
-    ret_str = '' #empty_if_none(root.text)
+def text_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
+    ret_str = empty_if_none(root.text)
     for el in list(root):
-        if el.tag != 'math':
-            ret_str += empty_if_none(el.text)
-            ret_str += empty_if_none(el.tail)
-            ret_str += recutext2(el, nsstr)
-        else:
-            if el.attrib.get('display') == 'inline':
+        if el.tag == (nsstr + 'Math') :
+            if el.attrib.get('mode') == 'inline':
                 ret_str += '_inline_math_'
             elif el.attrib.get('mode') == 'display': 
                 ret_str += '_display_math_'
             ret_str += empty_if_none(el.tail)
-    return ret_str.lower().replace('\n', ' ')
+        elif el.tag == (nsstr + 'cite'):
+            ret_str += '' # In case you wanna add citation
+        else:
+            ret_str += empty_if_none(el.text)
+            ret_str += empty_if_none(el.tail)
+            #ret_str += recutext1(el, nsstr)
+    return ret_str.replace('\n', ' ')
+
+def recutext_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
+    ret_str = empty_if_none(root.text)
+    print('root is', root.tag, root.text, root.tail)
+    for el in list(root):
+        print('inside %s tag '%el.tag, el.text, el.tail)
+        if el.tag == (nsstr + 'Math'):
+            if el.attrib.get('mode') == 'inline':
+                ret_str += '_inline_math_'
+            elif el.attrib.get('mode') == 'display': 
+                ret_str += '_display_math_'
+            ret_str += empty_if_none(el.tail)
+        elif el.tag == (nsstr + 'cite'):
+            ret_str += '_citation_'
+            ret_str += empty_if_none(el.tail)
+        else:
+            #ret_str += empty_if_none(el.text)
+            ret_str += empty_if_none(el.tail)
+            ret_str += recutext_xml(el, nsstr)
+    return ret_str.replace('\n', ' ')
+
+def recutextt_html(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
+    ret_str = empty_if_none(root.text)
+    for el in list(root):
+        if el.tag != 'math' and el.tag != (nsstr + 'cite'):
+            ret_str += empty_if_none(el.text)
+            ret_str += empty_if_none(el.tail)
+            ret_str += recutextt_html(el, nsstr)
+        else:
+            if el.attrib.get('display') == 'inline':
+                ret_str += '_inline_math_'
+            elif el.attrib.get('display') == 'display': 
+                ret_str += '_display_math_'
+            ret_str += empty_if_none(el.tail)
+    return ret_str.replace('\n', ' ')
 
 class DefinitionsXML(object):
     def __init__(self, file_path):
