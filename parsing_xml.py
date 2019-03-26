@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+from lxml import etree
 import pandas as pd
 import re
 import sys
@@ -8,33 +9,17 @@ import nltk
 empty_if_none = lambda s: s if s else ''
 
 
-def text1(root, ns=None):
-    '''
-    gets the text out of the definitions
-    This functions only takes the text, formulas are ignored
-    Replace newlines with a blank space.
-    '''
-    def_str = empty_if_none(root.text)
 
-    for d in list(root):
-        def_str += empty_if_none(d.text)
-        #If d has a <Math> child then search for tails
-        math_elements = d.findall('latexml:Math', ns)
-        for m in math_elements:
-            def_str += empty_if_none(m.tail)
-        def_str += empty_if_none(d.tail)
-    return def_str.lower().replace('\n', ' ')
-
-def recutext1(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
-    ret_str = '' #empty_if_none(root.text)
-    for el in list(root):
-        if el.tag != (nsstr + 'Math') and el.tag != (nsstr + 'cite'):
-            ret_str += empty_if_none(el.text)
-            ret_str += empty_if_none(el.tail)
-            ret_str += recutext1(el, nsstr)
-        else:
-            ret_str += empty_if_none(el.tail)
-    return ret_str.lower().replace('\n', ' ')
+#def recutext1(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
+#    ret_str = '' #empty_if_none(root.text)
+#    for el in list(root):
+#        if el.tag != (nsstr + 'Math') and el.tag != (nsstr + 'cite'):
+#            ret_str += empty_if_none(el.text)
+#            ret_str += empty_if_none(el.tail)
+#            ret_str += recutext1(el, nsstr)
+#        else:
+#            ret_str += empty_if_none(el.tail)
+#    return ret_str.lower().replace('\n', ' ')
 
 def text_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
     ret_str = empty_if_none(root.text)
@@ -50,14 +35,13 @@ def text_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
         else:
             ret_str += empty_if_none(el.text)
             ret_str += empty_if_none(el.tail)
-            #ret_str += recutext1(el, nsstr)
     return ret_str.replace('\n', ' ')
 
 def recutext_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
     ret_str = empty_if_none(root.text)
-    print('root is', root.tag, root.text, root.tail)
+    #print('root is', root.tag, root.text, root.tail)
     for el in list(root):
-        print('inside %s tag '%el.tag, el.text, el.tail)
+        #print('inside %s tag '%el.tag, el.text, el.tail)
         if el.tag == (nsstr + 'Math'):
             if el.attrib.get('mode') == 'inline':
                 ret_str += '_inline_math_'
@@ -69,23 +53,28 @@ def recutext_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
             ret_str += empty_if_none(el.tail)
         else:
             #ret_str += empty_if_none(el.text)
-            ret_str += empty_if_none(el.tail)
             ret_str += recutext_xml(el, nsstr)
+            ret_str += empty_if_none(el.tail)
     return ret_str.replace('\n', ' ')
 
-def recutextt_html(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
+def recutext_html(root, nsstr=''):
     ret_str = empty_if_none(root.text)
+    #print('root is', root.tag, root.text, root.tail)
     for el in list(root):
-        if el.tag != 'math' and el.tag != (nsstr + 'cite'):
-            ret_str += empty_if_none(el.text)
-            ret_str += empty_if_none(el.tail)
-            ret_str += recutextt_html(el, nsstr)
-        else:
+        #print('inside %s tag '%el.tag, el.text, el.tail)
+        if el.tag == (nsstr + 'math'):
             if el.attrib.get('display') == 'inline':
                 ret_str += '_inline_math_'
             elif el.attrib.get('display') == 'display': 
                 ret_str += '_display_math_'
             ret_str += empty_if_none(el.tail)
+        elif el.tag == (nsstr + 'cite'):
+            ret_str += '_citation_'
+            ret_str += empty_if_none(el.tail)
+        else:
+            #ret_str += empty_if_none(el.text)
+            ret_str += empty_if_none(el.tail)
+            ret_str += recutext_html(el, nsstr)
     return ret_str.replace('\n', ' ')
 
 class DefinitionsXML(object):
@@ -94,10 +83,15 @@ class DefinitionsXML(object):
         Read an xml file and parse it
         '''
         self.file_path = file_path
+        self.filetype = self.file_path.split('.')[-1]
+            
         try:
-            self.exml = ET.parse(file_path)
-        except ET.ParseError:
-            raise ET.ParseError('Could not parse file %s'%file_path)
+            if self.filetype == 'xml':
+                self.exml = etree.parse(file_path, etree.XMLParser(remove_comments=True))
+            elif self.filetype == 'html': 
+                self.exml = etree.parse(file_path, etree.HTMLParser(remove_comments=True))
+        except etree.ParseError:
+            raise etree.ParseError('Could not parse file %s'%file_path)
 
         self.ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
         self.def_lst = []
@@ -132,10 +126,10 @@ class DefinitionsXML(object):
             root_found = root.findall('.//latexml:para', self.ns)[0]
         except IndexError:
             raise ValueError('para tag not found in file: %s with message: \n %s'
-                    %(self.file_path, ET.tostring(root).decode('utf-8')))
+                    %(self.file_path, etree.tostring(root).decode('utf-8')))
         return root_found
 
-    def get_def_text(self, method=recutext1):
+    def get_def_text(self):
         '''
         uses the method specified to get the text from 
         the definitions in self.def_lst
@@ -146,6 +140,12 @@ class DefinitionsXML(object):
             pass
         else:
             self.find_definitions()
+            if self.filetype == 'xml':
+                method = recutext_xml
+            elif self.filetype == 'html':
+                method = recutext_html
+            else:
+                raise NotImplementedError('method for file type: %s has not been created'%self.filetype)
         return [method(self.para_p(r)) for r in self.def_lst]
 
     def write_defs(self, path):
