@@ -37,6 +37,25 @@ def text_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
             ret_str += empty_if_none(el.tail)
     return ret_str.replace('\n', ' ')
 
+# String to be substituted instead of inline math
+math_inline_str = '_inline_math_'
+math_display_str = '_display_math_'
+cite_str = '_citation_'
+
+xml_dict = { 'math_tag': 'Math',
+        # Example: <Math mode="inline" tex="(E,V)" text
+        'math_attrib_key': 'mode',
+        'math_attrib_display': 'display',
+        'math_attrib_inline': 'inline',
+        'cite_tag': 'cite',
+        }
+html_dict = { 'math_tag': 'math',
+        'math_attrib_key': 'display',
+        'math_attrib_display': 'display',
+        'math_attrib_inline': 'inline',
+        'cite_tag': 'cite',
+        }
+
 def recutext_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
     ret_str = empty_if_none(root.text)
     #print('root is', root.tag, root.text, root.tail)
@@ -73,8 +92,8 @@ def recutext_html(root, nsstr=''):
             ret_str += empty_if_none(el.tail)
         else:
             #ret_str += empty_if_none(el.text)
-            ret_str += empty_if_none(el.tail)
             ret_str += recutext_html(el, nsstr)
+            ret_str += empty_if_none(el.tail)
     return ret_str.replace('\n', ' ')
 
 class DefinitionsXML(object):
@@ -156,6 +175,14 @@ class DefinitionsXML(object):
             for d in self.get_def_text():
                 text_file.write(d+'\n')
         return 0
+
+    def tag_list(self, tag='p'):
+        '''
+        Return a list of the specified tag 
+        The tags are searched from the self.exml file
+        '''
+        return self.exml.findall('.//latexml:' + tag, self.ns)
+
 
 
 if __name__ == "__main__":
