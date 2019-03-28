@@ -3,7 +3,7 @@ from lxml import etree
 import pandas as pd
 import re
 import sys
-import nltk 
+import nltk
 
 #Shortcut to set default to empty string instead Nonetype
 empty_if_none = lambda s: s if s else ''
@@ -27,7 +27,7 @@ def text_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
         if el.tag == (nsstr + 'Math') :
             if el.attrib.get('mode') == 'inline':
                 ret_str += '_inline_math_'
-            elif el.attrib.get('mode') == 'display': 
+            elif el.attrib.get('mode') == 'display':
                 ret_str += '_display_math_'
             ret_str += empty_if_none(el.tail)
         elif el.tag == (nsstr + 'cite'):
@@ -64,7 +64,7 @@ def recutext_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
         if el.tag == (nsstr + 'Math'):
             if el.attrib.get('mode') == 'inline':
                 ret_str += '_inline_math_'
-            elif el.attrib.get('mode') == 'display': 
+            elif el.attrib.get('mode') == 'display':
                 ret_str += '_display_math_'
             ret_str += empty_if_none(el.tail)
         elif el.tag == (nsstr + 'cite'):
@@ -74,7 +74,8 @@ def recutext_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
             #ret_str += empty_if_none(el.text)
             ret_str += recutext_xml(el, nsstr)
             ret_str += empty_if_none(el.tail)
-    return ret_str.replace('\n', ' ')
+    # remove any multiple space and trailing whitespaces
+    return re.sub('\s+', ' ', ret_str.replace('\n', ' ')).strip()
 
 def recutext_html(root, nsstr=''):
     ret_str = empty_if_none(root.text)
@@ -84,7 +85,11 @@ def recutext_html(root, nsstr=''):
         if el.tag == (nsstr + 'math'):
             if el.attrib.get('display') == 'inline':
                 ret_str += '_inline_math_'
-            elif el.attrib.get('display') == 'display': 
+            elif el.attrib.get('display') == 'display':
+                ret_str += '_display_math_'
+            ret_str += empty_if_none(el.tail)
+        elif el.tag == (nsstr + 'table'):
+            if el.attrib.get('class') == "ltx_equation ltx_eqn_table":
                 ret_str += '_display_math_'
             ret_str += empty_if_none(el.tail)
         elif el.tag == (nsstr + 'cite'):
@@ -94,7 +99,7 @@ def recutext_html(root, nsstr=''):
             #ret_str += empty_if_none(el.text)
             ret_str += recutext_html(el, nsstr)
             ret_str += empty_if_none(el.tail)
-    return ret_str.replace('\n', ' ')
+    return re.sub('\s+', ' ', ret_str.replace('\n', ' ')).strip()
 
 class DefinitionsXML(object):
     def __init__(self, file_path):
