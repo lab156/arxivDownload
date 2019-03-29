@@ -44,7 +44,7 @@ def sample_article(f, para_per_article=2, min_words=15):
     return_lst = []
     for p in para_lst:
         if check_sanity(p):
-            para_text =  px.recutext1(p)
+            para_text =  px.recutext_xml(p)
             if len(para_text.split()) >= min_words: #check min_words
                 return_lst.append(para_text)
         else:
