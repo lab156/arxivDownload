@@ -212,6 +212,11 @@ class DefinitionsXML(object):
 if __name__ == "__main__":
     '''
     Usage: python parsing_xml.py fileList FileToStoreDefs
+    This command finished processing all math.AG files of 2015
+
+     python parsing_xml.py ~/media_home/math.AG/2015/*/*.xml ../new_real_defs.txt -l ../errors_new_real_defs.txt 
+
+     Observe that the -l flag is necessary for it to finish
     '''
     import argparse
     parser = argparse.ArgumentParser(description='parsing xml commandline script')
@@ -228,7 +233,7 @@ if __name__ == "__main__":
             DD = DefinitionsXML(f)
             print('writing file: %s'%f, end='\r')
             DD.write_defs(defs_file)
-        except ET.ParseError:
+        except TypeError:
             print('Error parsing file: %s'%f, end='\n')
         # some definitions are empty and have no para tag
         # para_p complains about this and it is important
