@@ -12,6 +12,7 @@ class TestDefinitionsXML(unittest.TestCase):
         cls.html1 = px.DefinitionsXML('tests/latexmled_files/1501.06563.html')
         cls.html_lst1 = cls.html1.exml.findall('.//p', namespaces=cls.ns)
 
+
     def test_recutext_xml(self):
         expect1 = 'For the remaining properties we state we shall assume that _inline_math_ or _inline_math_.'
         expect2 = '''Let _inline_math_ be a set of elements of _inline_math_. Recall that an _inline_math_-invariant CAD of _inline_math_ _citation_ is a partitioning of _inline_math_ into connected subsets called cells compatible with the zeros of the elements of _inline_math_. The output of a CAD algorithm applied to _inline_math_ is a description of an _inline_math_-invariant CAD _inline_math_ of _inline_math_. That is, _inline_math_ is a decomposition of _inline_math_ determined by the roots of the elements of _inline_math_ over the cells of some cylindrical algebraic decomposition _inline_math_ of _inline_math_; each element of _inline_math_ is sign-invariant throughout every cell of _inline_math_.'''
@@ -26,6 +27,18 @@ class TestDefinitionsXML(unittest.TestCase):
         self.assertEqual(px.recutext_xml(self.xml_lst1[4]),
                             px.recutext_html(self.html_lst1[4]))
 
+    def test_recutext_xml_html_similarity(self):
+        #Get the para tags
+        para_xml_lst = list(map(px.recutext_xml, self.xml1.exml.findall('.//ltx:para', namespaces=self.ns)))
+        para_html_lst = list(map(px.recutext_html, self.html1.exml.xpath(".//div[contains(@class, 'ltx_para')]" )))
+        self.assertEqual(para_xml_lst, para_html_lst)
+
+    def test_defin_finding(self):
+        self.assertEqual(3, len(self.xml1.get_def_text()))
+        self.assertEqual(3, len(self.html1.get_def_text()))
+
+    def test_defin_xml_html_equal(self):
+        self.assertEqual(self.xml1.get_def_text(), self.html1.get_def_text())
 
     def test_contain_words1(self):
         dtest = px.DefinitionsXML('tests/latexmled_files/math.0412433.xml')

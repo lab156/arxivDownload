@@ -70,12 +70,23 @@ def recutext_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
         elif el.tag == (nsstr + 'cite'):
             ret_str += '_citation_'
             ret_str += empty_if_none(el.tail)
+        elif el.tag == (nsstr + 'tag') and (el.attrib.get('role') == 'refnum' or el.attrib.get('role') == 'typerefnum'):
+            #Tags have a `role` attrib with text and this should be ignored
+          #<tags>
+          #  <tag>2.</tag>
+          #  <tag role="refnum">2</tag>
+          #  <tag role="typerefnum">item 2</tag>
+          #</tags>
+            pass
         else:
             #ret_str += empty_if_none(el.text)
+            if el.tag == (nsstr + 'break'):
+                # Substitute the line break for a blank space
+                ret_str += ' '
             ret_str += recutext_xml(el, nsstr)
             ret_str += empty_if_none(el.tail)
     # remove any multiple space and trailing whitespaces
-    return re.sub('\s+', ' ', ret_str.replace('\n', ' ')).strip()
+    return re.sub('\s+', ' ', ret_str.replace('\n', ' '))
 
 def recutext_html(root, nsstr=''):
     ret_str = empty_if_none(root.text)
@@ -99,7 +110,7 @@ def recutext_html(root, nsstr=''):
             #ret_str += empty_if_none(el.text)
             ret_str += recutext_html(el, nsstr)
             ret_str += empty_if_none(el.tail)
-    return re.sub('\s+', ' ', ret_str.replace('\n', ' ')).strip()
+    return re.sub('\s+', ' ', ret_str.replace('\n', ' '))
 
 class DefinitionsXML(object):
     def __init__(self, file_path):
@@ -125,11 +136,15 @@ class DefinitionsXML(object):
         finds all definitions in the parsed xml
         and returns a list of them
         '''
-        for e in self.exml.iter():
-            att_class = e.attrib.get('class', None)
-            if att_class:
-                if re.match(r'ltx_theorem_[definto]+$', att_class):
-                    self.def_lst.append(e)
+        if self.filetype == 'xml':
+            for e in self.exml.iter():
+                att_class = e.attrib.get('class', None)
+                if att_class:
+                    if re.match(r'ltx_theorem_[definto]+$', att_class):
+                        self.def_lst.append(e)
+        elif self.filetype == 'html':
+            self.def_lst = self.exml.xpath(".//div[re:match(@class, 'ltx_theorem_[definto]+$')]",
+                    namespaces={"re": "http://exslt.org/regular-expressions"})
         return self.def_lst
 
     def para_p(self, root):
@@ -147,7 +162,10 @@ class DefinitionsXML(object):
         '''
         #return root.findall('./latexml:para/latexml:p', self.ns)[0]
         try:
-            root_found = root.findall('.//latexml:para', self.ns)[0]
+            if self.filetype == 'xml':
+                root_found = root.findall('.//latexml:para', self.ns)[0]
+            elif self.filetype == 'html':
+                root_found = root.xpath(".//div[contains(@class, 'ltx_para')]" )[0]
         except IndexError:
             raise ValueError('para tag not found in file: %s with message: \n %s'
                     %(self.file_path, etree.tostring(root).decode('utf-8')))
@@ -164,12 +182,13 @@ class DefinitionsXML(object):
             pass
         else:
             self.find_definitions()
-            if self.filetype == 'xml':
-                method = recutext_xml
-            elif self.filetype == 'html':
-                method = recutext_html
-            else:
-                raise NotImplementedError('method for file type: %s has not been created'%self.filetype)
+
+        if self.filetype == 'xml':
+            method = recutext_xml
+        elif self.filetype == 'html':
+            method = recutext_html
+        else:
+            raise NotImplementedError('method for file type: %s has not been created'%self.filetype)
         return [method(self.para_p(r)) for r in self.def_lst]
 
     def write_defs(self, path):
