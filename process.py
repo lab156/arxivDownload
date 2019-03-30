@@ -86,6 +86,29 @@ def tar2api2(id_str, sep='/'):
     else:
         raise Exception('No results found in string: %s'%id_str)
 
+def Tar2api(id_str, sep='/'):
+    #Trying to match either 
+    regex1 = r'.+/([0-9]{4})\.([0-9]{4,5})'
+    # want to catch http://arxiv.org/abs/math/9212204v1
+    regex2 = r'.+/([a-z\-]+)/([0-9]{7}).+'
+    if re.match(regex1, id_str):
+        #format_detected  '1804/1804.00239.gz'
+        name = re.match(r'.*([0-9]{4})\.([0-9]{4,5})',id_str)
+        try:
+            return_str = name.group(1) + '.' + name.group(2)
+        except AttributeError:
+            raise ValueError('Error: tar2api cannot find results in string: %s'%id_str)
+        return return_str
+    elif re.match(regex2, id_str):
+        # format detected http://arxiv.org/abs/math/9212204v1
+        name = re.match(r'.+/([a-z\-]+)/([0-9]{7})', id_str)
+        if name:
+            return name.group(1) + sep + name.group(2)
+        else:
+            raise ValueError('No results found in string: %s'%id_str)
+    else:
+        raise ValueError('The format of the id_str: %s was not matched by any known format'%id_str)
+
 def tar_id(id_str):
     '''
     Given a path like: /mnt/arXiv_src/src/arXiv_src_1804_001.tar
