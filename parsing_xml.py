@@ -4,38 +4,22 @@ import pandas as pd
 import re
 import sys
 import nltk
+import random
 
 #Shortcut to set default to empty string instead Nonetype
 empty_if_none = lambda s: s if s else ''
 
-
-
-#def recutext1(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
-#    ret_str = '' #empty_if_none(root.text)
-#    for el in list(root):
-#        if el.tag != (nsstr + 'Math') and el.tag != (nsstr + 'cite'):
-#            ret_str += empty_if_none(el.text)
-#            ret_str += empty_if_none(el.tail)
-#            ret_str += recutext1(el, nsstr)
-#        else:
-#            ret_str += empty_if_none(el.tail)
-#    return ret_str.lower().replace('\n', ' ')
-
-def text_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
-    ret_str = empty_if_none(root.text)
-    for el in list(root):
-        if el.tag == (nsstr + 'Math') :
-            if el.attrib.get('mode') == 'inline':
-                ret_str += '_inline_math_'
-            elif el.attrib.get('mode') == 'display':
-                ret_str += '_display_math_'
-            ret_str += empty_if_none(el.tail)
-        elif el.tag == (nsstr + 'cite'):
-            ret_str += '' # In case you wanna add citation
-        else:
-            ret_str += empty_if_none(el.text)
-            ret_str += empty_if_none(el.tail)
-    return ret_str.replace('\n', ' ')
+def check_sanity(p, ns):
+    '''
+    Input:
+    p: element tree result of searching for para tags
+    Checks:
+    contains an ERROR tag
+    '''
+    if p.findall('.//latexml:ERROR', ns):
+        return False
+    else:
+        return True
 
 # String to be substituted instead of inline math
 math_inline_str = '_inline_math_'
@@ -119,12 +103,14 @@ class DefinitionsXML(object):
         '''
         self.file_path = file_path
         self.filetype = self.file_path.split('.')[-1]
-            
+
         try:
             if self.filetype == 'xml':
                 self.exml = etree.parse(file_path, etree.XMLParser(remove_comments=True))
+                self.recutext = recutext_xml
             elif self.filetype == 'html': 
                 self.exml = etree.parse(file_path, etree.HTMLParser(remove_comments=True))
+                self.recutext = recutext_html
         except etree.ParseError:
             raise etree.ParseError('Could not parse file %s'%file_path)
 
@@ -183,13 +169,37 @@ class DefinitionsXML(object):
         else:
             self.find_definitions()
 
+        return [self.recutext(self.para_p(r)) for r in self.def_lst]
+
+    def get_def_sample_text_with(self, sample_size=3, min_words=15):
+        '''
+        Starts by running `get_def_text` and then find a random sample of nondefinitions
+        because it checks that the paragraphs is already contained in the definitions
+
+        Returns a dictionary with `realdef` list of definitions
+        and a `nondef` list of paragraphs text
+        '''
+        text_dict = {'real': self.get_def_text()}
         if self.filetype == 'xml':
-            method = recutext_xml
+            para_lst_nonrand = exml.findall('.//latexml:para', self.ns)
         elif self.filetype == 'html':
-            method = recutext_html
-        else:
-            raise NotImplementedError('method for file type: %s has not been created'%self.filetype)
-        return [method(self.para_p(r)) for r in self.def_lst]
+            para_lst_nonrand = self.exml.xpath(".//div[contains(@class, 'ltx_para')]")
+
+        para_lst = random.sample(para_lst_nonrand, sample_size)
+        return_lst = []
+        #create list of para inside def tags to check for repeats
+        check_repeats = set(map(self.para_p, self.def_lst))
+        for p in para_lst:
+            # make sure that the p tag is not in the def list
+            if check_sanity(p, self.ns):
+                para_text =  self.recutext(p)
+                # make sure that the p tag is not in the def list and check min_words
+                if len(para_text.split()) >= min_words and p not in check_repeats:
+                    return_lst.append(para_text)
+            else:
+                print('article %s has messed up para'%f)
+        text_dict['nondef'] = return_lst
+        return text_dict
 
     def write_defs(self, path):
         '''
@@ -202,7 +212,7 @@ class DefinitionsXML(object):
 
     def tag_list(self, tag='p'):
         '''
-        Return a list of the specified tag 
+        Return a list of the specified tag
         The tags are searched from the self.exml file
         '''
         return self.exml.findall('.//latexml:' + tag, self.ns)

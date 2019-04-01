@@ -11,19 +11,8 @@ In search of the negative examples to train on
 
 ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
 
-def check_sanity(p):
-    '''
-    Input:
-    p: element tree result of searching for para tags
-    Checks:
-    contains an ERROR tag
-    '''
-    if p.findall('.//latexml:ERROR', ns):
-        return False
-    else:
-        return True
 
-def sample_article(f, para_per_article=2, min_words=15):
+def sample_article(f, ns, para_per_article=2, min_words=15):
     '''
     Usage: f be a parsable xml tree
     try to get para_per_article paragraphs from this article
@@ -43,7 +32,7 @@ def sample_article(f, para_per_article=2, min_words=15):
 
     return_lst = []
     for p in para_lst:
-        if check_sanity(p):
+        if px.check_sanity(p, ns):
             para_text =  px.recutext_xml(p)
             if len(para_text.split()) >= min_words: #check min_words
                 return_lst.append(para_text)
@@ -69,9 +58,11 @@ if __name__ == '__main__':
         # open the file only once for append
         with open(args.outfile, 'a') as oa:
             for k,f in enumerate(file_list):
-                p_lst = sample_article(f)
-                print("Writing %2d parag in file: %s number %3d/%d               "%(len(p_lst),
-                    '/'.join(f.split('/')[-2:]), k, len(file_list)), end='\r', flush=True)
+                p_lst = sample_article(f, ns)
+                print("Writing %2d parag in file: %s number %3d/%d                    "\
+                        %(len(p_lst),
+                    '/'.join(f.split('/')[-2:]),
+                    k, len(file_list)), end='\r', flush=True)
                 for p in p_lst:
                     oa.write(p + '\n')
         print("------------")

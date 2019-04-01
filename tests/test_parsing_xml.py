@@ -10,6 +10,7 @@ class TestDefinitionsXML(unittest.TestCase):
         cls.xml1 = px.DefinitionsXML('tests/latexmled_files/1501.06563.xml')
         cls.xml_lst1 = cls.xml1.exml.findall('.//ltx:p', namespaces=cls.ns)
         cls.html1 = px.DefinitionsXML('tests/latexmled_files/1501.06563.html')
+        cls.html2 = px.DefinitionsXML('tests/latexmled_files/1501.06563_shortened.html')
         cls.html_lst1 = cls.html1.exml.findall('.//p', namespaces=cls.ns)
 
 
@@ -30,12 +31,18 @@ class TestDefinitionsXML(unittest.TestCase):
     def test_recutext_xml_html_similarity(self):
         #Get the para tags
         para_xml_lst = list(map(px.recutext_xml, self.xml1.exml.findall('.//ltx:para', namespaces=self.ns)))
-        para_html_lst = list(map(px.recutext_html, self.html1.exml.xpath(".//div[contains(@class, 'ltx_para')]" )))
+        para_html_lst = list(map(px.recutext_html,
+            self.html1.exml.xpath(".//div[contains(@class, 'ltx_para')]" )))
         self.assertEqual(para_xml_lst, para_html_lst)
 
     def test_defin_finding(self):
         self.assertEqual(3, len(self.xml1.get_def_text()))
         self.assertEqual(3, len(self.html1.get_def_text()))
+
+    def test_no_repeat_in_sample(self):
+        test_dict = self.html2.get_def_sample_text_with()
+        self.assertEqual(3, len(test_dict['real']))
+        self.assertEqual(0, len(test_dict['nondef']))
 
     def test_defin_xml_html_equal(self):
         self.assertEqual(self.xml1.get_def_text(), self.html1.get_def_text())

@@ -20,3 +20,6 @@ The ordinary metric report:
    micro avg       0.91      0.91      0.91     46355
    macro avg       0.55      0.82      0.62     46355
 weighted avg       0.96      0.91      0.93     46355
+
+####Parsing the data:
+The latest version is wiki_definitions_improved.txt
