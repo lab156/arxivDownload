@@ -1,5 +1,5 @@
 from lxml import etree
-import parsing_xml 
+import parsing_xml
 import pickle
 from nltk.chunk import ChunkParserI
 from ner.chunker import NamedEntityChunker, features
@@ -23,8 +23,8 @@ class Definiendum():
         self.vzer = vzer
         #self.clf = clf
         self.chunk = lambda x: bio.parse(pos_tag(word_tokenize(x)))
-        #first we need to vectorize 
-        
+        #first we need to vectorize
+
         self.trans_vect = vzer.transform(para_lst)
         self.predictions = zip(clf.predict(self.trans_vect), para_lst)
         #print(len(self.predictions))
@@ -40,23 +40,36 @@ class Definiendum():
         dfndum_lst = list(filter(lambda x: isinstance(x, nltk.tree.Tree), chunked))
         flatten = lambda D: ' '.join([d[0] for d in D])
         return [flatten(s) for s in dfndum_lst]
-        
-        
+
+
 
 
 if __name__ == '__main__':
     import sys
+    import argparse
+    parser = argparse.ArgumentParser(description='parsing xml commandline script')
+    parser.add_argument('-c', '--classifier', nargs=1,
+            help='Path to the classier pickle', type=str)
+    parser.add_argument('-b', '--bio', nargs=1,
+            help='Path to the BIO classfier pickle', type=str)
+    parser.add_argument('-v', '--vectorizer', nargs=1,
+            help='Path to the count vectorizer classfier pickle', type=str)
+    parser.add_argument('-t', '--tokenizer', nargs=1,
+            help='Path to the word tokenizer classfier pickle', type=str)
+    parser.add_argument('-x', '--xmlfile', nargs=1,
+            help='Path to the xml file', type=str)
+    args = parser.parse_args(sys.argv[1:])
 
-    with open('data/PickleJar/class.pickle', 'rb') as class_f:
+    with open(args.classifier, 'rb') as class_f:
         clf = pickle.load(class_f)
-    with open('data/PickleJar/chunker.pickle', 'rb') as class_f:
+    with open(args.bio, 'rb') as class_f:
         bio = pickle.load(class_f)
-    with open('data/PickleJar/vectorizer.pickle', 'rb') as class_f:
+    with open(args.vectorizer, 'rb') as class_f:
         vzer = pickle.load(class_f)
-    with open('data/PickleJar/tokenizer.pickle', 'rb') as class_f:
+    with open(args.tokenizer, 'rb') as class_f:
         tokr = pickle.load(class_f)
 
-    px = parsing_xml.DefinitionsXML('data/examples/1501.06563/1501.06563.xml')
+    px = parsing_xml.DefinitionsXML(args.xmlfile)
     para_lst = list(map(px.recutext, px.para_list()))
     ddum = Definiendum(para_lst, clf, bio, vzer, tokr)
 

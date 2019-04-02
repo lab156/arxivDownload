@@ -16,6 +16,11 @@ Classifier Dropdown using code from https://www.kaggle.com/jeffd23/10-classifier
 Best results are given by Naive Bayes apparently
 ```
 ==============================
+MultinomialNB ,  ngrams=(1,4)
+****Results****
+Accuracy: 86.6386%
+Log Loss: 2.723683288081348
+==============================
 MultinomialNB
 ****Results****
 Accuracy: 86.1733%
@@ -114,15 +119,30 @@ SVC ,  C= 1500
 Accuracy: 89.1538%
 Log Loss: 0.30024787143428533
 ==============================
+SVC ,  C= 1550
+****Results****
+Accuracy: 88.5432%
+Log Loss: 0.2999752557432317
+==============================
 SVC ,  C= 1600
 ****Results****
 Accuracy: 89.3574%
 Log Loss: 0.2910790675268322
 ==============================
+SVC ,  C= 1650
+****Results****
+Accuracy: 88.6013%
+Log Loss: 0.29993738201763537
+==============================
 SVC ,  C= 1700
 ****Results****
 Accuracy: 89.3428%
 Log Loss: 0.2910226698211102
+==============================
+SVC ,  C= 1750
+****Results****
+Accuracy: 88.5868%
+Log Loss: 0.2999858999320525
 ==============================
 SVC ,  C= 1800
 ****Results****
