@@ -180,10 +180,7 @@ class DefinitionsXML(object):
         and a `nondef` list of paragraphs text
         '''
         text_dict = {'real': self.get_def_text()}
-        if self.filetype == 'xml':
-            para_lst_nonrand = exml.findall('.//latexml:para', self.ns)
-        elif self.filetype == 'html':
-            para_lst_nonrand = self.exml.xpath(".//div[contains(@class, 'ltx_para')]")
+        para_lst_nonrand = self.para_list()
 
         para_lst = random.sample(para_lst_nonrand, sample_size)
         return_lst = []
@@ -216,6 +213,18 @@ class DefinitionsXML(object):
         The tags are searched from the self.exml file
         '''
         return self.exml.findall('.//latexml:' + tag, self.ns)
+
+    def para_list(self):
+        '''
+        returns a list of the para tags 
+        '''
+        if self.filetype == 'xml':
+            return self.exml.findall('.//latexml:para', self.ns)
+        elif self.filetype == 'html':
+            return self.exml.xpath(".//div[contains(@class, 'ltx_para')]")
+
+
+
 
 
 
