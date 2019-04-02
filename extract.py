@@ -29,8 +29,8 @@ class Definiendum():
         self.predictions = zip(clf.predict(self.trans_vect), para_lst)
         #print(len(self.predictions))
         self.def_lst = [p for pred, p in zip(self.predictions, para_lst) if pred]
-        print(self.chunk(self.def_lst[0]))
-        print(self.get_definiendum(0))
+        print(self.chunk(self.def_lst[8]))
+        print(self.get_definiendum(8))
         for k,p in enumerate(self.predictions):
             if p:
                 pass
@@ -48,16 +48,16 @@ if __name__ == '__main__':
     import sys
     import argparse
     parser = argparse.ArgumentParser(description='parsing xml commandline script')
-    parser.add_argument('-c', '--classifier', nargs=1,
-            help='Path to the classier pickle', type=str)
-    parser.add_argument('-b', '--bio', nargs=1,
+    parser.add_argument('file_names', type=str, nargs='+',
+            help='filenames to find definitions last position is the resulting files')
+    parser.add_argument('-c', '--classifier',
+            help='Path to the classifier pickle', type=str)
+    parser.add_argument('-b', '--bio',
             help='Path to the BIO classfier pickle', type=str)
-    parser.add_argument('-v', '--vectorizer', nargs=1,
+    parser.add_argument('-v', '--vectorizer',
             help='Path to the count vectorizer classfier pickle', type=str)
-    parser.add_argument('-t', '--tokenizer', nargs=1,
+    parser.add_argument('-t', '--tokenizer',
             help='Path to the word tokenizer classfier pickle', type=str)
-    parser.add_argument('-x', '--xmlfile', nargs=1,
-            help='Path to the xml file', type=str)
     args = parser.parse_args(sys.argv[1:])
 
     with open(args.classifier, 'rb') as class_f:
@@ -69,7 +69,8 @@ if __name__ == '__main__':
     with open(args.tokenizer, 'rb') as class_f:
         tokr = pickle.load(class_f)
 
-    px = parsing_xml.DefinitionsXML(args.xmlfile)
+    #for xml_path in args.file_names:
+    px = parsing_xml.DefinitionsXML(args.file_names[0])
     para_lst = list(map(px.recutext, px.para_list()))
     ddum = Definiendum(para_lst, clf, bio, vzer, tokr)
 
