@@ -5,6 +5,9 @@ from nltk.chunk import ChunkParserI
 from ner.chunker import NamedEntityChunker, features
 from nltk import pos_tag, word_tokenize
 import nltk
+import sqlalchemy as sa
+from sqlalchemy.orm import sessionmaker
+from sampling import create_dict
 
 
 class Definiendum():
@@ -57,7 +60,12 @@ class Definiendum():
             dfndum = etree.SubElement(root, 'dfndum')
             dfndum.text = d
         return root
-        
+
+
+def query():
+    return sess.execute('''SELECT id FROM articles
+           where tags LIKE  '[{''term'': ''math.DG''%' and
+           updated_parsed BETWEEN date('2015-01-01')  and date('2015-01-02');''')
         
 
 if __name__ == '__main__':
@@ -77,6 +85,8 @@ if __name__ == '__main__':
             help='Path to the word tokenizer classfier pickle', type=str)
     parser.add_argument('-o', '--output',
             help='The output xml file to store everything', type=str)
+    parser.add_argument('--query', action='store_true', 
+            help='Ignore file_names and query')
     args = parser.parse_args(sys.argv[1:])
 
     with open(args.classifier, 'rb') as class_f:
@@ -103,7 +113,14 @@ if __name__ == '__main__':
         # in this case the file does not exist yet
         root = etree.Element('root')
 
-    for k,xml_path in enumerate(args.file_names):
+    if args.query:
+        art_dict = create_dict()
+        qq = query()
+        file_lst = [art_dict[s] for s in qq if s in art_dict]
+    else:
+        file_lst = args.file_names
+
+    for k,xml_path in enumerate(file_lst):
         havent_done = root.find('.//article[@name = "%s"]'%xml_path) is None
         if havent_done:
             print('Processing file: %s'%os.path.basename(xml_path), end='\r')
