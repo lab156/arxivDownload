@@ -8,10 +8,10 @@ import nltk
 
 
 class Definiendum():
-    def __init__(self, para_lst, clf, bio, vzer, tzer):
+    def __init__(self, px, clf, bio, vzer, tzer):
         '''
         Extracts the definitions with of an xml/html file
-        `para_lst`: list of clean paragraphs (ready to vecorize)
+        `px`: parsing_xml.DefinitionsXML object
         `clf`: definition classifier  (all these objects should be unpickled once)
         `bio`: iob or bio classifier
         `vzer`: word vectorizer
@@ -19,33 +19,50 @@ class Definiendum():
         Output is a dictionary of a list of definiendum, statement of the definition
         paragraph number
         '''
-        self.para_lst = para_lst
+        self.px = px
+        self.para_lst = list(map(px.recutext, px.para_list()))
         self.vzer = vzer
         #self.clf = clf
         self.chunk = lambda x: bio.parse(pos_tag(word_tokenize(x)))
         #first we need to vectorize
 
-        self.trans_vect = vzer.transform(para_lst)
-        self.predictions = zip(clf.predict(self.trans_vect), para_lst)
-        #print(len(self.predictions))
-        self.def_lst = [p for pred, p in zip(self.predictions, para_lst) if pred]
-        print(self.chunk(self.def_lst[8]))
-        print(self.get_definiendum(8))
-        for k,p in enumerate(self.predictions):
-            if p:
-                pass
+        self.trans_vect = vzer.transform(self.para_lst)
+        self.predictions = clf.predict(self.trans_vect)
+        # Create list of pairs of definitions paired with the index in which they appear in the article
+        self.def_lst = [(ind,p) for ind, p in enumerate(self.para_lst) if self.predictions[ind]]
 
-    def get_definiendum(self, k):
-        chunked = self.chunk(self.def_lst[k])
+        self.root = etree.Element('article')
+        self.root.attrib['name'] = px.file_path
+        self.root.attrib['num'] = repr(len(self.para_lst))
+        for ind,p in self.def_lst:
+            defxml = self.create_definition_branch(ind, p)
+            self.root.append(defxml)
+
+    def get_definiendum(self, para):
+        '''
+        `para` is a nltk.tree.Tree For the index `k` return a list of definienda
+        that is, the term being defined
+        '''
+        chunked = self.chunk(para)
         dfndum_lst = list(filter(lambda x: isinstance(x, nltk.tree.Tree), chunked))
-        flatten = lambda D: ' '.join([d[0] for d in D])
-        return [flatten(s) for s in dfndum_lst]
+        join_tokens = lambda D: ' '.join([d[0] for d in D])
+        return [join_tokens(s) for s in dfndum_lst]
 
-
-
+    def create_definition_branch(self, ind, defi):
+        root = etree.Element("definition")
+        root.attrib['index'] = repr(ind)
+        statement = etree.SubElement(root, 'stmnt')
+        statement.text = defi
+        for d in self.get_definiendum(defi):
+            dfndum = etree.SubElement(root, 'dfndum')
+            dfndum.text = d
+        return root
+        
+        
 
 if __name__ == '__main__':
     import sys
+    import os
     import argparse
     parser = argparse.ArgumentParser(description='parsing xml commandline script')
     parser.add_argument('file_names', type=str, nargs='+',
@@ -58,6 +75,8 @@ if __name__ == '__main__':
             help='Path to the count vectorizer classfier pickle', type=str)
     parser.add_argument('-t', '--tokenizer',
             help='Path to the word tokenizer classfier pickle', type=str)
+    parser.add_argument('-o', '--output',
+            help='The output xml file to store everything', type=str)
     args = parser.parse_args(sys.argv[1:])
 
     with open(args.classifier, 'rb') as class_f:
@@ -69,8 +88,46 @@ if __name__ == '__main__':
     with open(args.tokenizer, 'rb') as class_f:
         tokr = pickle.load(class_f)
 
-    #for xml_path in args.file_names:
-    px = parsing_xml.DefinitionsXML(args.file_names[0])
-    para_lst = list(map(px.recutext, px.para_list()))
-    ddum = Definiendum(para_lst, clf, bio, vzer, tokr)
+    if args.output:
+        '''
+        Usage:
+            python extract.py ~/media_home/math.AG/2015/*/*.xml -c ../PickleJar/classifier.pickle -b ../PickleJar/chunker.pickle -v ../PickleJar/vectorizer.pickle -t ../PickleJar/tokenizer.pickle -o ../mathAG_2015.xml
+            '''
+
+        try:
+            root = etree.parse(args.output).getroot()
+        except (OSError, etree.XMLSyntaxError):
+            print(' File %s does not exist, will create later.'%args.output)
+            root = etree.Element('root')
+    else:
+        # in this case the file does not exist yet
+        root = etree.Element('root')
+
+    for k,xml_path in enumerate(args.file_names):
+        havent_done = root.find('.//article[@name = "%s"]'%xml_path) is None
+        if havent_done:
+            print('Processing file: %s'%os.path.basename(xml_path), end='\r')
+            try:
+                px = parsing_xml.DefinitionsXML(xml_path)
+                ddum = Definiendum(px, clf, bio, vzer, tokr)
+                root.append(ddum.root)
+                if k%25 == 0 and args.output:
+                    with open(args.output, 'w') as out_f:
+                        out_f.write(etree.tostring(root, pretty_print=True).decode('utf8'))
+            except (TypeError, etree.ParseError):
+                print('file %s could not be parsed by parsing_xml'%os.path.basename(xml_path))
+            except ValueError as e:
+                print('In the file %s found the problem'%os.path.basename(xml_path))
+                print(e)
+        else:
+            print('Already did file: %s'%os.path.basename(xml_path), end='\r')
+    else:
+        if args.output:
+            with open(args.output, 'w') as out_f:
+                print(etree.tostring(root, pretty_print=True).decode('utf8'), file=out_f)
+        else:
+        # If no output was specified then print the result
+        # This might get very big so not sure if this is the right way
+            print(etree.tostring(root, pretty_print=True).decode('utf8') )
+
 
