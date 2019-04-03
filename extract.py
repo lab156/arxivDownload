@@ -63,6 +63,10 @@ class Definiendum():
 
 
 def query():
+    eng = sa.create_engine('sqlite:///../arxiv1.db')
+    eng.connect()
+    SMaker = sa.orm.sessionmaker(bind=eng)
+    sess = SMaker()
     return sess.execute('''SELECT id FROM articles
            where tags LIKE  '[{''term'': ''math.DG''%' and
            updated_parsed BETWEEN date('2015-01-01')  and date('2015-01-02');''')
