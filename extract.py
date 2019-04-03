@@ -69,7 +69,7 @@ def query():
     sess = SMaker()
     return sess.execute('''SELECT id FROM articles
            where tags LIKE  '[{''term'': ''math.DG''%' and
-           updated_parsed BETWEEN date('2015-01-01')  and date('2015-01-02');''')
+           updated_parsed BETWEEN date('2015-01-01')  and date('2015-01-05');''')
         
 
 if __name__ == '__main__':
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     if args.query:
         art_dict = create_dict()
         qq = query()
-        file_lst = [art_dict[s] for s in qq if s in art_dict]
+        file_lst = [art_dict[s[0]] for s in qq if s[0] in art_dict]
     else:
         file_lst = args.file_names
 
