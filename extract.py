@@ -8,6 +8,7 @@ import nltk
 import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 from sampling import create_dict
+import re
 
 
 class Definiendum():
@@ -69,7 +70,7 @@ def query():
     sess = SMaker()
     return sess.execute('''SELECT id FROM articles
            where tags LIKE  '[{''term'': ''math.DG''%' and
-           updated_parsed BETWEEN date('2015-01-01')  and date('2015-01-05');''')
+           updated_parsed BETWEEN date('2015-01-01')  and date('2015-12-31');''')
         
 
 if __name__ == '__main__':
@@ -120,7 +121,8 @@ if __name__ == '__main__':
     if args.query:
         art_dict = create_dict()
         qq = query()
-        file_lst = [art_dict[s[0]] for s in qq if s[0] in art_dict]
+        change_path = lambda p: re.sub(r'^/mnt/', '/home/luis/media_home/', p)
+        file_lst = [change_path(art_dict[s[0]]) for s in qq if s[0] in art_dict]
     else:
         file_lst = args.file_names
 

@@ -1,0 +1,6 @@
+\begin{itemize}
+    \item Results using SVC in \textbf{scikit-learn}
+    \includegraphics[width=0.7\textwidth]{class_results_svc.png}
+    \item Sanity check:
+    \includegraphics[width=0.95\textwidth]{sanity_check.png}
+    \end{itemize}
