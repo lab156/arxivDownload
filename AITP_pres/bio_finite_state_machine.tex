@@ -1,0 +1,15 @@
+\begin{tikzpicture}[scale=0.5, ->,>=stealth',shorten >=1pt,auto,node distance=2.8cm, semithick ]
+  \tikzstyle{every state}=[fill=purple,draw=none,text=white]
+
+  \node[initial,state] (A)                    {$B$};
+  \node[state]         (B) [above right of=A] {$I$};
+  %\node[state]         (D) [below right of=A] {$q_d$};
+  \node[initial,state]         (C) [below right of=A] {$O$};
+  %\node[state]         (E) [below of=D]       {$q_e$};
+
+  \path (A) edge              node {} (B)
+            edge              node {} (C)
+        (B) edge [loop above] node {} (B)
+            edge              node {} (C)
+        (C) edge [loop below]  node {} (C);
+\end{tikzpicture}
