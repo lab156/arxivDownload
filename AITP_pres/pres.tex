@@ -1,5 +1,10 @@
 \documentclass{beamer}
 %\usetheme{Madrid}
+\newlength{\pageheight}
+\setlength{\pageheight}{10cm}
+
+\usepackage{handoutWithNotes}
+\pgfpagesuselayout{2 on 1 with notes landscape}[a4paper,border shrink=5mm]
 \usepackage[utf8]{inputenc}
 \usepackage{dirtytalk}
 
@@ -7,12 +12,19 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows,automata}
 
+
+
 \titlegraphic{\includegraphics[width=0.2\textwidth]{University_of_Pittsburgh_seal.png}}
 \title{Project Proposal: Creating a Database of Definitions From Large Mathematical Corpora}
 \subtitle{A comprehensive dictionary of all mathematical lexicon}
 \author{Luis Berlioz\\
 \texttt{lab232@pitt.edu}}
 \institute{University of Pittsburgh}
+
+% Explain _inline_math_ better
+% Explain all the acronyms BIO, SVC, nltk
+% Credit Bruce Miller
+% Keep one term for everything e.g. latex equation
 
 \begin{document}
 \begin{frame}
@@ -26,13 +38,14 @@
 \item Organize them by meaning, dependency, etc.
 \item Make it publicly available in the most useful format for machine learning practitioners.
 \item \say{\textit{When one starts to delve into the language of mathematics, one encounters
-        a phenomenon that is much more remarkable than the use of symbols. Mathematical language \emph{expands} as more mathematics is encountered.}} Mohan Ganisalengam
+        a phenomenon that is much more remarkable than the use of symbols. Mathematical language \emph{expands} as more mathematics is encountered.}} Mohan Ganisalengam.
+    \item \say{\textit{...the proof of [Stokes’] theorem is, in the mathematician’s sense, an utter triviality — a straight-forward calculation. On the other hand, even the statement of this triviality cannot be understood without a horde of definitions... There are good reasons why the theorems should all be easy and the definitions hard...}}  Michael Spivak.
 \end{itemize}
 \end{frame}
 
 \section{Data Pipeline}
 %%%%FRAME
-\begin{frame}{arXiv Website bulk download}
+\begin{frame}{arXiv Website Bulk Download}
     \framesubtitle{All the \LaTeX{} source can be downloaded from an Amazon S3 bucket}
     \begin{columns}[T]
         \begin{column}{0.4\textwidth}
@@ -108,7 +121,7 @@
             \item Go through every of wikipedia article looking for a Definition section that contains the title.
             \item We obtain a pair: (\textbf{Definienda},  Definition).
             \item Just 5,321 matches out of almost 6 million articles.
-            \item Several other website could be scrapped e.g. The Stacks project
+            \item Several other website could be scraped e.g. The Stacks project
             \end{itemize}
         \end{column}
     \end{columns}
@@ -116,7 +129,7 @@
 
 %%%%FRAME
 \begin{frame}{Evaluating the NER Tagger} 
-    \framesubtitle{Results of the BIO parser}
+    \framesubtitle{Results of the BIO parser using the ChunkParserI method in the \textbf{nltk} library}
     \begin{columns}[T]
         \begin{column}{0.5\textwidth}
             \begin{tabular}{|c|c|r|}
@@ -159,7 +172,7 @@
 %%%%FRAME
 \begin{frame} 
     \frametitle{Conclusions and Some Results}
-    Some definitions found in the 2015 math.DG articles
+    Some definitions found in the 2015 math.DG articles:
     {\tiny\begin{tabular}{|l|l|}
         \hline
         almost flat manifold  &   An almost flat manifold whose 2-sylow subgroup of the holonomy group...\\
@@ -176,8 +189,6 @@
         \hline
         Tangent bundles of  &   Tangent bundles of infranilmanifolds are flat:...\\
         \hline
-        infranilmanifold  &   Consider an infranilmanifold \_inline\_math\_. Note that \_inline\_math\_ i...\\
-        \hline
         warped product  &   The warped product provides a way to construct new pseudo-riemannian...\\
         \hline
         Dualistic structures  &   Dualistic structures are closely related to statistical mathematics....\\
@@ -188,7 +199,7 @@
         \hline
     \end{tabular}}
     \begin{itemize}
-            \item We believe that we have collected enough to believe that a robust collector of definitions from mathematical publications is possible.
+            \item We believe that we have collected enough evidence to believe that a robust collector of definitions from mathematical publications is possible.
             \item A lot of interesting work ahead:
                 \begin{itemize}
                     \item Up until now we have ignored all math formulas and symbols.
