@@ -1,10 +1,10 @@
 \documentclass{beamer}
 %\usetheme{Madrid}
-\newlength{\pageheight}
-\setlength{\pageheight}{10cm}
+%\newlength{\pageheight}
+%\setlength{\pageheight}{10cm}
+%\usepackage{handoutWithNotes}
+%\pgfpagesuselayout{2 on 1 with notes landscape}[a4paper,border shrink=5mm]
 
-\usepackage{handoutWithNotes}
-\pgfpagesuselayout{2 on 1 with notes landscape}[a4paper,border shrink=5mm]
 \usepackage[utf8]{inputenc}
 \usepackage{dirtytalk}
 
@@ -31,16 +31,21 @@
 \titlepage
 \end{frame}
 \section{Objectives}
-\begin{frame}{Project Objectives}
-    \framesubtitle{What are we doing and why do we care about definitions}
-\begin{itemize}
-\item Find a comprehensive list of all the definitions used in Mathematics.
-\item Organize them by meaning, dependency, etc.
-\item Make it publicly available in the most useful format for machine learning practitioners.
-\item \say{\textit{When one starts to delve into the language of mathematics, one encounters
-        a phenomenon that is much more remarkable than the use of symbols. Mathematical language \emph{expands} as more mathematics is encountered.}} Mohan Ganisalengam.
-    \item \say{\textit{...the proof of [Stokes’] theorem is, in the mathematician’s sense, an utter triviality — a straight-forward calculation. On the other hand, even the statement of this triviality cannot be understood without a horde of definitions... There are good reasons why the theorems should all be easy and the definitions hard...}}  Michael Spivak.
-\end{itemize}
+\begin{frame}{Objectives and Outline}
+    \textit{Create a machine learning system that can find the definitions and the terms being defined in large collections of mathematical texts. }
+
+
+    This system has two parts:
+\begin{description}
+    \item[The Classifier:] Tells if a given paragraph is a definition or not
+        \begin{itemize}
+                \item 
+        \end{itemize}
+    \item[A Named Entity Recognition system:] given a definition, returns the term that is being defined.
+%\item \say{\textit{When one starts to delve into the language of mathematics, one encounters
+%        a phenomenon that is much more remarkable than the use of symbols. Mathematical language \emph{expands} as more mathematics is encountered.}} Mohan Ganisalengam.
+%    \item \say{\textit{...the proof of [Stokes’] theorem is, in the mathematician’s sense, an utter triviality — a straight-forward calculation. On the other hand, even the statement of this triviality cannot be understood without a horde of definitions... There are good reasons why the theorems should all be easy and the definitions hard...}}  Michael Spivak.
+\end{description}
 \end{frame}
 
 \section{Data Pipeline}
@@ -173,31 +178,12 @@
 \begin{frame} 
     \frametitle{Conclusions and Some Results}
     Some definitions found in the 2015 math.DG articles:
-    {\tiny\begin{tabular}{|l|l|}
-        \hline
-        almost flat manifold  &   An almost flat manifold whose 2-sylow subgroup of the holonomy group...\\
-        \hline
-        An infranilmanifold  &   An infranilmanifold is a double coset space \_inline\_math\_ where \_inli...\\
-        \hline
-        normal subgroup  &   Let \_inline\_math\_. Then \_inline\_math\_ is a normal subgroup of \_inline...\\
-        \hline
-        central involution  &   A central involution \_inline\_math\_ of an infranilmanifold \_inline\_mat...\\
-        \hline
-        infranilmanifold  &   Any infranilmanifold \_inline\_math\_ with \_inline\_math\_ a 2-group has a...\\
-        \hline
-        vector bundle  &   A vector bundle \_inline\_math\_ is flat if it has finite structure grou...\\
-        \hline
-        Tangent bundles of  &   Tangent bundles of infranilmanifolds are flat:...\\
-        \hline
-        warped product  &   The warped product provides a way to construct new pseudo-riemannian...\\
-        \hline
-        Dualistic structures  &   Dualistic structures are closely related to statistical mathematics....\\
-        \hline
-        affine connection  &   In the notions of terms on statistical manifolds, for a torsion-free...\\
-        \hline
-        horizontal lift  &   Let \_inline\_math\_ in \_inline\_math\_. The horizontal lift of \_inline\_ma...\\
-        \hline
-    \end{tabular}}
+    \begin{block}{Ex. hits the target}
+        {\small An {\color{blue}induced generalized Kähler structure} on \_inline\_math\_ is a Lie algebraic generalized Kähler structure with \_inline\_math\_. It is a canonical generalized Kähler structure if \_inline\_math\_.}
+    \end{block}
+    \begin{exampleblock}{Ex. blunder}
+        Suppose \_inline\_math\_ is a {\color{green}vector space}. The only connection on the {\color{green}graded manifold} \_inline\_math\_ is the {\color{blue}trivial connection}.
+    \end{exampleblock}
     \begin{itemize}
             \item We believe that we have collected enough evidence to believe that a robust collector of definitions from mathematical publications is possible.
             \item A lot of interesting work ahead:
@@ -214,3 +200,29 @@
 \end{frame}
 \end{document}
 
+% I removed this table to have a cleaner format
+%    {\tiny\begin{tabular}{|l|l|}
+%        \hline
+%        almost flat manifold  &   An almost flat manifold whose 2-sylow subgroup of the holonomy group...\\
+%        \hline
+%        An infranilmanifold  &   An infranilmanifold is a double coset space \_inline\_math\_ where \_inli...\\
+%        \hline
+%        normal subgroup  &   Let \_inline\_math\_. Then \_inline\_math\_ is a normal subgroup of \_inline...\\
+%        \hline
+%        central involution  &   A central involution \_inline\_math\_ of an infranilmanifold \_inline\_mat...\\
+%        \hline
+%        infranilmanifold  &   Any infranilmanifold \_inline\_math\_ with \_inline\_math\_ a 2-group has a...\\
+%        \hline
+%        vector bundle  &   A vector bundle \_inline\_math\_ is flat if it has finite structure grou...\\
+%        \hline
+%        Tangent bundles of  &   Tangent bundles of infranilmanifolds are flat:...\\
+%        \hline
+%        warped product  &   The warped product provides a way to construct new pseudo-riemannian...\\
+%        \hline
+%        Dualistic structures  &   Dualistic structures are closely related to statistical mathematics....\\
+%        \hline
+%        affine connection  &   In the notions of terms on statistical manifolds, for a torsion-free...\\
+%        \hline
+%        horizontal lift  &   Let \_inline\_math\_ in \_inline\_math\_. The horizontal lift of \_inline\_ma...\\
+%        \hline
+%    \end{tabular}}
