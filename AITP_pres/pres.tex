@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass[10pt]{beamer}
 %\usetheme{Madrid}
 %\newlength{\pageheight}
 %\setlength{\pageheight}{10cm}
@@ -11,10 +11,20 @@
 \usepackage{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,automata}
+\beamertemplatenavigationsymbolsempty
+
+\addtobeamertemplate{title page}{\includegraphics[scale=.05]{{University_of_Pittsburgh_seal.png}} \hfill \includegraphics[scale=.3]{fabstracts2.png}}{}
 
 
+%\titlegraphic{
+%    \begin{tikzpicture}[overlay, remember picture]
+%\node[at=(current page.north), anchor=north] {%
+%    \includegraphics[width=0.2\textwidth]{University_of_Pittsburgh_seal.png}
+%    \includegraphics[width=0.35\textwidth]{fabstracts.png}
+%        };
+%    \end{tikzpicture}
+%}
 
-\titlegraphic{\includegraphics[width=0.2\textwidth]{University_of_Pittsburgh_seal.png}}
 \title{Project Proposal: Creating a Database of Definitions From Large Mathematical Corpora}
 \subtitle{A comprehensive dictionary of all mathematical lexicon}
 \author{Luis Berlioz\\
@@ -32,16 +42,23 @@
 \end{frame}
 \section{Objectives}
 \begin{frame}{Objectives and Outline}
+    \begin{block}{Objective}
     \textit{Create a machine learning system that can find the definitions and the terms being defined in large collections of mathematical texts. }
+    \end{block}
 
 
     This system has two parts:
 \begin{description}
     \item[The Classifier:] Tells if a given paragraph is a definition or not
         \begin{itemize}
-                \item 
+                \item Download the arXiv website.
+                \item Getting training data.
         \end{itemize}
     \item[A Named Entity Recognition system:] given a definition, returns the term that is being defined.
+        \begin{itemize}
+                \item Download the arXiv website.
+                \item Training the Named Entity Recognition system.
+        \end{itemize}
 %\item \say{\textit{When one starts to delve into the language of mathematics, one encounters
 %        a phenomenon that is much more remarkable than the use of symbols. Mathematical language \emph{expands} as more mathematics is encountered.}} Mohan Ganisalengam.
 %    \item \say{\textit{...the proof of [Stokes’] theorem is, in the mathematician’s sense, an utter triviality — a straight-forward calculation. On the other hand, even the statement of this triviality cannot be understood without a horde of definitions... There are good reasons why the theorems should all be easy and the definitions hard...}}  Michael Spivak.
@@ -104,14 +121,9 @@
     \item Sanity check:
     \includegraphics[width=0.95\textwidth]{sanity_check.png}
     \end{itemize}
-    \begin{columns}[T]
-        \begin{column}{0.5\textwidth}
-     \includegraphics[width=0.8\textwidth]{def_appear_hist.png}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-    \includegraphics[width=\textwidth]{scatter_plot.png}
-        \end{column}
-    \end{columns}
+    \begin{center}
+     \includegraphics[width=0.5\textwidth]{def_appear_hist.png}
+    \end{center}
 \end{frame}
 
 %%%%FRAME
@@ -182,8 +194,14 @@
         {\small An {\color{blue}induced generalized Kähler structure} on \_inline\_math\_ is a Lie algebraic generalized Kähler structure with \_inline\_math\_. It is a canonical generalized Kähler structure if \_inline\_math\_.}
     \end{block}
     \begin{exampleblock}{Ex. blunder}
-        Suppose \_inline\_math\_ is a {\color{green}vector space}. The only connection on the {\color{green}graded manifold} \_inline\_math\_ is the {\color{blue}trivial connection}.
+        {\small Suppose \_inline\_math\_ is a {\color{green}vector space}. The only connection on the {\color{green}graded manifold} \_inline\_math\_ is the {\color{blue}trivial connection}.}
     \end{exampleblock}
+        \begin{center}
+    \includegraphics[width=0.45\textwidth]{cum_terms.png} 
+        \end{center}
+\end{frame}
+%%%%FRAME
+\begin{frame} 
     \begin{itemize}
             \item We believe that we have collected enough evidence to believe that a robust collector of definitions from mathematical publications is possible.
             \item A lot of interesting work ahead:
@@ -194,10 +212,13 @@
                 \end{itemize}
     \end{itemize}
 \end{frame}
+
 %%FRAME
 \begin{frame}
 \titlepage
 \end{frame}
+
+
 \end{document}
 
 % I removed this table to have a cleaner format
