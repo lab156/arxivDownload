@@ -8,6 +8,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{dirtytalk}
 
+\definecolor{darkgreen}{rgb}{0.0, 0.5, 0.0}
+
 \usepackage{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,automata}
@@ -41,54 +43,43 @@
 \titlepage
 \end{frame}
 \section{Objectives}
+
+%%%%FRAME
 \begin{frame}{Objectives and Outline}
     \begin{block}{Objective}
     \textit{Create a machine learning system that can find the definitions and the terms being defined in large collections of mathematical texts. }
     \end{block}
 
 
-    This system has two parts:
+    The problem is broken down into two parts:
 \begin{description}
     \item[The Classifier:] Tells if a given paragraph is a definition or not
-        \begin{itemize}
-                \item Download the arXiv website.
-                \item Getting training data.
-        \end{itemize}
-    \item[A Named Entity Recognition system:] given a definition, returns the term that is being defined.
-        \begin{itemize}
-                \item Download the arXiv website.
-                \item Training the Named Entity Recognition system.
-        \end{itemize}
+    \item[A Named Entity Recognition system:] given a definition, returns the term that is being defined (definiendum).
 %\item \say{\textit{When one starts to delve into the language of mathematics, one encounters
 %        a phenomenon that is much more remarkable than the use of symbols. Mathematical language \emph{expands} as more mathematics is encountered.}} Mohan Ganisalengam.
 %    \item \say{\textit{...the proof of [Stokes’] theorem is, in the mathematician’s sense, an utter triviality — a straight-forward calculation. On the other hand, even the statement of this triviality cannot be understood without a horde of definitions... There are good reasons why the theorems should all be easy and the definitions hard...}}  Michael Spivak.
 \end{description}
+For each part I will describe how to:
+        \begin{itemize}
+                \item Get and process the relevant  data.
+                \item Train and take a look at the results.
+        \end{itemize}
 \end{frame}
 
 \section{Data Pipeline}
 %%%%FRAME
 \begin{frame}{arXiv Website Bulk Download}
-    \framesubtitle{All the \LaTeX{} source can be downloaded from an Amazon S3 bucket}
+    \framesubtitle{All the \LaTeX{} source files can be downloaded from an Amazon S3 bucket}
     \begin{columns}[T]
-        \begin{column}{0.4\textwidth}
+        \begin{column}{0.5\textwidth}
     \includegraphics[width=\textwidth]{bulk_download.png} 
         \end{column}
         \begin{column}{0.6\textwidth}
             \begin{itemize}
                 \item About 885 Gigabytes of .tar files.
                 \item Each .tar file is about 500 Megabytes.
-                \item \texttt{arXiv\_src\_1806\_033.tar}
-                    \begin{itemize}
-\item \hspace{4em}      $\vdots$
-\item 1806/1806.11561.gz
-\item 1806/1806.11543.gz
-\item 1806/1806.11557.pdf
-\item 1806/1806.11567.gz
-\item 1806/1806.11568.gz
-\item \hspace{4em}      $\vdots$
-\end{itemize}
-
-
+                \item Download without affecting the website's traffic.
+                \item \LaTeX{} source is converted to a more structured format.
             \end{itemize}
         \end{column}
     \end{columns}
@@ -98,14 +89,17 @@
 \begin{frame}{LaTeXML}
     \framesubtitle{Process each article to get a more structured format}
     \includegraphics[width=0.9\textwidth]{ltxml_website.png}
-    \includegraphics[width=0.9\textwidth]{ltxml_github1.png}
     \includegraphics[width=0.9\textwidth]{ltxml_github2.png}
+    \includegraphics[width=0.9\textwidth]{ltxml_github1.png}
+    \begin{flushright}
+        {\tiny credit: Bruce Miller, \texttt{www.nist.gov/people/bruce-r-miller}}
+    \end{flushright}
 \end{frame}
 
 %%%%FRAME
 \begin{frame}{Obtaining and Classifying Definitions}
     \begin{itemize}
-            \item Sometimes the author of an article uses a \LaTeX macro to label a definition. These are our positive labels:
+        \item Sometimes the author of an article uses a \LaTeX{} macro to label a definition. These are our positive labels:
     \includegraphics[width=0.9\textwidth]{ltxml_defin_xml.png}
     \item To get negative labels, we pick paragraphs at random and assume they are not definitions.
         \item This has the drawback that some of the non--definitions are wrong.
@@ -114,9 +108,9 @@
 
 
 %%%%FRAME
-\begin{frame}{Some common metrics for Classification}
+\begin{frame}{Some Classification Results}
     \begin{itemize}
-    \item Results using SVC in \textbf{scikit-learn}
+        \item Results using SVC (Support Vector Classifier) in \textbf{scikit-learn}
     \includegraphics[width=0.7\textwidth]{class_results_svc.png}
     \item Sanity check:
     \includegraphics[width=0.95\textwidth]{sanity_check.png}
@@ -136,17 +130,18 @@
         \begin{column}{0.5\textwidth}
             \begin{itemize}
             \item Go through every of wikipedia article looking for a Definition section that contains the title.
-            \item We obtain a pair: (\textbf{Definienda},  Definition).
+            \item We obtain a pair:\\
+                (\textbf{Definienda},  Definition).
             \item Just 5,321 matches out of almost 6 million articles.
-            \item Several other website could be scraped e.g. The Stacks project
+            \item Several other websites could be used e.g. The Stacks project
             \end{itemize}
         \end{column}
     \end{columns}
 \end{frame}
 
 %%%%FRAME
-\begin{frame}{Evaluating the NER Tagger} 
-    \framesubtitle{Results of the BIO parser using the ChunkParserI method in the \textbf{nltk} library}
+\begin{frame}{Training and Evaluating the NER System} 
+    \framesubtitle{Results of the IOB parser using the ChunkParserI method in the \textbf{nltk} library}
     \begin{columns}[T]
         \begin{column}{0.5\textwidth}
             \begin{tabular}{|c|c|r|}
@@ -188,27 +183,28 @@
 
 %%%%FRAME
 \begin{frame} 
-    \frametitle{Conclusions and Some Results}
     Some definitions found in the 2015 math.DG articles:
-    \begin{block}{Ex. hits the target}
+    \begin{block}{Ex. Things we like}
         {\small An {\color{blue}induced generalized Kähler structure} on \_inline\_math\_ is a Lie algebraic generalized Kähler structure with \_inline\_math\_. It is a canonical generalized Kähler structure if \_inline\_math\_.}
     \end{block}
-    \begin{exampleblock}{Ex. blunder}
-        {\small Suppose \_inline\_math\_ is a {\color{green}vector space}. The only connection on the {\color{green}graded manifold} \_inline\_math\_ is the {\color{blue}trivial connection}.}
+    \begin{exampleblock}{Ex. Things we don't like}
+        {\small Suppose \_inline\_math\_ is a {\color{darkgreen}vector space}. The only connection on the {\color{darkgreen}graded manifold} \_inline\_math\_ is the {\color{blue}trivial connection}.}
     \end{exampleblock}
         \begin{center}
-    \includegraphics[width=0.45\textwidth]{cum_terms.png} 
+    \includegraphics[width=0.5\textwidth]{cum_terms.png} 
         \end{center}
 \end{frame}
 %%%%FRAME
 \begin{frame} 
+    \frametitle{Conclusions and Future Work}
     \begin{itemize}
-            \item We believe that we have collected enough evidence to believe that a robust collector of definitions from mathematical publications is possible.
+            \item We think that we have collected enough evidence to believe that a robust collector of definitions is possible.
             \item A lot of interesting work ahead:
                 \begin{itemize}
-                    \item Up until now we have ignored all math formulas and symbols.
-                    \item Produce word embedding with math tokens (e.g. where smooth manifold is just one token).
-                        \item Visualize the new terminology to assist with classification and dissambiguation.
+                    \item Organize the definitions in a \emph{dependency tree structure.}
+                    \item Produce word embedding with math tokens\\
+                        (e.g. where \emph{Banach space} is just one token).
+                \item Visualize the new terminology to assist with classification and disambiguation. 
                 \end{itemize}
     \end{itemize}
 \end{frame}
