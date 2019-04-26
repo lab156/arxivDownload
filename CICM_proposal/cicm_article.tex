@@ -1,0 +1,199 @@
+\documentclass[a4paper]{easychair}
+
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\usepackage{color}
+\definecolor{gray}{rgb}{0.4,0.4,0.4}
+\definecolor{darkblue}{rgb}{0.0,0.0,0.6}
+\definecolor{cyan}{rgb}{0.0,0.6,0.6}
+
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  showstringspaces=false,
+  commentstyle=\color{gray}\upshape
+}
+
+\lstdefinelanguage{XML}
+{
+  morestring=[b]",
+  morestring=[s]{>}{<},
+  morecomment=[s]{<?}{?>},
+  stringstyle=\color{black},
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{cyan},
+  morekeywords={xmlns,version,type}% list your attributes here
+}
+
+\authorrunning{Berlioz, Luis}
+\titlerunning{Creating a Database of Definitions From Large Mathematical Corpora}
+\author{Luis Berlioz}
+\title{Project Proposal: Creating a Database of Definitions From Large Mathematical Corpora}
+\institute{
+    University of Pittsburgh\\
+    \email{lab232@pitt.edu}
+}
+\begin{document}
+\maketitle
+\begin{abstract}
+   \input{abstract.tex}
+\end{abstract}
+\section{Introduction}
+In this paper we describe a system for the extraction of definitions and definienda from large collections of digital mathematical documents like the arXiv website. The main objective of this system is to organize all the mathematical lexicon both by dependency and semantically.  We also go over the implementation of a prototype of such system. As well as the processing of the different sources of digital documents used to create this first implementation. The resulting system, although unfinished, provides a convincing proof  of concept as well as a baseline for the development of more effective systems of this type in the future.
+
+\section{Obtaining the Data}
+The two main sources of data used in this project are the arXiv and Wikipedia websites. To download the data from the arXiv without affecting the website's traffic, we used the bulk download service\footnote{https://arxiv.org/help/bulk\_data\_s3}. The \LaTeX{} source of each article is compressed together in large tar files. Similarly, the Wikipedia data can be downloaded as a compressed multistream file\footnote{https://dumps.wikimedia.org/enwiki/}. 
+
+\subsection{Processing the arXiv articles}
+The \LaTeX{} source from the arXiv has to be further processed before it becomes useful. This is why the \LaTeX{} source was converted to a more structured format using the software package LaTeXML \cite{miller3latexml}. LaTeXML converts the \TeX{} source first to xml and optionally to html by using an additionally script. 
+
+\lstset{language=XML,
+basicstyle={\tiny\ttfamily},}
+\begin{center}
+\begin{figure}[h]
+    \label{xml1}
+\begin{lstlisting}
+    <theorem class="ltx_theorem_definition" inlist="thm theorem:definition" xml:id="Thmdefinition1">
+      <tags>
+        <tag>Definition 1</tag>
+        <tag role="refnum">1</tag>
+        <tag role="typerefnum">Definition 1</tag>
+      </tags>
+      <title class="ltx_runin"><tag><text font="bold">Definition 1</text></tag>.</title>
+      <para xml:id="Thmdefinition1.p1">
+        <p class="ltx_emph"><text font="italic">Let <Math mode="inline" tex="k" text="k" xml:id="Thmdefinition1.p1.m1">
+              <XMath>
+                <XMTok role="UNKNOWN">k</XMTok>
+              </XMath>
+\end{lstlisting}
+    \caption{example of LaTeXML output of a definition in an article}
+\end{figure}
+\end{center}
+
+%\begin{center}
+%    \begin{figure}[h]
+%\begin{tabular}{ll}
+%    \LaTeX{}  Source & XML Output \\
+%    \verb|nice to meet you\n|
+%    \verb|this is so nice|
+%     &
+%    all you can eat 
+%\end{tabular}
+%    \end{figure}
+%\end{center}
+
+\section{Classifying Definitions}
+Recent work indicates that well known text classification algorithms \cite{bengio2003neural,chen2017improving} can have excellent accuracy  at determining when a certain paragraph is in fact a definition \cite{webscipara}. The content of the arXiv articles are tokenized and fed into a word embedding algorithm like GloVe \cite{pennington2014glove}. This has been  implemented already and is available in \cite{SML}. 
+
+As training data for the classifier, we use the passages of certain articles that are labeled as definitions by the author by placing them in certain \LaTeX{} macro environments. These macros are normally defined in the preamble of the document using the \textbackslash \texttt{newtheorem} macro. LaTeXML deals with the user defined macros and tags the corresponding text in the output like in figure \ref{xml1}. We have performed successful experiments  using common general purpose algorithms implemented in the scikit--learn Python library \cite{scikit-learn}. And these were confirmed with the results shown on the website \url{https://corpora.mathweb.org/classify_paragraph}.
+In table \ref{sanity} we can observe the result of the classifier on some simple examples.
+
+\begin{table}[h]
+    \begin{center}
+    \begin{tabular}{|p{0.5\textwidth}|c|}
+        \hline
+        \hline
+        \textbf{Input to the Classifier} & \textbf{Result} \\
+        \hline
+        \hline
+        a banach space is defined as a complete vector space. & \textbf{True}\\
+        \hline
+        This is not a definition honestly. even if it includes technical words like scheme and cohomology & \textbf{False} \\
+        \hline
+        There is no real reason as to why this classifier is so good. & \textbf{False}\\
+        \hline
+        a triangle is equilateral if and only if all its sides are the same length. & \textbf{True}\\
+        \hline
+    \end{tabular}
+    \caption{\label{sanity}simple examples of the behaviour of the classifier}
+    \end{center} 
+\end{table}
+
+The classifier takes the text of each paragraph of an article and outputs an estimate of the probability of it being a definition or not. In this situation, we consider the \textit{fasttext} method in \cite{bagof} which has a slightly lower accuracy but evaluates a passage much faster than any method previously considered.
+
+\begin{figure}
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        {\small \begin{verbatim}
+==============================
+MultinomialNB ,  ngrams=(1,4)
+****Results****
+Accuracy: 86.6386%
+Log Loss: 2.723683288081348
+==============================
+MultinomialNB
+****Results****
+Accuracy: 86.1733%
+Log Loss: 1.8957941996159562
+==============================
+SVC ,  C= 2000
+****Results****
+Accuracy: 89.3283%
+Log Loss: 0.29110830190582887
+==============================
+NuSVC
+****Results****
+Accuracy: 84.0215%
+Log Loss: 0.34342025343628446
+        \end{verbatim}}
+
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        {\small
+        \begin{verbatim}
+==============================
+DecisionTreeClassifier
+****Results****
+Accuracy: 81.3609%
+Log Loss: 6.437730639470123
+==============================
+RandomForestClassifier
+****Results****
+Accuracy: 83.6580%
+Log Loss: 0.6044826387423514
+==============================
+AdaBoostClassifier
+****Results****
+Accuracy: 84.4868%
+Log Loss: 0.6717126298133219
+==============================
+GradientBoostingClassifier
+****Results****
+Accuracy: 85.8098%
+Log Loss: 0.3531810109520398
+        \end{verbatim}}
+    \end{minipage}
+        \caption{\label{showdown}comparison of the most common classification algoriths on classifying definitions}
+\end{figure}
+
+\begin{table}[h]
+    \begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \hline
+          & precision  &  recall &  $F_1$-score & support\\
+\hline
+\hline
+         nondefs  &   0.73   &  0.91  &   0.81   &    2,217\\
+         \hline
+         definitions   &    0.95   &   0.84  &    0.89  & 4,661\\
+         \hline
+         \multicolumn{5}{}{}\\
+         \hline
+   micro avg   &    0.86  &    0.86  &    0.86   &   6,878\\
+         \hline
+   macro avg   &    0.84  &    0.87  &    0.85   &   6,878\\
+         \hline
+weighted avg   &    0.88  &    0.86  &    0.87   &   6,878\\
+         \hline
+    \end{tabular}
+        \caption{\label{metrics} Overall performance of the SVC classifier on the test set}
+    \end{center} 
+\end{table}
+\bibliographystyle{plain}
+\bibliography{cicm_proposal}
+\end{document}
