@@ -68,7 +68,7 @@ basicstyle={\tiny\ttfamily},}
                 <XMTok role="UNKNOWN">k</XMTok>
               </XMath>
 \end{lstlisting}
-    \caption{example of LaTeXML output of a definition in an article}
+    \caption{\label{xml1} example of LaTeXML output of a definition in an article}
 \end{figure}
 \end{center}
 
@@ -85,7 +85,7 @@ basicstyle={\tiny\ttfamily},}
 %\end{center}
 
 \section{Classifying Definitions}
-Recent work indicates that well known text classification algorithms \cite{bengio2003neural,chen2017improving} can have excellent accuracy  at determining when a certain paragraph is in fact a definition \cite{webscipara}. The content of the arXiv articles are tokenized and fed into a word embedding algorithm like GloVe \cite{pennington2014glove}. This has been  implemented already and is available in \cite{SML}. 
+Recent work indicates that well known text classification algorithms \cite{bengio2003neural,chen2017improving} can have excellent accuracy  at determining whether certain paragraph is in fact a definition \cite{webscipara}. The content of the arXiv articles are tokenized and fed into a word embedding algorithm like GloVe \cite{pennington2014glove}. This has been  implemented already and is available in \cite{SML}. 
 
 As training data for the classifier, we use the passages of certain articles that are labeled as definitions by the author by placing them in certain \LaTeX{} macro environments. These macros are normally defined in the preamble of the document using the \textbackslash \texttt{newtheorem} macro. LaTeXML deals with the user defined macros and tags the corresponding text in the output like in figure \ref{xml1}. We have performed successful experiments  using common general purpose algorithms implemented in the scikit--learn Python library \cite{scikit-learn}. And these were confirmed with the results shown on the website \url{https://corpora.mathweb.org/classify_paragraph}.
 In table \ref{sanity} we can observe the result of the classifier on some simple examples.
@@ -111,7 +111,7 @@ In table \ref{sanity} we can observe the result of the classifier on some simple
     \end{center} 
 \end{table}
 
-The classifier takes the text of each paragraph of an article and outputs an estimate of the probability of it being a definition or not. In this situation, we consider the \textit{fasttext} method in \cite{bagof} which has a slightly lower accuracy but evaluates a passage much faster than any method previously considered.
+ Text classifier normally take each paragraph of an article and output an estimate of the probability of it being a definition or not.  Figure \ref{showdown} present the basic performance metrics of the some of the classifiers implemented in the scikit-learn library. The Support Vector Classifier was observed to have the best performance and a more detailed view of the result is pictured in \ref{metrics}. In this situation, we consider the \textit{fasttext} method in \cite{bagof} which has a slightly lower accuracy but evaluates a passage much faster than any method previously considered.
 
 \begin{figure}
     \centering
@@ -195,5 +195,5 @@ weighted avg   &    0.88  &    0.86  &    0.87   &   6,878\\
     \end{center} 
 \end{table}
 \bibliographystyle{plain}
-\bibliography{cicm_proposal}
+\bibliography{cicm_article}
 \end{document}

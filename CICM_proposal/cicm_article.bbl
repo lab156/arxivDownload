@@ -1,3 +1,49 @@
-\begin{thebibliography}{}
+\begin{thebibliography}{1}
+
+\bibitem{bengio2003neural}
+Yoshua Bengio, R{\'e}jean Ducharme, Pascal Vincent, and Christian Jauvin.
+\newblock A neural probabilistic language model.
+\newblock {\em Journal of machine learning research}, 3(Feb):1137--1155, 2003.
+
+\bibitem{chen2017improving}
+Tao Chen, Ruifeng Xu, Yulan He, and Xuan Wang.
+\newblock Improving sentiment analysis via sentence type classification using
+  bilstm-crf and cnn.
+\newblock {\em Expert Systems with Applications}, 72:221--230, 2017.
+
+\bibitem{SML}
+Deyan Ginev.
+\newblock arxmliv:08.2018 dataset, an html5 conversion of arxiv.org, 2018.
+\newblock SIGMathLing -- Special Interest Group on Math Linguistics.
+
+\bibitem{webscipara}
+Deyan Ginev.
+\newblock A web demo for scientific paragraph classification.
+\newblock \url{https://github.com/dginev/web-scipara-demo}, 2018.
+
+\bibitem{bagof}
+Armand Joulin, Edouard Grave, Piotr Bojanowski, and Tomas Mikolov.
+\newblock Bag of tricks for efficient text classification.
+\newblock In {\em Proceedings of the 15th Conference of the European Chapter of
+  the Association for Computational Linguistics: Volume 2, Short Papers}, pages
+  427--431. Association for Computational Linguistics, 2017.
+
+\bibitem{miller3latexml}
+Bruce Miller.
+\newblock Latexml: A latex to xml converter. url: http://dlmf. nist. gov.
+\newblock {\em LaTeXML/(visited on 03/12/2013)}, 2013.
+
+\bibitem{scikit-learn}
+F.~Pedregosa, G.~Varoquaux, A.~Gramfort, V.~Michel, B.~Thirion, O.~Grisel,
+  M.~Blondel, P.~Prettenhofer, R.~Weiss, V.~Dubourg, J.~Vanderplas, A.~Passos,
+  D.~Cournapeau, M.~Brucher, M.~Perrot, and E.~Duchesnay.
+\newblock Scikit-learn: Machine learning in {P}ython.
+\newblock {\em Journal of Machine Learning Research}, 12:2825--2830, 2011.
+
+\bibitem{pennington2014glove}
+Jeffrey Pennington, Richard Socher, and Christopher Manning.
+\newblock Glove: Global vectors for word representation.
+\newblock In {\em Proceedings of the 2014 conference on empirical methods in
+  natural language processing (EMNLP)}, pages 1532--1543, 2014.
 
 \end{thebibliography}

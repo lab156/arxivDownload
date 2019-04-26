@@ -2,59 +2,48 @@ This is BibTeX, Version 0.99d (TeX Live 2018/Arch Linux)
 Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: cicm_article.aux
 The style file: plain.bst
-I couldn't open database file cicm_proposal.bib
----line 31 of file cicm_article.aux
- : \bibdata{cicm_proposal
- :                       }
-I'm skipping whatever remains of this command
-I found no database files---while reading file cicm_article.aux
-Warning--I didn't find a database entry for "miller3latexml"
-Warning--I didn't find a database entry for "bengio2003neural"
-Warning--I didn't find a database entry for "chen2017improving"
-Warning--I didn't find a database entry for "webscipara"
-Warning--I didn't find a database entry for "pennington2014glove"
-Warning--I didn't find a database entry for "SML"
-Warning--I didn't find a database entry for "scikit-learn"
-Warning--I didn't find a database entry for "bagof"
-You've used 0 entries,
+Database file #1: cicm_article.bib
+Warning--entry type for "SML" isn't style-file defined
+--line 125 of file cicm_article.bib
+You've used 8 entries,
             2118 wiz_defined-function locations,
-            506 strings with 4109 characters,
-and the built_in function-call counts, 18 in all, are:
-= -- 0
-> -- 0
-< -- 0
-+ -- 0
-- -- 0
-* -- 2
-:= -- 7
-add.period$ -- 0
-call.type$ -- 0
-change.case$ -- 0
+            547 strings with 5732 characters,
+and the built_in function-call counts, 3272 in all, are:
+= -- 314
+> -- 191
+< -- 2
++ -- 78
+- -- 68
+* -- 238
+:= -- 540
+add.period$ -- 25
+call.type$ -- 8
+change.case$ -- 58
 chr.to.int$ -- 0
-cite$ -- 0
-duplicate$ -- 0
-empty$ -- 1
-format.name$ -- 0
-if$ -- 1
+cite$ -- 8
+duplicate$ -- 105
+empty$ -- 230
+format.name$ -- 68
+if$ -- 675
 int.to.chr$ -- 0
-int.to.str$ -- 0
-missing$ -- 0
-newline$ -- 3
-num.names$ -- 0
-pop$ -- 0
+int.to.str$ -- 8
+missing$ -- 6
+newline$ -- 43
+num.names$ -- 16
+pop$ -- 66
 preamble$ -- 1
-purify$ -- 0
+purify$ -- 50
 quote$ -- 0
-skip$ -- 1
+skip$ -- 84
 stack$ -- 0
-substring$ -- 0
-swap$ -- 0
-text.length$ -- 0
+substring$ -- 201
+swap$ -- 30
+text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 0
+type$ -- 32
 warning$ -- 0
-while$ -- 0
-width$ -- 0
-write$ -- 2
-(There were 2 error messages)
+while$ -- 28
+width$ -- 9
+write$ -- 88
+(There was 1 warning)
