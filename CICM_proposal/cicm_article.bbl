@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{bengio2003neural}
 Yoshua Bengio, R{\'e}jean Ducharme, Pascal Vincent, and Christian Jauvin.
@@ -28,10 +28,20 @@ Armand Joulin, Edouard Grave, Piotr Bojanowski, and Tomas Mikolov.
   the Association for Computational Linguistics: Volume 2, Short Papers}, pages
   427--431. Association for Computational Linguistics, 2017.
 
+\bibitem{nltk}
+Edward Loper and Steven Bird.
+\newblock {NLTK:} the natural language toolkit.
+\newblock {\em CoRR}, cs.CL/0205028, 2002.
+
 \bibitem{miller3latexml}
 Bruce Miller.
 \newblock Latexml: A latex to xml converter. url: http://dlmf. nist. gov.
 \newblock {\em LaTeXML/(visited on 03/12/2013)}, 2013.
+
+\bibitem{nersurvey}
+David Nadeau and Satoshi Sekine.
+\newblock A survey of named entity recognition and classification.
+\newblock {\em Lingvisticae Investigationes}, 30(1):3--26, 2007.
 
 \bibitem{scikit-learn}
 F.~Pedregosa, G.~Varoquaux, A.~Gramfort, V.~Michel, B.~Thirion, O.~Grisel,

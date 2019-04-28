@@ -3,6 +3,7 @@
 \usepackage{listings}
 \usepackage{hyperref}
 \usepackage{listings}
+%\usepackage{tabularx}
 
 \usepackage{color}
 \definecolor{gray}{rgb}{0.4,0.4,0.4}
@@ -53,7 +54,6 @@ The \LaTeX{} source from the arXiv has to be further processed before it becomes
 basicstyle={\tiny\ttfamily},}
 \begin{center}
 \begin{figure}[h]
-    \label{xml1}
 \begin{lstlisting}
     <theorem class="ltx_theorem_definition" inlist="thm theorem:definition" xml:id="Thmdefinition1">
       <tags>
@@ -111,7 +111,7 @@ In table \ref{sanity} we can observe the result of the classifier on some simple
     \end{center} 
 \end{table}
 
- Text classifier normally take each paragraph of an article and output an estimate of the probability of it being a definition or not.  Figure \ref{showdown} present the basic performance metrics of the some of the classifiers implemented in the scikit-learn library. The Support Vector Classifier was observed to have the best performance and a more detailed view of the result is pictured in \ref{metrics}. In this situation, we consider the \textit{fasttext} method in \cite{bagof} which has a slightly lower accuracy but evaluates a passage much faster than any method previously considered.
+ Text classifiers normally take each paragraph of an article and output an estimate of the probability of it being a definition or not.  Figure \ref{showdown} present the basic performance metrics of the some of the classifiers implemented in the scikit-learn library. The Support Vector Classifier was observed to have the best performance and a more detailed view of the result is pictured in table \ref{metrics}. In the future we plan  to use the \textit{fasttext} method in \cite{bagof} which has the best tradeoff between classification speed and accuracy.  
 
 \begin{figure}
     \centering
@@ -174,9 +174,7 @@ Log Loss: 0.3531810109520398
     \begin{center}
     \begin{tabular}{|c|c|c|c|c|}
         \hline
-        \hline
           & precision  &  recall &  $F_1$-score & support\\
-\hline
 \hline
          nondefs  &   0.73   &  0.91  &   0.81   &    2,217\\
          \hline
@@ -194,6 +192,12 @@ weighted avg   &    0.88  &    0.86  &    0.87   &   6,878\\
         \caption{\label{metrics} Overall performance of the SVC classifier on the test set}
     \end{center} 
 \end{table}
+
+
+\section{Extracting Definienda}
+After determining the definitions in the text, the system is required to find what is the term that is being defined in each definition. It is assumed that the  \emph{definiendum} is one or more adjacent words in the definition. This task can be interpreted as a Named Entity Recognition (NER) problem. Several different tecniques have been developed to deal with it;  as it is one of the most important subtasks of Information Extraction \cite{nersurvey}.
+
+ For the first approach to this problem, we used the ChunkParser module from the NLTK library \cite{nltk}. This module uses a supervised learning algorithm that is trained on 
 \bibliographystyle{plain}
 \bibliography{cicm_article}
 \end{document}
