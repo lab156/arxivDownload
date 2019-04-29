@@ -51,7 +51,7 @@ The two main sources of data used in this project are the arXiv and Wikipedia we
 The \LaTeX{} source from the arXiv has to be further processed before it becomes useful. This is why the \LaTeX{} source was converted to a more structured format using the software package LaTeXML \cite{miller3latexml}. LaTeXML converts the \TeX{} source first to xml and optionally to html by using an additionally script. 
 
 \lstset{language=XML,
-basicstyle={\tiny\ttfamily},}
+basicstyle={\scriptsize\ttfamily},}
 \begin{center}
 \begin{figure}[h]
 \begin{lstlisting}
@@ -63,7 +63,8 @@ basicstyle={\tiny\ttfamily},}
       </tags>
       <title class="ltx_runin"><tag><text font="bold">Definition 1</text></tag>.</title>
       <para xml:id="Thmdefinition1.p1">
-        <p class="ltx_emph"><text font="italic">Let <Math mode="inline" tex="k" text="k" xml:id="Thmdefinition1.p1.m1">
+        <p class="ltx_emph"><text font="italic">Let <Math mode="inline" 
+                             tex="k" text="k" xml:id="Thmdefinition1.p1.m1">
               <XMath>
                 <XMTok role="UNKNOWN">k</XMTok>
               </XMath>
@@ -197,7 +198,30 @@ weighted avg   &    0.88  &    0.86  &    0.87   &   6,878\\
 \section{Extracting Definienda}
 After determining the definitions in the text, the system is required to find what is the term that is being defined in each definition. It is assumed that the  \emph{definiendum} is one or more adjacent words in the definition. This task can be interpreted as a Named Entity Recognition (NER) problem. Several different tecniques have been developed to deal with it;  as it is one of the most important subtasks of Information Extraction \cite{nersurvey}.
 
- For the first approach to this problem, we used the ChunkParser module from the NLTK library \cite{nltk}. This module uses a supervised learning algorithm that is trained on 
+ For the first approach to this problem, we used the ChunkParserI package from the NLTK library \cite{nltk}. This module uses a supervised learning algorithm that is trained on examples of definitions tagged with  part of speech and IOB which is this case is the inside, outside and beginning of the definiendum (see table \ref{iobtags}). After the training  is done, the model tries to predict the IOB tag with only the first two rows as input.
+
+To obtain the tagged text, the whole body of text from Wikipedia was used. The examples of definitions were obtained by filtering the articles with the two following properties:
+\begin{itemize}
+    \item Articles that have a section with the word \textit{definition}.
+    \item The title of the article must appear at least once in this section.
+\end{itemize}
+These sections were assumed to be definitions and the title of the article which they belong to the definuendum. 
+
+Several difficulties were observed with this approach. 
+\begin{table}[h]
+    \begin{center}
+        {\scriptsize
+        \begin{tabular}{lcccccccccc}
+        \hline
+            \textbf{text} &We & define & a & Banach & space & as & a & complete & vector & space \\
+            \textbf{POS}&PRP & VBP & DT & NNP & NN & IN & DT & JJ & NN & NN\\
+            \textbf{IOB} & O& O& O& B--DFNDUM & I--DFNDUM & O& O& O& O& O \\
+         \hline
+    \end{tabular}
+        \caption{\label{iobtags} Input example used in  training the IOB parser.}}
+    \end{center} 
+\end{table}
+ 
 \bibliographystyle{plain}
 \bibliography{cicm_article}
 \end{document}
