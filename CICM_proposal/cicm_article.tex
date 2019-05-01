@@ -33,9 +33,9 @@
 }
 
 \authorrunning{Berlioz, Luis}
-\titlerunning{WIP: Creating a Database of Definitions From Large Mathematical Corpora}
+\titlerunning{Creating a Database of Definitions From Large Mathematical Corpora}
 \author{Luis Berlioz}
-\title{Project Proposal: Creating a Database of Definitions From Large Mathematical Corpora}
+\title{WIP: Creating a Database of Definitions From Large Mathematical Corpora}
 \institute{
     University of Pittsburgh\\
     \email{lab232@pitt.edu}
@@ -48,6 +48,52 @@
 \section{Introduction}
 In this paper we describe a system for the extraction of definitions and definienda from large collections of digital mathematical documents like the arXiv website. The main objective of this system is to organize all the mathematical lexicon both by dependency and semantically.  We also go over the implementation of a prototype of such system. As well as the processing of the different sources of digital documents used to create this first implementation. The resulting system, although unfinished, provides a convincing proof  of concept as well as a baseline for the development of more effective systems of this type in the future.
 
+\begin{table}[h]
+    \sffamily
+    \centering
+    \begin{tabular}{cc}
+        'Bott-Danilov-Steenbrink vanishing theorem' &
+
+        'Banach manifold' \\
+
+ 'p-good cover'&
+
+        'Loewy filtration' \\
+
+ 'non-zerodivisor'&
+
+ 'graded-commutative product'\\
+
+        'Frobenius submanifold' &
+
+ 'local Harbourne constant'\\
+
+        'holomorphic one-dimensional foliations' &
+
+ 'donnés par'\\
+
+        'universal expansion' &
+
+ 'Berenstein-Zelevinsky triangles'\\
+
+        'non-toric purely log-terminal blow-up' &
+
+ 'DL-gallery'\\
+
+        'cubical algebra' &
+
+ 'smooth lifting'\\
+
+        'virtual bundle' &
+
+ 'stalkwise fibration'\\
+
+        'symplectic structure' &
+
+ '4-dimensional quadric'\\
+    \end{tabular}
+    \caption{\label{sample}Examples of the terms found on the math.AG articles from 2015}
+\end{table}
 \section{Obtaining the Data}
 The two main sources of data used in this project are the arXiv and Wikipedia websites. To download the data from the arXiv without affecting the website's traffic, we used the bulk download service\footnote{https://arxiv.org/help/bulk\_data\_s3}. The \LaTeX{} source of each article is compressed together in large tar files. Similarly, the Wikipedia data can be downloaded as a compressed multistream file\footnote{https://dumps.wikimedia.org/enwiki/}. 
 
@@ -90,7 +136,7 @@ basicstyle={\scriptsize\ttfamily},}
 %\end{center}
 
 \section{Classifying Definitions}
-Recent work indicates that well known text classification algorithms \cite{bengio2003neural,chen2017improving} can have excellent accuracy  at determining whether certain paragraph is in fact a definition. In \cite{webscipara} for example, a supervised learning method is first trained using labelled data. To get this labels, the contents of the arXiv articles are tokenized and fed into a word embedding algorithm like GloVe \cite{pennington2014glove}. This has been  implemented already and is available in \cite{SML}. 
+Recent work indicates that well known text classification algorithms \cite{bengio2003neural,chen2017improving} can have excellent accuracy  at determining whether a given paragraph is in fact a definition.  In \cite{webscipara} for example, a supervised learning method is first trained using word embeddings.  These word embedding are created using the contents of the arXiv articles fed into a embedding algorithm like GloVe \cite{pennington2014glove}. This has been  implemented already and is available in \cite{SML}. Our system still does not use word embeddings for its classification, it is one of the main features we plan to add to the system in order to improve the classifier.
 
 As training data for the classifier, we use the passages of certain articles that are labeled as definitions by the author by placing them in certain \LaTeX{} macro environments. These macros are normally defined in the preamble of the document using the \textbackslash \texttt{newtheorem} macro. LaTeXML resolves the user defined macros and labels  the corresponding XML tag in the output file like in figure \ref{xml1}. We have performed successful experiments  using common general purpose algorithms implemented in the scikit--learn Python library \cite{scikit-learn}. And these were confirmed with the results shown on the website \url{https://corpora.mathweb.org/classify_paragraph}.
 In table \ref{sanity} we can observe the result of the classifier on some simple examples.
@@ -116,7 +162,7 @@ In table \ref{sanity} we can observe the result of the classifier on some simple
     \end{center} 
 \end{table}
 
- Text classifiers normally take each paragraph of an article and output an estimate of the probability of it being a definition or not.  Figure \ref{showdown} present the basic performance metrics of the some of the classifiers implemented in the scikit-learn library. The Support Vector Classifier was observed to have the best performance and a more detailed view of the result is pictured in table \ref{metrics}. In the future we plan  to use the \textit{fasttext} method in \cite{bagof} which has the best tradeoff between classification speed and accuracy.  
+ Text classifiers normally take each paragraph of an article and output an estimate of the probability of it being a definition or not.  Figure \ref{showdown} presents the basic performance metrics of the some of the classifiers implemented in the scikit-learn library. The Support Vector Classifier was observed to have the best performance and a more detailed view of the result is pictured in table \ref{metrics}. In the future we plan  to use the \textit{fasttext} method \cite{bagof} which has the best tradeoff between classification speed and accuracy.  
 
 \begin{figure}
     \centering
@@ -200,7 +246,7 @@ weighted avg   &    0.88  &    0.86  &    0.87   &   6,878\\
 
 
 \section{Extracting Definienda}
-After determining the definitions in the text, the system is required to find what is the term that is being defined in each definition. It is assumed that the  \emph{definiendum} is one or more adjacent words in the definition. This task can be interpreted as a Named Entity Recognition (NER) problem. Several different tecniques have been developed to deal with it;  as it is considered one of the most important subtasks of Information Extraction \cite{nersurvey}.
+After determining the definitions in the text, the system is required to find what is the term that is being defined in each definition. It is assumed that the  \emph{definiendum} is one or more adjacent words in the definition. This task can be interpreted as a Named Entity Recognition (NER) problem. Several different techniques have been developed to deal with it;  as it is considered one of the most important subtasks of Information Extraction \cite{nersurvey}.
 
  For the first approach to this problem, we used the ChunkParserI package from the NLTK library \cite{nltk}. This module uses a supervised learning algorithm that is trained on examples of definitions tagged with  part of speech (POS) and IOB. Each word in the definition is tagged with the token $O$ for Outside, $B$--DFNDUM for the beginning of a definition and $I$--DFNDUM for the inside of definitions. Figure \ref{iobfsm} specifies the order in which these tags are allowed to appear. The POS is obtained using the pretrained model included in the NLTK library.
 
@@ -245,7 +291,7 @@ To obtain the tagged text, the whole body of text from Wikipedia was used. The e
     \item Articles that have a section with the word \textit{definition}.
     \item The title of the article must appear at least once in this section.
 \end{itemize}
-These sections were assumed to be definitions and the title of the article which they belong to was assumed to be the definiendum.  Only 5,229 articles were found matching this criteria (February 2019) out of the more than 6 million articles in the English Wikipedia. The dataset was split into traing and test data, the results are shown in figure \ref{iobstats}. When ran on the definitions found on the algebraic geometry (math.AG) articles uploaded to arXiv on 2015, the results are pictured on figure \ref{cumterms}.
+These sections were assumed to be definitions and the title of the article which they belong to was assumed to be the definiendum.  Only 5,229 articles were found matching this criteria (February 2019) out of the more than 6 million articles in the English Wikipedia. The dataset was split into training and test data, the results are shown in figure \ref{iobstats}. When ran on the definitions found on the algebraic geometry (math.AG) articles uploaded to arXiv on 2015, the results are pictured on figure \ref{cumterms}.
 
 \begin{figure}
     \centering
@@ -268,14 +314,14 @@ These sections were assumed to be definitions and the title of the article which
 \end{figure}
 
 
-Several difficulties were observed with this approach to, for instance, many of the articles from Wikipedia are about topics completely unrelated to mathematics. Also, after stripping all the wiki markup from the text, some of the remaining text made no sense. This means that there was a high chance of the POS tags to be defective and hence the IOB would also be tainted. 
+Several difficulties were observed with this approach,  for instance, many of the articles from Wikipedia are about topics completely unrelated to mathematics. Also, after stripping all the wiki markup from the text some of the remaining text made no sense, this means that there was a high chance of the POS tags to be defective and hence the IOB would also be tainted. 
  
 \section{Conclusions and Future Work}
-The main objective of this article is to showcase the feasability of a system that can search for definitions and important terms in large bodies of mathematical text. This system should have extremely good classification performance in order to avoid the errors propagating to the NER system. On the other hand, the system needs to be fast enough to tackle for example all the mathematical articles in the arXiv. Considering the performance of the state of the art methods for text classification and NER available today, and after observing the performance of the current prototype, we believe that this system is possible.
+The main objective of this article is to showcase the feasability of a system that can search for definitions and important terms in large bodies of mathematical text. This system should have extremely good classification performance in order to avoid the errors propagating to the NER system. On the other hand, the system needs to be fast enough to tackle large corpora such as all the mathematical articles in the arXiv. Considering the performance of the state of the art methods for text classification and NER available today, and after observing the performance of the current prototype, we believe that this system is possible.
 
-The next step in order to use more sophisticated methods is to use  word embeddings or language models. Methods that utilize these achieve better performance in both of the classification and NER tasks. Another possibility 
+The next step in order to use more sophisticated methods is to use  word embeddings or language models. Methods that utilize these achieve better performance in both of the classification and NER tasks. 
 
-In order to further increase the perfomance of the NER subtask we also plan on increasing the amount of training data. The technique we used for the Wikipedia data can be adapted to other websites that host similar content like The Stacks Project (\texttt{https://stacks.math.columbia.edu/}) and the Groupprops subwiki (\texttt{https://groupprops.subwiki.org}). Additionaly, applying  \emph{domain adaptation} methods might help to improve performance in case that the labeled data deviates significantly from nonlabeled data \cite{domainAdaptation}.
+In order to further better the performance of the NER subtask we also plan on increasing the amount of training data. The technique we used for the Wikipedia data can be adapted to other websites that host similar content like The Stacks Project (\texttt{https://stacks.math.columbia.edu/}) and the Groupprops subwiki (\texttt{https://groupprops.subwiki.org}). Additionally, applying  \emph{domain adaptation} methods might help to improve performance in case that the labeled data deviates significantly from nonlabeled data \cite{domainAdaptation}.
 
 
 \bibliographystyle{plain}
