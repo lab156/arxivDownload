@@ -21,6 +21,12 @@ Deyan Ginev.
 \newblock A web demo for scientific paragraph classification.
 \newblock \url{https://github.com/dginev/web-scipara-demo}, 2018.
 
+\bibitem{domainAdaptation}
+Jing Jiang and ChengXiang Zhai.
+\newblock Instance weighting for domain adaptation in nlp.
+\newblock In {\em Proceedings of the 45th annual meeting of the association of
+  computational linguistics}, pages 264--271, 2007.
+
 \bibitem{bagof}
 Armand Joulin, Edouard Grave, Piotr Bojanowski, and Tomas Mikolov.
 \newblock Bag of tricks for efficient text classification.

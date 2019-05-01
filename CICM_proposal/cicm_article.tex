@@ -4,6 +4,10 @@
 \usepackage{hyperref}
 \usepackage{listings}
 %\usepackage{tabularx}
+\usepackage{pgf}
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata}
+
 
 \usepackage{color}
 \definecolor{gray}{rgb}{0.4,0.4,0.4}
@@ -29,7 +33,7 @@
 }
 
 \authorrunning{Berlioz, Luis}
-\titlerunning{Creating a Database of Definitions From Large Mathematical Corpora}
+\titlerunning{WIP: Creating a Database of Definitions From Large Mathematical Corpora}
 \author{Luis Berlioz}
 \title{Project Proposal: Creating a Database of Definitions From Large Mathematical Corpora}
 \institute{
@@ -86,9 +90,9 @@ basicstyle={\scriptsize\ttfamily},}
 %\end{center}
 
 \section{Classifying Definitions}
-Recent work indicates that well known text classification algorithms \cite{bengio2003neural,chen2017improving} can have excellent accuracy  at determining whether certain paragraph is in fact a definition \cite{webscipara}. The content of the arXiv articles are tokenized and fed into a word embedding algorithm like GloVe \cite{pennington2014glove}. This has been  implemented already and is available in \cite{SML}. 
+Recent work indicates that well known text classification algorithms \cite{bengio2003neural,chen2017improving} can have excellent accuracy  at determining whether certain paragraph is in fact a definition. In \cite{webscipara} for example, a supervised learning method is first trained using labelled data. To get this labels, the contents of the arXiv articles are tokenized and fed into a word embedding algorithm like GloVe \cite{pennington2014glove}. This has been  implemented already and is available in \cite{SML}. 
 
-As training data for the classifier, we use the passages of certain articles that are labeled as definitions by the author by placing them in certain \LaTeX{} macro environments. These macros are normally defined in the preamble of the document using the \textbackslash \texttt{newtheorem} macro. LaTeXML deals with the user defined macros and tags the corresponding text in the output like in figure \ref{xml1}. We have performed successful experiments  using common general purpose algorithms implemented in the scikit--learn Python library \cite{scikit-learn}. And these were confirmed with the results shown on the website \url{https://corpora.mathweb.org/classify_paragraph}.
+As training data for the classifier, we use the passages of certain articles that are labeled as definitions by the author by placing them in certain \LaTeX{} macro environments. These macros are normally defined in the preamble of the document using the \textbackslash \texttt{newtheorem} macro. LaTeXML resolves the user defined macros and labels  the corresponding XML tag in the output file like in figure \ref{xml1}. We have performed successful experiments  using common general purpose algorithms implemented in the scikit--learn Python library \cite{scikit-learn}. And these were confirmed with the results shown on the website \url{https://corpora.mathweb.org/classify_paragraph}.
 In table \ref{sanity} we can observe the result of the classifier on some simple examples.
 
 \begin{table}[h]
@@ -196,18 +200,32 @@ weighted avg   &    0.88  &    0.86  &    0.87   &   6,878\\
 
 
 \section{Extracting Definienda}
-After determining the definitions in the text, the system is required to find what is the term that is being defined in each definition. It is assumed that the  \emph{definiendum} is one or more adjacent words in the definition. This task can be interpreted as a Named Entity Recognition (NER) problem. Several different tecniques have been developed to deal with it;  as it is one of the most important subtasks of Information Extraction \cite{nersurvey}.
+After determining the definitions in the text, the system is required to find what is the term that is being defined in each definition. It is assumed that the  \emph{definiendum} is one or more adjacent words in the definition. This task can be interpreted as a Named Entity Recognition (NER) problem. Several different tecniques have been developed to deal with it;  as it is considered one of the most important subtasks of Information Extraction \cite{nersurvey}.
 
- For the first approach to this problem, we used the ChunkParserI package from the NLTK library \cite{nltk}. This module uses a supervised learning algorithm that is trained on examples of definitions tagged with  part of speech and IOB which is this case is the inside, outside and beginning of the definiendum (see table \ref{iobtags}). After the training  is done, the model tries to predict the IOB tag with only the first two rows as input.
+ For the first approach to this problem, we used the ChunkParserI package from the NLTK library \cite{nltk}. This module uses a supervised learning algorithm that is trained on examples of definitions tagged with  part of speech (POS) and IOB. Each word in the definition is tagged with the token $O$ for Outside, $B$--DFNDUM for the beginning of a definition and $I$--DFNDUM for the inside of definitions. Figure \ref{iobfsm} specifies the order in which these tags are allowed to appear. The POS is obtained using the pretrained model included in the NLTK library.
 
-To obtain the tagged text, the whole body of text from Wikipedia was used. The examples of definitions were obtained by filtering the articles with the two following properties:
-\begin{itemize}
-    \item Articles that have a section with the word \textit{definition}.
-    \item The title of the article must appear at least once in this section.
-\end{itemize}
-These sections were assumed to be definitions and the title of the article which they belong to the definuendum. 
+After the training  is done, the model tries to predict the IOB tags. In table \ref{iobtags} an example of a successful identification of the definiendum is shown.
+ \begin{figure}[h]
+     \centering
+\begin{tikzpicture}[scale=0.5, ->,>=stealth',shorten >=1pt,auto,node distance=2.8cm, semithick ]
+  \tikzstyle{every state}=[fill=white,draw=black,text=black]
 
-Several difficulties were observed with this approach. 
+  \node[initial,state] (A)                    {$B$};
+  \node[state]         (B) [right of=A] {$I$};
+  \node[initial,state]         (C) [above right of=A] {$O$};
+
+  \path (A) edge              node {} (B)
+            edge              node {} (C)
+        (B) edge [loop below] node {} (B)
+            edge              node {} (C)
+        (C) edge [loop above]  node {} (C)
+            edge               node {} (A);
+\end{tikzpicture}
+     \caption{\label{iobfsm} Possible states and switches for the IOB tags}
+\end{figure}
+
+
+
 \begin{table}[h]
     \begin{center}
         {\scriptsize
@@ -221,7 +239,45 @@ Several difficulties were observed with this approach.
         \caption{\label{iobtags} Input example used in  training the IOB parser.}}
     \end{center} 
 \end{table}
+
+To obtain the tagged text, the whole body of text from Wikipedia was used. The examples of definitions were obtained by filtering the articles with the two following properties:
+\begin{itemize}
+    \item Articles that have a section with the word \textit{definition}.
+    \item The title of the article must appear at least once in this section.
+\end{itemize}
+These sections were assumed to be definitions and the title of the article which they belong to was assumed to be the definiendum.  Only 5,229 articles were found matching this criteria (February 2019) out of the more than 6 million articles in the English Wikipedia. The dataset was split into traing and test data, the results are shown in figure \ref{iobstats}. When ran on the definitions found on the algebraic geometry (math.AG) articles uploaded to arXiv on 2015, the results are pictured on figure \ref{cumterms}.
+
+\begin{figure}
+    \centering
+    \begin{minipage}{0.55\textwidth}
+        \centering
+    \includegraphics[width=0.95\textwidth]{cum_terms.png} 
+        \caption{\label{cumterms}cumulative count of new and total term in the math.AG article of 2015.}
+    \end{minipage}\hfill
+    \begin{minipage}{0.4\textwidth}
+        \centering
+        {\small
+        \begin{tabular}{lr}
+    IOB Accuracy:  &91.1\%\\
+    Precision:     &31.5\%\\
+    Recall:        &67.6\%\\
+    F-Measure:     &43.0\%
+        \end{tabular}}
+        \caption{\label{iobstats} Metrics for the IOB task using the ChunkScore function in NLTK}
+    \end{minipage}
+\end{figure}
+
+
+Several difficulties were observed with this approach to, for instance, many of the articles from Wikipedia are about topics completely unrelated to mathematics. Also, after stripping all the wiki markup from the text, some of the remaining text made no sense. This means that there was a high chance of the POS tags to be defective and hence the IOB would also be tainted. 
  
+\section{Conclusions and Future Work}
+The main objective of this article is to showcase the feasability of a system that can search for definitions and important terms in large bodies of mathematical text. This system should have extremely good classification performance in order to avoid the errors propagating to the NER system. On the other hand, the system needs to be fast enough to tackle for example all the mathematical articles in the arXiv. Considering the performance of the state of the art methods for text classification and NER available today, and after observing the performance of the current prototype, we believe that this system is possible.
+
+The next step in order to use more sophisticated methods is to use  word embeddings or language models. Methods that utilize these achieve better performance in both of the classification and NER tasks. Another possibility 
+
+In order to further increase the perfomance of the NER subtask we also plan on increasing the amount of training data. The technique we used for the Wikipedia data can be adapted to other websites that host similar content like The Stacks Project (\texttt{https://stacks.math.columbia.edu/}) and the Groupprops subwiki (\texttt{https://groupprops.subwiki.org}). Additionaly, applying  \emph{domain adaptation} methods might help to improve performance in case that the labeled data deviates significantly from nonlabeled data \cite{domainAdaptation}.
+
+
 \bibliographystyle{plain}
 \bibliography{cicm_article}
 \end{document}
