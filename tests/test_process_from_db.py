@@ -64,6 +64,3 @@ class TestFromDB(unittest.TestCase):
                 'math.AG', 'arxiv1.db')
         trimmed_set = set([from_db.trim_id(a[0]) for a in file_lst])
         self.assertEqual(set2, trimmed_set)
-
-
-

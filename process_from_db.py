@@ -1,6 +1,5 @@
 import sqlalchemy as sa
 import databases.create_db_define_models as cre
-import process as pro
 import re
 
 # Extract files with metada queried from a local
@@ -8,9 +7,8 @@ import re
 
 def trim_id(id_url):
     '''
-    id_url that looks like this:
-        http://arxiv.org/abs/1601.00302v1
-    output be should be
+    >>> trim_id('http://arxiv.org/abs/1601.00302v1')
+    '1601.00302'
     '''
     resu = re.match(r'^.*abs/(.*)v\d', id_url)
     return resu.group(1)

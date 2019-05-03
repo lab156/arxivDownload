@@ -42,7 +42,7 @@ SELECT author, count(*) AS c FROM articles GROUP BY author ORDER BY c DESC LIMIT
 * Hack to find main article tag
 ```sql
  SELECT count(tags) FROM articles where tags LIKE '[{''term'': ''math.DG''%';    
-``` 
+```
 
 The xml_file.xml is modified by the search.py module:
 * *processed*, is False by default.

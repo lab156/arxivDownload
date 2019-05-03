@@ -47,6 +47,10 @@ def detect_format(id_str):
     format 1:      1701/1701.00253.gz 
     format 2:     0701/astro-ph0701321.gz
     When id_str is one of these formats return the format number
+    >>> detect_format('1701/1701.00253.gz')
+    (1, '[0-9]{4}/([0-9]{4})\\\\.([0-9]{4,5})')
+    >>> detect_format('0701/astro-ph0701321.gz')
+    (2, '[0-9]{4}/([a-z\\\\-]+)([0-9]{7}).+')
     '''
     regex1 = r'[0-9]{4}/([0-9]{4})\.([0-9]{4,5})'
     regex2 = r'[0-9]{4}/([a-z\-]+)([0-9]{7}).+'
@@ -113,6 +117,8 @@ def tar_id(id_str):
     '''
     Given a path like: /mnt/arXiv_src/src/arXiv_src_1804_001.tar
     return the unique identifier 1804_001
+    >>> tar_id('/mnt/arXiv_src/src/arXiv_src_1804_001.tar')
+    '1804_001'
     '''
     name = re.match(r'.*arXiv_src_([0-9]{4})_([0-9]{3})\.tar', id_str)
     return name.group(1) + '_' + name.group(2)
