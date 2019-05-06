@@ -67,6 +67,8 @@ def tar2api(id_str):
     The name of the files when untared has the format:
     '1804/1804.00020.gz', '1804/1804.00239.gz', '1804/1804.00127.gz', '1804/1804.00197.gz'
     in order to get a searcheable id in the API take the leading number and the file type
+    >>> tar2api('1804/1804.00239.gz')
+    '1804.00239'
     '''
     name = re.match(r'.*([0-9]{4})\.([0-9]{4,5})',id_str)
     try:
@@ -83,6 +85,8 @@ def tar2api2(id_str, sep='/'):
     it was used until about march 03, 2007
     to search arxiv.org it has to be put in the format
     astro-ph/0703001
+    >>> tar2api2('0703/astro-ph0703001.gz')
+    'astro-ph/0703001'
     '''
     name = re.match(r'[0-9]{4}/([a-z\-]+)([0-9]{7})', id_str)
     if name:
@@ -91,6 +95,14 @@ def tar2api2(id_str, sep='/'):
         raise Exception('No results found in string: %s'%id_str)
 
 def Tar2api(id_str, sep='/'):
+    '''
+    This function should match both tar2api and tar2api2
+    >>> Tar2api('1804/1804.00239.gz')
+    '1804.00239'
+
+    >>> Tar2api('0703/astro-ph/0703001.gz')
+    'astro-ph/0703001'
+    '''
     #Trying to match either 
     regex1 = r'.+/([0-9]{4})\.([0-9]{4,5})'
     # want to catch http://arxiv.org/abs/math/9212204v1
