@@ -1,0 +1,34 @@
+Review 1
+Score: 2: (accept)
+This WIP paper proposes a system for extracting definitions from online
+collections of mathematical documents (e.g. arXiV). It's certainly in the
+scope of CICM and I think will lead to some interesting discussion about how
+to approach the problem, how to progress with the system, and what users might
+like out of it. It seems to be at a fairly early stage, but the paper shows
+that the system should be feasible.
+
+The paper is mostly about identifying definitions, and extracting the term
+to be defined as well as its meaning. It's based on existing methods for
+classifying text and identifying named entities in text. I think there is more
+to say in future about performace in particular (there's a lot of papers to
+process after all!) and about how the definitions will be organised, which is
+stated as a goal of the system but at this stage there doesn't seem to be
+anything which suggests how this might be done.
+
+There's a few other small things I'd suggest at this stage:
+
+It would be useful in the introduction to say more about what you mean by
+"organising the mathematical lexion both by dependency and semantically"
+perhaps with an example, since the rest of the paper is about identifying the
+definitions only.
+
+p1 "As well as..." - this sentence seems to be incomplete.
+
+p2 Capitalise XML/HTML. You could also say in what ways the LaTeX source has
+to be further processed.
+
+p3 I think you're measuring the accuracy based on the LaTeX, is that right?
+I'd be interested to see some examples of false positives/negatives as well as
+the examples in table 2.
+
+%%p5 typo "When ran" => "When run"

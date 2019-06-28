@@ -1,5 +1,7 @@
 \documentclass[a4paper]{easychair}
 
+\usepackage[T1]{fontenc}
+\usepackage{onecolceurws}
 \usepackage{listings}
 \usepackage{hyperref}
 \usepackage{listings}
@@ -36,7 +38,7 @@
 \titlerunning{Creating a Database of Definitions From Large Mathematical Corpora}
 \author{Luis Berlioz}
 \title{WIP: Creating a Database of Definitions From Large Mathematical Corpora}
-\institute{
+\institution{   %\institute{
     University of Pittsburgh\\
     \email{lab232@pitt.edu}
 }
@@ -46,7 +48,7 @@
    \input{abstract.tex}
 \end{abstract}
 \section{Introduction}
-In this paper we describe a system for the extraction of definitions and definienda from large collections of digital mathematical documents like the arXiv website. The main objective of this system is to organize all the mathematical lexicon both by dependency and semantically.  We also go over the implementation of a prototype of such system. As well as the processing of the different sources of digital documents used to create this first implementation. The resulting system, although unfinished, provides a convincing proof  of concept as well as a baseline for the development of more effective systems of this type in the future.
+In this paper we describe a system for the extraction of definitions and definienda from large collections of digital mathematical documents like the arXiv website. The main objective of this system is to organize all the mathematical lexicon both by dependency and semantically.  We also go over the implementation of a prototype of such system and the processing of the different sources of digital documents used to create this first implementation. The resulting system, although unfinished, provides a convincing proof  of concept as well as a baseline for the development of more effective systems of this type in the future.
 
 \begin{table}[h]
     \sffamily
@@ -98,7 +100,7 @@ In this paper we describe a system for the extraction of definitions and definie
 The two main sources of data used in this project are the arXiv and Wikipedia websites. To download the data from the arXiv without affecting the website's traffic, we used the bulk download service\footnote{https://arxiv.org/help/bulk\_data\_s3}. The \LaTeX{} source of each article is compressed together in large tar files. Similarly, the Wikipedia data can be downloaded as a compressed multistream file\footnote{https://dumps.wikimedia.org/enwiki/}. 
 
 \subsection{Processing the arXiv articles}
-The \LaTeX{} source from the arXiv has to be further processed before it becomes useful. This is why the \LaTeX{} source was converted to a more structured format using the software package LaTeXML \cite{miller3latexml}. LaTeXML converts the \TeX{} source first to xml and optionally to html by using an additionally script. 
+The \LaTeX{} source from the arXiv has to be further processed before it becomes useful. This is done with the LaTeXML software package \cite{miller3latexml}. LaTeXML converts the \TeX{} source first to XML and optionally to HTML by using an additionally script. For the purpose of identifying the definitions labeled by the author, the XML output is enough.
 
 \lstset{language=XML,
 basicstyle={\scriptsize\ttfamily},}
@@ -119,7 +121,7 @@ basicstyle={\scriptsize\ttfamily},}
                 <XMTok role="UNKNOWN">k</XMTok>
               </XMath>
 \end{lstlisting}
-    \caption{\label{xml1} example of LaTeXML output of a definition in an article}
+    \caption{\label{xml1} Excerpt of the output produced by LaTeXML on a definition in an article}
 \end{figure}
 \end{center}
 
@@ -291,7 +293,7 @@ To obtain the tagged text, the whole body of text from Wikipedia was used. The e
     \item Articles that have a section with the word \textit{definition}.
     \item The title of the article must appear at least once in this section.
 \end{itemize}
-These sections were assumed to be definitions and the title of the article which they belong to was assumed to be the definiendum.  Only 5,229 articles were found matching this criteria (February 2019) out of the more than 6 million articles in the English Wikipedia. The dataset was split into training and test data, the results are shown in figure \ref{iobstats}. When ran on the definitions found on the algebraic geometry (math.AG) articles uploaded to arXiv on 2015, the results are pictured on figure \ref{cumterms}.
+These sections were assumed to be definitions and the title of the article which they belong to was assumed to be the definiendum.  Only 5,229 articles were found matching this criteria (February 2019) out of the more than 6 million articles in the English Wikipedia. The dataset was split into training and test data, the results are shown in figure \ref{iobstats}. When run on the definitions found on the algebraic geometry (math.AG) articles uploaded to arXiv on 2015, the results are pictured on figure \ref{cumterms}.
 
 \begin{figure}
     \centering
