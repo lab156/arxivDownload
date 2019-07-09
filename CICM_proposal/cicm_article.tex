@@ -5,10 +5,12 @@
 \usepackage{listings}
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage{amsfonts}
 %\usepackage{tabularx}
 \usepackage{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,automata}
+
 
 
 \usepackage{color}
@@ -48,7 +50,7 @@
    \input{abstract.tex}
 \end{abstract}
 \section{Introduction}
-In this paper we describe a system for the extraction of definitions and definienda from large collections of digital mathematical documents like the arXiv website. The main objective of this system is to organize all the mathematical lexicon both by dependency and semantically.  We also go over the implementation of a prototype of such system and the processing of the different sources of digital documents used to create this first implementation. The resulting system, although unfinished, provides a convincing proof  of concept as well as a baseline for the development of more effective systems of this type in the future.
+In this paper we describe a system for the extraction of definitions and definienda from large collections of digital mathematical documents like the arXiv website. The main objective of this system is to organize all the mathematical lexicon both by dependency and semantically. This can be done using the content of each  definition, since the definition of a new term depends on previously ones. And, by clustering terms that occur in similar contexts. We also go over the implementation of a prototype of such system and the processing of the different sources of digital documents used to create this first implementation. The resulting system, although unfinished, provides a convincing proof  of concept as well as a baseline for the development of more effective systems of this type in the future.
 
 \begin{table}[h]
     \sffamily
@@ -125,22 +127,15 @@ basicstyle={\scriptsize\ttfamily},}
 \end{figure}
 \end{center}
 
-%\begin{center}
-%    \begin{figure}[h]
-%\begin{tabular}{ll}
-%    \LaTeX{}  Source & XML Output \\
-%    \verb|nice to meet you\n|
-%    \verb|this is so nice|
-%     &
-%    all you can eat 
-%\end{tabular}
-%    \end{figure}
-%\end{center}
 
 \section{Classifying Definitions}
 Recent work indicates that well known text classification algorithms \cite{bengio2003neural,chen2017improving} can have excellent accuracy  at determining whether a given paragraph is in fact a definition.  In \cite{webscipara} for example, a supervised learning method is first trained using word embeddings.  These word embedding are created using the contents of the arXiv articles fed into a embedding algorithm like GloVe \cite{pennington2014glove}. This has been  implemented already and is available in \cite{SML}. Our system still does not use word embeddings for its classification, it is one of the main features we plan to add to the system in order to improve the classifier.
 
-As training data for the classifier, we use the passages of certain articles that are labeled as definitions by the author by placing them in certain \LaTeX{} macro environments. These macros are normally defined in the preamble of the document using the \textbackslash \texttt{newtheorem} macro. LaTeXML resolves the user defined macros and labels  the corresponding XML tag in the output file like in figure \ref{xml1}. We have performed successful experiments  using common general purpose algorithms implemented in the scikit--learn Python library \cite{scikit-learn}. And these were confirmed with the results shown on the website \url{https://corpora.mathweb.org/classify_paragraph}.
+As training data for the classifier, we use the passages of certain articles that are labeled as definitions by the author by placing them in certain \LaTeX{} macro environments. These macros are normally defined in the preamble of the document using the \textbackslash \texttt{newtheorem} macro. LaTeXML resolves the user defined macros and labels  the corresponding XML tag in the output file like in figure \ref{xml1}. 
+
+In order to produce the negative examples, we randomly sample paragraphs out of the article and assume they are not definitions. This introduces some imperfections in the training set, because some of the selected paragraphs necessarily contain some definitions. 
+
+We have performed successful experiments  using common general purpose algorithms implemented in the scikit--learn Python library \cite{scikit-learn}. And these were confirmed with the results shown on the website \url{https://corpora.mathweb.org/classify_paragraph}.
 In table \ref{sanity} we can observe the result of the classifier on some simple examples.
 
 \begin{table}[h]
@@ -160,7 +155,7 @@ In table \ref{sanity} we can observe the result of the classifier on some simple
         a triangle is equilateral if and only if all its sides are the same length. & \textbf{True}\\
         \hline
     \end{tabular}
-    \caption{\label{sanity}simple examples of the behaviour of the classifier}
+    \caption{\label{sanity}Simple examples of the behaviour of the classifier}
     \end{center} 
 \end{table}
 
@@ -317,6 +312,47 @@ These sections were assumed to be definitions and the title of the article which
 
 
 Several difficulties were observed with this approach,  for instance, many of the articles from Wikipedia are about topics completely unrelated to mathematics. Also, after stripping all the wiki markup from the text some of the remaining text made no sense, this means that there was a high chance of the POS tags to be defective and hence the IOB would also be tainted. 
+
+\begin{table}[h]
+    \begin{center}
+    \begin{tabular}{|p{0.7\textwidth}|c|}
+        \hline
+        \hline
+        \textbf{Input to the Classifier} & \textbf{Result} \\
+        \hline
+        \hline
+        Let $n \ge 1$. Recall that the \underline{\emph{lexicographic order}} $\le_l$ on $%
+\mathbb{N}^n$ is defined by $v = (v_1, \ldots, v_n) \le_l (w_1, \ldots, w_n)
+= w$ if and only if either $v = w$ or there is some $i$, $1 \le i \le n$,
+with $v_j = w_j$, for all $j$ in the range $1 \le j < i$, and $v_i < w_i$.
+        Then $\le_l$ is an \underline{\emph{admissible} order} on $\mathbb{N}^n$ in the sense of 
+cite\{BWK:98\}. Indeed $\mathbb{N}^n$, together with componentwise addition
+        and $\le_l$, forms a totally ordered abelian monoid. The \underline{lexicographic order}
+$\le_l$ can be defined similarly on $\mathbb{Z}^n$, forming a totally
+ordered abelian group.\newline
+& \textbf{True Positive}\\
+        \hline
+        (\underline{Upper semicontinuity} of valuation) Let $f$ be a nonzero element of $k[x_1,
+\ldots, x_n]$ and let $a \in k^n$. Then there exists a neighbourhood $V
+\subset k^n$ of $a$ such that for all $b \in V$ $v_b(f) \le_l v_a(f)$.
+& \textbf{False Positive} \\
+        \hline
+This claim concerns valuation-invariant lifting in relation to $P_L(A)$:
+it asserts that the condition, `each element of $P_L(A)$ is valuation-invariant
+in $S$', is sufficient for an $A$-valuation-invariant stack
+in $\mathbb{R}^n$ to exist over $S$.
+ & \textbf{True Negative}\\
+        \hline
+        Let $f/g$ be a nonzero element of $K$, let $U \subset k^n$ be an \underline{open set}
+throughout which $g \neq 0$, and let $a \in U$. Then there exists a
+neighbourhood $V \subset U$ of $a$ such that for all $b \in V$ $\mathrm{ord}%
+_b(f/g) \le \mathrm{ord}_a(f/g)$.
+& \textbf{False Positive}\\
+        \hline
+    \end{tabular}
+    \caption{\label{examples}Examples of the  performance of the classifier and NER system on article  arXiv:1501.06563} The terms identified by the NER system have been underlined, the rest of the typesetting is taken verbatim from the original article.
+    \end{center} 
+\end{table}
  
 \section{Conclusions and Future Work}
 The main objective of this article is to showcase the feasability of a system that can search for definitions and important terms in large bodies of mathematical text. This system should have extremely good classification performance in order to avoid the errors propagating to the NER system. On the other hand, the system needs to be fast enough to tackle large corpora such as all the mathematical articles in the arXiv. Considering the performance of the state of the art methods for text classification and NER available today, and after observing the performance of the current prototype, we believe that this system is possible.
