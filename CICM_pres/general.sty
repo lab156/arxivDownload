@@ -1,0 +1,55 @@
+\NeedsTeXFormat{LaTeX2e}[2000/01/01]
+\ProvidesPackage{general}[2014/01/05 Paquete General de Apuntes]
+
+\RequirePackage{euscript}
+\RequirePackage{amsmath,amsfonts}
+\RequirePackage{amssymb}
+\RequirePackage{mathrsfs}
+\RequirePackage{enumerate}
+\RequirePackage{amsthm}
+%\RequirePackage[all]{xy}
+\RequirePackage{graphicx}
+%\RequirePackage{enumitem}
+
+
+
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\MM}{\EuScript{M}}
+\newcommand{\EEE}{\EuScript{E}}
+\newcommand{\g}{\EuScript{G}}
+\newcommand{\borel}{\mathbf{\EuScript{B}}}
+\newcommand{\atlas}{\mathcal{A}}
+\renewcommand{\o}{\EuScript{O}}
+\newcommand{\vesp}{\EuScript{X}}
+\newcommand{\vespY}{\EuScript{Y}}
+\newcommand{\tnsp}{\text{\textbf{T}}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\spann}{\operatorname{span}}
+\newcommand{\im}{\operatorname{Im}}
+\renewcommand{\ker}{\operatorname{Ker}}
+\newcommand{\sgn}{\operatorname{sgn}}
+\newcommand{\lcm}{\operatorname{lcm}}
+\newcommand{\trace}{\operatorname{trace}}
+\newcommand{\Ad}{\operatorname{Ad}}
+\newcommand{\ad}{\operatorname{ad}}
+\renewcommand{\v}{\Vert}
+%%%%%%%%MORPHISMS%%%%%%%%%%%%%
+%%%%%%T. Hungerford uses Capitalized name %%
+\newcommand{\ndo}{\operatorname{End}}
+\newcommand{\aut}{\operatorname{Aut}}
+\newcommand{\mor}{\operatorname{M}}
+\renewcommand{\hom}{\operatorname{Hom}}
+
+\newcommand{\from}{:\,}
+
+
+%To reference labels in between lecture files
+%USAGE: iflabelexists{labelName}{\ref{labelName}}{else statement}
+\newcommand{\iflabelexists}[3]{\@ifundefined{r@#1}{#3}{#2}}
+
+\endinput
