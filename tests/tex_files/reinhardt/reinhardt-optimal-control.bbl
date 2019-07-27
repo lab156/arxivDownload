@@ -1,0 +1,62 @@
+\begin{thebibliography}{Naz88}
+
+\bibitem[AS13]{agrachev2013control}
+Andrei~A Agrachev and Yuri Sachkov.
+\newblock {\em Control theory from the geometric viewpoint}, volume~87.
+\newblock Springer Science \& Business Media, 2013.
+
+\bibitem[Bae14]{baez}
+John Baez.
+\newblock Packing smoothed octagons, 11 2014.
+\newblock
+  \url{http://blogs.ams.org/visualinsight/2014/11/01/packing-smoothed-octagons/}.
+
+\bibitem[BE14]{baez-egan}
+John Baez and Greg Egan.
+\newblock A packing pessimization problem, 9 2014.
+\newblock
+  \url{https://golem.ph.utexas.edu/category/2014/09/a_packing_pessimization_proble.html}.
+
+\bibitem[Hal11]{hales2011reinhardt}
+Thomas~C Hales.
+\newblock On the {Reinhardt} conjecture.
+\newblock {\em Vietnam Journal of Mathematics}, 39(3):287--307, 2011.
+\newblock arXiv:1103.4518.
+
+\bibitem[Lib12]{liberzon2012calculus}
+Daniel Liberzon.
+\newblock {\em Calculus of variations and optimal control theory: a concise
+  introduction}.
+\newblock Princeton University Press, 2012.
+
+\bibitem[Mit98]{mittenhuber1998dubins}
+Dirk Mittenhuber.
+\newblock {Dubins}’ problem in hyperbolic space.
+\newblock {\em Geometric Control and Non-Holonomic Mechanics}, 25:101--114,
+  1998.
+
+\bibitem[MP98]{monroy1998non}
+Felipe Monroy-P{\'e}rez.
+\newblock Non-euclidean {Dubins}' problem.
+\newblock {\em Journal of dynamical and control systems}, 4(2):249--272, 1998.
+
+\bibitem[Naz88]{nazarov1988reinhardt}
+FL~Nazarov.
+\newblock Reinhardt's problem of lattice packings of convex domains: Local
+  extremality of the reinhardt octagon.
+\newblock {\em Journal of Mathematical Sciences}, 43(5):2687--2693, 1988.
+
+\bibitem[Rei34]{Reinhardt:1934}
+K.~Reinhardt.
+\newblock \"{U}ber die dichteste gitterf\"ormige {L}agerung kongruenter
+  {B}ereiche in der {E}bene und eine besondere {A}rt konvexer {K}urven.
+\newblock {\em Abh. Math. Sem., Hamburg, Hansischer Univ., Hamburg},
+  10:216--230, 1934.
+
+\bibitem[ZB12]{zelikin2012theory}
+Michail~I Zelikin and Vladimir~F Borisov.
+\newblock {\em Theory of chattering control: with applications to astronautics,
+  robotics, economics, and engineering}.
+\newblock Springer Science \& Business Media, 2012.
+
+\end{thebibliography}
