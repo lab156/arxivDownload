@@ -4,6 +4,9 @@ rootkey.*
 .ipynb_checkpoints
 #vim tilde files
 *~
+#local settings
+config.toml
+
 #python cache
 __pycache__
 
