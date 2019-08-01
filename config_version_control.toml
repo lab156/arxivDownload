@@ -2,5 +2,5 @@
 # The lines should be correct bash so can be sourced
 # Always do config.toml for your local settings
 [executables]
-LATEXML_PATH="/bin/latexml"
+LATEXML_BIN="/bin/latexml"
 

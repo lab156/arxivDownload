@@ -6,8 +6,10 @@
 #the same name as the original .tex file.
 #FILE_LIST=($(find  $1 -maxdepth 1 -type d '!' -exec test -e "{}/latexml_errors_mess.txt" ';' -print))
 
-#Define the LaTeXML binary file to run
-LATEXML_BIN=/home/luis/Paquetes/LaTeXML/bin/latexml 
+#Define the LaTeXML binary file to run by sourcing the config file
+# This define the variable latexml_bin
+source <(grep ^LATEXML_BIN "$PWD/config.toml")
+echo "latexml_bin file is: $PWD"
 
 #The maximum amount of time in seconds that LaTeXML is
 #allowed to run (seconds)
