@@ -16,7 +16,7 @@
 from pyparsing import \
         Literal, Word, ZeroOrMore, Group, Dict, Optional, \
         printables, ParseException, restOfLine, empty, \
-        Combine, nums, Suppress
+        Combine, nums, alphanums, Suppress
 import pprint
 
 #ssn ::= num+ '-' num+ '-' num+
@@ -28,6 +28,19 @@ ssn = Combine(Word(nums, exact=3) +
 target = '123-45-6789'
 result = ssn.parseString(target)
 print(result)
+
+
+class PacKiller:
+    def __init__(self, package, environments, standalones):
+        '''
+       *package* is the package name: ex "xy" 
+       *environments* is a list of the environments provided by the package:
+           [ "xyenvirons", ]
+        *standalones* is a list of macros that the package also provides:
+           [ "xymatrix" ]
+        '''
+        pass
+
 
 example_ini = '''[DEFAULT]
 ServerAliveInterval = 45
@@ -100,10 +113,13 @@ test('../../example.ini')
 with open('../tests/tex_files/reinhardt/reinhardt-optimal-control.tex', 'r') as rein_file:
     rein = rein_file.read()
 
-cstikzfig = '\\tikzfig'
-lbrace = '{'
-rbrace = '}'
-tikzfig = Word(cstikzfig + lbrace  )
+cstikzfig = Literal("\\tikzfig")
+lbrace = Literal('{')
+rbrace = Literal('}')
+inside = ZeroOrMore(Word(alphanums + '.'))
+tikzfig = cstikzfig + "{" + inside + "}" + lbrace + inside + rbrace
 tikzfig.searchString(rein)
+
+print(rein[:10000])
 
 
