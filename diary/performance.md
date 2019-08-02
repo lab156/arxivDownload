@@ -1,10 +1,11 @@
 # Task: Run the 1806 math.AG files 
 This is a task on with the command
-{{{
+```
  time parallel --jobs 90% ./run_latexml.sh ::: ~/test_latexml/*
- }}}
+ ```
  
-## raspberry pi, raspbian, parallel
+## raspberry pi, raspbian, parallel (done twice results confirmed)
+still need to check the .xml produced by both
 real    97m37.811s
 user    378m38.006s
 sys     2m8.805s
