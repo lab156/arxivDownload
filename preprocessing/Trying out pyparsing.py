@@ -142,15 +142,15 @@ content = Forward()
 content << OneOrMore(allchars|(lbrace + ZeroOrMore(content) + rbrace))
 #content << (allchars + lbrace + ZeroOrMore(content) + rbrace)
 content.setParseAction(lambda tok: " ".join(tok))
-tikzfig = cstikzfig + lbrace + inside + rbrace + lbrace + inside + rbrace# + lbrace + content +rbrace
+tikzfig = cstikzfig + lbrace + inside + rbrace + lbrace + inside + rbrace + lbrace + content + rbrace
 
 search_res = tikzfig.searchString(rein)
 
 for k,r in enumerate(search_res):
-    #name, expl, text  = r
-    #print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
-    name, expl = r
-    print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
+    name, expl, text  = r
+    print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
+    #name, expl = r
+    #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
 # -
 
 print(rein[:10000])
