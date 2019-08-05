@@ -128,6 +128,8 @@ for t in tests:
 
 with open('../tests/tex_files/reinhardt/reinhardt-optimal-control.tex', 'r') as rein_file:
     rein = rein_file.read()
+with open('../tests/tex_files/short_xymatrix_example.tex') as xymatrix_file:
+    stacks_example = xymatrix_file.read()
 
 # +
 cstikzfig = Literal("\\tikzfig").suppress()
@@ -142,15 +144,21 @@ content = Forward()
 content << OneOrMore(allchars|(lbrace + ZeroOrMore(content) + rbrace))
 #content << (allchars + lbrace + ZeroOrMore(content) + rbrace)
 content.setParseAction(lambda tok: " ".join(tok))
-tikzfig = cstikzfig + lbrace + inside + rbrace + lbrace + inside + rbrace# + lbrace + content +rbrace
+tikzfig = cstikzfig + lbrace + inside + rbrace + lbrace + inside + rbrace + lbrace + content +rbrace
 
-search_res = tikzfig.searchString(rein)
+csxymatrix = Suppress("\\xymatrix")
+xymatrix = csxymatrix + lbrace + content + rbrace
+
+#search_res = tikzfig.searchString(rein)
+search_res = xymatrix.searchString(stacks_example)
+
 
 for k,r in enumerate(search_res):
     #name, expl, text  = r
     #print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
-    name, expl = r
-    print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
+    #name, expl = r
+    #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
+    print(r)
 # -
 
 print(rein[:10000])
