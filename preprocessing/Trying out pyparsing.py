@@ -156,8 +156,7 @@ search_res = xymatrix.searchString(stacks_example)
 for k,r in enumerate(search_res):
     #name, expl, text  = r
     #print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
-    #name, expl = r
-    #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
+    #name, expl = r #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
     print(r)
 # -
 
