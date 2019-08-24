@@ -14,9 +14,9 @@
 # ---
 
 from pyparsing import \
-        Literal, Word, ZeroOrMore, Group, Dict, Optional, \
+        Literal, Word, ZeroOrMore, OneOrMore, Group, Dict, Optional, \
         printables, ParseException, restOfLine, empty, \
-        Combine, nums, Suppress
+        Combine, nums, alphanums, Suppress, SkipTo, Forward, printables, alphas
 import pprint
 
 #ssn ::= num+ '-' num+ '-' num+
@@ -28,6 +28,19 @@ ssn = Combine(Word(nums, exact=3) +
 target = '123-45-6789'
 result = ssn.parseString(target)
 print(result)
+
+
+class PacKiller:
+    def __init__(self, package, environments, standalones):
+        '''
+       *package* is the package name: ex "xy" 
+       *environments* is a list of the environments provided by the package:
+           [ "xyenvirons", ]
+        *standalones* is a list of macros that the package also provides:
+           [ "xymatrix" ]
+        '''
+        pass
+
 
 example_ini = '''[DEFAULT]
 ServerAliveInterval = 45
@@ -97,13 +110,65 @@ def test( strng ):
 test('../../example.ini')
 # -
 
+alphaword = Word(alphas)
+integer = Word(nums)
+sexp = Forward()
+LPAREN = Suppress("(")
+RPAREN = Suppress(")")
+sexp << OneOrMore( alphaword | integer | ( LPAREN + ZeroOrMore(sexp) + RPAREN ))
+tests = """\
+ red
+ 100 ( hi )
+ ( red 100 blue )
+ ( green ( ( 1 2 ) mauve ) plaid () )""".splitlines()
+for t in tests:
+    print(t)
+    print(sexp.parseString(t))
+    print()
+
 with open('../tests/tex_files/reinhardt/reinhardt-optimal-control.tex', 'r') as rein_file:
     rein = rein_file.read()
+with open('../tests/tex_files/short_xymatrix_example.tex') as xymatrix_file:
+    stacks_example = xymatrix_file.read()
 
-cstikzfig = '\\tikzfig'
-lbrace = '{'
-rbrace = '}'
-tikzfig = Word(cstikzfig + lbrace  )
-tikzfig.searchString(rein)
+# +
+cstikzfig = Literal("\\tikzfig").suppress()
+lbrace = Literal('{').suppress()
+rbrace = Literal('}').suppress()
+parens = Word("()%\\")
+inside = SkipTo(rbrace)
+allchars = Word(printables, excludeChars="{}")
+inside = ZeroOrMore(allchars)
+inside.setParseAction(lambda tok: " ".join(tok))
+content = Forward()
+content << OneOrMore(allchars|(lbrace + ZeroOrMore(content) + rbrace))
+#content << (allchars + lbrace + ZeroOrMore(content) + rbrace)
+content.setParseAction(lambda tok: " ".join(tok))
+<<<<<<< HEAD
+tikzfig = cstikzfig + lbrace + inside + rbrace + lbrace + inside + rbrace + lbrace + content + rbrace
+=======
+tikzfig = cstikzfig + lbrace + inside + rbrace + lbrace + inside + rbrace + lbrace + content +rbrace
+
+csxymatrix = Suppress("\\xymatrix")
+xymatrix = csxymatrix + lbrace + content + rbrace
+
+#search_res = tikzfig.searchString(rein)
+search_res = xymatrix.searchString(stacks_example)
+>>>>>>> 2c7d25fbc064b9789dd9153214c29d25a808e68d
 
 
+for k,r in enumerate(search_res):
+<<<<<<< HEAD
+    name, expl, text  = r
+    print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
+    #name, expl = r
+    #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
+=======
+    #name, expl, text  = r
+    #print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
+    #name, expl = r #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
+    print(r)
+>>>>>>> 2c7d25fbc064b9789dd9153214c29d25a808e68d
+# -
+
+print(rein[:10000])
