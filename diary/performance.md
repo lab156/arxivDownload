@@ -9,6 +9,11 @@ still need to check the .xml produced by both
 real    97m37.811s
 user    378m38.006s
 sys     2m8.805s
+### raspberry pi, no tmux fresh install
+real    87m52.969s
+user    340m3.146s
+sys     2m29.362s
+
 
 ## raspberry pi, Arch, parallel
 real    113m17.403s                                                             
