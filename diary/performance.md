@@ -19,4 +19,9 @@ sys     2m53.022s
 real    174m17.403s                                                             
 user    638m27.965s                                                             
 sys     4m55.323s    
+## Acer Arch, 4 Gb
+real    221m33.656s
+user    424m2.191s
+sys     3m6.353s
+
 
