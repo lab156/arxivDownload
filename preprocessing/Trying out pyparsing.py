@@ -130,6 +130,8 @@ with open('../tests/tex_files/reinhardt/reinhardt-optimal-control.tex', 'r') as 
     rein = rein_file.read()
 with open('../tests/tex_files/short_xymatrix_example.tex') as xymatrix_file:
     stacks_example = xymatrix_file.read()
+with open('../../stacks-tests/orig/perfect.tex') as xymatrix_file:
+    stacks_example = xymatrix_file.read()
 
 # +
 cstikzfig = Literal("\\tikzfig").suppress()
@@ -144,31 +146,32 @@ content = Forward()
 content << OneOrMore(allchars|(lbrace + ZeroOrMore(content) + rbrace))
 #content << (allchars + lbrace + ZeroOrMore(content) + rbrace)
 content.setParseAction(lambda tok: " ".join(tok))
-<<<<<<< HEAD
 tikzfig = cstikzfig + lbrace + inside + rbrace + lbrace + inside + rbrace + lbrace + content + rbrace
-=======
-tikzfig = cstikzfig + lbrace + inside + rbrace + lbrace + inside + rbrace + lbrace + content +rbrace
 
 csxymatrix = Suppress("\\xymatrix")
 xymatrix = csxymatrix + lbrace + content + rbrace
 
 #search_res = tikzfig.searchString(rein)
-search_res = xymatrix.searchString(stacks_example)
->>>>>>> 2c7d25fbc064b9789dd9153214c29d25a808e68d
+#search_res = xymatrix.searchString(stacks_example)
 
+#tikzfig.setParseAction(lambda s: ' ')
+#clean_str = tikzfig.transformString(rein)
 
-for k,r in enumerate(search_res):
-<<<<<<< HEAD
-    name, expl, text  = r
-    print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
+xymatrix.setParseAction(lambda s: ' ')
+clean_str = xymatrix.transformString(stacks_example)
+
+with open('../../stacks-tests/clean/perfect.tex','+w') as rein_file:
+    rein_file.write(clean_str)
+
+#for k,r in enumerate(search_res):
+#    name, expl, text  = r
+#    print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
     #name, expl = r
     #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
-=======
     #name, expl, text  = r
     #print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
     #name, expl = r #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
-    print(r)
->>>>>>> 2c7d25fbc064b9789dd9153214c29d25a808e68d
+    #print(r)
 # -
 
 print(rein[:10000])
