@@ -30,8 +30,30 @@ result = ssn.parseString(target)
 print(result)
 
 
-class PacKiller:
-    def __init__(self, package, environments, standalones):
+# +
+def patt(cs):
+    '''
+   Remove the cs with its arguments 
+   with recursion on curly brackets
+    '''
+    cs_literal = Literal(cs).suppress()
+    bslash = Literal('\\').suppress()
+    lbrace = Literal('{').suppress()
+    rbrace = Literal('}').suppress()
+    parens = Word("()%\\")
+    inside = SkipTo(rbrace)
+    allchars = Word(printables, excludeChars="{}")
+    inside = ZeroOrMore(allchars)
+    inside.setParseAction(lambda tok: " ".join(tok))
+    content = Forward()
+    content << OneOrMore(allchars|(lbrace + ZeroOrMore(content) + rbrace))
+    #content << (allchars + lbrace + ZeroOrMore(content) + rbrace)
+    content.setParseAction(lambda tok: " ".join(tok))
+
+    return bslash + cs_literal + lbrace + content + rbrace
+
+class CommandCleaner:
+    def __init__(self, *xargs, **kwargs):
         '''
        *package* is the package name: ex "xy" 
        *environments* is a list of the environments provided by the package:
@@ -39,8 +61,23 @@ class PacKiller:
         *standalones* is a list of macros that the package also provides:
            [ "xymatrix" ]
         '''
+        if xargs:
+            self.pattern = patt(xargs[0])
+    
+    def show_matches(self, docum):
+        '''
+        Print the matches
+        '''
+        return self.pattern.searchString(docum)
+    
+    def del_matches(self, docum):
         pass
+    
+        
+# -
 
+cc = CommandCleaner('xymatrix')
+cc.show_matches(short_example)[0][0]
 
 example_ini = '''[DEFAULT]
 ServerAliveInterval = 45
@@ -129,7 +166,7 @@ for t in tests:
 with open('../tests/tex_files/reinhardt/reinhardt-optimal-control.tex', 'r') as rein_file:
     rein = rein_file.read()
 with open('../tests/tex_files/short_xymatrix_example.tex') as xymatrix_file:
-    stacks_example = xymatrix_file.read()
+    short_example = xymatrix_file.read()
 with open('../../stacks-tests/orig/perfect.tex') as xymatrix_file:
     stacks_example = xymatrix_file.read()
 
@@ -151,19 +188,19 @@ tikzfig = cstikzfig + lbrace + inside + rbrace + lbrace + inside + rbrace + lbra
 csxymatrix = Suppress("\\xymatrix")
 xymatrix = csxymatrix + lbrace + content + rbrace
 
-#search_res = tikzfig.searchString(rein)
-#search_res = xymatrix.searchString(stacks_example)
+search_res = tikzfig.searchString(rein)
+search_res = xymatrix.searchString(short_example)
 
 #tikzfig.setParseAction(lambda s: ' ')
 #clean_str = tikzfig.transformString(rein)
 
-xymatrix.setParseAction(lambda s: ' ')
-clean_str = xymatrix.transformString(stacks_example)
+#xymatrix.setParseAction(lambda s: ' ')
+#clean_str = xymatrix.transformString(stacks_example)
 
 with open('../../stacks-tests/clean/perfect.tex','+w') as rein_file:
     rein_file.write(clean_str)
 
-#for k,r in enumerate(search_res):
+for k,r in enumerate(search_res):
 #    name, expl, text  = r
 #    print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
     #name, expl = r
@@ -171,7 +208,7 @@ with open('../../stacks-tests/clean/perfect.tex','+w') as rein_file:
     #name, expl, text  = r
     #print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
     #name, expl = r #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
-    #print(r)
+    print(r)
 # -
 
 print(rein[:10000])
