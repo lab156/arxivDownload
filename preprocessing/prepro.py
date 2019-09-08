@@ -5,7 +5,7 @@ from pyparsing import \
 
 def patt(cs):
     '''
-   Remove the cs with its arguments 
+   Remove the cs with its arguments
    with recursion on curly brackets
     '''
     cs_literal = Literal(cs).suppress()
@@ -27,24 +27,24 @@ def patt(cs):
 class CommandCleaner:
     def __init__(self, *xargs, **kwargs):
         '''
-       *package* is the package name: ex "xy" 
+       *package* is the package name: ex "xy"
        *environments* is a list of the environments provided by the package:
            [ "xyenvirons", ]
         *standalones* is a list of macros that the package also provides:
            [ "xymatrix" ]
         '''
         if xargs:
-            self.pattern = patt(xargs[0])
-    
+            self.pattern = patt('|'.join(xargs))
+
     def show_matches(self, docum):
         '''
         Print the matches
         '''
         return self.pattern.searchString(docum)
-    
+
     def del_matches(self, docum):
         '''
         Delete all matches
         '''
         self.pattern.setParseAction(lambda s: ' ')
-        return self.pattern.transformString(stacks_example)
+        return self.pattern.transformString(docum)

@@ -18,6 +18,7 @@ from pyparsing import \
         printables, ParseException, restOfLine, empty, \
         Combine, nums, alphanums, Suppress, SkipTo, Forward, printables, alphas
 import pprint
+import prepro as pp
 
 #ssn ::= num+ '-' num+ '-' num+
 #num ::= '0' | '1' | '2' etc
@@ -194,11 +195,11 @@ search_res = xymatrix.searchString(short_example)
 #tikzfig.setParseAction(lambda s: ' ')
 #clean_str = tikzfig.transformString(rein)
 
-#xymatrix.setParseAction(lambda s: ' ')
-#clean_str = xymatrix.transformString(stacks_example)
+xymatrix.setParseAction(lambda s: ' ')
+clean_str = xymatrix.transformString(short_example)
 
-with open('../../stacks-tests/clean/perfect.tex','+w') as rein_file:
-    rein_file.write(clean_str)
+#with open('../../stacks-tests/clean/perfect.tex','+w') as rein_file:
+#    rein_file.write(clean_str)
 
 for k,r in enumerate(search_res):
 #    name, expl, text  = r
@@ -209,6 +210,10 @@ for k,r in enumerate(search_res):
     #print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
     #name, expl = r #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
     print(r)
+clean_str
 # -
 
-print(rein[:10000])
+cc = pp.CommandCleaner('underline').del_matches(short_example)
+print(cc)
+
+
