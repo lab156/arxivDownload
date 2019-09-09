@@ -16,7 +16,7 @@
 from pyparsing import \
         Literal, Word, ZeroOrMore, OneOrMore, Group, Dict, Optional, \
         printables, ParseException, restOfLine, empty, \
-        Combine, nums, alphanums, Suppress, SkipTo, Forward, printables, alphas
+        Combine, nums, alphanums, Suppress, SkipTo, Forward, printables, alphas, oneOf
 import pprint
 import prepro as pp
 
@@ -172,7 +172,7 @@ with open('../../stacks-tests/orig/perfect.tex') as xymatrix_file:
     stacks_example = xymatrix_file.read()
 
 # +
-cstikzfig = Literal("\\tikzfig").suppress()
+cstikzfig = oneOf(["\\tikzfig", "\\mathcal"]).suppress()
 lbrace = Literal('{').suppress()
 rbrace = Literal('}').suppress()
 parens = Word("()%\\")
@@ -186,7 +186,7 @@ content << OneOrMore(allchars|(lbrace + ZeroOrMore(content) + rbrace))
 content.setParseAction(lambda tok: " ".join(tok))
 tikzfig = cstikzfig + lbrace + inside + rbrace + lbrace + inside + rbrace + lbrace + content + rbrace
 
-csxymatrix = Suppress("\\xymatrix")
+csxymatrix = oneOf(["\\xymatrix","\\mathcal"]).suppress()
 xymatrix = csxymatrix + lbrace + content + rbrace
 
 search_res = tikzfig.searchString(rein)

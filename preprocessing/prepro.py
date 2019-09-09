@@ -1,14 +1,14 @@
 from pyparsing import \
         Literal, Word, ZeroOrMore, OneOrMore, Group, Dict, Optional, \
-        printables, ParseException, restOfLine, empty, \
+        printables, ParseException, restOfLine, empty, oneOf, \
         Combine, nums, alphanums, Suppress, SkipTo, Forward, printables, alphas
 
-def patt(cs):
+def patt(cs_list):
     '''
    Remove the cs with its arguments
    with recursion on curly brackets
     '''
-    cs_literal = Literal(cs).suppress()
+    cs_lit_list = oneOf(cs_list).suppress()
     bslash = Literal('\\').suppress()
     lbrace = Literal('{').suppress()
     rbrace = Literal('}').suppress()
@@ -22,7 +22,7 @@ def patt(cs):
     #content << (allchars + lbrace + ZeroOrMore(content) + rbrace)
     content.setParseAction(lambda tok: " ".join(tok))
 
-    return bslash + cs_literal + lbrace + content + rbrace
+    return bslash + cs_lit_list + lbrace + content + rbrace
 
 class CommandCleaner:
     def __init__(self, *xargs, **kwargs):
@@ -34,7 +34,7 @@ class CommandCleaner:
            [ "xymatrix" ]
         '''
         if xargs:
-            self.pattern = patt('|'.join(xargs))
+            self.pattern = patt(xargs)
 
     def show_matches(self, docum):
         '''
