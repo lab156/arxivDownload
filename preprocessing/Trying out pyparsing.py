@@ -19,6 +19,8 @@ from pyparsing import \
         Combine, nums, alphanums, Suppress, SkipTo, Forward, printables, alphas, oneOf
 import pprint
 import prepro as pp
+import glob
+import os
 
 #ssn ::= num+ '-' num+ '-' num+
 #num ::= '0' | '1' | '2' etc
@@ -215,5 +217,18 @@ clean_str
 
 cc = pp.CommandCleaner('underline').del_matches(short_example)
 print(cc)
+
+Cleaner = pp.CommandCleaner('xymatrix')
+for tex_file in glob.glob('../../stacks-project/*.tex'):
+    with open(tex_file, 'r') as tex_o_file:
+        clean_str = Cleaner.del_matches(tex_o_file.read())
+    basename = os.path.basename(tex_file)
+    with open('../../stacks-clean/' + basename, 'w') as clean_file:
+        print('Writing file: ' + basename)
+        clean_file.write(clean_str)
+
+for tex_file in glob.glob('../../stacks-project/*.tex'):
+    p = os.path.basename(tex_file)
+    print(p)
 
 
