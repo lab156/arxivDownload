@@ -16,8 +16,11 @@
 from pyparsing import \
         Literal, Word, ZeroOrMore, OneOrMore, Group, Dict, Optional, \
         printables, ParseException, restOfLine, empty, \
-        Combine, nums, alphanums, Suppress, SkipTo, Forward, printables, alphas
+        Combine, nums, alphanums, Suppress, SkipTo, Forward, printables, alphas, oneOf
 import pprint
+import prepro as pp
+import glob
+import os
 
 #ssn ::= num+ '-' num+ '-' num+
 #num ::= '0' | '1' | '2' etc
@@ -30,8 +33,30 @@ result = ssn.parseString(target)
 print(result)
 
 
-class PacKiller:
-    def __init__(self, package, environments, standalones):
+# +
+def patt(cs):
+    '''
+   Remove the cs with its arguments 
+   with recursion on curly brackets
+    '''
+    cs_literal = Literal(cs).suppress()
+    bslash = Literal('\\').suppress()
+    lbrace = Literal('{').suppress()
+    rbrace = Literal('}').suppress()
+    parens = Word("()%\\")
+    inside = SkipTo(rbrace)
+    allchars = Word(printables, excludeChars="{}")
+    inside = ZeroOrMore(allchars)
+    inside.setParseAction(lambda tok: " ".join(tok))
+    content = Forward()
+    content << OneOrMore(allchars|(lbrace + ZeroOrMore(content) + rbrace))
+    #content << (allchars + lbrace + ZeroOrMore(content) + rbrace)
+    content.setParseAction(lambda tok: " ".join(tok))
+
+    return bslash + cs_literal + lbrace + content + rbrace
+
+class CommandCleaner:
+    def __init__(self, *xargs, **kwargs):
         '''
        *package* is the package name: ex "xy" 
        *environments* is a list of the environments provided by the package:
@@ -39,8 +64,23 @@ class PacKiller:
         *standalones* is a list of macros that the package also provides:
            [ "xymatrix" ]
         '''
+        if xargs:
+            self.pattern = patt(xargs[0])
+    
+    def show_matches(self, docum):
+        '''
+        Print the matches
+        '''
+        return self.pattern.searchString(docum)
+    
+    def del_matches(self, docum):
         pass
+    
+        
+# -
 
+cc = CommandCleaner('xymatrix')
+cc.show_matches(short_example)[0][0]
 
 example_ini = '''[DEFAULT]
 ServerAliveInterval = 45
@@ -129,10 +169,12 @@ for t in tests:
 with open('../tests/tex_files/reinhardt/reinhardt-optimal-control.tex', 'r') as rein_file:
     rein = rein_file.read()
 with open('../tests/tex_files/short_xymatrix_example.tex') as xymatrix_file:
+    short_example = xymatrix_file.read()
+with open('../../stacks-tests/orig/perfect.tex') as xymatrix_file:
     stacks_example = xymatrix_file.read()
 
 # +
-cstikzfig = Literal("\\tikzfig").suppress()
+cstikzfig = oneOf(["\\tikzfig", "\\mathcal"]).suppress()
 lbrace = Literal('{').suppress()
 rbrace = Literal('}').suppress()
 parens = Word("()%\\")
@@ -144,31 +186,49 @@ content = Forward()
 content << OneOrMore(allchars|(lbrace + ZeroOrMore(content) + rbrace))
 #content << (allchars + lbrace + ZeroOrMore(content) + rbrace)
 content.setParseAction(lambda tok: " ".join(tok))
-<<<<<<< HEAD
 tikzfig = cstikzfig + lbrace + inside + rbrace + lbrace + inside + rbrace + lbrace + content + rbrace
-=======
-tikzfig = cstikzfig + lbrace + inside + rbrace + lbrace + inside + rbrace + lbrace + content +rbrace
 
-csxymatrix = Suppress("\\xymatrix")
+csxymatrix = oneOf(["\\xymatrix","\\mathcal"]).suppress()
 xymatrix = csxymatrix + lbrace + content + rbrace
 
-#search_res = tikzfig.searchString(rein)
-search_res = xymatrix.searchString(stacks_example)
->>>>>>> 2c7d25fbc064b9789dd9153214c29d25a808e68d
+search_res = tikzfig.searchString(rein)
+search_res = xymatrix.searchString(short_example)
 
+#tikzfig.setParseAction(lambda s: ' ')
+#clean_str = tikzfig.transformString(rein)
+
+xymatrix.setParseAction(lambda s: ' ')
+clean_str = xymatrix.transformString(short_example)
+
+#with open('../../stacks-tests/clean/perfect.tex','+w') as rein_file:
+#    rein_file.write(clean_str)
 
 for k,r in enumerate(search_res):
-<<<<<<< HEAD
-    name, expl, text  = r
-    print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
+#    name, expl, text  = r
+#    print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
     #name, expl = r
     #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
-=======
     #name, expl, text  = r
     #print(k,' ', name,' -- ', expl[:15],' -- ', text[:25], '...', text[-25:])
     #name, expl = r #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
     print(r)
->>>>>>> 2c7d25fbc064b9789dd9153214c29d25a808e68d
+clean_str
 # -
 
-print(rein[:10000])
+cc = pp.CommandCleaner('underline').del_matches(short_example)
+print(cc)
+
+Cleaner = pp.CommandCleaner('xymatrix')
+for tex_file in glob.glob('../../stacks-project/*.tex'):
+    with open(tex_file, 'r') as tex_o_file:
+        clean_str = Cleaner.del_matches(tex_o_file.read())
+    basename = os.path.basename(tex_file)
+    with open('../../stacks-clean/' + basename, 'w') as clean_file:
+        print('Writing file: ' + basename)
+        clean_file.write(clean_str)
+
+for tex_file in glob.glob('../../stacks-project/*.tex'):
+    p = os.path.basename(tex_file)
+    print(p)
+
+
