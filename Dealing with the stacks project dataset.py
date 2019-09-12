@@ -25,6 +25,15 @@ import collections as col
 stacks_path = '../stacks-clean/'
 ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
 
+all_defs = []
+for xml_f in glob.glob('../stacks-clean/*.xml'):
+    try:
+        DD = px.DefinitionsXML(xml_f)
+        def_lst = DD.get_def_text()
+        all_defs += def_lst
+    except ValueError as e:
+        print("Parse Error: ", e)
+
 
 def para_tags(f, ns, min_words=0):
     '''
@@ -60,7 +69,7 @@ plst_all = sum(map(lambda D: para_tags(D, ns, min_words=15), docu_lst),[])
 
 plist[2]
 
-count = col.Counter(ngrams(' '.join(plst_all).split(),8))
+count = col.Counter(ngrams(' '.join(all_defs).split(),8))
 
 for ph in count.most_common()[:43]:
     text = ph[0]

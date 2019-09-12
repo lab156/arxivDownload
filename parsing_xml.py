@@ -111,8 +111,11 @@ class DefinitionsXML(object):
             elif self.filetype == 'html': 
                 self.exml = etree.parse(file_path, etree.HTMLParser(remove_comments=True))
                 self.recutext = recutext_html
-        except etree.ParseError:
-            raise etree.ParseError('Could not parse file %s'%file_path)
+        except etree.ParseError as e:
+            print('The file ', file_path, ' produced an error: ', e)
+            raise ValueError('XML Syntax error')
+        except etree.XMLSyntaxError as e:
+            print('The file ', file_path, ' produced an error: ', e)
 
         self.ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
         self.def_lst = []
