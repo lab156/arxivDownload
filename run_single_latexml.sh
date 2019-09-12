@@ -19,7 +19,7 @@ for TEX_FILE in "$@"
 do
     COMMENTARY_FILE=${TEX_FILE%.*}"_commentary.txt"
     ERROR_MESS_FILE=${TEX_FILE%.*}"_errors_mess.txt"
-    echo "Running LaTeXML on the file " $f
+    echo "Running LaTeXML on the file " $TEX_FILE
     echo "main .tex file" $(basename $TEX_FILE) >> $COMMENTARY_FILE
     timeout $MAXT  $LATEXML_BIN $TEX_FILE  2>$ERROR_MESS_FILE > ${TEX_FILE%.*}.xml 
 
