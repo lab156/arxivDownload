@@ -160,6 +160,9 @@ class DefinitionsXML(object):
                     %(self.file_path, etree.tostring(root).decode('utf-8')))
         return root_found
 
+    def get_definiendum(self):
+        pass
+
     def get_def_text(self):
         '''
         uses the method specified to get the text from 

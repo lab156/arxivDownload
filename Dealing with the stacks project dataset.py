@@ -13,6 +13,7 @@
 #     name: python3
 # ---
 
+# +
 import parsing_xml as px
 import xml.etree.ElementTree as ET
 import random
@@ -21,9 +22,41 @@ import glob
 from nltk import ngrams
 from sklearn.feature_extraction.text import CountVectorizer
 import collections as col
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import RegexpTokenizer
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+
+stop_words = set(stopwords.words('english'))
+# -
 
 stacks_path = '../stacks-clean/'
 ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
+
+tnzer = RegexpTokenizer(r'\w+')
+resu = tnzer.tokenize(all_defs[0])
+resu 
+
+# +
+stop_words.update(set(['1', '2', '_inline_math_', '_display_math_']))
+
+word_flt = list(filter(lambda w: w not in stop_words, tnzer.tokenize('\n'.join(plst_all))))
+word_map = map(lemmatizer.lemmatize, word_flt)
+# -
+
+count = col.Counter(word_map)
+
+for ph in count.most_common()[:300]:
+    text = ph[0]
+    freq = ph[1]
+    print("{:<25} {:>5}".format(''.join(text), freq))
+
+# +
+lemmatizer = WordNetLemmatizer() 
+  
+print("continuity :", lemmatizer.lemmatize("continua")) 
+print("corpora :", lemmatizer.lemmatize("corpora")) 
+# -
 
 all_defs = []
 for xml_f in glob.glob('../stacks-clean/*.xml'):
@@ -67,11 +100,11 @@ plist = para_tags(stacks_path+'perfect.xml', ns, min_words=15)
 docu_lst = glob.glob('../stacks-clean/*.xml')
 plst_all = sum(map(lambda D: para_tags(D, ns, min_words=15), docu_lst),[])
 
-plist[2]
+plst_all[2]
 
 count = col.Counter(ngrams(' '.join(all_defs).split(),8))
 
-for ph in count.most_common()[:43]:
+for ph in count.most_common():
     text = ph[0]
     freq = ph[1]
     print("{:<65} {:>5}".format(' '.join(text), freq))
