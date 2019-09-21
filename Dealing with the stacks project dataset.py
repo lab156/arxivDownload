@@ -67,6 +67,12 @@ for xml_f in glob.glob('../stacks-clean/*.xml'):
     except ValueError as e:
         print("Parse Error: ", e)
 
+spaces = px.DefinitionsXML('data/stacks-clean/spaces-perfect.xml')
+x1 = spaces.find_definitions()[3]
+#ET.tostring(x1, encoding='unicode')
+#spaces.get_def_text()[3]
+x1.xpath('.//latexml:text[contains(@font, "italic")]', namespaces=ns)
+
 
 def para_tags(f, ns, min_words=0):
     '''
