@@ -16,6 +16,7 @@
 # +
 import parsing_xml as px
 import xml.etree.ElementTree as ET
+from lxml import etree
 import random
 import sys
 import glob
@@ -32,6 +33,53 @@ stop_words = set(stopwords.words('english'))
 
 stacks_path = '../stacks-clean/'
 ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
+
+
+# +
+def get_definiendum(defi, ns):
+    dfndum = defi.xpath('.//latexml:text[contains(@font, "italic")]', namespaces=ns)
+    return [D.text for D in dfndum]
+    
+def create_definition_branch(ind, defi):
+    root = etree.Element("definition")
+    root.attrib['index'] = repr(ind)
+    statement = etree.SubElement(root, 'stmnt')
+    statement.text = px.recutext_xml(defi)
+    for d in get_definiendum(defi, ns):
+        dfndum = etree.SubElement(root, 'dfndum')
+        dfndum.text = d
+    return root
+
+
+# -
+
+spaces = px.DefinitionsXML('../stacks-clean/spaces-perfect.xml')
+x1 = spaces.find_definitions()[3]
+get_definiendum(x1, ns)
+
+# +
+root = etree.Element('root')
+
+for filenm in glob.glob('../stacks-clean/*.xml'):
+    branch = etree.Element('article')
+    try:
+        spa = px.DefinitionsXML(filenm)
+        for x in spa.find_definitions():
+            branch.append(create_definition_branch(1, x))
+    except ValueError:
+        print('Empty File.')
+    root.append(branch)
+
+
+# +
+root = etree.Element('root')
+
+
+branch = etree.Element('article')
+branch.append(create_definition_branch(1, x1))
+root.append(branch)
+print(etree.tostring(root, pretty_print=True).decode('utf8'))
+# -
 
 tnzer = RegexpTokenizer(r'\w+')
 resu = tnzer.tokenize(all_defs[0])
@@ -66,12 +114,6 @@ for xml_f in glob.glob('../stacks-clean/*.xml'):
         all_defs += def_lst
     except ValueError as e:
         print("Parse Error: ", e)
-
-spaces = px.DefinitionsXML('data/stacks-clean/spaces-perfect.xml')
-x1 = spaces.find_definitions()[3]
-#ET.tostring(x1, encoding='unicode')
-#spaces.get_def_text()[3]
-x1.xpath('.//latexml:text[contains(@font, "italic")]', namespaces=ns)
 
 
 def para_tags(f, ns, min_words=0):

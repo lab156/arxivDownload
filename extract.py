@@ -10,6 +10,10 @@ from sqlalchemy.orm import sessionmaker
 from sampling import create_dict
 import re
 
+#TODO: All the xml tasks should be done by a helper
+#function that just gets fed all the critical info
+# filepath, number of articles, definitions
+# If Definiendum gets no vectorizer, then it should not classify 
 
 class Definiendum():
     def __init__(self, px, clf, bio, vzer, tzer):
