@@ -27,6 +27,8 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import RegexpTokenizer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
+import re
+import os.path
 
 stop_words = set(stopwords.words('english'))
 # -
@@ -53,15 +55,36 @@ def create_definition_branch(ind, defi):
 
 # -
 
-spaces = px.DefinitionsXML('../stacks-clean/spaces-perfect.xml')
-x1 = spaces.find_definitions()[3]
-get_definiendum(x1, ns)
+spaces = px.DefinitionsXML('data/stacks-clean/spaces-perfect.xml')
+x_lst = spaces.find_definitions()
+#get_definiendum(x_lst[3], ns)
+print(etree.tostring(x_lst[3], pretty_print=True).decode('utf8'))
+
+par_rt = x_lst[3]
+def is_def(par_rt):
+    '''
+   par_rt is the root of an etree of the form:
+   <theorem xmlns="http://dlmf.nist.gov/LaTeXML" class="ltx_theorem_definition" xml:id="S9.SS1">
+      <tags>
+        <tag>Definition 9.1</tag>
+        <tag role="autoref">9.1</tag>
+        <tag role="refnum">9.1</tag>
+        <tag role="typerefnum">Definition 9.1</tag>
+      </tags>
+    '''
+    def_cls = par_rt.get('class')
+    if re.match(r'ltx_theorem_[definto]+$', def_cls):
+        return True
+    else: 
+        return False
+
 
 # +
 root = etree.Element('root')
 
-for filenm in glob.glob('../stacks-clean/*.xml'):
+for filenm in glob.glob('data/stacks-clean/*.xml'):
     branch = etree.Element('article')
+    branch.attrib['name'] = os.path.basename(filenm)
     try:
         spa = px.DefinitionsXML(filenm)
         for x in spa.find_definitions():
@@ -69,7 +92,12 @@ for filenm in glob.glob('../stacks-clean/*.xml'):
     except ValueError:
         print('Empty File.')
     root.append(branch)
+#print(etree.tostring(root, pretty_print=True).decode('utf8'))
+# -
 
+
+with open('data/stack_definitions.xml', 'w+') as stack_file:
+    stack_file.write(etree.tostring(root, pretty_print=True).decode('utf8'))
 
 # +
 root = etree.Element('root')
