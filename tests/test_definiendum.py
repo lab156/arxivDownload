@@ -1,5 +1,10 @@
 import unittest
+import sys
+sys.path.append("../")
 from definiendum import DefiniendumExtract
+
+#From the tests directory run:
+#python -m unittest test_definiendum.py
 
 class TestDefiniendum(unittest.TestCase):
     @classmethod

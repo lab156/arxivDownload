@@ -1,6 +1,8 @@
 import unittest
 import bio_tag as iob
 
+#RUN WITH: python -m unittest tests.py 
+
 class TestBIOTagger(unittest.TestCase):
     def test_short_sentence(self):
         sent = [('hello', 'NN')]

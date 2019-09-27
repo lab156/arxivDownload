@@ -37,7 +37,8 @@ class Definiendum():
         self.trans_vect = vzer.transform(self.para_lst)
         self.predictions = clf.predict(self.trans_vect)
         # Create list of pairs of definitions paired with the index in which they appear in the article
-        self.def_lst = [(ind,p) for ind, p in enumerate(self.para_lst) if self.predictions[ind]]
+        self.def_lst = [(ind,p) for ind, p in enumerate(self.para_lst)
+                if self.predictions[ind]]
 
         self.root = etree.Element('article')
         self.root.attrib['name'] = px.file_path
