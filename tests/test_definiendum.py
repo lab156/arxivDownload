@@ -5,6 +5,8 @@ from definiendum import DefiniendumExtract
 
 #From the tests directory run:
 #python -m unittest test_definiendum.py
+#ALSO
+#PYTHONPATH="./tests"  python -m unittest -v test_definiendum
 
 class TestDefiniendum(unittest.TestCase):
     @classmethod

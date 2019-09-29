@@ -98,6 +98,9 @@ def recutext_html(root, nsstr=''):
         elif el.tag == (nsstr + 'cite'):
             ret_str += '_citation_'
             ret_str += empty_if_none(el.tail)
+        elif el.tag == (nsstr + 'span') and el.getparent().attrib.get('class') == 'ltx_item':
+            ret_str += '_item_'
+            ret_str += empty_if_none(el.tail)
         else:
             #ret_str += empty_if_none(el.text)
             ret_str += recutext_html(el, nsstr)

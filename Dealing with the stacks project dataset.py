@@ -59,7 +59,7 @@ def create_definition_branch(ind, defi):
 # +
 root = etree.Element('root')
 
-for filenm in glob.glob('../stacks-clean/*.xml'):
+for filenm in glob.glob('../stacks-clean/perfect.xml'):
     try:
         px_file = px.DefinitionsXML(filenm)
         branch = px_file.create_xml_branch()
@@ -74,9 +74,13 @@ print(etree.tostring(root, pretty_print=True).decode('utf8'))
 with open('../stacks_definitions.xml', 'w+') as stack_file:
     stack_file.write(etree.tostring(root, pretty_print=True).decode('utf8'))
 
-lazrd = px.DefinitionsXML('tests/latexmled_files/1501.06563.xml')
-print(etree.tostring(lazrd.create_xml_branch(),pretty_print=True).decode('utf8'))
-print(lazrd.get_def_sample_text_with(30)['real'][2])
+lazrd = px.DefinitionsXML('tests/latexmled_files/1501.06563.html')
+#print(etree.tostring(lazrd.create_xml_branch(),pretty_print=True).decode('utf8'))
+#print(lazrd.get_def_sample_text_with(30)['real'][2])
+d1 = lazrd.find_definitions()[2]
+li_tags = d1.xpath('.//li', namespaces=ns)
+#print(li_tags[2].attrib)
+#print(etree.tostring(li_tags[2],pretty_print=True).decode('utf8'))
 
 lazrd = px.DefinitionsXML('tests/latexmled_files/enumerate_forms.xml')
 #print(etree.tostring(lazrd.create_xml_branch(),pretty_print=True).decode('utf8'))
