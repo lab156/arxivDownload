@@ -3,11 +3,19 @@ import shutil
 import parsing_xml as px
 import nltk
 
+#To run from the command line:
+# in the arxivDownload directory (one dir above)
+#  $PYTHONPATH="./tests"  python -m unittest -v test_parsing_xml
+
 class TestDefinitionsXML(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.ns = {'ltx': 'http://dlmf.nist.gov/LaTeXML'}
         cls.xml1 = px.DefinitionsXML('tests/latexmled_files/1501.06563.xml')
+
+        cls.xml2 = px.DefinitionsXML('tests/latexmled_files/enumerate_forms.xml')
+        cls.def_text = cls.xml2.get_def_text()
+
         cls.xml_lst1 = cls.xml1.exml.findall('.//ltx:p', namespaces=cls.ns)
         cls.html1 = px.DefinitionsXML('tests/latexmled_files/1501.06563.html')
         cls.html2 = px.DefinitionsXML('tests/latexmled_files/1501.06563_shortened.html')
@@ -104,6 +112,11 @@ class TestDefinitionsXML(unittest.TestCase):
 
         str2 = dtest.get_def_text()[0].lower()
         self.assertEqual(nltk.word_tokenize(str1), nltk.word_tokenize(str2))
+
+    def test_tags_enumerate_removal(self):
+        test_str1 = ''' Let _inline_math_ be nonzero and _inline_math_ a subset of _inline_math_. We say that _inline_math_ is Lazard delineable on _inline_math_ if _item_ the Lazard valuation of _inline_math_ on _inline_math_ is the same for each point _inline_math_; _item_ there exist finitely many continuous functions _inline_math_ from _inline_math_ to _inline_math_, with _inline_math_, such that, for all _inline_math_, the set of real roots of _inline_math_ is _inline_math_; and _item_ there exist positive integers _inline_math_ such that, for all _inline_math_ and all _inline_math_, _inline_math_ is the multiplicity of _inline_math_ as a root of _inline_math_. We refer to the graphs of the _inline_math_ as the Lazard sections of _inline_math_ over _inline_math_; the regions between successive Lazard sections, together with the region below the lowest Lazard section and that above the highest Lazard section, are called Lazard sectors. '''
+        test_str2 = ''' Let _inline_math_ be a scheme. Consider triples _inline_math_ where _item_ _inline_math_ is a closed subset, _item_ _inline_math_ is an object of _inline_math_, and _item_ _inline_math_. We say approximation holds for the triple _inline_math_ if there exists a perfect object _inline_math_ of _inline_math_ supported on _inline_math_ and a map _inline_math_ which induces isomorphisms _inline_math_ for _inline_math_ and a surjection _inline_math_. '''
+        self.assertEqual(self.def_text[0], test_str1)
 
     def test_exact_tokenize3(self):
         dtest = px.DefinitionsXML('tests/latexmled_files/math.0407523.xml')

@@ -14,7 +14,6 @@
 # ---
 
 # +
-import parsing_xml as px
 import xml.etree.ElementTree as ET
 from lxml import etree
 import random
@@ -29,6 +28,10 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import re
 import os.path
+
+# %load_ext autoreload
+# %autoreload 2
+import parsing_xml as px
 
 stop_words = set(stopwords.words('english'))
 # -
@@ -53,61 +56,35 @@ def create_definition_branch(ind, defi):
     return root
 
 
-# -
-
-spaces = px.DefinitionsXML('data/stacks-clean/spaces-perfect.xml')
-x_lst = spaces.find_definitions()
-#get_definiendum(x_lst[3], ns)
-print(etree.tostring(x_lst[3], pretty_print=True).decode('utf8'))
-
-par_rt = x_lst[3]
-def is_def(par_rt):
-    '''
-   par_rt is the root of an etree of the form:
-   <theorem xmlns="http://dlmf.nist.gov/LaTeXML" class="ltx_theorem_definition" xml:id="S9.SS1">
-      <tags>
-        <tag>Definition 9.1</tag>
-        <tag role="autoref">9.1</tag>
-        <tag role="refnum">9.1</tag>
-        <tag role="typerefnum">Definition 9.1</tag>
-      </tags>
-    '''
-    def_cls = par_rt.get('class')
-    if re.match(r'ltx_theorem_[definto]+$', def_cls):
-        return True
-    else: 
-        return False
-
-
 # +
 root = etree.Element('root')
 
-for filenm in glob.glob('data/stacks-clean/*.xml'):
-    branch = etree.Element('article')
-    branch.attrib['name'] = os.path.basename(filenm)
+for filenm in glob.glob('../stacks-clean/*.xml'):
     try:
-        spa = px.DefinitionsXML(filenm)
-        for x in spa.find_definitions():
-            branch.append(create_definition_branch(1, x))
-    except ValueError:
-        print('Empty File.')
-    root.append(branch)
-#print(etree.tostring(root, pretty_print=True).decode('utf8'))
-# -
-
-
-with open('data/stack_definitions.xml', 'w+') as stack_file:
-    stack_file.write(etree.tostring(root, pretty_print=True).decode('utf8'))
-
-# +
-root = etree.Element('root')
-
-
-branch = etree.Element('article')
-branch.append(create_definition_branch(1, x1))
-root.append(branch)
+        px_file = px.DefinitionsXML(filenm)
+        branch = px_file.create_xml_branch()
+        root.append(branch)
+    except ValueError as e:
+        print('%s is empty!'%filenm)
+    
 print(etree.tostring(root, pretty_print=True).decode('utf8'))
 # -
+
+
+with open('../stacks_definitions.xml', 'w+') as stack_file:
+    stack_file.write(etree.tostring(root, pretty_print=True).decode('utf8'))
+
+lazrd = px.DefinitionsXML('tests/latexmled_files/1501.06563.xml')
+print(etree.tostring(lazrd.create_xml_branch(),pretty_print=True).decode('utf8'))
+print(lazrd.get_def_sample_text_with(30)['real'][2])
+
+lazrd = px.DefinitionsXML('tests/latexmled_files/enumerate_forms.xml')
+#print(etree.tostring(lazrd.create_xml_branch(),pretty_print=True).decode('utf8'))
+lazrd.get_def_text()
+#lazrd.find_definitions()
+#for tt in d1.xpath('.//latexml:tags', namespaces=ns):
+#    print(tt.getparent())
+#print(etree.tostring(d1,pretty_print=True).decode('utf8'))
 
 tnzer = RegexpTokenizer(r'\w+')
 resu = tnzer.tokenize(all_defs[0])

@@ -5,6 +5,7 @@ import re
 import sys
 import nltk
 import random
+import os.path
 
 #Shortcut to set default to empty string instead Nonetype
 empty_if_none = lambda s: s if s else ''
@@ -32,6 +33,7 @@ xml_dict = { 'math_tag': 'Math',
         'math_attrib_display': 'display',
         'math_attrib_inline': 'inline',
         'cite_tag': 'cite',
+        'item_tag': 'item',
         }
 html_dict = { 'math_tag': 'math',
         'math_attrib_key': 'display',
@@ -53,6 +55,12 @@ def recutext_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
             ret_str += empty_if_none(el.tail)
         elif el.tag == (nsstr + 'cite'):
             ret_str += '_citation_'
+            ret_str += empty_if_none(el.tail)
+        elif el.tag == (nsstr + 'tags') and el.getparent().tag == (nsstr + 'item'):   
+            #Catch this pattern:
+            #<item>
+            #  <tags>
+            ret_str += '_item_'
             ret_str += empty_if_none(el.tail)
         elif el.tag == (nsstr + 'tag') and (el.attrib.get('role') == 'refnum' or el.attrib.get('role') == 'typerefnum'):
             #Tags have a `role` attrib with text and this should be ignored
@@ -135,6 +143,36 @@ class DefinitionsXML(object):
             self.def_lst = self.exml.xpath(".//div[re:match(@class, 'ltx_theorem_[definto]+$')]",
                     namespaces={"re": "http://exslt.org/regular-expressions"})
         return self.def_lst
+
+    def create_xml_branch(self):
+        '''
+        Sat 28 Sep 2019
+        This is intended to work only to the stacks project xml at first
+        self being one xml file create a branch with the following structure
+
+        <article name="chow.xml">
+            <definition>
+              <stmnt> Let _inline_math_ be a ring.  complex over _inline_math_ </stmnt>
+              <dfndum>-periodic complex</dfndum>
+              <dfndum>cohomology modules</dfndum>
+              <dfndum>exact</dfndum>
+            </definition>
+      '''
+        branch = etree.Element('article')
+        branch.attrib['name'] = os.path.basename(self.file_path)
+        # for each tag like <theorem class="ltx_theorem_definition" in def_lst
+        for defi_rt in self.find_definitions():
+            root = etree.Element("definition")
+            #root.attrib['index'] = repr(ind) -- not defining an index
+            statement = etree.SubElement(root, 'stmnt')
+            statement.text = self.recutext(self.para_p(defi_rt))
+            all_dfndum = defi_rt.xpath('.//latexml:text[contains(@font, "italic")]',
+                    namespaces=self.ns)
+            for dum in all_dfndum:
+                dfndum = etree.SubElement(root, 'dfndum')
+                dfndum.text = dum.text
+            branch.append(root)
+        return branch
 
     def para_p(self, root):
         '''
