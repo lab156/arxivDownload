@@ -1,0 +1,35 @@
+<root>
+  <article name="perfect.xml">
+    <definition>
+      <stmnt> Let _inline_math_ be a scheme. Let _inline_math_ be an object of _inline_math_. Let _inline_math_ be a closed subset. We say _inline_math_ is supported on _inline_math_ if 0011 depends on 0100 the cohomology sheaves _inline_math_ are supported on _inline_math_. </stmnt>
+      <dfndum>supported on </dfndum>
+      <dfndum>0011</dfndum>
+    </definition>
+    <definition>
+      <stmnt> Let _inline_math_ be a scheme. Consider triples _inline_math_ where _item_ _inline_math_ is a closed subset, _item_ _inline_math_ is an object of _inline_math_, and _item_ _inline_math_. 0000 We say approximation holds for the triple _inline_math_ if there exists a perfect object _inline_math_ of _inline_math_ supported on _inline_math_ and a map _inline_math_ which induces isomorphisms _inline_math_ for _inline_math_ and a surjection _inline_math_. </stmnt>
+      <dfndum>approximation holds for the triple</dfndum>
+      <dfndum>0000</dfndum>
+    </definition>
+    <definition>
+      <stmnt> Let _inline_math_ be a scheme. We say approximation by perfect 1000 depends on 0000 complexes holds on _inline_math_ if for any closed subset _inline_math_ with _inline_math_ retro-compact in _inline_math_ there exists an integer _inline_math_ such that for every triple _inline_math_ as in Definition with _item_ _inline_math_ is _inline_math_-pseudo-coherent, and _item_ _inline_math_ is supported on _inline_math_ for _inline_math_ approximation holds. </stmnt>
+      <dfndum>approximation by perfect complexes holds</dfndum>
+      <dfndum>1000</dfndum>
+    </definition>
+    <definition>
+      <stmnt> Let _inline_math_ be a scheme. Let _inline_math_, _inline_math_ be 0000 schemes over _inline_math_. We say _inline_math_ and _inline_math_ are Tor independent over _inline_math_ if for every _inline_math_ and _inline_math_ mapping to the same point _inline_math_ the rings _inline_math_ and _inline_math_ are Tor independent over _inline_math_ (see More on 0100 Algebra, Definition ). </stmnt>
+      <dfndum>Tor independent over </dfndum>
+      <dfndum>0100</dfndum>
+    </definition>
+    <definition>
+      <stmnt> Let _inline_math_ be a morphism 0011 of schemes which is flat and locally of finite presentation. An object 1011 _inline_math_ of _inline_math_ is perfect relative to _inline_math_ or _inline_math_-perfect if _inline_math_ is pseudo-coherent (Cohomology, Definition ) and _inline_math_ locally has finite tor dimension as an object of _inline_math_ (Cohomology, Definition ). </stmnt>
+      <dfndum>perfect relative to </dfndum>
+      <dfndum>-perfect</dfndum>
+      <dfndum>1011</dfndum>
+    </definition>
+    <definition>
+      <stmnt> Let _inline_math_ be a scheme. We say _inline_math_ has the resolution property if every 0111 quasi-coherent _inline_math_-module of finite type is the quotient of a finite locally free 0011 _inline_math_-module. </stmnt>
+      <dfndum>resolution property</dfndum>
+      <dfndum>0111</dfndum>
+    </definition>
+  </article>
+</root>
