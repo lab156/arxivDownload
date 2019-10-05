@@ -2,5 +2,6 @@
 # The lines should be correct bash so can be sourced
 # Always do config.toml for your local settings
 [executables]
-LATEXML_BIN="/bin/latexml"
-
+LATEXML_BIN="/home/luis/perl5/bin/latexml"
+# Maximum time allowed for LaTeXML to run on a single file in seconds
+MAXT=1200
