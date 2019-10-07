@@ -3,6 +3,15 @@ This is a task on with the command
 ```
  time parallel --jobs 90% ./run_latexml.sh ::: ~/test_latexml/*
  ```
+## bridges cluster (one processor) 
+real    121m14.292s 
+user    119m47.113s
+sys     1m14.615s    
+
+** bridges cluster (16 processors)
+real    22m41.144s (there was a 20 mins timeout)
+user    159m40.060s 
+sys     1m36.147s     
  
 ## raspberry pi, raspbian, parallel (done twice results confirmed)
 still need to check the .xml produced by both
