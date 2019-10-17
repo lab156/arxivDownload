@@ -74,7 +74,7 @@ class DownloadMan(object):
         file_save_path = os.path.join(self.mountpoint, filename)
         file_s3_path = self.s3_url + filename
         P = subprocess.run(
-                ['/bin/s3cmd', 'get', '--requester-pays', 
+                ['/usr/bin/s3cmd', 'get', '--requester-pays', 
                     file_s3_path, file_save_path],
                    stderr=subprocess.PIPE,
                    stdout=subprocess.PIPE)
@@ -125,7 +125,7 @@ class DownloadMan(object):
 if __name__ == '__main__':
     ## Default values
     mountpoint = '/mnt/arXiv_src/'
-    allfiles = 'allfiles2.csv'
+    allfiles = 'allfiles3.csv'
     doun = 'downloaded_log.csv'
     error_log = 'error_dload.log'
     logging.basicConfig(filename='../error_log_dload.log', 
@@ -137,5 +137,6 @@ if __name__ == '__main__':
         try:
             D.get_next()
         except IndexError:
+            print('No more files to download')
             break
     sys.exit(0)
