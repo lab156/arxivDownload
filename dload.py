@@ -82,6 +82,7 @@ class DownloadMan(object):
             print('Error Downloading file: %s'%filename)
             with open(self.error_log_path, 'a') as efile:
                 efile.write(str(P.stderr) + '\n')
+            raise ValueError(P.stderr)
         else:
             print('Dowloand of file %s successful'%filename)
             append_df = pd.DataFrame([{'filename': filename}])
