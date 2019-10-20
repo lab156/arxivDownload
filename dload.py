@@ -123,6 +123,9 @@ class DownloadMan(object):
 
 
 if __name__ == '__main__':
+    '''
+    Usage python3 dload.py
+    '''
     ## Default values
     mountpoint = '/mnt/arXiv_src/'
     allfiles = 'allfiles3.csv'
