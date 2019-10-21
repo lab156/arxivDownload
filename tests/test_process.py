@@ -12,7 +12,6 @@ class TestXtraction1(unittest.TestCase):
         print('Starting extraction of  %s         \r'%os.path.basename(self.f_path),end='\r')
         x = Xtraction(self.f_path)
         f_lst = x.filter_MSC('math.AG')
-        print('length ', len(list(f_lst)))
         for f in f_lst:
             print("\033[K",end='') 
             print('writing file %s               \r'%f,end='\r')
