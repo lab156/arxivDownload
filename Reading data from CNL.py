@@ -15,6 +15,14 @@
 
 from lxml import etree
 
-rein = etree.parse('data/rein_cnl.xml')
+rein = etree.parse('data/rein_debugged.xml').findall('par')
+for k in rein:
+    k.tail
+
+rein = etree.parse('data/rein_buggy.xml')
+
+rein1 = etree.parse('data/reinhardt/reinout.xml').findall('par')
+
+rein1[0]
 
 
