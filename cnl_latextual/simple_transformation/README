@@ -1,0 +1,17 @@
+Usage:
+	sort -by phone <sample.xml | print
+
+once sort and print are compiled.
+
+These examples illustrate iter_tree, map_tree and find_element.
+
+
+sort: 	reads an XML file from stdin, sorts the records, and prints the
+ 	result as XML.
+delcol: reads an XML file from stdin, deletes a column from all records,
+	and prints the result as XML.
+print:	reads an XML file from stdin, and pretty-prints the file
+
+The XML file must not contain a DTD. The programs assume the fixed DTD
+record.dtd.
+

@@ -2,8 +2,9 @@ open Pxp_types
 open Pxp_document
 open Pxp_dtd.Entity
 
-let exemplar_ext = None  in
-let dtd = None  in
+let exemplar_ext = Pxp_  in
+let dtd = 
+      Pxp_dtd_parser.parse_dtd_entity default_config (from_file "record.dtd") in
 
 let element_exemplar = new element_impl exemplar_ext in
 let data_exemplar    = new data_impl    exemplar_ext in

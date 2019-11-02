@@ -1,0 +1,5 @@
+<!ELEMENT root (par*)>
+<!ELEMENT par (cs?, math?, display?)>
+<!ELEMENT cs (#PCDATA)>
+<!ELEMENT math (#PCDATA)>
+<!ELEMENT display (#PCDATA)>
