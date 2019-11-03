@@ -30,10 +30,11 @@ tmp.ps
 *.nav
 
 #OCaml and binaries compiler
+*.annot
+*.cmi
+*.cmo
 cnl_latextual/simple_transformation/delcol
+cnl_latextual/simple_transformation/addone
 cnl_latextual/simple_transformation/print
 cnl_latextual/simple_transformation/sort
-cnl_latextual/simple_transformation/*.annot
-cnl_latextual/*.cmi
-cnl_latextual/simple_transformation/*.cmo
 
