@@ -1,5 +1,11 @@
-<!ELEMENT root (par*)>
-<!ELEMENT par (cs?, math?, display?)>
-<!ELEMENT cs (#PCDATA)>
-<!ELEMENT math (#PCDATA)>
-<!ELEMENT display (#PCDATA)>
+<!ELEMENT root (par|env)*>
+<!ELEMENT par (#PCDATA|cs|math|display|message|env)*>
+<!ELEMENT env (#PCDATA|cs|math|display|message|env|par)*>
+        <!ATTLIST env name CDATA #REQUIRED>
+<!ELEMENT cs EMPTY>
+        <!ATTLIST cs name CDATA #REQUIRED>
+<!ELEMENT math EMPTY>
+        <!ATTLIST math name CDATA #IMPLIED>
+<!ELEMENT display EMPTY>
+<!ELEMENT message EMPTY>
+        <!ATTLIST message name CDATA #REQUIRED>

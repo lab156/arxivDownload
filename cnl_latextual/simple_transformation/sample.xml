@@ -1,18 +1,3 @@
 <?xml encoding="ISO-8859-1"?>
 <root>
-  <par>
-    <cs>Section</cs>
-    <math>Gerd</math>
-    <display>997705</display>
-  </par>
-  <par>
-    <cs>Smith</cs>
-    <math>Jack</math>
-    <display>12345</display>
-  </par>
-  <par>
-    <cs>Ützgür</cs>
-    <math>xxx</math>
-    <display>7654</display>
-  </par>
 </root>
