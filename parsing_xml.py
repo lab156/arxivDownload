@@ -7,6 +7,8 @@ import sys
 import nltk
 import random
 import os.path
+from collections import defaultdict
+
 
 #Shortcut to set default to empty string instead Nonetype
 empty_if_none = lambda s: s if s else ''
@@ -57,6 +59,10 @@ def recutext_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
         elif el.tag == (nsstr + 'cite'):
             ret_str += '_citation_'
             ret_str += empty_if_none(el.tail)
+        elif el.tag == (nsstr + 'ERROR'):
+            #Ignore error messages such as:
+            #<ERROR class="undefined">\pmowner</ERROR>djao24
+            pass
         elif el.tag == (nsstr + 'tags') and el.getparent().tag == (nsstr + 'item'):   
             #Catch this pattern:
             #<item>
@@ -123,6 +129,9 @@ class DefinitionsXML(object):
             elif self.filetype == 'html': 
                 self.exml = etree.parse(file_path, etree.HTMLParser(remove_comments=True))
                 self.recutext = recutext_html
+            else:
+                raise NotImplementedError("Filetype: %s not implemented yet"%\
+                        self.filetype)
         except etree.ParseError as e:
             print('The file ', file_path, ' produced an error: ', e)
             raise ValueError('XML Syntax error')
@@ -272,6 +281,46 @@ class DefinitionsXML(object):
             return self.exml.xpath(".//div[contains(@class, 'ltx_para')]")
 
 
+# Inherit from DefinitionsXML
+#
+class PlanetMathXML(DefinitionsXML):
+    def __init__(self, file_path):
+        '''
+        add support for the planet math pmmeta headers ex.
+        <ERROR class="undefined">\pmtype</ERROR>Definition
+        <ERROR class="undefined">\pmcomment</ERROR>trigger rebuild
+        '''
+        super(PlanetMathXML, self).__init__(file_path)
+        self.tag_lst = self.exml.xpath('.//latexml:ERROR', namespaces=self.ns)
+        self.tag_vals = defaultdict(list)
+        for t in self.tag_lst:
+            # Ex. t.text: '\\pmtype' and  t.tail: 'Definition\n' 
+            if t.text.startswith('\\pm'):
+                trim_str = t.text[1:]
+                if t.tail:
+                    self.tag_vals[trim_str].append( t.tail.strip() )
+
+    def extract_text(self):
+        return_str = ""
+        for p in self.para_list():
+            return_str += self.recutext(p)
+        return return_str
+
+    def create_xml_branch(self):
+        branch = etree.Element('article')
+        branch.attrib['name'] = os.path.basename(self.file_path)
+
+        root = etree.Element("definition")
+        statement = etree.SubElement(root, 'stmnt')
+        statement.text = self.extract_text()
+
+        if self.tag_vals['pmtitle']:
+            dum = self.tag_vals['pmtitle'][0]
+            dfndum = etree.SubElement(root, 'dfndum')
+            dfndum.text = dum
+
+        branch.append(root)
+        return branch
 
 
 
@@ -281,7 +330,7 @@ if __name__ == "__main__":
     Usage: python parsing_xml.py fileList FileToStoreDefs
     This command finished processing all math.AG files of 2015
 
-     python parsing_xml.py ~/media_home/math.AG/2015/*/*.xml ../new_real_defs.txt -l ../errors_new_real_defs.txt 
+     python parsing_xml.py ~/media_home/math.AG/2015/*/*.xml ../new_real_defs.txt -l ../errors_new_real_defs.txt
 
      Observe that the -l flag is necessary for it to finish
     '''
