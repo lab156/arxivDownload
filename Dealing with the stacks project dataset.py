@@ -173,5 +173,3 @@ for w in v.get_feature_names():
     print(w, v.vocabulary_[w])
 
 v.vocabulary_['we']
-
-

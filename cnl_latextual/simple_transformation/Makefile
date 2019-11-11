@@ -4,7 +4,7 @@ addone: addone.ml
 	ocamlfind ocamlc -annot -o addone -package pxp -linkpkg -custom -g \
 		-predicates pxp_without_utf8 addone.ml
 
-addone: addone.ml
+addone: test_dtd.ml
 	ocamlfind ocamlc -annot -o test_dtd -package pxp -linkpkg -custom -g \
 		-predicates pxp_without_utf8 test_dtd.ml
 
