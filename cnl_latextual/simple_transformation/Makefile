@@ -4,7 +4,7 @@ addone: addone.ml
 	ocamlfind ocamlc -annot -o addone -package pxp -linkpkg -custom -g \
 		-predicates pxp_without_utf8 addone.ml
 
-addone: addone.ml
+test_dtd: test_dtd.ml
 	ocamlfind ocamlc -annot -o test_dtd -package pxp -linkpkg -custom -g \
 		-predicates pxp_without_utf8 test_dtd.ml
 
@@ -24,6 +24,6 @@ clean:
 	rm -f *.cmo *.cma *.cmi *.cmxa *.a *.o
 
 distclean: clean
-	rm -f *~ print sort delcol addone
+	rm -f *~ print sort delcol addone test_dtd
 
 CLEAN: clean
