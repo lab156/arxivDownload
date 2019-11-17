@@ -83,8 +83,8 @@ let main() =
      par1 # append_node math1;
      par1 # append_node par2dat;
      tree # append_node par1;
-(*     print tree *)
-      tree # write (`Out_channel stdout) `Enc_utf8
+     print tree 
+(*       tree # write (`Out_channel stdout) `Enc_utf8 *)
   with
       x ->
 	prerr_endline(string_of_exn x);
