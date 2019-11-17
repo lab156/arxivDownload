@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Download files from TOPIC_LIST
+# ./clone_repos_list.sh short_list.txt ../../pm_download_file/
+
 
 
 TOPIC_LIST=$1

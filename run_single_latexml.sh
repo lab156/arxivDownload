@@ -21,7 +21,10 @@ do
     ERROR_MESS_FILE=${TEX_FILE%.*}"_errors_mess.txt"
     echo "Running LaTeXML on the file " $TEX_FILE
     echo "main .tex file" $(basename $TEX_FILE) >> $COMMENTARY_FILE
-    timeout $MAXT  $LATEXML_BIN $TEX_FILE  2>$ERROR_MESS_FILE > ${TEX_FILE%.*}.xml 
+    #timeout $MAXT  $LATEXML_BIN $TEX_FILE  2>$ERROR_MESS_FILE > ${TEX_FILE%.*}.xml 
+
+    # Remove the \pmmeta data
+    timeout $MAXT   sed '/^\\usepackage{pmmeta}/,/^\\endmetadata/d' $TEX_FILE | latexml - 2>$ERROR_MESS_FILE > ${TEX_FILE%.*}.xml 
 
     if [ $? -eq 124 ]; then
         echo "Timeout Occured with file $TEX_FILE"
