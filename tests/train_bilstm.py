@@ -13,11 +13,9 @@
 #     name: python3
 # ---
 
-# ## Logistic Regression in Tensorflow
-# Based on the model:
-# $$Pr(y) = \frac{e^y}{1+e^y} = \frac{1}{1+e^{-y}}$$
 
 import tensorflow as tf
+from tensorflow.keras.layers import Bidirectional
 import pandas as pd
 import numpy as np
 import time
