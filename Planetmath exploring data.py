@@ -27,7 +27,7 @@ import parsing_xml as px
 # +
 Types = coll.Counter()
 def_files = []
-tex_filepaths = glob.glob('../11_Number_theory/*.tex')
+tex_filepaths = glob.glob('/mnt/planetmath/*/*.tex')
 for f in tex_filepaths:
     with open(f, 'r') as f_file:
         text = f_file.read()

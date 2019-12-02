@@ -1,0 +1,501 @@
+<root><par><message name="reading from ../tex/reinhardt-optimal-control.tex"/> </par> 
+
+<par> <cs name="documentclass"/> </par> 
+
+<par> <cs name="usepackage"/> <cs name="usepackage"/> <cs name="usepackage"/> <cs name="usepackage"/> <cs name="usepackage"/> <cs name="usepackage"/> <cs name="usepackage"/> <cs name="usepackage"/> <cs name="usepackage"/> </par> 
+
+<par> <cs name="usepackage"/> </par> 
+
+<par> <cs name="usetikzlibrary"/> </par> 
+
+<par> <cs name="def"/> <cs name="tikzfig"/> 1 2 3  <cs name="figure"/> </par> 
+
+<par>  <cs name="def"/> <cs name="smalldot"/> 1  <cs name="draw"/>  1  node  inner sep 1.3 pt  shape circle  fill black     </par> 
+
+<par> <cs name="newtheorem"/> <cs name="newtheorem"/> <cs name="newtheorem"/> <cs name="newtheorem"/> <cs name="newtheorem"/> <cs name="newtheorem"/> <cs name="newtheorem"/> </par> 
+
+<par> <cs name="theoremstyle"/> <cs name="newtheorem"/> </par> 
+
+<par> <cs name="newcommand"/> <cs name="newcommand"/> <cs name="newcommand"/> <cs name="newcommand"/> <cs name="def"/> <cs name="error"/> <cs name="def"/> <cs name="cong"/> <cs name="def"/> <cs name="sl"/> <cs name="def"/> <cs name="SL"/> <cs name="def"/> <cs name="SO"/> <cs name="def"/> <cs name="h"/> <cs name="def"/> <cs name="hstar"/> <cs name="def"/> <cs name="Mstar"/> <cs name="def"/> <cs name="D"/> <cs name="def"/> <cs name="Hcost"/> <cs name="def"/> <cs name="Hlie"/> <cs name="def"/> <cs name="Hh"/> <cs name="def"/> <cs name="DR"/> <cs name="def"/> <cs name="tmax"/> <cs name="newcommand"/> <cs name="Lsing"/> <cs name="newcommand"/> <cs name="lsing"/> <cs name="newcommand"/> <cs name="ee"/> <cs name="newcommand"/> </par> 
+
+<par> <cs name="title"/> </par> 
+
+<par> <cs name="author"/> <cs name="date"/> </par> 
+
+<par> <message name="begin document"/> </par> 
+
+<par> <cs name="maketitle"/> </par> 
+
+<par> <cs name="abstract"/> <math/> </par> 
+
+<par> <cs name="parskip"/> 0.8 <cs name="baselineskip"/> <cs name="baselineskip"/> 1.05 <cs name="baselineskip"/> </par> 
+
+<par> <cs name="newenvironment"/> </par> 
+
+<par> <cs name="section"/> In 1934  Reinhardt conjectured that the shape of centrally symmetric body in the plane whose densest lattice packing has the smallest density is a smoothed octagon  Figure <cs name="ref"/>  . The corners of the octagon are rounded by hyperbolic arcs . For popular accounts of the Reinhardt conjecture  including some spectacular animated graphics by Greg Egan  see <cs name="cite"/>  <cs name="cite"/> . </par> 
+
+<par> <cs name="tikzfig"/> </par> 
+
+<par> This article is a continuation of an article from 2011  which formulates the Reinhardt conjecture as a problem in the calculus of variations <cs name="cite"/> . This article reformulates the Reinhardt conjecture as an optimal control problem . </par> 
+
+<par> Bang-bang controls of an optimal control problem are controls that switch between extreme points of a convex control set  often with a finite number of switches  . A major theme of optimal control is the study of bang-bang controls  and the extremal trajectories of many control problems have bang-bang controls . Intuitively  bang-bang controls switch from one extreme position to another  navigating a craft by flooring the accelerator pedal then slamming on the brakes  or steering a vehicle by making the sharpest possible turns to the left and to the right  or maximizing wealth by investing all resources in a single financial asset for a time  then suddenly moving all resources elsewhere . </par> 
+
+<par> The basic insight of this article  from which everything else follows  is that the smoothed octagon can be described by a bang-bang control with finitely many switches . The smoothed octagon exhibits the extreme behavior that is characteristic of a bang-bang control  each arc of the smoothed octagon is flattened out as much as possible  the straight edges  or is as highly curved as possible  the hyperbolic arcs   with finitely many switches between these extremes . Because of this bang-bang behavior  the natural context for the Reinhardt conjecture is optimal control theory . Viewed in this context  the Reinhardt conjecture is transformed from a puzzling problem in discrete geometry to a rather typical problem in optimal control . In fact in many ways  this is a textbook example of optimal control  by embodying significant aspects of the general theory in a single problem . </par> 
+
+<par> The original and guiding inspiration for this research was the visual similarity between the solutions to the Dubins car problem and segments of smoothed polygons  Figure <cs name="ref"/>  . Recall that the Dubins car problem is the optimal control problem that asks for the shortest path in the plane from an initial position  and direction  to a terminal position and direction  subject to a given bound on the absolute value of the curvature at each point of the path . Roughly speaking  the Reinhardt problem is a modification of the Dubins problem that imposes hexagonal symmetry and a steering wheel that turns only to the left . In both cases  curvature constraints force the  conjectural  solution to consist of finitely many straight segments and arcs of maximal curvature . The relationship becomes more than a visual similarity when the Dubins problem is formulated as a left-invariant control problem on the group <math/> of orientation preserving isometries of the plane or when extended to hyperbolic space <cs name="cite"/>  <cs name="cite"/> . </par> 
+
+<par> <cs name="tikzfig"/> </par> 
+
+<par> The main results of this article are Theorem <cs name="ref"/>  which asserts that the smoothed <math/>  gon is given by a Pontryagin extremal trajectory  Theorem <cs name="ref"/>  which gives the strict local optimality of the smoothed octagon  and Theorem <cs name="ref"/>  which proves that extremal trajectories that avoid the singular locus have bang-bang controls with finitely many switches . </par> 
+
+<par> The hyperbolic plane plays an important role in this article . The connection with planar geometry comes through the group <math/>  which acts on the plane by affine transformations and on the hyperbolic plane by isometries . </par> 
+
+<par> Many of the calculations are computer assisted  using Mathematica . The computer code  about 1000 lines of source  has been posted to our github repository  github . com  flyspeck  . Many explicit formulas that are too long to print here can be found in the computer code that accompanies this article . </par> 
+
+<par> It is with some regret that I publish this article prematurely before completing a full solution to the Reinhardt conjecture . I have not encountered any obstacles to major further advances along these lines  and I believe that optimal control theory should eventually lead to a solution to the Reinhardt conjecture . The final section proposes possible end-games for this problem . </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> We briefly review some of the main conclusions of <cs name="cite"/> and <cs name="cite"/> . A convex body in Euclidean space is a compact convex set with nonempty interior . A  <cs name="it"/> centrally symmetric  convex body <math/> is a convex body such that <math/> is a translate of <math/> . In this article  a disk means a convex body in the plane and is not necessarily circular . </par> 
+
+<par> Reinhardt proved the existence of a convex centrally symmetric disk <math/> in the plane with the property that the density of its densest lattice packing minimizes the density of the densest lattice packing among all convex centrally symmetric disks in the plane . The Reinhardt problem is to determine the shape of <math/> . Reinhardt conjectured that <math/> is a smoothed octagon . </par> 
+
+<par> The density is not changed by affine transformations of the plane . Thus if <math/> is a solution to the Reinhardt problem  then every affine transformation of <math/> is also a solution . </par> 
+
+<par> Reinhardt showed that <math/> has no corners  that is  every point on the boundary of <math/> has a unique tangent . He showed that the densest lattice packing is obtained by placing <math/> in a centrally symmetric hexagon of smallest area containing <math/>  then tiling the plane with copies of the hexagon . Moreover  there is a centrally symmetric hexagon of the same minimal area passing through each point on the boundary of <math/> . These hexagons never degenerate to a quadrilateral . By rescaling  we may assume without loss of generality that the centrally symmetric hexagons all have area <math/>  the area of the circumscribing hexagon of circle of radius <math/>  and that the centrally symmetric disks are centered at the origin . This puts a structure on <math/> that we call a  <cs name="it"/> hexagonally symmetric  disk .  This was called a hexameral domain in <cs name="cite"/> .  </par> 
+
+<par> Let <math/> be the vertices of a regular hexagon on a unit circle  <display/> </par> 
+
+<par> Let <math/> be the group of <math/> matrices with real coefficients with determinant <math/>  and let <math/> be its Lie algebra  consisting of all <math/> matrices with real coefficients and trace <math/> . We write <math/> for the free terminal time  to be determined as part of the solution  . After centering <math/> at the origin  there exists a continuously differentiable path <math/> such that the boundary of <math/> is given by the six arcs <cs name="equation"/> </par> 
+
+<par> For each <math/>  we may draw the tangents to the boundary of <math/> at the six points <math/>  for <math/> . The six tangents form the six edges of an area-minimizing centrally symmetric hexagon as above . The six points are the midpoints of the six edges of the hexagon . </par> 
+
+<par> <env name="remark">  We work with the group <math/>  but because of the central symmetry  we have <math/>  and we might pass to the quotient <math/> if desired . </env name="remark">  </par> 
+
+<par> Each choice of path <math/>  subject to the convexity and endpoint constraints of Section <cs name="ref"/>  leads to a centrally symmetric disk that possesses such a family of area-minimizing centrally symmetric hexagons . We call a path <math/> in <math/> hexagonally symmetric  see Section <cs name="ref"/>  if it satisfies the convexity and endpoint conditions to define a convex centrally symmetric disk <math/> in the plane  with boundary arcs  <cs name="ref"/>  . Each hexagonally symmetric disk <math/>  that is  a centrally symmetric convex disk in the plane  centered at the origin  has the form <math/> for some <math/> . </par> 
+
+<par> With fixed area <math/> for each hexagon  the Reinhardt problem becomes equivalent to minimizing the area of a hexagonally-symmetric disk . This can be formulated as a problem in the calculus of variations  as was done in an earlier article  but the convexity constraints on the disk lead to a some awkwardness . We turn to optimal control theory as a natural framework for the Reinhardt problem . </par> 
+
+<par> <cs name="section"/> </par> 
+
+<par> <cs name="subsection"/> </par> 
+
+<par> We consider the following control problem . Let <display/> </par> 
+
+<par> be the set of controls  a <math/>  simplex . We define an affine map <display/> </par> 
+
+<par> as the inverse of the linear map <math/>  <math/>  that is given <math/>  by solving equations for <math/>  <cs name="equation"/> </par> 
+
+<par> where <math/> is the <math/> determinant with columns <math/> and <math/> .  This system of linear equations for <math/> is nonsingular .  We refer to <math/> as the control matrix . </par> 
+
+<par> Let <math/> be a <math/> path We write <cs name="equation"/> </par> 
+
+<par> We use a prime throughout the article to indicate the derivative with respect to <math/> . We assume that <cs name="equation"/> </par> 
+
+<par> We assume that <math/> is Lipschitz continuous and that <cs name="equation"/> </par> 
+
+<par> where <cs name="equation"/> </par> 
+
+<par> As a rough guide our intuition  we can view the ODE  <cs name="ref"/>     <cs name="ref"/>  as a Frenet-Serret type formula that determines a planar curve up to congruence by its planar curvature . In our setting  the control <math/> gives the planar curvatures of the various branches <math/> of the hexagonally symmetric curve up to a normalization factor that has been included to make <math/> a standard simplex . More precisely  the curvature is given as <cs name="equation"/> </par> 
+
+<par> where <math/> is the curvature of the <math/>  th curve <math/>  and <math/> is its arclength parameter . The non-negativity conditions <math/> are the local convexity conditions on the hexagonally symmetric curve . </par> 
+
+<par> <env name="remark">  Under natural disk constraints on <math/> that can be made without loss of generality  we show in Section <cs name="ref"/> that the denominator of Equation  <cs name="ref"/>  is nonzero . </env name="remark">  </par> 
+
+<par> <env name="theorem">  Let <math/> be related by  <cs name="ref"/>  to the solution of the Reinhardt problem  <math/> . After a suitable reparametrization  the path <math/> satisfies the the equations  <cs name="ref"/>     <cs name="ref"/>  for some measurable control <math/> . </env name="theorem">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <env name="lemma">  <cs name="label"/> If <math/> is a Lipschitz path such that Equation  <cs name="ref"/>  holds  then <display/> </par> 
+
+<par> </env name="lemma">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> If <math/> is any matrix  we write <math/> for the <math/> matrix coefficient of <math/> . In particular  we have linear functions <math/>  <display/> </par> 
+
+<par> We say that <math/> is positively oriented if <math/> . By <cs name="cite"/>  a solution <math/> to the Reinhardt problem has positive orientation for each <math/> .  This corresponds to a counterclockwise traversal of the boundary of <math/> .  </par> 
+
+<par> Set <display/> </par> 
+
+<par> We have rotation matrices <display/> </par> 
+
+<par> <env name="lemma">  The set of matrices <math/> such that <math/>  <math/> and <math/> is the adjoint orbit of <math/> . </env name="lemma">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> The adjoint orbit of <math/> can be identified with the homogeneous space <math/>  which can be identified with the upper half-plane <math/> . This identification comes via <math/> as above  <cs name="equation"/> </par> 
+
+<par> A calculation shows that the ODE in Equation  <cs name="ref"/>  expressed in terms of coordinates <math/> is <cs name="align"/> </par> 
+
+<par> The dependence on the control <math/> comes through the coefficients <math/> . Specifically  <math/> is the control matrix where <cs name="align*"/> </par> 
+
+<par> In summary  we have state equations  <cs name="align"/> </par> 
+
+<par> where <math/>  and where <math/> is a measurable control . </par> 
+
+<par> We define an  <cs name="it"/> admissible  trajectory <math/> to be a solution of this ODE for some measurable control <math/>  with <math/>  and that satisfies the following additional conditions  <env name="enumerate">  <cs name="item"/> The image of <math/> lies in <math/>  see Section <cs name="ref"/>  . <cs name="item"/> The endpoints of the trajectory are <math/> and <math/>  for some <math/>  where <math/> . <cs name="item"/> the path <math/> is homotopic in <math/> to the path given by rotation  <display/> </par> 
+
+<par> </env name="enumerate">  To each admissible trajectory we may associate a hexagonally symmetric disk <math/> . The second condition enforces that the union of the boundary arcs  Equation <cs name="ref"/>  of <math/> is a closed curve with no corners . The third condition enforces the condition that the boundary arcs must define a simple closed curve traversed in the counterclockwise direction . </par> 
+
+<par> The path <math/> determines <math/> by the equations  <cs name="ref"/>  and  <cs name="ref"/>  . Conversely <math/> determines <math/> by the same equations and the initial condition <display/> </par> 
+
+<par> Thus  we sometimes abbreviate the admissible trajectory <math/> to <math/> or <math/>  and write the corresponding hexagonally symmetric disk <math/> as <math/> or <math/> . </par> 
+
+<par> The condition <math/> can be imposed without loss of generality . The group of affine transformations of the plane acts on the set of solutions to the Reinhardt problem . We have reduced the affine group of symmetries by fixing the center of <math/> at the origin  and the fixing the area <math/> of the hexagon tile . This leaves the group action of <math/> on the set of solutions to the Reinhardt problem  which we rigidify with the initial condition <math/> . </par> 
+
+<par> We call a  <cs name="it"/> link  the full segment  between switching times  of a trajectory that has a constant control at a vertex of the simplex <math/>  <display/> </par> 
+
+<par> where <math/>  <math/>  <math/> . See Sections <cs name="ref"/> and <cs name="ref"/> . </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> The cost functional in <cs name="cite"/>  correcting the formula there with a missing factor of <math/>  is <cs name="equation"/> </par> 
+
+<par> The interpretation of the cost is the area of the hexagonally symmetric disk <math/> . Using <math/>  the cost  <cs name="ref"/>  depends only on <math/> and simplifies to <cs name="equation"/> </par> 
+
+<par> Assume now that <math/> has unit speed . Expressed in terms of coordinates <math/> in the Poincare upper half-plane  the cost takes the form <cs name="equation"/> </par> 
+
+<par> This cost is rotationally symmetric with respect to the action of <math/> on the upper half-plane . In fact  the level sets of <math/> are concentric circles  centered at <math/> in hyperbolic geometry  . The cost satisfies <cs name="equation"/> </par> 
+
+<par> attaining its minimum at <math/> . </par> 
+
+<par> We may also express the cost in the Poincare disk model <math/> . Let <display/> </par> 
+
+<par> The cost of a path <math/> in the Poincare disk becomes <cs name="equation"/> </par> 
+
+<par> In this model  the rotational symmetry about <math/> is evident . </par> 
+
+<par> <env name="remark">  One model of hyperbolic geometry is the upper sheet of a hyperboloid of two sheets . We recognize <math/> as the height on the hyperboloid <display/> </par> 
+
+<par> In more detail  we map a point <math/> in the unit disk <math/> to the point <math/> in the upper sheet whenever <math/>  <math/>  and <math/> are collinear  Figure <cs name="ref"/>  . It is a curiosity that the area of a convex disk in the Euclidean plane in Reinhardts packing problem equals the integral of the height function in hyperbolic geometry . </env name="remark">  </par> 
+
+<par> <cs name="tikzfig"/> </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> We define the star inequalities on <math/> to be the following  <display/> </par> 
+
+<par>  These conditions were obtained in <cs name="cite"/> for the tangent <math/> at <math/>  but also hold for all <math/>  by symmetry .  There is no loss of generality in imposing these conditions at each point of a trajectory  they are necessary conditions for the convexity of the corresponding hexagonally symmetric disk  Remark <cs name="ref"/>  . Translating into the upper-half plane coordinates  the star inequalities define an open region  <cs name="equation"/> </par> 
+
+<par> The inequalities define the interior of an ideal hyperbolic triangle with vertices at <math/> and <math/> on the boundary of <math/> . We set <math/> . In disk coordinates  the star inequalities imply that <math/> lies in the interior of the ideal hyperbolic triangle with vertices <math/> on the boundary of <math/>  where <math/>  Figure <cs name="ref"/>  . </par> 
+
+<par> <cs name="tikzfig"/> <env name="remark">  <cs name="label"/> Every hexagonally symmetric disk that passes through the six points <math/>  for <math/> must be contained in the six triangular petals of the hexagram  Figure <cs name="ref"/>  . The star inequalities can be interpreted geometrically as asserting that the tangent vectors at <math/> are nonzero and point into the open cones over the six triangular petals .  When some tangent vector at some <math/> points into the boundary of the open cone  the centrally symmetric hexagon <math/> degenerates to a parallelogram  which is never optimal .  </env name="remark">  </par> 
+
+<par> <cs name="tikzfig"/> </par> 
+
+<par> <env name="lemma">  <cs name="label"/> Let <math/> be the control matrix of <math/> . If <math/> satisfies the star inequalities  then <math/> . </env name="lemma">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <cs name="section"/> <cs name="subsection"/> <cs name="label"/> The existence of lifted trajectories in the cotangent bundle  as discussed later in this section  is generally based on Filippovs compactness lemma <cs name="cite"/>  <cs name="cite"/> . In this subsection  we show that the assumptions of Filippovs lemma are fulfilled . Filippovs lemma requires  1  that the control set <math/> is compact  which is certainly true in our situation . </par> 
+
+<par> Filippovs lemma requires  2  that for each <math/> the velocity set  see Equation <cs name="ref"/>  <display/> </par> 
+
+<par> is convex . We prove that the velocity set is in fact the convex hull of <display/> </par> 
+
+<par> Fix <math/> and pick two vertices <math/> . By explicit calculation  the two vertices map to distinct points in the velocity set . Let <math/> be the nonzero affine function that vanishes at <math/> and <math/> . From the explicit form of Equation <cs name="ref"/>  we have <display/> </par> 
+
+<par> for some affine functions <math/>  depending on <math/>   where <math/> is nonvanishing  and fixed sign  on <math/> . By direct calculation  we obtain <math/> along the segment <math/> and that <math/> has fixed sign on <math/> . We conclude that the velocity set is a convex hull as claimed . </par> 
+
+<par> Finally  Filippovs lemma requires  3  the compact support in <math/> of the velocity sets . This is a serious issue in our setting because the star inequalities are open conditions and the vector fields become unbounded near the boundary . </par> 
+
+<par> By Reinhardt  an optimal centrally symmetric <math/> exists and its boundary has no corner . The corresponding unit-speed trajectory <math/> remains in the interior of some compact set <math/> . A standard argument using a smooth compactly-supported support function <math/> with <math/> allows us to replace each vector field <math/> on <math/> with a vector field <math/> of compact support <cs name="cite"/> . Thus  by choosing a suitable support function  we may assume that all three of Filippovs assumptions hold . Moreover  if desired  we can exhaust <math/> by a sequence of compact sets <math/> whose union is <math/> . </par> 
+
+<par> Pontryagins conditions  which are discussed below  are local around the trajectory <math/>  and so are not affected by the support function . </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> </par> 
+
+<par> We use the formulation of the Hamiltonian for invariant problems on a Lie group from <cs name="cite"/> . We use invariant vector fields to trivialize the tangent bundle of <math/> and use an invariant inner product to identify the cotangent space with the tangent space . We fix the invariant inner product <math/> on <math/> . In this formulation  according to the standard definitions  the optimal control problem has a Hamiltonian <cs name="align"/> </par> 
+
+<par> for costate variables <math/>  <math/>  <math/>  and where <math/>  <math/> . We have broken the Hamiltonian into two terms  <math/> coming from the upper-half plane  and <math/> coming from the Lie algebra and cost functional combined . </par> 
+
+<par> The state space <math/> is five-dimensional  and the costate space <math/> is five-dimensional  viewed as the cotangent space of <math/> at a point under the trivialization of the cotangent bundle . We write <math/> for the cotangent bundle of <math/>  identified with <display/> </par> 
+
+<par> We write <math/> for the subspace of <math/> on which the <math/> component is <math/> . </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> Specialized to our setting  the conditions of Pontryagin maximum principle  PMP  for our optimal control problem with free terminal time <math/> are the following  <env name="enumerate">  <cs name="item"/> The trajectory <math/> satisfies the ODE  <cs name="ref"/>  for some measurable control <math/> . <cs name="item"/> The Hamiltonian <math/> vanishes identically along the lifted controlled trajectory <math/> . <cs name="item"/> The lifted trajectory <math/> is Lipschitz continuous and satisfies the following ODE  <cs name="equation"/> </par> 
+
+<par> Here <math/> is the pointwise maximum over the control simplex <math/>  <cs name="equation"/> </par> 
+
+<par> <cs name="item"/> The projectivized covector is well-defined  for each <math/>  the vector <math/> is nonzero . <cs name="item"/> <math/> is constant and <math/> . <cs name="item"/> Transversality holds at the endpoints  as described in Section <cs name="ref"/>  . </env name="enumerate">  </par> 
+
+<par> By a lifted trajectory <math/> of an admissible trajectory <math/> we mean a solution of the ODE  <cs name="ref"/>  such that the image <math/> of <math/> in <math/> is <math/> . </par> 
+
+<par> A lifted trajectory satisfying the PMP conditions is called a Pontryagin extremal trajectory . The PMP gives necessary but not sufficient conditions for local optimality . </par> 
+
+<par> Because <math/> is a constant  and since the PMP conditions are invariant under rescaling the costate by a positive scalar  we may take <math/>  abnormal multiplier  or <math/>  normal multiplier  . </par> 
+
+<par> We define a  <cs name="it"/> Reinhardt trajectory  to be a trajectory <math/> such that its disk <math/> is a globally optimal solution to the Reinhardt problem . </par> 
+
+<par> <env name="lemma">  Let <math/> be a Reinhardt trajectory . Then the trajectory has a lifting <display/> </par> 
+
+<par> to the cotangent space . The lifted trajectory is a Pontryagin extremal trajectory . </env name="lemma">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> We write <math/> for the action of <math/> on <math/> by linear fractional transformations . </par> 
+
+<par> Let <math/> be any rotation . The symmetry acts on trajectories and related data as follows . Let <math/> be a lifted trajectory . We map the path <math/> in the upper-half plane to the path <math/>  where we use bars to denote transformed quantities . Then short calculations show that we obtain another lifted trajectory <math/>  with different boundary values  and associated parameters  <cs name="align*"/> The cost is invariant  <math/> . The transformation rule for <math/> is as follows . The value of <math/> at <math/> is <display/> </par> 
+
+<par> where the linear map <math/> of tangent spaces and transpose <math/> </par> 
+
+<par> are induced from <math/> . </par> 
+
+<par> It is remarkable that the entire Hamiltonian is invariant under the full rotation group <math/>  <display/> </par> 
+
+<par> Moreover  assume that <math/> . Then there exists a permutation <math/> of <math/> such that <display/> </par> 
+
+<par> Then <cs name="equation"/> </par> 
+
+<par> We write <math/> for this action . </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> </par> 
+
+<par> We define periodic boundary conditions  modulo rotation by <math/>   <display/> </par> 
+
+<par> and <cs name="equation"/> </par> 
+
+<par> The terminal condition <math/> is necessary because the six paths of the hexagonally symmetric disk must join together to give a closed curve  <cs name="equation"/> </par> 
+
+<par> By the unit speed positive orientation conditions  <display/> </par> 
+
+<par> and taking derivatives  <cs name="equation"/> </par> 
+
+<par> Evaluating  <cs name="ref"/>  at <math/> gives the terminal condition on <math/> in Equation <cs name="ref"/> . </par> 
+
+<par> Expressed in terms of coordinates on the upper half-plane  the terminal condition becomes <cs name="equation"/> </par> 
+
+<par> a rotation about <math/> by angle <math/> . Expressed in terms of a complex variable in the Poincare disk model  the terminal condition becomes a counterclockwise rotation by angle <math/>  <display/> </par> 
+
+<par> In optimal control problems such as this with free terminal time <math/>  Pontryagins maximum principle  PMP  includes a transversality condition at time <math/> . For periodic systems such as ours  the transversality condition can be found in Liberzon <cs name="cite"/> . In our setting  the system is periodic up to rotation by <math/> . Our transversality conditions can be expressed as follows  <cs name="align"/> </par> 
+
+<par> where <math/> is the linear map of tangent spaces induced from <math/> and its transpose is <display/> </par> 
+
+<par> <cs name="section"/> By a bang-bang control we mean a measurable control function <math/> that takes values in the set <math/> of vertices of the control simplex <math/> . </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> Throughout this section  we assume that the control <math/> is constant  fixed at a vertex <math/> or <math/> of <math/> . Under this assumption  we give the general explicit formula for the state and costate . With such controls  the control matrix <math/> in Equation  <cs name="ref"/>  simplifies to the form <display/> </par> 
+
+<par> Specifically  <math/>  control <math/>  and <math/>  for these two controls . </par> 
+
+<par> In this context  the ODE  <cs name="ref"/>  reduces to <cs name="equation"/> </par> 
+
+<par> The star inequalities imply that <math/> . Set <math/>  which is also nonzero by the star inequalities . The general solution to ODE  <cs name="ref"/>  is <cs name="equation"/> </par> 
+
+<par>  We also write this curve as <math/>  where <math/> .  In particular  each trajectory traces out a line <math/> through the fixed point <math/> . See Figure <cs name="ref"/> . The motion is away from the fixed point when <math/> and towards the fixed point when <math/> . That is  <math/> and <math/> . </par> 
+
+<par> Set <math/> . Expressed in terms of the independent variable <math/>  the differential equation  <cs name="ref"/>  takes the form <display/> </par> 
+
+<par> which has the explicit solution <display/> </par> 
+
+<par> where the missing entry <math/> is determined by the condition <math/> . </par> 
+
+<par> The adjoint equation also has an explicit exact general solution  which appears in the accompanying computer algebra calculations . Although it is entirely explicit  the solution is a bit too long to print here . The function <math/> is a pair of polynomials in <math/>  <math/> and <math/>  and there are five constants of integration  beyond <math/>  . These constants are determined by the initial vector <display/> </par> 
+
+<par> <cs name="tikzfig"/> </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> The three extremal controls <math/>  <math/>  and <math/> are related by rotational symmetry of the upper-half plane . These symmetries are more visually evident in the disk model of hyperbolic space  but the solutions to the ODE take a simpler form in the upper-half plane . </par> 
+
+<par> Equation  <cs name="ref"/>  implies that we obtain the general explicit solutions to the state and costate equations for control <math/> by rotating solutions with control <math/> or <math/>  as described in Section <cs name="ref"/> . Details are found in the computer code . </par> 
+
+<par> The trajectories with constant control <math/> move along Euclidean lines through <math/>  which we view as circles through <math/> and <math/> . Under linear fractional transformations  circles map to circles . From this  we conclude that trajectories with constant control <math/> must move along Euclidean circles through the two fixed points <math/> . </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> </par> 
+
+<par> <env name="lemma">  <cs name="label"/> For every <math/>  the set of maximizers of the Hamiltonian  <display/> </par> 
+
+<par> is a face of the convex set <math/>  that is  <math/> is a vertex  an edge  or all of <math/> . </env name="lemma">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> If <math/> lies in the orbit of <math/>  let <math/> be the corresponding element of the upper-half plane under the bijection  <cs name="ref"/>  . For <math/> and <math/>  let <math/> be the trajectory with constant control <math/> and initial conditions <display/> </par> 
+
+<par>  As always  prime denotes the <math/> derivative .  Let <math/>  for <math/>  <math/>  and <math/> be the trajectory <display/> </par> 
+
+<par> We have <display/> </par> 
+
+<par> with constant control <math/>  using the action  <cs name="ref"/>  of the cyclic group <math/> on the control simplex <math/> . </par> 
+
+<par> We define a continuous  shifted  extension of <math/> that is non-constant only for <math/>  <display/> </par> 
+
+<par> The derivative <math/> has jump discontinuities at <math/> and <math/> . Let <math/> be the solution to the ODE  <cs name="ref"/>  with constant control <math/> and initial condition <math/> . For any tuple <display/> </par> 
+
+<par> with <math/> and <math/>  and for any <math/>  let <cs name="align"/> Note that on the right-hand side of the last equation  only one factor at a time is non-constant . Then <math/> is continuous in <math/> and has unit speed parametrization . Set <math/> . Note that for <math/>  when the <math/> th factor is active  we have <cs name="align*"/> where <math/> . Comparing left and right limits of <math/> at the boundary value <math/>  we find that <math/> is continuous in <math/>  <cs name="align*"/> </par> 
+
+<par> From this  it is easy to see that <math/> is the general bang-bang trajectory with finitely many switches  at times <math/>   as we vary <math/> and <math/> . The control on the interval <math/> is <math/> . </par> 
+
+<par> The total <math/> of the trajectory  <cs name="ref"/>  with initial condition <math/> up to time <math/> is an easy  freshman calculus  integral to compute from Equation  <cs name="ref"/>   which we do not display here . The total cost of <math/> from time <math/> to <math/> is <cs name="equation"/> </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> Reinhardt conjectured that the smoothed octagon is the solution to his problem . </par> 
+
+<par> The smoothed octagon comes from a periodic bang-bang control to the state equations with four links  and four switching times  . The control switches four times in a cyclic order around the extreme points of the control simplex <math/> . The smoothed octagon itself can be visualized as being made of <math/> segments  <math/> smoothed corners and <math/> half-edges . These <math/> segments are arranged into four links  each consisting of <math/> arcs . The four links are congruent  under the rotational symmetry <math/> . </par> 
+
+<par> We generalize the smoothed octagon to a smoothed regular polygon as follows . Let <math/> be a positive integer . We consider a trajectory with <math/>  links of the same length of the form <math/>  with <cs name="equation"/> </par> 
+
+<par> where <math/> and <math/> are to be determined as functions of <math/> .  Note that the meaning of <math/> has changed from <math/> in the previous section .  </par> 
+
+<par> Let <math/> be the position at the end of a single link . The endpoint condition  <cs name="ref"/>  for  <cs name="ref"/>  is <display/> </par> 
+
+<par> or equivalently  <cs name="equation"/> </par> 
+
+<par> Let <math/> be the eigenvalues of <math/> . Comparing eigenvalues on the two sides of  <cs name="ref"/>   we obtain <math/>  and <display/> </par> 
+
+<par> We pick the eigenvalues <math/> that place <math/> in the smallest neighborhood of of <math/>  that is  we take <math/> . Then <cs name="equation"/> </par> 
+
+<par> For example  for the smoothed octagon <math/>  the trace is <math/> . </par> 
+
+<par> We impose the strong boundary condition <cs name="equation"/> </par> 
+
+<par> It follows that  <cs name="ref"/>  holds with <math/>  <display/> </par> 
+
+<par> Solving  <cs name="ref"/>  for <math/>  the time spent in each link   we obtain <cs name="equation"/> </par> 
+
+<par> We have solved the nonlinear equations  <cs name="ref"/>  and  <cs name="ref"/>  explicitly for <math/> and <math/> in the accompanying code  but we do not display the solution here . For each positive integer <math/>  the trajectory for the smoothed <math/>  gon is now completely determined by these values of <math/> and <math/> . </par> 
+
+<par> These formulas for <math/> and <math/> can be interpolated to functions that are analytic in <math/> . Figure <cs name="ref"/> graphs the area of the smoothed <math/>  gon as a function of <math/> . It appears that the area function is increasing in <math/> and tends to the area <math/> of a circular disk . </par> 
+
+<par> We show that we can lift each trajectory to a Pontryagin extremal . The following is one of the main conclusions of this article . It implies in particular that the smoothed octagon <math/> is a Pontryagin extremal . </par> 
+
+<par> <env name="theorem">  <cs name="label"/> The smoothed regular <math/>  gon lifts to a Pontryagin extremal trajectory . The trajectory has a normal multiplier . </env name="theorem">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <env name="lemma">  Let <math/> be an integer . Let <math/> be the lifted trajectory for the smoothed <math/>  gon along a single link with control <math/> as constructed above . Let <math/> be the Hamiltonian restricted to the lifted trajectory  with arbitrary control function <math/> . Then <display/> </par> 
+
+<par> If <math/> is a constant control at one of the first two vertices of <math/>  then equality occurs only at the endpoints of the interval <math/> . </env name="lemma">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <env name="remark">  A related constructed gives a trajectory with <math/>  links   the smoothed <math/>  gon <math/>  for <math/> . The changes are minor . We replace equation  <cs name="ref"/>  with <cs name="equation"/> </par> 
+
+<par> The trajectory is <display/> </par> 
+
+<par> Equation <cs name="ref"/> becomes <cs name="equation"/> </par> 
+
+<par> Equation  <cs name="ref"/>  is unchanged . The initial link of the smoothed octagon now has constant control <math/> . </env name="remark">  </par> 
+
+<par> <env name="remark">  It seems that the smoothed <math/>  gon <math/> is  <cs name="it"/> not  a Pontryagin extremal trajectory . Specifically  all of the conditions seem to hold  except that the Pontryagin multiplier <math/> has the wrong sign . This suggests that these smoothed polygons are Pontryagin extremal trajectories for the problem of maximizing the area . </env name="remark">  </par> 
+
+<par> <env name="remark">  When <math/>  the smoothed polygon <math/> degenerates to a rectangle with corners  Figure <cs name="ref"/>  and area <math/> . Allowing <math/> to be non-integral  for small values of <math/>  we obtained smoothed rectangles  that do not quite satisfy the boundary conditions  . </env name="remark">  </par> 
+
+<par> <cs name="tikzfig"/> The trajectory in <math/> for <math/> follows a triangle  with edges following the arcs of Figure <cs name="ref"/>  centered at <math/> . It moves counterclockwise around <math/>  traversing one edge for each link  Figure <cs name="ref"/>  . The trajectory in <math/> for <math/> also follows an inverted triangle centered at <math/> . It moves clockwise . </par> 
+
+<par> <cs name="tikzfig"/> The cost increases with <math/> for <math/> and decreases with <math/> for <math/> . In both cases  the limit of the cost is <math/> as <math/> . We show a graph of the costs of the smoothed polygons as a function of the number <math/> of sides  Figure <cs name="ref"/>  . </par> 
+
+<par> <cs name="tikzfig"/> </par> 
+
+<par> <cs name="subsection"/> Nazarov has proved that the smoothed octagon is a local minimum of the Reinhardt problem <cs name="cite"/> . The following theorem should be viewed as a control-theory analogue of Nazarovs theorem . Our result gives  <cs name="it"/> micro-local  optimality in the sense that we consider a neighborhood <math/> of the lifted extremal trajectory in the cotangent space . The following is one of the main results of this article . </par> 
+
+<par> <env name="theorem">  <cs name="label"/> Let <math/> be the Pontryagin extremal lifted trajectory constructed in the previous section for the smoothed octagon  <math/>  . Then <env name="enumerate">  <cs name="item"/> there exists a punctured neighborhood <math/> of <math/> such that no initial condition in <math/> gives a Pontryagin extremal lifted trajectory . <cs name="item"/> Moreover  if any initial condition in <math/> gives a hexagonally symmetric disk <math/>  then the area of <math/> is greater than that of the smoothed octagon . </env name="enumerate">  </env name="theorem">  </par> 
+
+<par> <env name="remark">  I have not checked whether the other smoothed <math/>  gons are local minima in the same sense . </env name="remark">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <cs name="section"/> <cs name="label"/> </par> 
+
+<par> <cs name="subsection"/> <cs name="label"/> The circular disk is a hexagonally symmetric disk <math/> defined by the trajectory <cs name="equation"/> </par> 
+
+<par>  The six paths <math/>  for <math/> are six arcs that fill out the unit circle .  Thus  <math/> is a constant path  and <math/> is also constant . In the Poincare disk  the constant path is <math/> . The cost from Equation  <cs name="ref"/>  is <display/> </par> 
+
+<par> which has the expected interpretation of the area of a circular disk of radius <math/> . </par> 
+
+<par> The control for the circle is constant  <math/> . The ODE  <cs name="ref"/>  becomes <cs name="align*"/> </par> 
+
+<par> which indeed has the constant solution <math/>  <math/> . This constant solution determines the constant path <math/> . </par> 
+
+<par> In our context  a lifted trajectory <math/> is a  <cs name="it"/> singular arc  on <math/> if for all <math/>  the face <math/> has positive dimension . See <cs name="cite"/> . </par> 
+
+<par> <env name="lemma">  The circle is an extremal singular arc . The multiplier is normal . </env name="lemma">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <env name="remark">  Second order conditions show that circular arc is not a local minimizer on any time interval <math/> so that the solution to the Reinhardt problem contains no circular arcs <cs name="cite"/> . We recall the argument . We consider a deformation of a circular arc of the form <display/> </par> 
+
+<par> for sufficiently small <math/> and compactly supported <math/> functions <math/>  <math/> to be determined on the interval <math/> . We emphasize that <math/> is not a unit speed parameter . Computing the cost of <math/> on <math/> by  <cs name="ref"/>   we find that <display/> </par> 
+
+<par> Note that this is a second variation that is not detected by PMP . Choose <math/>  with positive integral <math/>  with support on an interval where <math/> . Then for all sufficiently small <math/>  we have <display/> </par> 
+
+<par> We may pick <math/> sufficiently small so that the curvatures of the curves <math/> are positive . Then there exists a control function <math/> with controlled trajectory <math/> . </env name="remark">  </par> 
+
+<par> <cs name="subsection"/> Recall that a Reinhardt trajectory is a trajectory <math/> such that its disk <math/> is a globally optimal solution to the Reinhardt problem . </par> 
+
+<par> <env name="lemma">  A Reinhardt trajectory contains no singular arcs . </env name="lemma">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <cs name="subsection"/> We define switching functions <math/> by <display/> </par> 
+
+<par> The optimal control is constant <math/>  that is  <math/>   on parts of the cotangent space where <math/> for all <math/> . For example  <display/> </par> 
+
+<par> which equals <math/>  up to a positive factor . </par> 
+
+<par> Let <math/> and <math/> be the initial conditions  <cs name="ref"/>  matching the circle  <cs name="align*"/> We define the  <cs name="it"/> singular locus  <math/> of <math/> by <cs name="equation"/> </par> 
+
+<par> We write <math/> . We note that up to the affine transformation <math/>  the singular locus is the initial condition <math/> defining the singular circular arc  that is  <math/> . </par> 
+
+<par> We show that no transition is possible between a Pontryagin extremal link and a circular arc . </par> 
+
+<par> <env name="lemma">  There does not exist a Pontryagin extremal link with constant control <math/> with initial conditions  or terminal conditions  <math/> and <math/> . </env name="lemma">  </par> 
+
+<par>  This lemma does not rule out the possibility of a chattering arc meeting a singular arc <cs name="cite"/> . See below .  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <cs name="subsection"/> </par> 
+
+<par> We need the following simple lemma in preparation for the main theorem  <cs name="ref"/>  of this section . </par> 
+
+<par> <env name="lemma">  <cs name="label"/> Let <math/> be given by Equation  <cs name="ref"/>  . For all <math/>  <cs name="equation"/> </par> 
+
+<par> gives a basis of <math/> . </env name="lemma">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <env name="theorem">  <cs name="label"/> Let <math/> be a Pontryagin extremal that does not meet the singular locus <math/> . Then <math/> has a bang-bang control with finitely many switches . </env name="theorem">  </par> 
+
+<par> <env name="remark">  In terms of Reinhardts problem  the theorem implies that an extremal trajectory <math/> that does not meet the singular locus <math/> defines a hexagonally-symmetric disk <math/> whose boundary is a smoothed polygon  consisting of finitely many straight edges and hyperbolic arcs . A working hypothesis  <cs name="ref"/>  in the final section describes what would be needed in order to remove the unwanted assumption that <math/> does not meet the singular locus <math/>  and to prove unconditionally that the Reinhardt trajectory is a smoothed polygon . </env name="remark">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <env name="theorem">  <cs name="label"/> Let <math/> be a Pontryagin extremal that does not meet the singular locus <math/> . Assume that two of the switching functions  say <math/> and <math/>  only have finitely many zeros in some sufficiently small neighborhood of <math/> . Then the third switching function <math/> also has only finitely many zeros in some sufficiently small neighborhood of <math/> . </env name="theorem">  </par> 
+
+<par> <cs name="proof"/> <math/> </par> 
+
+<par> <cs name="section"/> In this section we offer some speculations about how the proof of the Reinhardt conjecture might be completed . </par> 
+
+<par> <cs name="subsection"/> We have proved that a Pontryagin extremal trajectory <math/> that does not meet the singular set <math/> gives a smoothed polygon <math/> . Suppose that <math/> meets <math/> . We have proved that <math/> does not remain in <math/> for any time interval and that the only way to approach <math/> is through chattering . These are very restrictive conditions . </par> 
+
+<par> We suggest a working hypothesis that would complete the proof that the solution to the Reinhardt problem is a smoothed polygon . Our restrictive conditions reduce the analysis to a small neighborhood of a single point <math/> in the cotangent space </par> 
+
+<par> If a lifted trajectory <math/> meets <math/>  we may assume that the meeting occurs at <math/> and that <math/> for some sufficiently small time interval <math/> . To be concrete  we may assume after applying an affine transformation that <math/> . Then the lifted trajectory on this interval has a bang-bang control with infinitely many switching times <cs name="equation"/> where <math/> and <math/> . If we could show that such a trajectory is not globally optimal among trajectories in <math/> with the same endpoints  then chattering is nonoptimal  and we would conclude established that the solution to the Reinhardt problem is a smoothed polygon . </par> 
+
+<par> <cs name="working"/> <math/> </par> 
+
+<par> To prove this working hypothesis  various standard methods for the treatment of chattering controls might be helpful  blowing-up along the singular locus  the Poincare map  scaling  and self-similarity . See <cs name="cite"/> . </par> 
+
+<par> <cs name="subsection"/> We have constructed extremal trajectories with bang-bang controls that have an arbitrarily large number of switches . Each neighborhood of <math/> of <math/> contains all but finitely many of these extremal trajectories . We expect that extremal lifted trajectories <math/> that remain close to <math/> to give hexagonally symmetric disks <math/> that are approximately circles . In particular  they should have cost higher than that of the smoothed octagon . </par> 
+
+<par> <cs name="working"/> <math/> </par> 
+
+<par> <cs name="subsection"/> Recall that <math/> is the open subset of the upper-half plane that satisfies the star inequalities . We present some heuristics that suggest that trajectories that come close to the boundary of <math/> necessarily give hexagonally symmetric disks whose area is greater than that of the smoothed octagon . We formulate this as a working hypothesis . </par> 
+
+<par> <cs name="working"/> <math/> </par> 
+
+<par> <env name="remark">  The point of the working hypothesis is to allow us to replace <math/> with a slightly smaller compact set <math/> . The star inequalities  Remark <cs name="ref"/>  are strict because when equality is obtained the smallest centrally symmetric hexagon <math/> containing <math/> degenerates to a parallelogram . However  a parallelogram is the smallest centrally symmetric hexagon <math/> containing <math/> only if <math/> is itself a parallelogram of area <math/> . This suggests that extremal trajectories that come sufficiently close to the boundary of <math/> are approximately parallelograms of approximate area <math/> . Such <math/> are far from optimal . By making this intuition rigorous  a proof of the working hypothesis might be obtained . </env name="remark">  </par> 
+
+<par> <cs name="subsection"/> We suggest two different ways that the Reinhardt conjecture might be completed from here  direct computer search or geometric methods . We can summarize the previous subsections by saying that we expect the only interesting lifted trajectories in the cotangent space to pass <env name="enumerate">  <cs name="item"/> near the boundary of <math/>  where <math/> is a near parallelogram   <cs name="item"/> near <math/>  where <math/> is a near circular disk  including smoothed polygons <math/> with many sides   <cs name="item"/> near <math/>  where <math/> is a smoothed octagon  . </env name="enumerate">  Let us assume that we have a version of Theorem <cs name="ref"/> that gives an explicit neighborhood <math/> of <math/> on which the local optimality of <math/> holds . </par> 
+
+<par> Each Pontryagin extremal trajectory is determined by an initial condition in <math/> . It is convenient to consider the projectivized variant  <display/> </par> 
+
+<par> This is an explicit <math/>  dimensional manifold . It can be reduced by two dimensions to a <math/>  dimensional manifold by the vanishing of the maximized Hamiltonian  <cs name="ref"/>  and setting the start time <math/> at a switching time between controls <math/> and <math/>  which gives <math/> . </par> 
+
+<par> We might try to make a direct computer search through this space  say using interval arithmetic  and show that there is nothing better than the smoothed octagon . We might find for example by explicit search that the smoothed polygons of Section <cs name="ref"/> are the only Pontryagin extremal trajectories  away from the singular arc  . </par> 
+
+<par> Using our working hypotheses  by excluding a neighborhood <math/> of the boundary of <math/>  a neighborhood <math/> of <math/>  and a neighborhood <math/> of <math/>  we expect numerically stable lifted trajectories with a uniformly bounded number of switches . Given an initial condition <math/> in the <math/>  dimensional manifold  we extend the trajectory until it enters one of these excluded neighborhoods <math/>  in which case we reject <math/>   until <math/> meets the terminal conditions  in which case we compare the trajectorys cost to <math/>   or until <math/>  in which case we reject the trajectory it for having higher cost than the circle by Equation <cs name="ref"/>  . </par> 
+
+<par> <cs name="subsection"/> The transversality conditions of PMP imply that a Pontryagin extremal lifted trajectory is a closed loop <math/> in <display/> </par> 
+
+<par>  We remove a neighborhood of the singular locus <math/> .  </par> 
+
+<par> We can consider an optimization over each homology class . We have homotopy group <math/> and the canonical map <math/> is multiplication by <math/> . The Reinhardt lifted trajectory gives a generator of <math/> . We may restrict to such trajectories . </par> 
+
+<par> We might try to adapt the arguments of <cs name="cite"/>  the Poincare-Cartan integral invariant  Hamilton-Jacobi-Bellman  etc . </par> 
+
+<par> <cs name="bibliography"/> <cs name="bibliographystyle"/> </par> 
+
+<par> EDoc <message name="end of file ../tex/reinhardt-optimal-control.tex"/> </par></root>

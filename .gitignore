@@ -39,3 +39,7 @@ cnl_latextual/simple_transformation/print
 cnl_latextual/simple_transformation/sort
 cnl_latextual/simple_transformation/test_dtd
 
+#Merlin data dirs
+.merlin
+#dune build dirs
+cnl_latextual/LaTeXtual/_build/

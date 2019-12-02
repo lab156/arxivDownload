@@ -1,0 +1,161 @@
+\documentclass{article}
+
+% 
+%tikz graphics
+%\usepackage{xcolor} % to remove color.
+\usepackage{tikz} % 
+\usetikzlibrary{chains,shapes,arrows,%
+ trees,matrix,positioning,decorations,fadings}
+%\usepackage[framemethod=TikZ]{mdframed}
+
+\def\tikzfig#1#2#3{%
+\begin{figure}[htb]%
+  \centering
+\begin{tikzpicture}#3
+\end{tikzpicture}
+  \caption{#2}
+  \label{fig:#1}%
+\end{figure}%
+}
+\def\smalldot#1{\draw[fill=black] (#1) %
+ node [inner sep=1.3pt,shape=circle,fill=black] {}}
+\newtheorem{theorem}{Theorem}[subsection]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{working}[theorem]{Working Hypothesis}
+
+\theoremstyle{remark}
+\newtheorem{remark}[equation]{Remark}%[subsection]
+
+
+\newcommand{\ring}[1]{\mathbb{#1}}
+\newcommand{\op}[1]{\hbox{#1}}
+\newcommand{\f}[1]{\frac{1}{#1}}
+\newcommand{\ang}[1]{\left\langle{#1}\right\rangle}
+\def\error{e__r__r__o__r}
+\def\cong{\error}
+\def\sl{\mathfrak{sl}_2(\ring{R})}
+\def\SL{\op{SL}_2(\ring{R})}
+\def\SO{\op{SO}_2(\ring{R})}
+\def\h{\mathfrak h}
+\def\hstar{{\mathfrak h}^\star}
+\def\Mstar{M^\star}
+\def\D{\ring{D}}
+\def\Hcost{H_{cost}}
+\def\Hlie{H_{Lie}}
+\def\Hh{H_{\h}}
+\def\DR{D_{min}}
+\def\tmax{t_{max}}
+
+\newcommand\Lsing{\Lambda_{sing}}
+\newcommand\lsing{\lambda_{sing}}
+\newcommand\ee[1]{e_{#1}^*}
+\newcommand{\partials}[2]{\frac{\partial #1}{\partial #2}}
+
+%\newcommand\XX[1]{[XX fix: #1]}
+%\newcommand\FIGXX{{\tt [XX Insert figure here]}}
+%\newcommand{\rif}[1]{\ref{#1}{\tt-#1}}
+%\newcommand{\cat}[1]{\cite{#1}{\tt-#1}}
+%\newcommand{\libel}[1]{\label{#1}{\tt(#1)~}}
+
+
+\title{The Reinhardt Conjecture as an Optimal Control Problem}
+\author{Thomas C. Hales\thanks{Research supported by NSF grant
+    1104102.  I thank W\"oden Kusner for discussions related to this
+    problem.}}  
+\date{} 
+%\date{February 26, 2017}
+
+\begin{document}
+
+\maketitle
+
+
+\begin{abstract} 
+  In 1934, Reinhardt conjectured that the shape of the centrally
+  symmetric convex body in the plane whose densest lattice packing has
+  the smallest density is a smoothed octagon.  This conjecture is
+  still open.  We formulate the
+  Reinhardt Conjecture as a problem in optimal control theory.
+
+  The smoothed octagon is a Pontryagin extremal trajectory with
+  bang-bang control.  More generally, the smoothed regular $6k+2$-gon
+  is a Pontryagin extremal with bang-bang control.  The smoothed
+  octagon is a strict (micro) local minimum to the optimal control
+  problem.
+  
+  The optimal solution to the Reinhardt problem is a trajectory
+  without singular arcs.  The extremal trajectories that do not meet
+  the singular locus have bang-bang controls with finitely many
+  switching times.
+
+  Finally, we reduce the Reinhardt problem to an optimization problem
+  on a five-dimensional manifold.  (Each point on the manifold is an
+  initial condition for a potential Pontryagin extremal lifted
+  trajectory.)  We suggest that the Reinhardt conjecture might
+  eventually be fully resolved through optimal control theory.
+
+  Some proofs are computer-assisted using a computer algebra system.
+\end{abstract}
+
+\parskip=0.8\baselineskip
+\baselineskip=1.05\baselineskip
+
+\newenvironment{blockquote}{%
+  \par%
+  \medskip%
+  \baselineskip=0.7\baselineskip%
+  \leftskip=2em\rightskip=2em%
+  \noindent\ignorespaces}{%
+  \par\medskip}
+
+\section{Introduction}
+
+In 1934, Reinhardt conjectured that the shape of centrally symmetric
+body in the plane whose densest lattice packing has the smallest
+density is a smoothed octagon (Figure \ref{fig:octagon}).  The
+corners of the octagon are rounded by hyperbolic arcs.  For popular
+accounts of the Reinhardt conjecture, including some spectacular
+animated graphics by Greg Egan, see \cite{baez-egan}, \cite{baez}.
+
+\tikzfig{octagon}{ A smoothed octagon is conjectured to have the worst
+  best packing among centrally symmetric disks in the plane.  }{
+% data generate in Mathematica plotOct:
+\draw (1, 0) --  (1., 0.229378) --  (0.969314, 0.403215) --  (0.839864, 
+  0.544075) --  (0.659754, 0.714692) --  (0.5, 0.866025);
+\draw (0.5, 0.866025) --  (0.340246, 0.944071) --  (0.129449, 
+  0.94729) --  (-0.129449, 0.94729) --  (-0.340246, 0.944071) --  (-0.5, 
+  0.866025);
+\draw (-0.5, 0.866025) --  (-0.659754, 0.714692) --  (-0.839864, 
+  0.544075) --  (-0.969314, 0.403215) --  (-1., 0.229378) --  (-1., 0);
+\draw (-1., 0) --  (-1., -0.229378) --  (-0.969314, -0.403215) --  (-0.839864,  
+-0.544075) --  (-0.659754, -0.714692) --  (-0.5, -0.866025);
+\draw (-0.5, -0.866025) --  (-0.340246, -0.944071) --  (-0.129449, -0.94729) --   
+(0.129449, -0.94729) --  (0.340246, -0.944071) --  (0.5, -0.866025);
+\draw (0.5, -0.866025) --  (0.659754, -0.714692) --  (0.839864, -0.544075) --   
+(0.969314, -0.403215) --  (1., -0.229378) --  (1., 0);
+}
+
+
+This article is a continuation of an article from 2011, which formulates
+the Reinhardt conjecture as a problem in the calculus of variations
+\cite{hales2011reinhardt}.  This article reformulates the Reinhardt
+conjecture as an optimal control problem.
+% (\url{https://arxiv.org/abs/1103.4518})
+
+Bang-bang controls of an optimal control problem are controls that
+switch between extreme points of a convex control set (often with a
+finite number of switches).  A major theme of optimal control is the
+study of bang-bang controls, and the extremal trajectories of many
+control problems have bang-bang controls.  Intuitively, bang-bang
+controls switch from one extreme position to another: navigating a
+craft by flooring the accelerator pedal then slamming on the brakes;
+or steering a vehicle by making the sharpest possible turns to the
+left and to the right; or maximizing wealth by investing all resources
+in a single financial asset for a time, then suddenly moving all
+resources elsewhere.
+
+\end{document}
