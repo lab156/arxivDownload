@@ -4,7 +4,8 @@ let convert_toks s =
 (*  let _ = print_endline ("->"^(Latextual.tokens_to_string ". " toks)) in  *)
   toks;;
 
-(* Latextual.process_doc convert_toks  "../tex/mini_file.tex";; *)
+ Latextual.process_doc convert_toks  "../tex/currentversion-smallmasslimit.tex";; 
+(*
 let tt = convert_toks  "../tex/mini_file.tex";; 
 
 let rec pp toks = 
@@ -13,3 +14,4 @@ let rec pp toks =
     | t::rem -> print_endline (Latextual__Type.lex_token_to_string t);
     pp rem;;
 pp tt;;
+*)
