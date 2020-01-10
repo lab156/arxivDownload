@@ -30,7 +30,8 @@
 \title{Text Mining For Definitions in the arXiv}
 \author{Luis Berlioz\\
 \texttt{lab232@pitt.edu}}
-\institute{University of Pittsburgh}
+\institute{Formal Methods in Mathematics /
+Lean Together 2020}
 
 % Explain _inline_math_ better
 % Explain all the acronyms BIO, SVC, nltk
@@ -61,7 +62,8 @@
 For each part I will describe how to:
         \begin{itemize}
                 \item Get and process the relevant  data.
-                \item Train and take a look at the results.
+                \item Train the machine learning system.
+                \item Take a look at the results.
         \end{itemize}
 \end{frame}
 
@@ -75,7 +77,7 @@ For each part I will describe how to:
         \end{column}
         \begin{column}{0.6\textwidth}
             \begin{itemize}
-                \item About 885 Gigabytes of .tar files.
+                \item About 1 Terabyte of .tar files.
                 \item Each .tar file is about 500 Megabytes.
                 \item Download without affecting the website's traffic.
                 \item \LaTeX{} source is converted to a more structured format.
@@ -100,8 +102,8 @@ For each part I will describe how to:
     \begin{itemize}
         \item Sometimes the author of an article uses a \LaTeX{} macro to label a definition. These are our positive labels:
     \includegraphics[width=0.9\textwidth]{ltxml_defin_xml.png}
-    \item To get negative labels, we pick paragraphs at random and assume they are not definitions.
-        \item This has the drawback that some of the non--definitions are wrong.
+    \item To get examples of non-definitions, we pick paragraphs at random and assume they are not definitions.
+        \item This has the drawback that some of the non-definitions are wrong.
     \item There are 1,707 articles in 2015 math.AG, we go from 5,229 labeled definitions to 71,067 ``probable'' definitions.  \end{itemize}
 \end{frame}
 
@@ -132,11 +134,11 @@ For each part I will describe how to:
             \item We obtain a pair:\\
                 (\textbf{Definienda},  Definition).
             \item Just 5,321 matches out of almost 6 million articles.
-            \item Other websites / datasets:
+            \item Other websites/datasets:
                 \begin{itemize}
-                    \item All types of wikis, e.g. ProofWiki, GroupProps
-                    \item The Stacks project
-                    \item PlanetMath
+                    \item All types of wikis, e.g. ProofWiki, GroupProps (500)
+                    \item The Stacks project (3,000)
+                    \item PlanetMath (1,500)
                 \end{itemize}
             \end{itemize}
         \end{column}
@@ -208,7 +210,7 @@ For each part I will describe how to:
                     \item Organize the definitions in a \emph{dependency tree structure.}
                     \item Produce word embedding with math tokens\\
                         (e.g. where \emph{Banach space} is just one token).
-                \item Visualize the new terminology to assist with classification and disambiguation. 
+                \item Apply disambiguation and polysemy detection techniques.
                 \end{itemize}
     \end{itemize}
 \end{frame}
