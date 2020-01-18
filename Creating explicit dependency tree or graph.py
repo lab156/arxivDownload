@@ -50,7 +50,7 @@ dgraph = nx.DiGraph()
 empty_str_if_none = lambda s: s if s  else ''
 for k,d_raw in enumerate(def_dict.keys()):
     d = d_raw.strip()
-    if k%1000 == 0:
+    if k%100 == 0:
         print('doing k=', k)
     for Def in ag.iter(tag = 'definition'):
         D = Def.find('.//stmnt')
@@ -66,9 +66,10 @@ for k,d_raw in enumerate(def_dict.keys()):
 len(dgraph.nodes())
 
 opts = {
-    'node_size': 300,
-    'width': 0.5,
-    'with_labels': True,
+    'node_size': 10,
+    'width': 0.1,
+    'with_labels': False,
+    'arrow_size': 2,
 }
 plt.figure(1, figsize=(15,10))
 pos = graphviz_layout(dgraph, prog='dot')
@@ -78,5 +79,9 @@ nx.draw_networkx(dgraph, pos, **opts)
 nx.find_cycle(dgraph)
 
 nx.drawing.nx_agraph.write_dot(dgraph, 'data/dgraph.dot')
+
+# +
+# nx.draw_networkx?
+# -
 
 
