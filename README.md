@@ -1,3 +1,7 @@
+## Jupyter Notebooks
+* Populating and examples SQLAlchemy databases
+    * Filling the database with the arxiv metadata using `databases/create_db_define_models.py`
+
 * To check the files with with unknown encoding:
 ```bash
    find . -name 'commentary.txt' -exec grep Ignoring {} \; 

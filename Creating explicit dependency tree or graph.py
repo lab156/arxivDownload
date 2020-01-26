@@ -69,7 +69,7 @@ opts = {
     'node_size': 10,
     'width': 0.1,
     'with_labels': False,
-    'arrow_size': 2,
+    'arrowsize': 2,
 }
 plt.figure(1, figsize=(15,10))
 pos = graphviz_layout(dgraph, prog='dot')
