@@ -2,6 +2,16 @@
 * Populating and examples SQLAlchemy databases
     * Filling the database with the arxiv metadata using `databases/create_db_define_models.py`
 
+### Queries
+* Find the authors (in general) with the most publications
+```sql
+SELECT author, count(*) AS c FROM articles GROUP BY author ORDER BY c DESC LIMIT 10;
+```
+* Hack to find main article tag
+```sql
+ SELECT count(tags) FROM articles where tags LIKE '[{''term'': ''math.DG''%';    
+```
+
 * To check the files with with unknown encoding:
 ```bash
    find . -name 'commentary.txt' -exec grep Ignoring {} \; 
@@ -38,15 +48,6 @@ Fatal:perl:die Perl died
 ### Problems
 * LateXML did not finish 2014/1411.6225/bcdr_en.tex
 
-### Queries
-* Find the authors (in general) with the most publications
-```sql
-SELECT author, count(*) AS c FROM articles GROUP BY author ORDER BY c DESC LIMIT 10;
-```
-* Hack to find main article tag
-```sql
- SELECT count(tags) FROM articles where tags LIKE '[{''term'': ''math.DG''%';    
-```
 
 The xml_file.xml is modified by the search.py module:
 * *processed*, is False by default.
