@@ -7,6 +7,7 @@
     * USAGE: python update_db.py DATABASE MANIFEST.xml tar_src_path [--log ]
     * Where database is a sqlite database and manifest is an xml file in the original format
     * tar_src_path is the dir where the tar files can be found
+    * Ex. python3 update_db.py /mnt/databases/arxivDB.db ../arXiv_src_manifest_Oct_2019.xml /mnt/arXiv_src/
 * process.py
     * Xtraction class reads and extracts a arXiv tar files.
     * Querying the arxiv metadata with the arxiv API and the arxiv.py package
@@ -19,7 +20,7 @@ SELECT author, count(*) AS c FROM articles GROUP BY author ORDER BY c DESC LIMIT
 ```
 * Hack to find main article tag
 ```sql
- SELECT count(tags) FROM articles where tags LIKE '[{''term'': ''math.DG''%';    
+ SELECT count(tags) FROM articles where tags LIKE '[{''term'': ''math.DG''%';
 ```
 * find repeated entries where DataId is the repeated term
 ```sql
@@ -28,7 +29,7 @@ SELECT DataId, COUNT(*) c FROM DataTab GROUP BY DataId HAVING c > 1;
 
 * To check the files with with unknown encoding:
 ```bash
-   find . -name 'commentary.txt' -exec grep Ignoring {} \; 
+   find . -name 'commentary.txt' -exec grep Ignoring {} \;
 ```
 * To process the first .tex file to an .xml file of the same name and last part of error stream to commentary.txt
 ```bash
