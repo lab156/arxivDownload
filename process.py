@@ -143,6 +143,24 @@ def year(id_str):
     name = re.match(r'.*([0-9]{4}).*', id_str)
     return name.group(1)[:2]
 
+def sliced_article_query(article_lst, slice_length=300):
+    '''
+    query the arxiv metadata API using the arxiv.py library
+    '''
+    query_results = []
+    i = 0
+    sl = slice_length # slice length
+    while i*sl <= len(article_lst):
+        second_length = min((i + 1)*sl, len(article_lst))
+        query_results +=\
+                arxiv.query(id_list=article_lst[i*sl:second_length],
+                max_results=(sl + 1))
+        print('querying from %02d to %02d successful       \r'\
+                %(i*sl,second_length),end='\r')
+        i += 1
+    return query_results
+
+
 class Xtraction(object):
     def __init__(self, tar_path, *argv, **kwarg):
         #get a list of all objects in the file at tar_path
@@ -165,22 +183,26 @@ class Xtraction(object):
 
         print("\033[K",end='') 
         print('querying the arxiv \r',end='\r')
-        self.query_results = []
-        i = 0
-        sl = 300 # slice length 
-        while i*sl < len(self.art_lst):
-            second_length = min((i + 1)*sl, len(self.art_lst))
-            try:
-                self.query_results +=\
-                        arxiv.query(id_list=query_id_list[i*sl:second_length],
-                        max_results=(sl + 1))
-                print('querying from %02d to %02d successful       \r'\
-                        %(i*sl,second_length),end='\r')
-            except Exception:
-                print('query of %s unsuccessful       \r'\
-                        %os.path.basename(self.tar_path),end='\r')
-                break
-            i += 1
+        print('query_id_list starts with : %s'%query_id_list[:10])
+        #  query with the arxiv API and arxiv package
+        self.query_results = sliced_article_query(query_id_list)
+
+        #this was moved to the sliced_article_query function
+#        i = 0
+#        sl = 300 # slice length
+#        while i*sl < len(self.art_lst):
+#            second_length = min((i + 1)*sl, len(self.art_lst))
+#            try:
+#                self.query_results +=\
+#                        arxiv.query(id_list=query_id_list[i*sl:second_length],
+#                        max_results=(sl + 1))
+#                print('querying from %02d to %02d successful       \r'\
+#                        %(i*sl,second_length),end='\r')
+#            except Exception:
+#                print('query of %s unsuccessful       \r'\
+#                        %os.path.basename(self.tar_path),end='\r')
+#                break
+#            i += 1
 
         self.encoding_dict = {
          'utf-8':  ['utf-8',],
@@ -413,6 +435,8 @@ class Xtraction(object):
         '''
         Save all the articles from query_results to 
         the database
+        Example: x.save_articles_to_db('sqlite:///arxiv1.db')
+        where x is an Xtraction object
         '''
         #Get the basename
         basename = self.tar_path.split('/')[-1]
@@ -436,14 +460,13 @@ if __name__ == '__main__':
     for f_path in file_lst:
         x = Xtraction(f_path)
         x.extract_tar(sys.argv[-1], 'math.DG')
-        x.save_articles_to_db('sqlite:///arxiv1.db')
 
 #    for f_path in file_lst:
 #        print('starting extraction of  %s         \r'%os.path.basename(f_path),end='\r')
 #        x = Xtraction(f_path)
 #        f_lst = x.filter_MSC('math.AG')
 #        for f in f_lst:
-#            print("\033[K",end='') 
+#            print("\033[K",end='')
 #            print('writing file %s               \r'%f,end='\r')
 #            x.extract_any(f, sys.argv[-1])
 #        print('successful extraction of  %s      '%os.path.basename(f_path))

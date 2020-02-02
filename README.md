@@ -1,6 +1,16 @@
 ## Jupyter Notebooks
 * Populating and examples SQLAlchemy databases
-    * Filling the database with the arxiv metadata using `databases/create_db_define_models.py`
+    * Filling the arxiv metadata database using `databases/create_db_define_models.py`
+
+## Scripts
+* update_db.py
+    * USAGE: python update_db.py DATABASE MANIFEST.xml tar_src_path [--log ]
+    * Where database is a sqlite database and manifest is an xml file in the original format
+    * tar_src_path is the dir where the tar files can be found
+* process.py
+    * Xtraction class reads and extracts a arXiv tar files.
+    * Querying the arxiv metadata with the arxiv API and the arxiv.py package
+
 
 ### Queries
 * Find the authors (in general) with the most publications
@@ -10,6 +20,10 @@ SELECT author, count(*) AS c FROM articles GROUP BY author ORDER BY c DESC LIMIT
 * Hack to find main article tag
 ```sql
  SELECT count(tags) FROM articles where tags LIKE '[{''term'': ''math.DG''%';    
+```
+* find repeated entries where DataId is the repeated term
+```sql
+SELECT DataId, COUNT(*) c FROM DataTab GROUP BY DataId HAVING c > 1;
 ```
 
 * To check the files with with unknown encoding:
