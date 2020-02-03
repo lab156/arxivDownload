@@ -5,51 +5,76 @@ import shutil
 from process import Xtraction
 
 class TestXtraction1(unittest.TestCase):
-    def setUp(self):
-        self.f_path = 'tests/minitest.tar'
-        self.check_dir = os.path.join(os.path.curdir,'check_test')
-        self.check_dir2 = os.path.join(os.path.curdir,'check_test2')
-        print('Starting extraction of  %s         \r'%os.path.basename(self.f_path),end='\r')
-        x = Xtraction(self.f_path)
+    @classmethod
+    def setUpClass(cls):
+        cls.f_path = 'tests/minitest.tar'
+        cls.check_dir = os.path.join(os.path.curdir,'check_test')
+        cls.check_dir2 = os.path.join(os.path.curdir,'check_test2')
+        print('Starting extraction of  %s         \r'%os.path.basename(cls.f_path),end='\r')
+        x = Xtraction(cls.f_path)
         f_lst = x.filter_MSC('math.AP')
         for f in f_lst:
-            print("\033[K",end='') 
+            print("\033[K",end='')
             print('writing file %s               \r'%f,end='\r')
-            x.extract_any(f , self.check_dir)
-        print('successful extraction of  %s      '%os.path.basename(self.f_path))
-        x.extract_tar(self.check_dir2, 'math.AP')
+            x.extract_any(f , cls.check_dir)
+        print('successful extraction of  %s      '%os.path.basename(cls.f_path))
+        x.extract_any(x.filter_MSC('math.DS')[0], cls.check_dir2)
+        x.extract_any(x.filter_MSC('math.GM')[0], cls.check_dir2)
 
     def test_extract_any(self):
         list1 = [ 'math.0303004',
                   'math.0303006',
                   'math.0303008',]
-#        list2 = ['\\documentclass[12pt]{amsart}\n',
-#                '\\usepackage{tikz}\n',
-#                '\\usepackage{amssymb}\n',
-#                '\\overfullrule=10pt\n',
-#                '\\parskip=0pt\n',
-#                '\\raggedbottom\n',
-#                '\\allowdisplaybreaks\n',
-#                '\n',
-#                '\\def\\Wnodal{W_{\\scriptstyle\\rm\\!nodal}}\n',
-#                '\\def\\P{\\mathbb{P}}\n']
-
         list2 = ['tar_file: minitest.tar\n',
             'encoding detected: None\n',
             'decode_message: Unknown encoding: None in file: 0303/math0303004 decoding with utf8\n',
             'decode_failed: Possible encrypted file (.cry) found.\n',]
 
-
-        self.assertEqual(set(list1), set(os.listdir(self.check_dir)))
-        #self.assertEqual(set(list1), set(os.listdir(self.check_dir2)))
-        #with open(os.path.join(self.check_dir2,'1601.00103','1601.00103.tex'),'r') as tst_file:
-        #    self.assertEqual(list2, tst_file.readlines()[:10])
+        self.assertSetEqual(set(list1), set(os.listdir(self.check_dir)))
         with open(os.path.join(self.check_dir,'math.0303004','commentary.txt'),'r') as tst_file:
             self.assertEqual(list2, tst_file.readlines())
 
+    def test_extract_any2(self):
+        expect_lst =  ['% 1 july 05\n',
+                '%*********************************************************\n',
+                '% This paper has  9 encapsulated postscript figure files:\n',
+                '% fig1.ps, fig2.ps, fig3.ps, fig4.ps, fig5.ps, fig6.ps.\n',
+                '% fig7.ps, fig8.ps, fig9.ps \n',
+                '%*********************************************************\n',
+                '\\documentclass[11pt]{article}\n',
+                '%\\usepackage{showlabels}\n',
+                '\\usepackage{amssymb,psfig,latexsym}\n',
+                '%\\renewcommand{\\labelenumi}{(\\arabic{enumi})}\n',
+                '\\renewcommand{\\thefigure}{\\thesection.\\arabic{figure}}\n',
+                '\\renewcommand{\\thetable}{\\thesection.\\arabic{table}}\n',
+                  '\n',
+                '\\newtheorem{theorem}{Theorem}[section]\n',
+                '\\newtheorem{lemma}{Lemma}[section]\n',
+                '\\newtheorem{exam}{Example}[section]\n',
+                '\\newtheorem{prop}{Proposition}[section]\n',
+                  '\n',
+                '\\setlength{\\textheight}{8.5in}\n',
+                '\\setlength{\\textwidth}{6.25in}\n',
+                '\\setlength{\\oddsidemargin}{.15in}\n',
+                '\\setlength{\\topmargin}{-.15in}\n',
+                '\\setlength{\\headsep}{.5in}\n',
+                '\\newcommand{\\bsq}{\\vrule height .9ex width .8ex depth -.1ex}\n',
+                  '\n',
+                '\\newcommand{\\ztzs}{\\zeta_T (z,s)}\n',
+                '\\newcommand{\\req}[1]{(\\ref{#1})}\n',
+                    '\\newcommand{\\lf}{\\lfloor}\n',
+                    '\\newcommand{\\rf}{\\rfloor}\n',
+                    '\\newcommand{\\dd}{{, \\ldots ,}}\n',]
 
-    def tearDown(self):
-        print('removing %s'%self.check_dir)
-        shutil.rmtree(self.check_dir)
-        shutil.rmtree(self.check_dir2)
-        
+        with open(os.path.join(self.check_dir2,'math.0303007','1july05.tex'),'r') as tst_file:
+            self.assertListEqual(expect_lst, tst_file.readlines()[:30])
+
+    def test_extract_any_identify_pdf(self):
+        with open(os.path.join(self.check_dir2,'math.0303009','commentary.txt'),'r') as tst_file:
+            self.assertTrue('pdf only' in tst_file.read())
+
+    @classmethod
+    def tearDownClass(cls):
+        print('removing %s'%cls.check_dir)
+        shutil.rmtree(cls.check_dir)
+        shutil.rmtree(cls.check_dir2)

@@ -1,6 +1,7 @@
 ## Jupyter Notebooks
 * Populating and examples SQLAlchemy databases
     * Filling the arxiv metadata database using `databases/create_db_define_models.py`
+    * Query join examples in sqlalchemy query language
 * Parsing Arxib Manifest and querying metadat.ipynb
     * Using magic module to find file info
     * Structure of the data in the manifest file
@@ -31,6 +32,10 @@ SELECT author, count(*) AS c FROM articles GROUP BY author ORDER BY c DESC LIMIT
 * find repeated entries where DataId is the repeated term
 ```sql
 SELECT DataId, COUNT(*) c FROM DataTab GROUP BY DataId HAVING c > 1;
+```
+* Left join to quickly find all articles in a tar file
+```sql
+SELECT  articles.id, tags FROM manifest LEFT JOIN articles on manifest.id = articles.tarfile_id WHERE manifest.id = 1747;
 ```
 
 * To check the files with with unknown encoding:

@@ -45,7 +45,7 @@ def api2tar(id_str,format_int):
 def detect_format(id_str):
     '''
     The tar files of the bulk download come in different formats
-    format 1:      1701/1701.00253.gz 
+    format 1:      1701/1701.00253.gz
     format 2:     0701/astro-ph0701321.gz
     When id_str is one of these formats return the format number
     >>> detect_format('1701/1701.00253.gz')
@@ -182,7 +182,7 @@ class Xtraction(object):
         else:
             raise Exception('Could not determine format of %s'%self.art_lst[:5])
 
-        print("\033[K",end='') 
+        print("\033[K",end='')
         print('querying the arxiv \r',end='\r')
         print('query_id_list starts with : %s'%query_id_list[:10])
         #  query with the arxiv API and arxiv package
@@ -343,7 +343,6 @@ class Xtraction(object):
 
 
 
-
     def extract_any(self, filename, output_dir):
         '''
         given filename, decide it is a tape archive (tar)
@@ -357,22 +356,22 @@ class Xtraction(object):
             short_name = tar2api(filename) # format 1804.00000
         elif self.format_found == 2:
             # format 0703/math0703071.gz
-            short_name = tar2api2(filename, sep='.') 
+            short_name = tar2api2(filename, sep='.')
         else:
             raise Exception('short_name will not be defined because no format was found')
         commentary_dict = { 'tar_file': os.path.basename(self.tar_path) }
         output_path = os.path.join(self.path_dir(output_dir), short_name)
         os.mkdir(output_path)
-        ff = tarfile.open(self.tar_path) 
+        ff = tarfile.open(self.tar_path)
         #import pdb; pdb.set_trace()
         try:
             file_gz = ff.extractfile(filename+'.gz')
         except KeyError:
-            commentary_dict['KeyError'] = 'Check if file %s is pdf only'%filename 
+            commentary_dict['KeyError'] = 'Check if file %s is pdf only'%filename
             write_dict(commentary_dict, os.path.join(output_path, 'commentary.txt'))
             return True
 
-        # Gunzip file 
+        # Gunzip file
         try:
             with tarfile.open(self.tar_path) as fb:
                 tar2 = fb.extractfile(filename + '.gz')
@@ -399,7 +398,7 @@ class Xtraction(object):
                     try:
                         decoded_str = file_str.decode(encoding_lst[i])
                         break
-                    except UnicodeDecodeError:  
+                    except UnicodeDecodeError:
                         i += 1
                 else:
                     print('tried %s on file %s but all failed'%(str(encoding_lst), filename))
