@@ -1,6 +1,12 @@
 ## Jupyter Notebooks
 * Populating and examples SQLAlchemy databases
     * Filling the arxiv metadata database using `databases/create_db_define_models.py`
+* Parsing Arxib Manifest and querying metadat.ipynb
+    * Using magic module to find file info
+    * Structure of the data in the manifest file
+    * using the dload.py script and its objects
+    * basic usage of the arxiv API package
+    * very disorganized, mostly scratch work
 
 ## Scripts
 * update_db.py

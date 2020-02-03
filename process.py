@@ -7,6 +7,7 @@ import re
 import os.path
 import chardet
 import sqlalchemy as sa
+import magic
 import databases.create_db_define_models as cre
 
 def write_dict(dic, filename):
@@ -358,25 +359,20 @@ class Xtraction(object):
             # format 0703/math0703071.gz
             short_name = tar2api2(filename, sep='.') 
         else:
-            raise Exception('short_name will not be defined becuase no format was found')
+            raise Exception('short_name will not be defined because no format was found')
         commentary_dict = { 'tar_file': os.path.basename(self.tar_path) }
         output_path = os.path.join(self.path_dir(output_dir), short_name)
         os.mkdir(output_path)
         ff = tarfile.open(self.tar_path) 
+        #import pdb; pdb.set_trace()
         try:
             file_gz = ff.extractfile(filename+'.gz')
         except KeyError:
-            out_mess = 'Check if file %s is pdf only'%filename 
-            #print(out_mess)
-            commentary_dict['KeyError'] = out_mess
+            commentary_dict['KeyError'] = 'Check if file %s is pdf only'%filename 
             write_dict(commentary_dict, os.path.join(output_path, 'commentary.txt'))
             return True
-        #if tarfile.is_tarfile(file_gz):
-#                with tarfile.open(file_gz) as ftar: 
-#                    ftar.extractall(output_path)
-#            else:
-        with gzip.open(file_gz,'rb') as fgz:
-            file_str = fgz.read()
+
+        # Gunzip file 
         try:
             with tarfile.open(self.tar_path) as fb:
                 tar2 = fb.extractfile(filename + '.gz')
@@ -388,6 +384,8 @@ class Xtraction(object):
         except tarfile.ReadError:
         # if reading the tarfile fails then it must be compressed file
         # detecting the encoding first is very slow
+            with gzip.open(file_gz,'rb') as fgz:
+                file_str = fgz.read()
             encoding_detected = chardet.detect(file_str)['encoding']
             encoding_lst = self.encoding_dict.get(encoding_detected, 'Unk')
             commentary_dict['encoding detected'] = encoding_detected
@@ -410,7 +408,12 @@ class Xtraction(object):
                 comm_mess = 'Unknown encoding: %s in file: %s decoding with utf8'%(encoding_detected, filename)
                 #print(comm_mess)
                 commentary_dict['decode_message'] = comm_mess
-                decoded_str = file_str.decode()
+                try:
+                    decoded_str = file_str.decode()
+                except UnicodeDecodeError:
+                    commentary_dict['decode_failed'] = "Possible encrypted file (.cry) found."
+                    decoded_str = 'Empty file goes here'
+
         #raise ValueError('The file: %s has an unknown encoding: %s. fix it!'%(filename, encoding_detected))
             with open(os.path.join(output_path, short_name + '.tex'),'w')\
                     as fname:
@@ -457,16 +460,16 @@ class Xtraction(object):
 
 if __name__ == '__main__':
     file_lst = sys.argv[1:-1]
-    for f_path in file_lst:
-        x = Xtraction(f_path)
-        x.extract_tar(sys.argv[-1], 'math.DG')
-
 #    for f_path in file_lst:
-#        print('starting extraction of  %s         \r'%os.path.basename(f_path),end='\r')
 #        x = Xtraction(f_path)
-#        f_lst = x.filter_MSC('math.AG')
-#        for f in f_lst:
-#            print("\033[K",end='')
-#            print('writing file %s               \r'%f,end='\r')
-#            x.extract_any(f, sys.argv[-1])
-#        print('successful extraction of  %s      '%os.path.basename(f_path))
+#        x.extract_tar(sys.argv[-1], 'math.AP')
+
+    for f_path in file_lst:
+        print('starting extraction of  %s         \r'%os.path.basename(f_path),end='\r')
+        x = Xtraction(f_path)
+        f_lst = x.filter_MSC('math.AG')
+        for f in f_lst:
+            print("\033[K",end='')
+            print('writing file %s               \r'%f,end='\r')
+            x.extract_any(f, sys.argv[-1])
+        print('successful extraction of  %s      '%os.path.basename(f_path))
