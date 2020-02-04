@@ -284,6 +284,19 @@ class Xtraction(object):
             decoded_str = file_str.decode()
         return decoded_str, commentary_dict
 
+    def extract_magic(self):
+        '''
+        Instead of using the metadata to figure out what files to extract
+        This function uses the files in self.art_lst which looks like:
+        ['1804/',
+         '1804/1804.01586.gz',
+          '1804/1804.01592.gz',
+           '1804/1804.01583.gz',
+            '1804/1804.01585.gz',
+        to get the metadata.
+        The advantage of this approach is that we can get the magic of the function directly
+        '''
+
     def extract_tar(self, output_dir, term):
         '''
         Extract the file in self.tarfile to output_dir
@@ -371,7 +384,6 @@ class Xtraction(object):
             write_dict(commentary_dict, os.path.join(output_path, 'commentary.txt'))
             return True
 
-        # Gunzip file
         try:
             with tarfile.open(self.tar_path) as fb:
                 tar2 = fb.extractfile(filename + '.gz')
@@ -383,6 +395,7 @@ class Xtraction(object):
         except tarfile.ReadError:
         # if reading the tarfile fails then it must be compressed file
         # detecting the encoding first is very slow
+        # Gunzip file
             with gzip.open(file_gz,'rb') as fgz:
                 file_str = fgz.read()
             encoding_detected = chardet.detect(file_str)['encoding']
