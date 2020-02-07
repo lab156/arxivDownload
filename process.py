@@ -98,11 +98,14 @@ def tar2api2(id_str, sep='/'):
 def Tar2api(id_str, sep='/'):
     '''
     This function should match both tar2api and tar2api2
-    >>> Tar2api('1804/1804.00239.gz')
+    >>> Tar2api('1804/1804.00239.gz', sep='.')
     '1804.00239'
 
     >>> Tar2api('0703/astro-ph/0703001.gz')
     'astro-ph/0703001'
+
+    >>> Tar2api('0703/astro-ph/0703001.gz', sep='.')
+    'astro-ph.0703001'
     '''
     #Trying to match either 
     regex1 = r'.+/([0-9]{4})\.([0-9]{4,5})'
@@ -166,6 +169,7 @@ class Xtraction(object):
     def __init__(self, tar_path, *argv, **kwarg):
         #get a list of all objects in the file at tar_path
         #these have name format: '1804/1804.00020.gz'
+        # if db option is given, then use database and don't query the arXiv
         if os.path.isfile(tar_path):
             self.tar_path = tar_path
         else:
@@ -182,28 +186,31 @@ class Xtraction(object):
         else:
             raise Exception('Could not determine format of %s'%self.art_lst[:5])
 
-        print("\033[K",end='')
-        print('querying the arxiv \r',end='\r')
-        print('query_id_list starts with : %s'%query_id_list[:10])
-        #  query with the arxiv API and arxiv package
-        self.query_results = sliced_article_query(query_id_list)
+        # check if a database was given
+        self.db_path = kwarg.get('db', None)
+        if self.db_path:
+            basename = self.tar_path.split('/')[-1]
+            right_name = 'src/' + basename
+            engine = sa.create_engine(database, echo=False)
+            engine.connect()
+            SMaker = sa.orm.sessionmaker(bind=engine)
+            session = SMaker()
+            q = session.query(cre.ManifestTarFile)
+            resu = q.filter_by(filename = right_name)
+            foreign_key_id = resu.first().id
+            # TODO query the database self.db for all the articles in this tar file
+            # and fill the variable self.query_results
 
-        #this was moved to the sliced_article_query function
-#        i = 0
-#        sl = 300 # slice length
-#        while i*sl < len(self.art_lst):
-#            second_length = min((i + 1)*sl, len(self.art_lst))
-#            try:
-#                self.query_results +=\
-#                        arxiv.query(id_list=query_id_list[i*sl:second_length],
-#                        max_results=(sl + 1))
-#                print('querying from %02d to %02d successful       \r'\
-#                        %(i*sl,second_length),end='\r')
-#            except Exception:
-#                print('query of %s unsuccessful       \r'\
-#                        %os.path.basename(self.tar_path),end='\r')
-#                break
-#            i += 1
+
+            #session.add_all([cre.new_article_register(D, foreign_key_id)\
+            #        for D in self.query_results])
+            #session.commit()
+        else:
+            print("\033[K",end='')
+            print('querying the arxiv \r',end='\r')
+            #  query with the arxiv API and arxiv package
+            self.query_results = sliced_article_query(query_id_list)
+
 
         self.encoding_dict = {
          'utf-8':  ['utf-8',],
@@ -290,9 +297,9 @@ class Xtraction(object):
         This function uses the files in self.art_lst which looks like:
         ['1804/',
          '1804/1804.01586.gz',
-          '1804/1804.01592.gz',
-           '1804/1804.01583.gz',
-            '1804/1804.01585.gz',
+         '1804/1804.01592.gz',
+         '1804/1804.01583.gz',
+         '1804/1804.01585.gz',
         to get the metadata.
         The advantage of this approach is that we can get the magic of the function directly
         '''
@@ -311,6 +318,7 @@ class Xtraction(object):
                             if snd_magic.mime_type == 'application/x-tar':
                                 with tarfile.open(fileobj=unzipped_file) as tars:
                                     print("     * There are ", len(tars.getmembers()), 'items')
+                                    tars.extractall(path='../rm_me/pinga')
                     except gzip.BadGzipFile:
                         print('gave me badgzipfile')
                 print(' ')
@@ -320,54 +328,59 @@ class Xtraction(object):
         '''
         Extract the file in self.tarfile to output_dir
         '''
-        f_lst = self.filter_MSC(term) 
         ff = tarfile.open(self.tar_path) #open the .tar file once
-        for filename in f_lst:
+        for fileinfo in ff.getmembers()[1:]:
+            filename = fileinfo.name
             print("\033[K",end='') 
             print('writing file %s               \r'%filename, end='\r')
-            if self.format_found == 1:
-                short_name = tar2api(filename) # format 1804.00000
-            elif self.format_found == 2:
-                # format 0703/math0703071.gz turn into math.0703071
-                short_name = tar2api2(filename, sep='.') 
-            else:
-                raise Exception('short_name will not be \
-                        defined because no format was found')
+
+            #import pdb; pdb.set_trace()
+            short_name = Tar2api(filename, sep='.')
+
             commentary_dict = { 'tar_file': os.path.basename(self.tar_path) }
             output_path = os.path.join(self.path_dir(output_dir), short_name)
             os.mkdir(output_path)
-            try:
-                file_gz = ff.extractfile(filename + '.gz')
-                with gzip.open(file_gz,'rb') as fgz:
-                    file_str = fgz.read()
-                try:
-                    # if the subtar is another tar then extractfile 
-                    # will be successfull
-                    with tarfile.open(self.tar_path) as fb:
-                        tar2 = fb.extractfile(filename + '.gz')
-                        with tarfile.open(fileobj=tar2) as tars:
-                            tars.extractall(path=output_path)
-                            commentary_dict['extraction_tool'] = 'tarfile'
-                except tarfile.ReadError:   
-                    # this means tarfile is not a tar so we try to decode it
-                    try:
-                        decoded_str, comm_dict = self.decoder(file_str,
-                                filename)
-                        commentary_dict = {**commentary_dict,**comm_dict}
-                    except UnicodeDecodeError as ee:
-                        commentary_dict['decode_error'] = str(ee)
-                        decoded_str = 'Empty file goes here'
-                    #write_dict({**commentary_dict,**comm_dict},
-                    #os.path.join(output_path, 'commentary.txt'))
-                    with open(os.path.join(output_path,
-                        short_name + '.tex'),'w') as fname:
-                        fname.write(decoded_str)
-            except KeyError:
-                #if the file is .pdf there is no tex and we don't care about it
+
+            # If file is pdf we don't care about it
+            if '.pdf' in filename:
                 matching_filenames = [n for n in self.art_lst if filename in n]
-                out_mess = 'Check if file %s is pdf only'%matching_filenames 
-                commentary_dict['KeyError'] = out_mess
-                #return True
+                out_mess = 'pdf file, omitting'%matching_filenames 
+                commentary_dict['file_error'] = out_mess
+            else:
+                file_gz = ff.extractfile(filename)
+                gz_magic = magic.detect_from_content(file_gz.read(2048))
+                file_gz.seek(0)
+                
+                # With the magic info of the file we can tell if it is pdf only or .cry encrypted
+                # TODO improve this with a regex
+                if '.tex.cry"' in gz_magic.name:
+                    matching_filenames = [n for n in self.art_lst if filename in n]
+                    out_mess = '.tex.cry file found'%matching_filenames 
+                    commentary_dict['file_error'] = out_mess
+
+                else:
+                    with gzip.open(file_gz,'rb') as fgz:
+                        snd_magic = magic.detect_from_content(fgz.read(2048))
+                        fgz.seek(0)
+                        # if the filename stands for a directory
+                        if snd_magic.mime_type == 'application/x-tar':
+                            with tarfile.open(fileobj=fgz) as fb:
+                                fb.extractall(path=output_path)
+                                commentary_dict['extraction_tool'] = 'tarfile'
+                        else: 
+                        # the file is not a tar so try to decode it
+                            try:
+                                file_str = fgz.read()
+                                decoded_str, comm_dict = self.decoder(file_str,
+                                        filename)
+                                commentary_dict = {**commentary_dict,**comm_dict}
+                            except UnicodeDecodeError as ee:
+                                commentary_dict['decode_error'] = str(ee)
+                                decoded_str = 'Empty file goes here'
+
+                            with open(os.path.join(output_path,
+                                short_name + '.tex'),'w') as fname:
+                                fname.write(decoded_str)
             write_dict(commentary_dict, os.path.join(output_path, 'commentary.txt'))
         ff.close()
         print('successful extraction of  %s      '%os.path.basename(self.tar_path))
