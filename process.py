@@ -284,7 +284,7 @@ class Xtraction(object):
             decoded_str = file_str.decode()
         return decoded_str, commentary_dict
 
-    def extract_magic(self, tar_path):
+    def extract_magic(self):
         '''
         Instead of using the metadata to figure out what files to extract
         This function uses the files in self.art_lst which looks like:
@@ -296,7 +296,7 @@ class Xtraction(object):
         to get the metadata.
         The advantage of this approach is that we can get the magic of the function directly
         '''
-        with tarfile.open('tar_path') as ff:
+        with tarfile.open(self.tar_path) as ff:
             for fi in ff.getmembers()[1:]:
                 fobj = ff.extractfile(fi.name)
                 the_magic = magic.detect_from_content(fobj.read(2048))
