@@ -284,7 +284,7 @@ class Xtraction(object):
             decoded_str = file_str.decode()
         return decoded_str, commentary_dict
 
-    def extract_magic(self):
+    def extract_magic(self, tar_path):
         '''
         Instead of using the metadata to figure out what files to extract
         This function uses the files in self.art_lst which looks like:
@@ -296,6 +296,25 @@ class Xtraction(object):
         to get the metadata.
         The advantage of this approach is that we can get the magic of the function directly
         '''
+        with tarfile.open('tar_path') as ff:
+            for fi in ff.getmembers()[1:]:
+                fobj = ff.extractfile(fi.name)
+                the_magic = magic.detect_from_content(fobj.read(2048))
+                fobj.seek(0)
+                print(fi.name,the_magic.name)
+                if 'gzip compressed' in the_magic.name:
+                    try:
+                        with gzip.open(fobj,'rb') as unzipped_file:
+                            snd_magic = magic.detect_from_content(unzipped_file.read(2048))
+                            unzipped_file.seek(0)
+                            print("     *", snd_magic.name)
+                            if snd_magic.mime_type == 'application/x-tar':
+                                with tarfile.open(fileobj=unzipped_file) as tars:
+                                    print("     * There are ", len(tars.getmembers()), 'items')
+                    except gzip.BadGzipFile:
+                        print('gave me badgzipfile')
+                print(' ')
+
 
     def extract_tar(self, output_dir, term):
         '''
