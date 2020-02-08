@@ -181,8 +181,10 @@ class Xtraction(object):
         self.format_found, self.format_regex = detect_format(self.art_lst[1])
         if self.format_found == 1:
             query_id_list = list(map(tar2api, self.art_lst[1:]))
+            self.tar2api = tar2api
         elif self.format_found == 2:
             query_id_list = list(map(tar2api2, self.art_lst[1:]))
+            self.tar2api = tar2api2
         else:
             raise Exception('Could not determine format of %s'%self.art_lst[:5])
 
@@ -291,38 +293,6 @@ class Xtraction(object):
             decoded_str = file_str.decode()
         return decoded_str, commentary_dict
 
-    def extract_magic(self):
-        '''
-        Instead of using the metadata to figure out what files to extract
-        This function uses the files in self.art_lst which looks like:
-        ['1804/',
-         '1804/1804.01586.gz',
-         '1804/1804.01592.gz',
-         '1804/1804.01583.gz',
-         '1804/1804.01585.gz',
-        to get the metadata.
-        The advantage of this approach is that we can get the magic of the function directly
-        '''
-        with tarfile.open(self.tar_path) as ff:
-            for fi in ff.getmembers()[1:]:
-                fobj = ff.extractfile(fi.name)
-                the_magic = magic.detect_from_content(fobj.read(2048))
-                fobj.seek(0)
-                print(fi.name,the_magic.name)
-                if 'gzip compressed' in the_magic.name:
-                    try:
-                        with gzip.open(fobj,'rb') as unzipped_file:
-                            snd_magic = magic.detect_from_content(unzipped_file.read(2048))
-                            unzipped_file.seek(0)
-                            print("     *", snd_magic.name)
-                            if snd_magic.mime_type == 'application/x-tar':
-                                with tarfile.open(fileobj=unzipped_file) as tars:
-                                    print("     * There are ", len(tars.getmembers()), 'items')
-                                    tars.extractall(path='../rm_me/pinga')
-                    except gzip.BadGzipFile:
-                        print('gave me badgzipfile')
-                print(' ')
-
 
     def extract_tar(self, output_dir, term):
         '''
@@ -335,7 +305,7 @@ class Xtraction(object):
             print('writing file %s               \r'%filename, end='\r')
 
             #import pdb; pdb.set_trace()
-            short_name = Tar2api(filename, sep='.')
+            short_name = self.tar2api(filename, sep='.')
 
             commentary_dict = { 'tar_file': os.path.basename(self.tar_path) }
             output_path = os.path.join(self.path_dir(output_dir), short_name)
@@ -350,7 +320,7 @@ class Xtraction(object):
                 file_gz = ff.extractfile(filename)
                 gz_magic = magic.detect_from_content(file_gz.read(2048))
                 file_gz.seek(0)
-                
+
                 # With the magic info of the file we can tell if it is pdf only or .cry encrypted
                 # TODO improve this with a regex
                 if '.tex.cry"' in gz_magic.name:
