@@ -63,7 +63,7 @@ def detect_format(id_str):
         return None
 
 
-def tar2api(id_str):
+def tar2api(id_str, **kwargs):
     '''
     The name of the files when untared has the format:
     '1804/1804.00020.gz', '1804/1804.00239.gz', '1804/1804.00127.gz', '1804/1804.00197.gz'
@@ -294,7 +294,7 @@ class Xtraction(object):
         return decoded_str, commentary_dict
 
 
-    def extract_tar(self, output_dir, term):
+    def extract_tar(self, output_dir, *args):
         '''
         Extract the file in self.tarfile to output_dir
         '''
@@ -337,7 +337,7 @@ class Xtraction(object):
                             with tarfile.open(fileobj=fgz) as fb:
                                 fb.extractall(path=output_path)
                                 commentary_dict['extraction_tool'] = 'tarfile'
-                        else: 
+                        else:
                         # the file is not a tar so try to decode it
                             try:
                                 file_str = fgz.read()
