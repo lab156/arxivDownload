@@ -18,7 +18,7 @@ tmp.ps
 
 #databases 
 #Gotta keep all databases with this extension
-*.db
+#*.db need to include a test database
 
 # beamer presentation files
 *.aux

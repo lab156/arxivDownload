@@ -29,6 +29,12 @@ def api2tar(id_str,format_int):
      '0701/cond-mat0701699.gz',
       '0701/cond-mat0701700.gz',
        '0701/cond-mat0701701.gz',
+    >>> api2tar('http://arxiv.org/abs/1804.00018v1',1)
+    '1804/1804.00018'
+    >>> api2tar('http://arxiv.org/abs/1804.0018v1',1)
+    '1804/1804.0018'
+    >>> api2tar('http://arxiv.org/abs/math/0303001v7',2)
+    '0303/math0303001'
     '''
     try:
         if format_int == 1:
@@ -176,15 +182,17 @@ class Xtraction(object):
             raise(ValueError('There is no file at %s'%tar_path))
         print('untaring file: %s    \r'%tar_path,end='\r')
         with tarfile.open(tar_path) as fa:
-            self.art_lst = [k.get_info()['name'] for k in fa.getmembers()]
+            self.art_lst = [k.get_info()['name'] for k in fa.getmembers()][1:]
 
         self.format_found, self.format_regex = detect_format(self.art_lst[1])
         if self.format_found == 1:
-            query_id_list = list(map(tar2api, self.art_lst[1:]))
+            query_id_list = list(map(tar2api, self.art_lst))
             self.tar2api = tar2api
+            self.api2tar = lambda name : api2tar(name,1)
         elif self.format_found == 2:
-            query_id_list = list(map(tar2api2, self.art_lst[1:]))
+            query_id_list = list(map(tar2api2, self.art_lst))
             self.tar2api = tar2api2
+            self.api2tar = lambda name : api2tar(name,2)
         else:
             raise Exception('Could not determine format of %s'%self.art_lst[:5])
 
@@ -193,20 +201,23 @@ class Xtraction(object):
         if self.db_path:
             basename = self.tar_path.split('/')[-1]
             right_name = 'src/' + basename
-            engine = sa.create_engine(database, echo=False)
+            engine = sa.create_engine(self.db_path, echo=False)
             engine.connect()
             SMaker = sa.orm.sessionmaker(bind=engine)
             session = SMaker()
             q = session.query(cre.ManifestTarFile)
             resu = q.filter_by(filename = right_name)
             foreign_key_id = resu.first().id
-            # TODO query the database self.db for all the articles in this tar file
-            # and fill the variable self.query_results
 
+            Q_lst = session.query(cre.Article).filter(cre.Article.tarfile_id == foreign_key_id).all()
+            self.query_results = []
+            for q in Q_lst:
+                q_dict = {}
+                q_dict['id'] = q.id
+                q_dict['tags'] = eval(q.tags)
+                q_dict['arxiv_primary_category'] = q_dict['tags'][0]
+                self.query_results.append(q_dict)
 
-            #session.add_all([cre.new_article_register(D, foreign_key_id)\
-            #        for D in self.query_results])
-            #session.commit()
         else:
             print("\033[K",end='')
             print('querying the arxiv \r',end='\r')
@@ -244,6 +255,21 @@ class Xtraction(object):
                     for d in self.query_results if d['tags'][0]['term']==MSC]
         else:
             return [d for d in self.query_results if d['tags'][0]['term']==MSC]
+
+    def filter_arxiv_meta(self, *args):
+        '''
+        return a list of the name of all the tar file member names ex. 0303/math0303004.gz
+        whose tag value contains the string name
+        ** This function assumes that all the query results from the API
+        have an arxiv_primary_category entry will fail otherwise
+        '''
+        ind_lst = []
+        for ind, q in enumerate(self.query_results):
+            tag_value = q['arxiv_primary_category']['term']
+            if any([term in tag_value for term in args]):
+                ind_lst.append(ind)
+
+        return [self.art_lst[index] for index in ind_lst]
 
     def path_dir(self, output_dir):
         '''
@@ -297,14 +323,18 @@ class Xtraction(object):
     def extract_tar(self, output_dir, *args):
         '''
         Extract the file in self.tarfile to output_dir
+        Optional argument 'term': string with term in the arxiv_primary_category to extract
         '''
+        if args == () or 'all' == args[0]:
+            loop_filenames = self.art_lst
+        else:
+            loop_filenames = self.filter_arxiv_meta(*args)
+
         ff = tarfile.open(self.tar_path) #open the .tar file once
-        for fileinfo in ff.getmembers()[1:]:
-            filename = fileinfo.name
+        for filename in loop_filenames:
             print("\033[K",end='') 
             print('writing file %s               \r'%filename, end='\r')
 
-            #import pdb; pdb.set_trace()
             short_name = self.tar2api(filename, sep='.')
 
             commentary_dict = { 'tar_file': os.path.basename(self.tar_path) }
@@ -313,8 +343,7 @@ class Xtraction(object):
 
             # If file is pdf we don't care about it
             if '.pdf' in filename:
-                matching_filenames = [n for n in self.art_lst if filename in n]
-                out_mess = 'pdf file, omitting'%matching_filenames 
+                out_mess = 'pdf file, omitting %s'%filename
                 commentary_dict['file_error'] = out_mess
             else:
                 file_gz = ff.extractfile(filename)
@@ -324,8 +353,7 @@ class Xtraction(object):
                 # With the magic info of the file we can tell if it is pdf only or .cry encrypted
                 # TODO improve this with a regex
                 if '.tex.cry"' in gz_magic.name:
-                    matching_filenames = [n for n in self.art_lst if filename in n]
-                    out_mess = '.tex.cry file found'%matching_filenames 
+                    out_mess = '.tex.cry file found %s'%filename 
                     commentary_dict['file_error'] = out_mess
 
                 else:
@@ -378,7 +406,6 @@ class Xtraction(object):
         output_path = os.path.join(self.path_dir(output_dir), short_name)
         os.mkdir(output_path)
         ff = tarfile.open(self.tar_path)
-        #import pdb; pdb.set_trace()
         try:
             file_gz = ff.extractfile(filename+'.gz')
         except KeyError:
@@ -437,6 +464,7 @@ class Xtraction(object):
         write_dict(commentary_dict, os.path.join(output_path, 'commentary.txt'))
         return True
 
+
     def extract_str(self, filename):
         '''
         given filename, extract a file with that name from
@@ -453,7 +481,7 @@ class Xtraction(object):
         Save all the articles from query_results to 
         the database
         Example: x.save_articles_to_db('sqlite:///arxiv1.db')
-        where x is an Xtraction object
+        where x is an Xtraction instance
         '''
         #Get the basename
         basename = self.tar_path.split('/')[-1]

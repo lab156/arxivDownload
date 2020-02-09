@@ -18,7 +18,7 @@ class TestXtraction1(unittest.TestCase):
         cls.x2.extract_tar(cls.check_dir2, 'all')
 
     def test_sliced_article_query_slices(self):
-        correct_lst = list(map(self.x.tar2api, self.x.art_lst[1:]))
+        correct_lst = list(map(self.x.tar2api, self.x.art_lst))
         q_lst = sliced_article_query(correct_lst, slice_length=3)
         q_lst2 = sliced_article_query(correct_lst, slice_length=5)
         self.assertEqual(9, len(q_lst))
@@ -31,8 +31,8 @@ class TestXtraction1(unittest.TestCase):
             self.assertIn('id', q.keys())
 
     def test_info_on_every_article(self):
-        self.assertEqual(len(self.x.query_results), len(self.x.art_lst)-1, msg="some queries are missing")
-        self.assertEqual(len(self.x2.query_results), len(self.x2.art_lst)-1, msg="some queries are missing")
+        self.assertEqual(len(self.x.query_results), len(self.x.art_lst), msg="some queries are missing")
+        self.assertEqual(len(self.x2.query_results), len(self.x2.art_lst), msg="some queries are missing")
 
     def test_extract_tar_list(self):
         list1 = ['math.0303001',
@@ -45,6 +45,14 @@ class TestXtraction1(unittest.TestCase):
                  'math.0303008',
                  'math.0303009', ]
         self.assertSetEqual(set(list1), set(os.listdir(self.check_dir)))
+
+    def test_filter_arxiv_meta(self):
+        self.assertEqual(len(self.x.art_lst), len(self.x.filter_arxiv_meta('math')))
+        self.assertEqual(set(['0303/math0303004.gz', '0303/math0303008.gz', '0303/math0303006.gz']),
+                set(self.x.filter_arxiv_meta('math.AP')))
+        self.assertEqual(4, len(self.x2.filter_arxiv_meta('physics')))
+        self.assertEqual(2, len(self.x2.filter_arxiv_meta('cs.NA', 'cs.DS')))
+
 
     def test_extract_tar_list2(self):
         list1 = ['1804.01586',
