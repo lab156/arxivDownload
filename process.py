@@ -501,17 +501,33 @@ class Xtraction(object):
 
 
 if __name__ == '__main__':
-    file_lst = sys.argv[1:-1]
-    for f_path in file_lst:
-        x = Xtraction(f_path)
-        x.extract_tar(sys.argv[-1], 'math.AP')
+    '''
+    usage python[3] process.py tar_file_path... outdir [--term math.AG...] [--db database]
 
-#    for f_path in file_lst:
-#        print('starting extraction of  %s         \r'%os.path.basename(f_path),end='\r')
-#        x = Xtraction(f_path)
-#        f_lst = x.filter_MSC('math.AG')
-#        for f in f_lst:
-#            print("\033[K",end='')
-#            print('writing file %s               \r'%f,end='\r')
-#            x.extract_any(f, sys.argv[-1])
-#        print('successful extraction of  %s      '%os.path.basename(f_path))
+    The optional database to use instead of downloading with the API
+    '''
+    import argparse
+    parser = argparse.ArgumentParser(description='parsing xml commandline script')
+    parser.add_argument('tarpath', type=str, nargs='+',
+            help='Path to the arXiv source tar file ex. arXiv_src_1804_004.tar')
+    parser.add_argument('outdir', type=str,
+            help='Path to the arXiv source tar file ex. arXiv_src_1804_004.tar')
+    parser.add_argument('--term', type=str, nargs='+', default=['all'],
+            help='terms to filter out ex. math.AG, math.AP')
+    parser.add_argument('--db', type=str, default=None,
+            help='path of the database to get the metadata do not include the sqlite:/// part')
+    args = parser.parse_args(sys.argv[1:])
+
+    print('Tar paths are:', args.tarpath)
+    print('Outdir is:    ', args.outdir)
+    print('Terms are:    ', args.term)
+    print('Database path is:', args.db)
+
+    for T in args.tarpath:
+        if args.db:
+            X = Xtraction(T, db='sqlite:///' + args.db)
+        else:
+            X = Xtraction(T)
+        print("\033[K",end='')
+        print('writing file %s               \r'%T,end='\r')
+        X.extract_tar(args.outdir, *(args.term))
