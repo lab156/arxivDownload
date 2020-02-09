@@ -18,6 +18,8 @@
 * process.py
     * Xtraction class reads and extracts a arXiv tar files.
     * Querying the arxiv metadata with the arxiv API and the arxiv.py package
+    * Xtraction(tarfilename, db='sqlite:///pathdb') to read metadata from a database instead of api
+    * Writing arxiv metadata to a database.
 
 
 ### Queries

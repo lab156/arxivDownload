@@ -2,20 +2,39 @@ import unittest
 import os
 import sys
 import shutil
+import sqlalchemy as sa
+from sqlalchemy.orm import sessionmaker
 from process import Xtraction, sliced_article_query
+import databases.create_db_define_models as cre
 
 class TestXtraction1(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.f_path = 'tests/minitest.tar'
         cls.f_path2 = 'tests/minitest2.tar'
+        cls.f_path3 = 'tests/minitest3.tar'   # sample from 1403_001
         cls.check_dir = os.path.join(os.path.curdir,'check_test')
         cls.check_dir2 = os.path.join(os.path.curdir,'check_test2')
         cls.check_dir3 = os.path.join(os.path.curdir,'check_test3')
         cls.x = Xtraction(cls.f_path)
+        cls.xdb = Xtraction(cls.f_path, db='sqlite:///tests/test.db')
         cls.x.extract_tar(cls.check_dir)
         cls.x2 = Xtraction(cls.f_path2)
+        cls.xdb2 = Xtraction(cls.f_path2, db='sqlite:///tests/test.db')
         cls.x2.extract_tar(cls.check_dir2, 'all')
+        cls.x3 = Xtraction(cls.f_path3)
+
+    def test_save_articles_to_db(self):
+        self.x3.save_articles_to_db('sqlite:///tests/test.db')
+        x3db = Xtraction(self.f_path3, db='sqlite:///tests/test.db')
+        self.assertEqual(['1403/1403.0035.pdf',
+                 '1403/1403.0040.gz',
+                 '1403/1403.0038.gz',
+                 '1403/1403.0039.gz',
+                 '1403/1403.0037.gz',
+                 '1403/1403.0036.pdf'],
+                 x3db.art_lst,
+                 msg='this means that the save_articles_to_db did no store the files correctly')
 
     def test_sliced_article_query_slices(self):
         correct_lst = list(map(self.x.tar2api, self.x.art_lst))
@@ -46,13 +65,19 @@ class TestXtraction1(unittest.TestCase):
                  'math.0303009', ]
         self.assertSetEqual(set(list1), set(os.listdir(self.check_dir)))
 
-    def test_filter_arxiv_meta(self):
+    def test_filter_arxiv_meta_api(self):
         self.assertEqual(len(self.x.art_lst), len(self.x.filter_arxiv_meta('math')))
         self.assertEqual(set(['0303/math0303004.gz', '0303/math0303008.gz', '0303/math0303006.gz']),
                 set(self.x.filter_arxiv_meta('math.AP')))
         self.assertEqual(4, len(self.x2.filter_arxiv_meta('physics')))
         self.assertEqual(2, len(self.x2.filter_arxiv_meta('cs.NA', 'cs.DS')))
 
+    def test_filter_arxiv_meta_db(self):
+        self.assertEqual(len(self.xdb.art_lst), len(self.xdb.filter_arxiv_meta('math')))
+        self.assertEqual(set(['0303/math0303004.gz', '0303/math0303008.gz', '0303/math0303006.gz']),
+                set(self.xdb.filter_arxiv_meta('math.AP')))
+        self.assertEqual(4, len(self.xdb2.filter_arxiv_meta('physics')))
+        self.assertEqual(2, len(self.xdb2.filter_arxiv_meta('cs.NA', 'cs.DS')))
 
     def test_extract_tar_list2(self):
         list1 = ['1804.01586',
@@ -146,3 +171,10 @@ class TestXtraction1(unittest.TestCase):
         shutil.rmtree(cls.check_dir)
         shutil.rmtree(cls.check_dir2)
         #shutil.rmtree(cls.check_dir3)
+
+        eng = sa.create_engine('sqlite:///tests/test.db', echo=True)
+        eng.connect()
+        SMaker = sessionmaker(bind=eng)
+        sess = SMaker()
+        sess.query(cre.Article).filter(cre.Article.tarfile_id == 5).delete(synchronize_session='fetch')
+        sess.commit()
