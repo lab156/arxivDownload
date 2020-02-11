@@ -12,10 +12,11 @@ class TestXtraction1(unittest.TestCase):
     def setUpClass(cls):
         cls.f_path = 'tests/minitest.tar'
         cls.f_path2 = 'tests/minitest2.tar'
-        cls.f_path3 = 'tests/minitest3.tar'   # sample from 1403_001
+        cls.f_path3 = 'tests/minitest3.tar'   # sample from tarfile 1403_001
         cls.check_dir = os.path.join(os.path.curdir,'check_test')
         cls.check_dir2 = os.path.join(os.path.curdir,'check_test2')
         cls.check_dir3 = os.path.join(os.path.curdir,'check_test3')
+        cls.check_dir4 = os.path.join(os.path.curdir,'check_test4')
         cls.x = Xtraction(cls.f_path)
         cls.xdb = Xtraction(cls.f_path, db='sqlite:///tests/test.db')
         cls.x.extract_tar(cls.check_dir)
@@ -42,6 +43,9 @@ class TestXtraction1(unittest.TestCase):
         q_lst2 = sliced_article_query(correct_lst, slice_length=5)
         self.assertEqual(9, len(q_lst))
         self.assertEqual(9, len(q_lst2))
+
+    def test_extract_article_by_name(self):
+
 
     def test_metadata_on_all_articles(self):
         for q in self.x.query_results:

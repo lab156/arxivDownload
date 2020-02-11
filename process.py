@@ -320,15 +320,27 @@ class Xtraction(object):
         return decoded_str, commentary_dict
 
 
-    def extract_tar(self, output_dir, *args):
+    def extract_tar(self, output_dir, *args, **kwargs):
         '''
         Extract the file in self.tarfile to output_dir
         Optional argument 'term': string with term in the arxiv_primary_category to extract
+        Examples for term: `math.AG`, `math` , `physics` etc
+
+        keyword article_name = string 
+        where string is contained in the self.art_lst
+        Ex. article_name='1703.01305'
+        This option overrides all others
+
         '''
         if args == () or 'all' == args[0]:
             loop_filenames = self.art_lst
         else:
             loop_filenames = self.filter_arxiv_meta(*args)
+
+        art_name = kwargs.get('article_name', None)
+        if art_name:
+            # Select the name of articles in the tar file that contain a art_name as a subtring
+            loop_filenames = [name for name in self.art_lst if art_name in name]
 
         ff = tarfile.open(self.tar_path) #open the .tar file once
         for filename in loop_filenames:
