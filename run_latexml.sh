@@ -9,11 +9,11 @@
 #Define the LaTeXML binary file to run by sourcing the config file
 # This define the variable latexml_bin
 source <(grep ^LATEXML_BIN "$PWD/config.toml")
-echo "latexml_bin file is: $PWD"
+echo "latexml_bin file is: $LATEXML_BIN"
 
 #The maximum amount of time in seconds that LaTeXML is
 #allowed to run (seconds)
-MAXT=1200
+source <(grep ^MAXT "$PWD/config.toml")
 
 for article_dir in "$@"
 do
@@ -27,7 +27,7 @@ do
 	    echo "Running LaTeXML on the file " $f
 	    COMMENTARY_FILE=${f%/*}/commentary.txt 
 	    echo "main .tex file" $(basename $f) >> $COMMENTARY_FILE
-	    timeout $MAXT  $LATEXML_BIN $f  2>${f%/*}/latexml_errors_mess.txt > ${f%.*}.xml 
+	    timeout $MAXT  $LATEXML_BIN $f --noparse 2>${f%/*}/latexml_errors_mess.txt > ${f%.*}.xml 
 	    if [ $? -eq 124 ]; then
 		    echo "Timeout Occured with file $f"
 		    echo "Timeout of $MAXT seconds occured" >> $COMMENTARY_FILE

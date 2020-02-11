@@ -5,8 +5,8 @@
 #     text_representation:
 #       extension: .py
 #       format_name: light
-#       format_version: '1.4'
-#       jupytext_version: 1.1.1
+#       format_version: '1.5'
+#       jupytext_version: 1.3.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -103,6 +103,7 @@ word_map = map(lemmatizer.lemmatize, word_flt)
 
 count = col.Counter(word_map)
 
+# + jupyter={"outputs_hidden": true}
 for ph in count.most_common()[:300]:
     text = ph[0]
     freq = ph[1]

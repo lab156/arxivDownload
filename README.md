@@ -8,6 +8,12 @@
     * using the dload.py script and its objects
     * basic usage of the arxiv API package
     * very disorganized, mostly scratch work
+* Time stats check output and logs.ipynb
+    * code to read and interpret latexml log files
+    * plot time of latexml processing
+* getting problem articles for latexml.ipynb
+    * Identify articles that are not included in the arxmliv database 
+    * Try to process these problematic articles with either removing environments or with LaTeXTual
 
 ## Scripts
 * update_db.py

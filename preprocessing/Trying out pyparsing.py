@@ -5,8 +5,8 @@
 #     text_representation:
 #       extension: .py
 #       format_name: light
-#       format_version: '1.4'
-#       jupytext_version: 1.1.1
+#       format_version: '1.5'
+#       jupytext_version: 1.3.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -18,9 +18,12 @@ from pyparsing import \
         printables, ParseException, restOfLine, empty, \
         Combine, nums, alphanums, Suppress, SkipTo, Forward, printables, alphas, oneOf
 import pprint
-import prepro as pp
 import glob
 import os
+
+# %load_ext autoreload
+# %autoreload 2
+import prepro as pp
 
 #ssn ::= num+ '-' num+ '-' num+
 #num ::= '0' | '1' | '2' etc
@@ -31,53 +34,6 @@ ssn = Combine(Word(nums, exact=3) +
 target = '123-45-6789'
 result = ssn.parseString(target)
 print(result)
-
-
-# +
-def patt(cs):
-    '''
-   Remove the cs with its arguments 
-   with recursion on curly brackets
-    '''
-    cs_literal = Literal(cs).suppress()
-    bslash = Literal('\\').suppress()
-    lbrace = Literal('{').suppress()
-    rbrace = Literal('}').suppress()
-    parens = Word("()%\\")
-    inside = SkipTo(rbrace)
-    allchars = Word(printables, excludeChars="{}")
-    inside = ZeroOrMore(allchars)
-    inside.setParseAction(lambda tok: " ".join(tok))
-    content = Forward()
-    content << OneOrMore(allchars|(lbrace + ZeroOrMore(content) + rbrace))
-    #content << (allchars + lbrace + ZeroOrMore(content) + rbrace)
-    content.setParseAction(lambda tok: " ".join(tok))
-
-    return bslash + cs_literal + lbrace + content + rbrace
-
-class CommandCleaner:
-    def __init__(self, *xargs, **kwargs):
-        '''
-       *package* is the package name: ex "xy" 
-       *environments* is a list of the environments provided by the package:
-           [ "xyenvirons", ]
-        *standalones* is a list of macros that the package also provides:
-           [ "xymatrix" ]
-        '''
-        if xargs:
-            self.pattern = patt(xargs[0])
-    
-    def show_matches(self, docum):
-        '''
-        Print the matches
-        '''
-        return self.pattern.searchString(docum)
-    
-    def del_matches(self, docum):
-        pass
-    
-        
-# -
 
 cc = CommandCleaner('xymatrix')
 cc.show_matches(short_example)[0][0]
@@ -168,10 +124,10 @@ for t in tests:
 
 with open('../tests/tex_files/reinhardt/reinhardt-optimal-control.tex', 'r') as rein_file:
     rein = rein_file.read()
-with open('../tests/tex_files/short_xymatrix_example.tex') as xymatrix_file:
-    short_example = xymatrix_file.read()
-with open('../../stacks-tests/orig/perfect.tex') as xymatrix_file:
-    stacks_example = xymatrix_file.read()
+#with open('../tests/tex_files/short_xymatrix_example.tex') as xymatrix_file:
+#    short_example = xymatrix_file.read()
+#with open('../../stacks-tests/orig/perfect.tex') as xymatrix_file:
+#    stacks_example = xymatrix_file.read()
 
 # +
 cstikzfig = oneOf(["\\tikzfig", "\\mathcal"]).suppress()
@@ -213,11 +169,18 @@ for k,r in enumerate(search_res):
     #name, expl = r #print(k, ' ',name,' -- ', expl[:15],'...',expl[-15:])
     print(r)
 clean_str
-# -
 
+# + jupyter={"outputs_hidden": true}
 cc = pp.CommandCleaner('underline').del_matches(short_example)
 print(cc)
+# -
 
+cleaner = pp.CommandCleaner('tikzfig')
+clean_str = cleaner.del_matches(rein)
+with open('../data/clean_rein_rm/reinhardt-optimal-control.tex', 'w') as r_file:
+    r_file.write(clean_str)
+
+# + jupyter={"outputs_hidden": true}
 Cleaner = pp.CommandCleaner('xymatrix')
 for tex_file in glob.glob('../../stacks-project/*.tex'):
     with open(tex_file, 'r') as tex_o_file:
@@ -226,9 +189,3 @@ for tex_file in glob.glob('../../stacks-project/*.tex'):
     with open('../../stacks-clean/' + basename, 'w') as clean_file:
         print('Writing file: ' + basename)
         clean_file.write(clean_str)
-
-for tex_file in glob.glob('../../stacks-project/*.tex'):
-    p = os.path.basename(tex_file)
-    print(p)
-
-
