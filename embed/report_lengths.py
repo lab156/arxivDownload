@@ -4,7 +4,7 @@ import sys
 from math import floor
 from collections import OrderedDict as odict
 
-def generate(vec_dict):
+def generate(vect_dict):
     '''
     get a sample of approximately N words out of the vector file
     '''
