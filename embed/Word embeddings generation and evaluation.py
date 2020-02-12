@@ -26,6 +26,10 @@ sample_dict = {str(p): -p for p in range(5)}
 ordered = generate(sample_dict)
 
 for o in ordered:
-    print(o[])
+    print(o,ordered[o])
 
-sample_dict.values()
+"{:<10} {}".format('hola', 3)
+
+np.abs(np.array([1,-.3,4]))/0.5
+
+
