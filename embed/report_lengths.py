@@ -2,8 +2,9 @@ import argparse
 import numpy as np
 import sys
 from math import floor
+from collections import OrderedDict as odict
 
-def generate(vectors_file, skip_n):
+def generate(lengths):
     '''
     get a sample of approximately N words out of the vector file
     '''
@@ -11,71 +12,21 @@ def generate(vectors_file, skip_n):
     # don't need the vocabulary
     #with open(args.vocab_file, 'r') as f:
     #    words = [x.rstrip().split(' ')[0] for x in f.readlines()]
-    with open(vectors_file, 'r') as f:
-        lengths = {}
-        for index, line in enumerate(f):
-            if index%skip_n == 0:
-                vals = line.rstrip().split(' ')
-                lengths[vals[0]] = np.sqrt(np.sum([np.float(x)**2 for x in vals[1:]]))
-
-    vocab_size = len(words)
-    vocab = {w: idx for idx, w in enumerate(words)}
-    ivocab = {idx: w for idx, w in enumerate(words)}
-
-    vector_dim = len(vectors[ivocab[0]])
-    W = np.zeros((vocab_size, vector_dim))
-    for word, v in vectors.items():
-        if word == '<unk>':
-            continue
-        W[vocab[word], :] = v
-
-    # normalize each word vector to unit variance
-    W_norm = np.zeros(W.shape)
-    d = (np.sum(W ** 2, 1) ** (0.5))
-    W_norm = (W.T / d).T
-    return (W_norm, vocab, ivocab)
-
-
-def distance(W, vocab, ivocab, input_term):
-    for idx, term in enumerate(input_term.split(' ')):
-        if term in vocab:
-            print('Word: %s  Position in vocabulary: %i' % (term, vocab[term]))
-            if idx == 0:
-                vec_result = np.copy(W[vocab[term], :])
-            else:
-                vec_result += W[vocab[term], :] 
-        else:
-            print('Word: %s  Out of dictionary!\n' % term)
-            return
-    
-    vec_norm = np.zeros(vec_result.shape)
-    d = (np.sum(vec_result ** 2,) ** (0.5))
-    vec_norm = (vec_result.T / d).T
-
-    dist = np.dot(W, vec_norm.T)
-
-    for term in input_term.split(' '):
-        index = vocab[term]
-        dist[index] = -np.Inf
-
-    a = np.argsort(-dist)[:N]
-
-    print("\n                               Word       Cosine distance\n")
-    print("---------------------------------------------------------\n")
-    for x in a:
-        print("%35s\t\t%f\n" % (ivocab[x], dist[x]))
-
+            
+    return odict(sorted(lengths.items(), key=lambda t: t[1]))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--vocab_file', default='vocab.txt', type=str)
+    parser.add_argument('--out_file', default='vocab.txt', type=str,
+            help='file to write the sorted lengths of the vectors')
     parser.add_argument('--vectors_file', default='vectors.txt', type=str)
+    parser.add_argument('--skip_n', default=1, type=int)
     args = parser.parse_args()
-    W, vocab, ivocab = generate()
-    while True:
-        input_term = raw_input("\nEnter word or sentence (EXIT to break): ")
-        if input_term == 'EXIT':
-            break
-        else:
-            distance(W, vocab, ivocab, input_term)
+    with open(args.vectors_file, 'r') as f:
+        lengths = {}
+        for index, line in enumerate(f):
+            if index%args.skip_n == 0:
+                vals = line.rstrip().split(' ')
+                lengths[vals[0]] = np.sqrt(np.sum([np.float(x)**2 for x in vals[1:]]))
+    sorted_dict = generate(lengths)
 
