@@ -29,4 +29,7 @@ if __name__ == "__main__":
                 vals = line.rstrip().split(' ')
                 lengths[vals[0]] = np.sqrt(np.sum([np.float(x)**2 for x in vals[1:]]))
     sorted_dict = generate(lengths)
+    with open(args.out_file, 'a') as out_f:
+        for o in sorted_dict:
+            out_f.write(o, sorted_dict[o])
 
