@@ -31,5 +31,5 @@ if __name__ == "__main__":
     sorted_dict = generate(lengths)
     with open(args.out_file, 'a') as out_f:
         for o in sorted_dict:
-            out_f.write(o, sorted_dict[o])
+            out_f.write("{:<15} {}\n".format(o, sorted_dict[o]))
 
