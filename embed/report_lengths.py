@@ -23,16 +23,17 @@ def generate(vect_dict):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('words', nargs='+')
     parser.add_argument('--out_file', default='vocab.txt', type=str,
             help='file to write the sorted lengths of the vectors')
     parser.add_argument('--vectors_file', default='vectors.txt', type=str)
-    parser.add_argument('--skip_n', default=1, type=int)
+    #parser.add_argument('--skip_n', default=1, type=int)
     args = parser.parse_args()
     with open(args.vectors_file, 'r') as f:
         vec_dict = {}
         for index, line in enumerate(f):
-            if index%args.skip_n == 0:
-                vals = line.rstrip().split(' ')
+            vals = line.rstrip().split(' ')
+            if vals[0] in args.words:
                 vec_dict[vals[0]] = np.array([np.float(k) for k in vals[1:]])
 
     sorted_dict = generate(vec_dict)
