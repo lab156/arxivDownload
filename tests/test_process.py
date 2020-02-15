@@ -20,9 +20,11 @@ class TestXtraction1(unittest.TestCase):
         cls.x = Xtraction(cls.f_path)
         cls.xdb = Xtraction(cls.f_path, db='sqlite:///tests/test.db')
         cls.x.extract_tar(cls.check_dir)
+        cls.xdb.extract_tar(cls.check_dir3, 'all', article_name='.*03\.gz$')
         cls.x2 = Xtraction(cls.f_path2)
         cls.xdb2 = Xtraction(cls.f_path2, db='sqlite:///tests/test.db')
         cls.x2.extract_tar(cls.check_dir2, 'all')
+        cls.x2.extract_tar(cls.check_dir4, 'all', article_name='^1804/1804\.0159.*')
         cls.x3 = Xtraction(cls.f_path3)
 
     def test_save_articles_to_db(self):
@@ -44,7 +46,6 @@ class TestXtraction1(unittest.TestCase):
         self.assertEqual(9, len(q_lst))
         self.assertEqual(9, len(q_lst2))
 
-    def test_extract_article_by_name(self):
 
 
     def test_metadata_on_all_articles(self):
@@ -68,6 +69,10 @@ class TestXtraction1(unittest.TestCase):
                  'math.0303008',
                  'math.0303009', ]
         self.assertSetEqual(set(list1), set(os.listdir(self.check_dir)))
+
+    def test_extract_tar_list_with_regex(self):
+        list1 = [ 'math.0303003',]
+        self.assertSetEqual(set(list1), set(os.listdir(self.check_dir3)))
 
     def test_filter_arxiv_meta_api(self):
         self.assertEqual(len(self.x.art_lst), len(self.x.filter_arxiv_meta('math')))
@@ -96,6 +101,13 @@ class TestXtraction1(unittest.TestCase):
                  '1804.01590',
                  '1804.01593',]
         self.assertSetEqual(set(list1), set(os.listdir(self.check_dir2)))
+
+    def test_extract_article_by_name_with_regex2(self):
+        list1 = ['1804.01592',
+                 '1804.01591',
+                 '1804.01590',
+                 '1804.01593',]
+        self.assertSetEqual(set(list1), set(os.listdir(self.check_dir4)))
 
     def test_extract_any_identify_pdf(self):
         with open(os.path.join(self.check_dir2,'1804.01587','commentary.txt'),'r') as tst_file:
@@ -174,7 +186,8 @@ class TestXtraction1(unittest.TestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.check_dir)
         shutil.rmtree(cls.check_dir2)
-        #shutil.rmtree(cls.check_dir3)
+        shutil.rmtree(cls.check_dir3)
+        shutil.rmtree(cls.check_dir4)
 
         eng = sa.create_engine('sqlite:///tests/test.db', echo=True)
         eng.connect()

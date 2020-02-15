@@ -63,6 +63,15 @@ for nm in prob_set:
     q_str = "%{}%".format(nm)
     print(sess.query(cre.Article.tarfile_id).filter(cre.Article.id.like(q_str)).all())
 
+# +
 prob_set
+
+def buscar(reg):
+    return [s for s in prob_set if re.match(reg, s)]
+
+buscar('.*76$')
+# -
+
+mini.art_lst
 
 

@@ -326,9 +326,9 @@ class Xtraction(object):
         Optional argument 'term': string with term in the arxiv_primary_category to extract
         Examples for term: `math.AG`, `math` , `physics` etc
 
-        keyword article_name = string 
-        where string is contained in the self.art_lst
-        Ex. article_name='1703.01305'
+        keyword article_name = r'string' 
+        where string is a regular expresion contained in the self.art_lst
+        Ex. article_name=r'^1703\.0137.*' (DON'T FORGET THE R AT THE START)
         This option overrides all others
 
         '''
@@ -340,7 +340,7 @@ class Xtraction(object):
         art_name = kwargs.get('article_name', None)
         if art_name:
             # Select the name of articles in the tar file that contain a art_name as a subtring
-            loop_filenames = [name for name in self.art_lst if art_name in name]
+            loop_filenames = [name for name in self.art_lst if re.match(art_name, name)]
 
         ff = tarfile.open(self.tar_path) #open the .tar file once
         for filename in loop_filenames:
