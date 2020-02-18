@@ -59,19 +59,14 @@ arxm_set = set([fun2(a) for a in art_lst])
 all_set = set([fun2(a[0]) for a in q_lst])
 prob_set = all_set.difference(arxm_set)
 
-for nm in prob_set:
+# Get the tar_id of each problem files
+id_set = set([])
+for nm in list(prob_set)[0]:
     q_str = "%{}%".format(nm)
-    print(sess.query(cre.Article.tarfile_id).filter(cre.Article.id.like(q_str)).all())
+    query_resu = sess.query(cre.Article).filter(cre.Article.id.like(q_str)).all()[0]
+    tar_resu = sess.query(cre.ManifestTarFile.id).filter(cre.ManifestTarFile.id == query_resu)
+    id_set.add(tar_resu[0])
 
-# +
 prob_set
 
-def buscar(reg):
-    return [s for s in prob_set if re.match(reg, s)]
-
-buscar('.*76$')
-# -
-
-mini.art_lst
-
-
+id_set
