@@ -75,4 +75,27 @@ for tar in id_dict:
 
 sess.query(cre.Article.id, cre.Article.tarfile_id).filter(cre.Article.id.like(q_str)).all()
 
+id_dict
+
+# ### This is the problem id dict:
+# defaultdict(list,
+#             {'src/arXiv_src_1703_003.tar': ['http://arxiv.org/abs/1703.01327v2',
+#               'http://arxiv.org/abs/1703.01306v2',
+#               'http://arxiv.org/abs/1703.01331v1',
+#               'http://arxiv.org/abs/1703.01314v1',
+#               'http://arxiv.org/abs/1703.01305v2'],
+#              'src/arXiv_src_1703_004.tar': ['http://arxiv.org/abs/1703.01399v1',
+#               'http://arxiv.org/abs/1703.01375v2',
+#               'http://arxiv.org/abs/1703.01396v2',
+#               'http://arxiv.org/abs/1703.01373v1',
+#               'http://arxiv.org/abs/1703.01379v3',
+#               'http://arxiv.org/abs/1703.01356v4',
+#               'http://arxiv.org/abs/1703.01357v3',
+#               'http://arxiv.org/abs/1703.01397v1',
+#               'http://arxiv.org/abs/1703.01395v1',
+#               'http://arxiv.org/abs/1703.01376v4',
+#               'http://arxiv.org/abs/1703.01352v1',
+#               'http://arxiv.org/abs/1703.01354v2',
+#               'http://arxiv.org/abs/1703.01378v1']})
+
 
