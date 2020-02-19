@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.0
+#       jupytext_version: 1.3.3
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -22,6 +22,8 @@ sys.path.insert(0,'arxiv.py/')
 import arxiv
 import databases.create_db_define_models as cre
 import re
+from collections import defaultdict
+from process import Xtraction
 
 def fun1(name):
     '''
@@ -47,7 +49,7 @@ with open('../find_start_1703.013.txt', 'r') as find_file:
     art_lst = find_file.readlines()
 
 # Connect to the metadata database in search of articles that contain the string: %1703.013%
-database = 'sqlite:///../arxiv2.db'
+database = 'sqlite:////mnt/databases/arxiv2.db'
 eng = sa.create_engine(database, echo=False)
 eng.connect()
 SMaker = sessionmaker(bind=eng)
@@ -60,13 +62,17 @@ all_set = set([fun2(a[0]) for a in q_lst])
 prob_set = all_set.difference(arxm_set)
 
 # Get the tar_id of each problem files
-id_set = set([])
-for nm in list(prob_set)[0]:
+id_dict = defaultdict(list)
+for nm in prob_set:
     q_str = "%{}%".format(nm)
-    query_resu = sess.query(cre.Article).filter(cre.Article.id.like(q_str)).all()[0]
-    tar_resu = sess.query(cre.ManifestTarFile.id).filter(cre.ManifestTarFile.id == query_resu)
-    id_set.add(tar_resu[0])
+    query_resu = sess.query(cre.Article.tarfile_id, cre.Article.id).filter(cre.Article.id.like(q_str)).all()[0]
+    tar_resu = sess.query(cre.ManifestTarFile.filename).filter(cre.ManifestTarFile.id == int(query_resu[0])).all()
+    id_dict[tar_resu[0][0]].append(query_resu[1]) 
+    print(tar_resu)
 
-prob_set
+for tar in id_dict:
+    print(tar)
 
-id_set
+sess.query(cre.Article.id, cre.Article.tarfile_id).filter(cre.Article.id.like(q_str)).all()
+
+
