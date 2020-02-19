@@ -70,10 +70,10 @@ for nm in prob_set:
     id_dict[tar_resu[0][0]].append(query_resu[1]) 
     print(tar_resu)
 
+# Extract the files
 for tar in id_dict:
-    print(tar)
-
-sess.query(cre.Article.id, cre.Article.tarfile_id).filter(cre.Article.id.like(q_str)).all()
+    x = Xtraction('/mnt/arXiv_src/' + tar, db='sqlite:////mnt/databases/arxiv2.db')
+    x.extract_tar('../rm_me_problem_file', article_name='^1703/1703\.013.*')
 
 id_dict
 
