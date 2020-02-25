@@ -1,0 +1,55 @@
+latexml (LaTeXML version 0.8.4)
+processing started Wed Feb 19 18:58:32 2020
+
+(Digesting TeX paper-draft...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/TeX.pool.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/eTeX.pool.ltxml... 0.01 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/pdfTeX.pool.ltxml... 0.01 sec) 0.34 sec)
+(Processing content /home/pi/rm_me_problem_file/1703.01300/paper-draft.tex...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/LaTeX.pool.ltxml... 0.41 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/mnras.cls.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/mn.cls.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/article.cls.ltxml... 0.02 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/mn2e_support.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/natbib.sty.ltxml... 0.04 sec) 0.07 sec) 0.11 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/hyperref.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/url.sty.ltxml... 0.01 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/nameref.sty.ltxml... 0.01 sec) 0.12 sec) 0.29 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/inputenc.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/utf8.def.ltxml... 0.02 sec) 0.03 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/fontenc.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/t1enc.def.ltxml...
+Warning:missing_file:t1enc Can't find definitions t1enc
+	at t1enc.def.ltxml; line 24
+	Anticipate undefined macros or environments
+	search paths are /home/pi/rm_me_problem_file/1703.01300, /home/pi/arxivDownload
+	In Core::Gullet[@0x779bc0] /usr/local/share/perl/5.28.1/LaTeXML/Package/t1enc.def.ltxml; line 24
+ 0.00 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/t1.fontmap.ltxml... 0.01 sec) 0.04 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/ae.sty.ltxml... 0.00 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/aecompl.sty.ltxml... 0.00 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/graphicx.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/graphics.sty.ltxml... 0.01 sec) 0.06 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amsmath.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amsbsy.sty.ltxml... 0.00 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amstext.sty.ltxml... 0.00 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amsopn.sty.ltxml... 0.01 sec) 0.08 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amssymb.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amsfonts.sty.ltxml... 0.01 sec) 0.05 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/xcolor.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/color.sty.ltxml... 0.03 sec)
+Warning:missing_file:dvipsnam Can't find definitions dvipsnam
+	at xcolor.sty.ltxml; line 52
+	Anticipate undefined macros or environments
+	In Core::Definition::Primitive[\ds@dvips... /usr/local/share/perl/5.28.1/LaTeXML/Package/xcolor.sty.ltxml; line 52
+ 0.15 sec)
+Info:expected:bibnote Couldn't find all bib files, using paper-draft.bbl instead
+	at paper-draft.tex; line 362 col 0 - line 362 col 22
+
+(Processing content /home/pi/rm_me_problem_file/1703.01300/paper-draft.bbl... 3.30 sec) 12.27 sec) 12.72 sec)
+(Building...
+(Loading compiled schema /usr/local/share/perl/5.28.1/LaTeXML/resources/RelaxNG/LaTeXML.model... 0.02 sec)................................................................................................................................................................................................. 9.40 sec)
+(Rewriting... 0.27 sec)
+(Finalizing... 1.20 sec)
+Conversion complete: 2 warnings; 2 missing files[t1enc.def, dvipsnam.def].
+processing finished Wed Feb 19 18:58:56 2020
