@@ -36,7 +36,7 @@ class Result(enum.Flag):
     TIMED = enum.auto() # timed out more than the allowed time in configuration
     MAXED = enum.auto() # maxed out the allowed number of errors
     DIED = enum.auto() # found dead: ex. no finished processing timestamp
-    PDFONLY = enum.auto()  
+    NOTEX = enum.auto()  # No TeX file was found it might be pdf only or a weird case like 1806.03429
     FAIL = TIMED | MAXED | DIED 
 
 class ParseLaTeXMLLog():
@@ -85,9 +85,9 @@ class ParseLaTeXMLLog():
                     self.result |= Result.TIMED
 
         else:
-            assert any(["file_error: pdf file" in line for line in self.commentary()]),\
+            assert any(["Main TeX file not found" in line for line in self.commentary()]),\
                     "Error with file %s, don't know what to do in this case"%log_path
-            self.result = Result.PDFONLY
+            self.result = Result.NOTEX
 
 
     def commentary(self):
@@ -142,9 +142,9 @@ def summary(dir_lst, **kwargs):
                 Result.MAXED in p.result,
                 Result.TIMED in p.result,
                 Result.DIED in p.result,
-                Result.PDFONLY == p.result)
-    print("Success Fail Maxed Timed Died pdf_only")
-    print("{:>7} {:>4} {:>5} {:>5} {:>4} {:>8}".format(*list(pvec)))
+                Result.NOTEX == p.result)
+    print("Success Fail Maxed Timed Died no_tex")
+    print("{:>7} {:>4} {:>5} {:>5} {:>4} {:>6}".format(*list(pvec)))
 
 
 if __name__ == "__main__":
