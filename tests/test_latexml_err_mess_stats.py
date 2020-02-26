@@ -25,3 +25,29 @@ class TestParseLaTeXMLLog(unittest.TestCase):
         P = err.ParseLaTeXMLLog('./tests/test_stats_files/latexml_errors_mess.txt')
         self.assertEqual(24, P.time_secs)
 
+    def test_commentary(self):
+        P = err.ParseLaTeXMLLog('./tests/test_stats_files/latexml_errors_mess.txt')
+        self.assertEqual(len(P.commentary()), 6)
+
+    def test_time_space_init_dir(self):
+        P = err.ParseLaTeXMLLog('./tests/test_stats_files/')
+        self.assertEqual(24, P.time_secs)
+
+    def test_commentary_dir(self):
+        P = err.ParseLaTeXMLLog('./tests/test_stats_files')
+        self.assertEqual(len(P.commentary()), 6)
+
+    def test_init_parsing(self):
+        P = err.ParseLaTeXMLLog('./tests/test_stats_files')
+        self.assertEqual(P.warnings, 2)
+        self.assertEqual(P.errors, 0)
+        self.assertEqual(P.fatal_errors, 0)
+        self.assertEqual(P.fatal_errors, 0)
+        self.assertEqual(P.undefined_macros, 0)
+        self.assertEqual(P.missing_files, 2)
+        self.assertEqual(P.no_prob, None)
+
+    def test_finished(self):
+        P = err.ParseLaTeXMLLog('./tests/test_stats_files')
+        self.assertEqual(P.finished(), 1200)
+
