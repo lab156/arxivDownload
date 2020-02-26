@@ -8,7 +8,6 @@ import numpy as np
 def parse_conversion(f_str):
     """
     parses the conversion line in the latexml_errors_mess.txt file
-    
     """
     return re.search('\\nConversion complete: (No obvious problems\.)?'
     '(\d+ warnings?[;\.] ?)?'
@@ -98,6 +97,22 @@ class ParseLaTeXMLLog():
             comm_str = commentary_fobj.readlines()
         return comm_str
 
+    def get_encoding(self):
+        '''
+        Tries to get the encoding from the latexml_commentary files
+        '''
+        find_encod = lambda s: re.search(r'encoding detected: (.*)$', s)
+        encod_map = map(find_encod, self.commentary())
+
+        if  any(encod_map):
+            encod = [e.group(1) for e in encod_map if e is not None][0]
+        else:
+            encod = None
+        return encod
+
+
+
+
     def finished(self):
         '''
         return time if process timed out
@@ -109,11 +124,11 @@ class ParseLaTeXMLLog():
             return int(result.group(1))
         else:
             return None
-    
+
     def timedout(self):
         '''
         return time if the LAST LINE of the commentary file says it timed out
-        return None if process finished on time 
+        return None if process finished on time
         '''
         result = re.search('Timeout of (\d+) seconds occured', self.commentary()[-1])
 
@@ -135,6 +150,7 @@ def summary(dir_lst, **kwargs):
     returns a summary of all the results
     '''
     pvec = np.zeros(6)
+
     for ind, a in enumerate(dir_lst):
         p = ParseLaTeXMLLog(a)
         pvec += (Result.SUCC in p.result,
