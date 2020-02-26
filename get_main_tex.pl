@@ -9,7 +9,7 @@ sub get_main_file {
   my $main_source;
   #open directory 
   opendir my $source_dir, $source_path or die "Could not open directory $!";
-  my @TeX_file_members = grep(/\.tex/, readdir($source_dir));
+  my @TeX_file_members = grep(/\.tex/ || /\.TEX/, readdir($source_dir));
   if (!@TeX_file_members) { # No .tex file? Try files with no, or unusually long, extensions
     @TeX_file_members = grep {!/\./ || /\.[^.]{4,}$/} map { $_->fileName() } $zip_handle->members();
   }
