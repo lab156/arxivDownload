@@ -4,6 +4,7 @@ import dateutil.parser as duparser
 import os
 import enum
 import numpy as np
+import collections as coll
 
 def parse_conversion(f_str):
     """
@@ -103,9 +104,10 @@ class ParseLaTeXMLLog():
         '''
         find_encod = lambda s: re.search(r'encoding detected: (.*)$', s)
         encod_map = map(find_encod, self.commentary())
+        encod_lst = [e.group(1) for e in encod_map if e is not None]
 
-        if  any(encod_map):
-            encod = [e.group(1) for e in encod_map if e is not None][0]
+        if  any(encod_lst):
+            encod = encod_lst[0]
         else:
             encod = None
         return encod
@@ -151,6 +153,7 @@ def summary(dir_lst, **kwargs):
     '''
     pvec = np.zeros(6)
 
+    encoding_lst = []
     for ind, a in enumerate(dir_lst):
         p = ParseLaTeXMLLog(a)
         pvec += (Result.SUCC in p.result,
@@ -159,8 +162,10 @@ def summary(dir_lst, **kwargs):
                 Result.TIMED in p.result,
                 Result.DIED in p.result,
                 Result.NOTEX == p.result)
+        encoding_lst.append(p.get_encoding())
     print("Success Fail Maxed Timed Died no_tex")
     print("{:>7} {:>4} {:>5} {:>5} {:>4} {:>6}".format(*list(pvec)))
+    print(coll.Counter(encoding_lst))
 
 
 if __name__ == "__main__":
