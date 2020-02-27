@@ -36,7 +36,7 @@ class Result(enum.Flag):
     MAXED = enum.auto() # maxed out the allowed number of errors
     DIED = enum.auto() # found dead: ex. no finished processing timestamp
     NOTEX = enum.auto()  # No TeX file was found it might be pdf only or a weird case like 1806.03429
-    FAIL = TIMED | MAXED | DIED 
+    FAIL = TIMED | MAXED | DIED
 
 class ParseLaTeXMLLog():
     def __init__(self, log_path, max_errors=100):
@@ -63,6 +63,9 @@ class ParseLaTeXMLLog():
                         self.log).group(1)
             except AttributeError:
                 self.result = Result.DIED
+                self.warnings = self.errors =\
+                        self.fatal_errors = self.undefined_macros =\
+                        self.missing_files = self.no_prob = np.NAN
             else:
                 d1 = duparser.parse(self.start)
                 d2 = duparser.parse(self.finish)
@@ -77,11 +80,13 @@ class ParseLaTeXMLLog():
                 self.missing_files = entry_handler(conversion_tuple[5])
                 self.no_prob = conversion_tuple[0]
 
+            if self.fatal_errors == 0:
                 self.result = Result.SUCC
-                if self.errors > max_errors:
-                    self.result = Result.MAXED
-                if self.timedout():
-                    self.result |= Result.TIMED
+            if self.errors > max_errors:
+                self.result = Result.MAXED
+            if self.timedout():
+                # Timed out and success are mutually exclusive so I can append it here
+                self.result |= Result.TIMED
 
         else:
             assert any(["Main TeX file not found" in line for line in self.commentary()]),\
