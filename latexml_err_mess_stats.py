@@ -34,10 +34,11 @@ def entry_handler(str_or_none):
 class Result(enum.Flag):
     SUCC = enum.auto()  # everything went fine as far as I can tell
     TIMED = enum.auto() # timed out more than the allowed time in configuration
+    FATAL = enum.auto() # fatal error found
     MAXED = enum.auto() # maxed out the allowed number of errors
     DIED = enum.auto() # found dead: ex. no finished processing timestamp
     NOTEX = enum.auto()  # No TeX file was found it might be pdf only or a weird case like 1806.03429
-    FAIL = TIMED | MAXED | DIED
+    FAIL = FATAL | TIMED | MAXED | DIED
 
 class ParseLaTeXMLLog():
     def __init__(self, log_path, max_errors=100):
@@ -84,14 +85,11 @@ class ParseLaTeXMLLog():
             if self.fatal_errors == 0:
                 self.result = Result.SUCC
             else:
+                self.result = Result.FATAL
                 if self.errors > max_errors:
-                    self.result = Result.MAXED
+                    self.result |= Result.MAXED
                 if self.timedout():
-                # Timed out and success are mutually exclusive so I can append it here
-                    if hasattr(self, 'result'):
-                        self.result |= Result.TIMED
-                    else:
-                        self.result = Result.TIMED
+                    self.result |= Result.TIMED
 
         else:
             assert any(["Main TeX file not found" in line for line in self.commentary()]),\
