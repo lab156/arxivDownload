@@ -85,9 +85,10 @@ class ParseLaTeXMLLog():
             if self.fatal_errors == 0:
                 self.result = Result.SUCC
             else:
-                self.result = Result.FATAL
                 if self.errors > max_errors:
-                    self.result |= Result.MAXED
+                    self.result = Result.MAXED
+                else:
+                    self.result = Result.FATAL
                 if self.timedout():
                     self.result |= Result.TIMED
 
@@ -158,20 +159,35 @@ def summary(dir_lst, **kwargs):
     args is a list of objects that ParseLaTeXMLLog likes
     returns a summary of all the results
     '''
-    pvec = np.zeros(6)
+    pvec = np.zeros(7)
+
+    fun_dict = { 'success' : lambda p: Result.SUCC in p.result,
+    'fail' : lambda p : p.result in Result.FAIL,
+    'fatal' : lambda p : Result.FATAL in p.result,
+    'maxed' : lambda p :  Result.MAXED in p.result,
+    'timed' : lambda p : Result.TIMED in p.result,
+    'died' : lambda p : Result.DIED in p.result,
+    'notex' : lambda p : Result.NOTEX == p.result,}
+
+    print_opt = kwargs.get('print', None)
 
     encoding_lst = []
     for ind, a in enumerate(dir_lst):
         p = ParseLaTeXMLLog(a)
-        pvec += (Result.SUCC in p.result,
-                p.result in Result.FAIL,
-                Result.MAXED in p.result,
-                Result.TIMED in p.result,
-                Result.DIED in p.result,
-                Result.NOTEX == p.result)
+        pvec += (fun_dict['success'](p),
+                fun_dict['fail'](p),
+                fun_dict['fatal'](p),
+                fun_dict['maxed'](p),
+                fun_dict['timed'](p),
+                fun_dict['died'](p),
+                fun_dict['notex'](p),
+                )
         encoding_lst.append(p.get_encoding())
-    print("Success Fail Maxed Timed Died no_tex")
-    print("{:>7} {:>4} {:>5} {:>5} {:>4} {:>6}".format(*list(pvec)))
+        if print_opt:
+            if fun_dict[print_opt](p):
+                print(p.filename)
+    print("Success Fail Fatal Maxed Timed Died no_tex")
+    print("{:>7} {:>4} {:>5} {:>5} {:>5} {:>4} {:>6}".format(*list(pvec)))
     print(coll.Counter(encoding_lst))
 
 
@@ -181,7 +197,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Stats for documents processed with')
     parser.add_argument('dir_name', type=str, nargs='+',
             help='Path to the processed files')
+    parser.add_argument('--print', type=str,
+            help='print articles matching this value')
     args = parser.parse_args(sys.argv[1:])
-    summary(args.dir_name)
-
+    summary(args.dir_name, print=args.print)
 
