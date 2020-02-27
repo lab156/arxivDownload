@@ -12,6 +12,12 @@ sys     1m14.615s
 real    22m41.144s (there was a 20 mins timeout)
 user    159m40.060s 
 sys     1m36.147s     
+
+** bridges cluster (28 processors)
+real    20m47.754s
+user    98m44.743s
+sys     1m24.050s
+
  
 ## raspberry pi, raspbian, parallel (done twice results confirmed)
 still need to check the .xml produced by both
