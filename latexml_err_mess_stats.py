@@ -83,11 +83,15 @@ class ParseLaTeXMLLog():
 
             if self.fatal_errors == 0:
                 self.result = Result.SUCC
-            if self.errors > max_errors:
-                self.result = Result.MAXED
-            if self.timedout():
+            else:
+                if self.errors > max_errors:
+                    self.result = Result.MAXED
+                if self.timedout():
                 # Timed out and success are mutually exclusive so I can append it here
-                self.result |= Result.TIMED
+                    if hasattr(self, 'result'):
+                        self.result |= Result.TIMED
+                    else:
+                        self.result = Result.TIMED
 
         else:
             assert any(["Main TeX file not found" in line for line in self.commentary()]),\

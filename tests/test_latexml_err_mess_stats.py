@@ -22,11 +22,13 @@ class TestParseConversion(unittest.TestCase):
 
 class TestParseLaTeXMLLog(unittest.TestCase):
     def test_time_space_init(self):
-        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test1/latexml_errors_mess.txt')
+        P = err.ParseLaTeXMLLog(\
+            './tests/test_stats_files/test1/latexml_errors_mess.txt')
         self.assertEqual(24, P.time_secs)
 
     def test_commentary(self):
-        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test1/latexml_errors_mess.txt')
+        P = err.ParseLaTeXMLLog(\
+        './tests/test_stats_files/test1/latexml_errors_mess.txt')
         self.assertEqual(len(P.commentary()), 6)
 
     def test_time_space_init_dir(self):
@@ -54,3 +56,12 @@ class TestParseLaTeXMLLog(unittest.TestCase):
     def test_init_flags(self):
         P = err.ParseLaTeXMLLog('./tests/test_stats_files/test1')
         self.assertEqual(P.result, err.Result.SUCC)
+        self.assertTrue(not(P.result in err.Result.FAIL))
+        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test2')
+        self.assertEqual(P.result, err.Result.MAXED)
+        self.assertTrue(P.result in err.Result.FAIL)
+        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test3')
+        self.assertEqual(P.result, err.Result.TIMED|err.Result.MAXED)
+        self.assertTrue(P.result in err.Result.FAIL)
+        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test4')
+        self.assertEqual(P.result, err.Result.TIMED)
