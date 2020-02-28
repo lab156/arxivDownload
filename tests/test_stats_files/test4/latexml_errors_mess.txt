@@ -1,0 +1,95 @@
+latexml (LaTeXML version 0.8.4)
+processing started Thu Aug  1 04:34:48 2019
+
+(Digesting TeX 1806.00856...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/TeX.pool.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/eTeX.pool.ltxml... 0.01 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/pdfTeX.pool.ltxml... 0.02 sec) 0.47 sec)
+(Processing content /home/pi/test_latexml/1806.00856/1806.00856.tex...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/LaTeX.pool.ltxml... 0.62 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amsart.cls.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/ams_core.cls.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/article.cls.ltxml... 0.03 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/ams_support.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amsmath.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amsbsy.sty.ltxml... 0.00 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amstext.sty.ltxml... 0.00 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amsopn.sty.ltxml... 0.01 sec) 0.09 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amsthm.sty.ltxml... 0.02 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amsfonts.sty.ltxml... 0.01 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/makeidx.sty.ltxml... 0.00 sec) 0.17 sec) 0.22 sec) 0.23 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/mathrsfs.sty.ltxml... 0.00 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/mathtools.sty.ltxml... 0.05 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/graphicx.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/graphics.sty.ltxml... 0.01 sec) 0.07 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/array.sty.ltxml... 0.01 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/amssymb.sty.ltxml... 0.06 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/xcolor.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/color.sty.ltxml... 0.03 sec) 0.19 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/hyperref.sty.ltxml...
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/url.sty.ltxml... 0.01 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/nameref.sty.ltxml... 0.00 sec) 0.15 sec)
+(Loading /usr/local/share/perl/5.28.1/LaTeXML/Package/cleveref.sty.ltxml...
+Warning:missing_file:cleveref Can't find package cleveref
+	at cleveref.sty.ltxml; line 23
+	Anticipate undefined macros or environments
+	search paths are /home/pi/test_latexml/1806.00856, /home/pi/arxivDownload
+	In Core::Gullet[@0xdc3b50] /usr/local/share/perl/5.28.1/LaTeXML/Package/cleveref.sty.ltxml; line 23
+ 0.01 sec)
+Error:unexpected:\endgroup Attempt to close non-boxing group
+	at 1806.00856.tex; line 435 col 0 - line 435 col 12
+	current frame is boxing group due to T_CS[\@@open@inner@column] 1806.00856.tex; line 434 col 75 - line 434 col 75
+	In Core::Stomach[@0x252cfa8] /home/pi/test_latexml/1806.00856/1806.00856.tex; from line 435 col 0 to line 435 col 12
+	 <= Core::Definition::Primitive[\endgroup] <= Core::Stomach[@0x252cfa8] <= Core::Definition::Primitive[\@@open@i... <= ...
+
+Error:unexpected:\end{equation} Can't close environment equation;
+	at 1806.00856.tex; line 436 col 0 - line 436 col 14
+	Current are:
+	{ 1806.00856.tex; line 433 col 15 - line 433 col 15
+	tikzpicture 1806.00856.tex; line 412 col 0 - line 412 col 19
+	center 1806.00856.tex; line 411 col 0 - line 411 col 14
+	rem 1806.00856.tex; line 410 col 11 - line 410 col 11
+	tikzpicture 1806.00856.tex; line 389 col 0 - line 389 col 19
+	center 1806.00856.tex; line 388 col 0 - line 388 col 318
+	tikzcd 1806.00856.tex; line 369 col 15 - line 369 col 15
+	equation 1806.00856.tex; line 368 col 16 - line 368 col 16
+	tikzpicture 1806.00856.tex; line 354 col 0 - line 354 col 19
+	center 1806.00856.tex; line 353 col 0 - line 353 col 14
+	tikzpicture 1806.00856.tex; line 326 col 0 - line 326 col 19
+	center 1806.00856.tex; line 325 col 0 - line 325 col 14
+	proof 1806.00856.tex; line 323 col 0 - line 323 col 13
+	tikzpicture 1806.00856.tex; line 304 col 0 - line 304 col 19
+	center 1806.00856.tex; line 303 col 0 - line 303 col 117
+	tikzpicture 1806.00856.tex; line 279 col 0 - line 279 col 19
+	center 1806.00856.tex; line 278 col 0 - line 278 col 14
+	small 1806.00856.tex; line 277 col 0 - line 277 col 13
+	ex 1806.00856.tex; line 275 col 0 - line 275 col 10
+	tikzpicture 1806.00856.tex; line 260 col 0 - line 260 col 20
+	center 1806.00856.tex; line 259 col 0 - line 259 col 14
+	proof 1806.00856.tex; line 257 col 0 - line 257 col 13
+	document 1806.00856.tex; line 160 col 0 - line 160 col 16
+	In Core::Definition::Constructor[\end{eq... /usr/local/share/perl/5.28.1/LaTeXML/Package/LaTeX.pool.ltxml; line 1862
+	 <= Core::Stomach[@0x252cfa8] <= Core::Definition::Primitive[\@@open@i... <= Core::Stomach[@0x252cfa8] <= ...
+
+Error:expected:} Gullet->readBalanced ran out of input in an unbalanced state.
+	at 1806.00856.tex; line 458 col 28 - line 458 col 28
+	started at LaTeXML::Common::Locator=HASH(0x4e650c8)
+	Input is empty
+	In Core::Gullet[@0xdc3b50] /home/pi/test_latexml/1806.00856/1806.00856.tex; from line 458 col 28 to line 458 col 28
+	 <= Core::Definition::Expandable[\href Ve... <= Core::Gullet[@0xdc3b50] <= Core::Definition::Constructor[\@@Url ... <= ...
+
+Error:expected:{} Missing argument {} for Core::Definition::Expandable[\href Verbatim{}]
+	at 1806.00856.tex; line 458 col 28 - line 458 col 28
+	Input is empty
+	In Core::Definition::Expandable[\href Ve... /usr/local/share/perl/5.28.1/LaTeXML/Package/hyperref.sty.ltxml; line 132
+	 <= Core::Gullet[@0xdc3b50] <= Core::Definition::Constructor[\@@Url ... <= Core::Stomach[@0x252cfa8] <= ...
+
+Fatal:terminate:terminated Conversion was terminated
+	at 1806.00856.tex; line 458 col 28 - line 458 col 28
+	TERM
+	In Core::Definition::Expandable[\href Ve... /usr/local/share/perl/5.28.1/LaTeXML/Package/hyperref.sty.ltxml; line 132
+	 <= Core::Gullet[@0xdc3b50] <= Core::Definition::Constructor[\@@Url ... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Primitive[\@@open@c... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@open@... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\lx@ams... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\begin{... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Primitive[\@@open@c... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Primitive[\@@open@c... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@open@... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\lx@ams... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\begin{... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\begin{... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@open@... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\lx@ams... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\begin{... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Primitive[\@@open@c... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\begin{... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@open@... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\lx@ams... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\begin{... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@open@... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\lx@ams... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\begin{... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@open@... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\lx@ams... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\begin{... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@open@... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\lx@ams... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\begin{... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\begin{... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@@defa... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\@open@... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\lx@ams... <= Core::Stomach[@0x252cfa8] <= Core::Definition::Constructor[\begin{... <= Core::Stomach[@0x252cfa8]
+31 warnings; 65 errors; 1 fatal error; 7 undefined macros[\crefname, \tikzcdset, \usetikzlibrary, {tikzpicture}, \ar, {tikzcd}, \node]; 2 missing files[cleveref.sty, tikz.sty]
+
+Conversion complete: 31 warnings; 65 errors; 1 fatal error; 7 undefined macros[\crefname, \tikzcdset, \usetikzlibrary, {tikzpicture}, \ar, {tikzcd}, \node]; 2 missing files[cleveref.sty, tikz.sty].
+processing finished Thu Aug  1 04:54:47 2019
