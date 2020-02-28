@@ -1,0 +1,775 @@
+latexml (LaTeXML version 0.8.2; revision 4e718def)
+processing started Tue Feb 25 20:26:15 2020
+
+(Digesting TeX 1806.00856...
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/TeX.pool.ltxml...
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/eTeX.pool.ltxml... 0.00 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/pdfTeX.pool.ltxml... 0.00 sec) 0.09 sec)
+(Processing content /home/luis/MisDocumentos/ArxivDownload/arxivDownload/data/1806.00856/1806.00856.tex...
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/LaTeX.pool.ltxml... 0.11 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/amsart.cls.ltxml...
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/ams_core.cls.ltxml...
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/article.cls.ltxml... 0.01 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/ams_support.sty.ltxml...
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/amsmath.sty.ltxml...
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/amsbsy.sty.ltxml... 0.00 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/amstext.sty.ltxml... 0.00 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/amsopn.sty.ltxml... 0.00 sec) 0.02 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/amsthm.sty.ltxml... 0.00 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/amsfonts.sty.ltxml... 0.00 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/makeidx.sty.ltxml... 0.00 sec) 0.03 sec) 0.04 sec) 0.04 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/mathrsfs.sty.ltxml... 0.00 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/mathtools.sty.ltxml... 0.01 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/graphicx.sty.ltxml...
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/graphics.sty.ltxml... 0.00 sec) 0.02 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/array.sty.ltxml... 0.00 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/amssymb.sty.ltxml... 0.01 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/xcolor.sty.ltxml...
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/color.sty.ltxml... 0.01 sec) 0.04 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/hyperref.sty.ltxml...
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/url.sty.ltxml... 0.00 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/nameref.sty.ltxml... 0.00 sec) 0.03 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/cleveref.sty.ltxml...
+(Processing definitions /usr/share/texmf-dist/tex/latex/cleveref/cleveref.sty...
+Info:latex:\GenericInfo (cleveref)             
+	at /usr/share/texmf-dist/tex/latex/cleveref/cleveref.sty; line 2370 col 1
+	Package cleveref Info: `hyperref' support loaded
+
+Info:latex:\GenericInfo (cleveref)             
+	at /usr/share/texmf-dist/tex/latex/cleveref/cleveref.sty; line 3026 col 3
+	Package cleveref Info: `amsthm' support loaded
+ 1.13 sec) 1.28 sec)
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/tikz.sty.ltxml...
+(Processing definitions /usr/share/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty...
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/pgf.sty.ltxml...
+(Processing definitions /usr/share/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty...
+(Processing definitions /usr/share/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty...
+(Processing definitions /usr/share/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex...
+(Processing definitions /usr/share/texmf-dist/tex/generic/pgf/utilities/pgfutil-common-lists.tex... 0.02 sec) 0.08 sec)
+(Processing definitions /usr/share/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def...
+(Processing definitions /usr/share/texmf-dist/tex/latex/ms/everyshi.sty... 0.01 sec) 0.03 sec)
+(Processing definitions /usr/share/texmf-dist/tex/generic/pgf/utilities/pgfrcs.code.tex...
+(Processing definitions /usr/share/texmf-dist/tex/generic/pgf/pgf.revision.tex... 0.00 sec) 0.02 sec) 0.15 sec)
+(Processing definitions /usr/share/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty...
+(Processing definitions /usr/share/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty...
+(Processing definitions /usr/share/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex...
+(Loading /usr/share/perl5/site_perl/LaTeXML/Package/pgfkeys.code.tex.ltxml...
+(Processing definitions /usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex...
+(Processing definitions /usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeysfiltered.code.tex... 0.12 sec) 0.30 sec)
+Error:unexpected:undef Unexpected input remaining: 'undef'
+	/usr/share/perl5/site_perl/LaTeXML/Package/pgfkeys.code.tex.ltxml line 509
+	Finished reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it still has input.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] /usr/share/perl5/site_perl/LaTeXML/Package/pgfkeys.code.tex.ltxml line 509
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+ 0.30 sec)
+Error:unexpected:T_CS[\par] Unexpected input remaining: 'T_CS[\par]'
+	at /usr/share/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex; line 15 col 1
+	Finished reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it still has input.
+	Next token is T_CS[\pgfkeys]
+	In Core::Gullet[@0x55870b260ee0] at /usr/share/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex; line 17 col 8
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+ 0.30 sec)
+Error:unexpected:T_SPACE[U+000a/LF] Unexpected input remaining: 'T_SPACE[U+000a/LF]'
+	at /usr/share/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty; line 16 col 24
+	Finished reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it still has input.
+	Next token is T_CS[\input]
+	In Core::Gullet[@0x55870b260ee0] at /usr/share/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty; line 17 col 6
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+ 0.31 sec)
+Error:unexpected:T_CS[\RequirePackage] Unexpected input remaining: 'T_CS[\RequirePackage]'
+	at /usr/share/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty; line 12 col 15
+	Finished reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it still has input.
+	Next token is T_BEGIN[{]
+	In Core::Gullet[@0x55870b260ee0] at /usr/share/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty; line 12 col 16
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+ 0.32 sec)
+Error:unexpected:T_CS[\par] Unexpected input remaining: 'T_CS[\par]'
+	at /usr/share/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty; line 29 col 1
+	Finished reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it still has input.
+	Next token is T_CS[\usepgfmodule]
+	In Core::Gullet[@0x55870b260ee0] at /usr/share/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty; line 30 col 13
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+ 0.48 sec)
+Error:unexpected:undef Unexpected input remaining: 'undef'
+	/usr/share/perl5/site_perl/LaTeXML/Package/pgf.sty.ltxml line 29
+	Finished reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it still has input.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] /usr/share/perl5/site_perl/LaTeXML/Package/pgf.sty.ltxml line 29
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+ 0.48 sec)
+Error:unexpected:T_CS[\par] Unexpected input remaining: 'T_CS[\par]'
+	at /usr/share/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty; line 12 col 1
+	Finished reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it still has input.
+	Next token is T_CS[\input]
+	In Core::Gullet[@0x55870b260ee0] at /usr/share/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty; line 13 col 6
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+ 0.48 sec)
+Error:unexpected:undef Unexpected input remaining: 'undef'
+	/usr/share/perl5/site_perl/LaTeXML/Package/tikz.sty.ltxml line 24
+	Finished reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it still has input.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] /usr/share/perl5/site_perl/LaTeXML/Package/tikz.sty.ltxml line 24
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+ 0.49 sec)
+Error:unexpected:T_CS[\usetikzlibrary] Unexpected input remaining: 'T_CS[\usetikzlibrary]'
+	at /home/luis/MisDocumentos/ArxivDownload/arxivDownload/data/1806.00856/1806.00856.tex; line 18 col 15
+	Finished reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it still has input.
+	Next token is T_BEGIN[{]
+	In Core::Gullet[@0x55870b260ee0] at /home/luis/MisDocumentos/ArxivDownload/arxivDownload/data/1806.00856/1806.00856.tex; line 18 col 16
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+ 2.06 sec)
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 0 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 1 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 1 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 2 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 2 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 3 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 3 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 4 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 4 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 5 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 5 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 6 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 6 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 7 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 7 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 8 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 8 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 9 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 9 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 10 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 10 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 11 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 11 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 12 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 12 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 13 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 13 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 14 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 14 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 15 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 15 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 16 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 16 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 17 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 17 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 18 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 18 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 19 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 19 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 20 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 20 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 21 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 21 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 22 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 22 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 23 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 23 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 24 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 24 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 25 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 25 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 26 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 26 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 27 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 27 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 28 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 28 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 29 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 29 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 30 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 30 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 31 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 31 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 32 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 32 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 33 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 33 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 34 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 34 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 35 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 35 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 36 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 36 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 37 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 37 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 38 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 38 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 39 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 39 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 40 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 40 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 41 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 41 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 42 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 42 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 43 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 43 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 44 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 44 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 45 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 45 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 46 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 46 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 47 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 47 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 48 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 48 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 49 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 49 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 50 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 50 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 51 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 51 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 52 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 52 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 53 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 53 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 54 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 54 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 55 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 55 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 56 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 56 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 57 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 57 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 58 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 58 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 59 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 59 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 60 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 60 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 61 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 61 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 62 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 62 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 63 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 63 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 64 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 64 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 65 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 65 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 66 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 66 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 67 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 67 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 68 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 68 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 69 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 69 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 70 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 70 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 71 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 71 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 72 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 72 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 73 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 73 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 74 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 74 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 75 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 75 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 76 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 76 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 77 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 77 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 78 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 78 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 79 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 79 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 80 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 80 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 81 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 81 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 82 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 82 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 83 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 83 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 84 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 84 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 85 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 85 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 86 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 86 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 87 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 87 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 88 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 88 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 89 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 89 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 90 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 90 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 91 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+
+Error:unexpected:<closed> Mouth is unexpectedly already closed
+	at Anonymous String; line 91 col 0
+	Reading from Mouth[/usr/share/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex@0x0], but it has already been closed.
+	Input is empty
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 92 col 0
+	 <= Core::Definition::Expandable[\input T... <= Core::Gullet[@0x55870b260ee0] <= Core::Definition::Primitive[\@iinput {}] <= ...
+File /usr/share/perl5/site_perl/LaTeXML/Package/tikz.sty.ltxml had an error:
+  File /usr/share/perl5/site_perl/LaTeXML/Package/pgf.sty.ltxml had an error:
+  File /usr/share/perl5/site_perl/LaTeXML/Package/pgfkeys.code.tex.ltxml had an error:
+  
+Fatal:too_many_errors:100 Too many errors (> 100)!
+	at Anonymous String; line 92 col 0
+	In Core::Gullet[@0x55870b260ee0] at Anonymous String; line 92 col 0
+101 errors; 1 fatal error
+
+Conversion complete: 101 errors; 1 fatal error.
+processing finished Tue Feb 25 20:26:17 2020
