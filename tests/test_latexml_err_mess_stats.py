@@ -64,4 +64,4 @@ class TestParseLaTeXMLLog(unittest.TestCase):
         self.assertEqual(P.result, err.Result.TIMED|err.Result.MAXED)
         self.assertTrue(P.result in err.Result.FAIL)
         P = err.ParseLaTeXMLLog('./tests/test_stats_files/test4')
-        self.assertEqual(P.result, err.Result.TIMED)
+        self.assertEqual(P.result, err.Result.TIMED|err.Result.FATAL)

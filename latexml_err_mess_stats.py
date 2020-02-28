@@ -4,6 +4,7 @@ import dateutil.parser as duparser
 import os
 import enum
 import numpy as np
+import pandas as pd
 import collections as coll
 
 def parse_conversion(f_str):
@@ -172,6 +173,7 @@ def summary(dir_lst, **kwargs):
     print_opt = kwargs.get('print', None)
 
     encoding_lst = []
+    times_lst = []
     for ind, a in enumerate(dir_lst):
         p = ParseLaTeXMLLog(a)
         pvec += (fun_dict['success'](p),
@@ -183,12 +185,17 @@ def summary(dir_lst, **kwargs):
                 fun_dict['notex'](p),
                 )
         encoding_lst.append(p.get_encoding())
+        times_lst.append(p.time_secs)
         if print_opt:
             if fun_dict[print_opt](p):
                 print(p.filename)
     print("Success Fail Fatal Maxed Timed Died no_tex")
     print("{:>7} {:>4} {:>5} {:>5} {:>5} {:>4} {:>6}".format(*list(pvec)))
     print(coll.Counter(encoding_lst))
+    cuts = pd.cut(times_lst, 8)
+    count = coll.Counter(cuts)
+    for c in sorted(list(count)):
+        print(c, count[c])
 
 
 if __name__ == "__main__":
