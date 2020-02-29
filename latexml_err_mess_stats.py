@@ -69,6 +69,7 @@ class ParseLaTeXMLLog():
                 self.warnings = self.errors =\
                         self.fatal_errors = self.undefined_macros =\
                         self.missing_files = self.no_prob = np.NAN
+                self.time_secs = np.NAN
             else:
                 d1 = duparser.parse(self.start)
                 d2 = duparser.parse(self.finish)
@@ -97,6 +98,7 @@ class ParseLaTeXMLLog():
             assert any(["Main TeX file not found" in line for line in self.commentary()]),\
                     "Error with file %s, don't know what to do in this case"%log_path
             self.result = Result.NOTEX
+            self.time_secs = np.NAN
 
 
     def commentary(self):
@@ -176,6 +178,7 @@ def summary(dir_lst, **kwargs):
     times_lst = []
     for ind, a in enumerate(dir_lst):
         p = ParseLaTeXMLLog(a)
+        assert hasattr(p, 'time_secs'), " Error, %s has no attribute time_secs"%p.filename
         pvec += (fun_dict['success'](p),
                 fun_dict['fail'](p),
                 fun_dict['fatal'](p),
