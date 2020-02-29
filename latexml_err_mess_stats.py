@@ -197,6 +197,9 @@ def summary(dir_lst, **kwargs):
     print(coll.Counter(encoding_lst))
     cuts = pd.cut(times_lst, 8)
     count = coll.Counter(cuts)
+    if np.NAN in count:
+        print('NANs', count[np.NAN])
+        del count[np.NAN]
     for c in sorted(list(count)):
         print(c, count[c])
 
