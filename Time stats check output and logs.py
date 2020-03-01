@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.3.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -28,20 +28,13 @@ import pandas as pd
 # %autoreload 2
 import latexml_err_mess_stats as err
 
-lst_error_files = glob.glob('../test_latexml/*')
+lst_error_files = glob.glob('../maxed_out_examples/*')
 err.summary(lst_error_files)
 len(lst_error_files)
 
 p_lst = list(map(err.ParseLaTeXMLLog, lst_error_files))
-p_times = [p.time_secs for p in p_lst]
-Cut,bins = pd.cut(p_times, 8, retbins=True)
-count = coll.Counter(Cut)
-#for c in sorted(list(count)):
-#    print(c, count[c])
-del count[np.nan]
-count
-del count[np.nan]
-count
+p_times = [p.errors for p in p_lst]
+p_times
 
 bins
 
