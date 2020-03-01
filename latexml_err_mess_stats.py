@@ -95,8 +95,8 @@ class ParseLaTeXMLLog():
                     self.result |= Result.TIMED
 
         else:
-            assert any(["Main TeX file not found" in line for line in self.commentary()]),\
-                    "Error with file %s, don't know what to do in this case"%log_path
+            #assert any(["Main TeX file not found" in line for line in self.commentary()]),\
+            #        "Error with file %s, don't know what to do in this case"%log_path
             self.result = Result.NOTEX
             self.time_secs = np.NAN
 
