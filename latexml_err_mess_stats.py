@@ -42,7 +42,7 @@ class Result(enum.Flag):
     FAIL = FATAL | TIMED | MAXED | DIED
 
 class ParseLaTeXMLLog():
-    def __init__(self, log_path, max_errors=100):
+    def __init__(self, log_path, max_errors=10000):
         '''
         Common actions to do on a latexml errors messages log
         log_path is the path to a latexml_err_mess_ log file
