@@ -6,8 +6,9 @@
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 #SBATCH --nodes=4
 
-WORK_DIR=math05_01
-python3 process.py $SCRATCH/arXiv_src_01.tar $SCRATCH/$WORK_DIR/ --term math --db $SCRATCH/arxiv2.db
+WORK_DIR="math05_001"
+mkdir $SCRATCH/$WORK_DIR
+python3 process.py $SCRATCH/large_test/arXiv_src_0501_001.tar $SCRATCH/$WORK_DIR/ --term math --db $SCRATCH/arxiv2.db
 
 echo "Done extracting"
 
