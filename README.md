@@ -75,6 +75,14 @@ Fatal:perl:die Perl died
 * There is a limit of around 500 articles id that the API can handle.
 * In 2014 the article name format changed from YYMM.{4 digits} to 5 digits.
 * In March 2007, the naming format of the articles changed from 0701/math0701672 to 1503/1503.08375.
+* The distribution of the sizes of the tar files in the manifest:
+```python
+Counter({Interval(-1857373.906, 382162956.2, closed='right'): 273,
+         Interval(382162956.2, 764272737.4, closed='right'): 2222,
+         Interval(764272737.4, 1146382518.6, closed='right'): 3,
+         Interval(1528492299.8, 1910602081.0, closed='right'): 1})
+```
+
 
 ### Definitions Tags
 * ltx_theorem_df -- /math.0406533
