@@ -1,0 +1,6 @@
+tar_file: arXiv_src_1806_003.tar
+encoding detected: ISO-8859-1
+main .tex file 1806.00856.tex
+Timeout of 1200 seconds occured
+main .tex file 1806.00856.tex
+Timeout of 1200 seconds occured
