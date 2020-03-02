@@ -10,6 +10,8 @@ import sqlalchemy as sa
 import magic
 import databases.create_db_define_models as cre
 
+commentary_filename = 'latexml_commentary.txt'
+
 def write_dict(dic, filename):
     '''
     pretty print the commentary dictionary
@@ -391,7 +393,7 @@ class Xtraction(object):
                             with open(os.path.join(output_path,
                                 short_name + '.tex'),'w') as fname:
                                 fname.write(decoded_str)
-            write_dict(commentary_dict, os.path.join(output_path, 'commentary.txt'))
+            write_dict(commentary_dict, os.path.join(output_path, commentary_filename))
         ff.close()
         print('successful extraction of  %s      '%os.path.basename(self.tar_path))
         return True
@@ -422,7 +424,7 @@ class Xtraction(object):
             file_gz = ff.extractfile(filename+'.gz')
         except KeyError:
             commentary_dict['KeyError'] = 'Check if file %s is pdf only'%filename
-            write_dict(commentary_dict, os.path.join(output_path, 'commentary.txt'))
+            write_dict(commentary_dict, os.path.join(output_path, commentary_filename))
             return True
 
         try:
@@ -473,7 +475,7 @@ class Xtraction(object):
                 fname.write(decoded_str)
         ff.close()
 
-        write_dict(commentary_dict, os.path.join(output_path, 'commentary.txt'))
+        write_dict(commentary_dict, os.path.join(output_path, commentary_filename))
         return True
 
 

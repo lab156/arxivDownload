@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 import collections as coll
 
+commentary_filename = 'latexml_commentary.txt'
+
 def parse_conversion(f_str):
     """
     parses the conversion line in the latexml_errors_mess.txt file
@@ -103,9 +105,9 @@ class ParseLaTeXMLLog():
 
     def commentary(self):
         '''
-        attempts to read the commentary.txt file in a latexml processed directory
+        attempts to read the latexml_commentary.txt file in a latexml processed directory
         '''
-        with open(self.dir_name + '/commentary.txt', 'r') as commentary_fobj:
+        with open(os.path.join(self.dir_name, commentary_filename), 'r') as commentary_fobj:
             comm_str = commentary_fobj.readlines()
         return comm_str
 

@@ -1,5 +1,8 @@
 import unittest
-import bio_tag as iob
+try:
+    import bio_tag as iob
+except ModuleNotFoundError:
+    from ner import bio_tag as iob
 
 #RUN WITH: python -m unittest tests.py 
 

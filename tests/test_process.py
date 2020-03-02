@@ -7,6 +7,8 @@ from sqlalchemy.orm import sessionmaker
 from process import Xtraction, sliced_article_query
 import databases.create_db_define_models as cre
 
+commentary_filename = 'latexml_commentary.txt'
+
 class TestXtraction1(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -110,17 +112,17 @@ class TestXtraction1(unittest.TestCase):
         self.assertSetEqual(set(list1), set(os.listdir(self.check_dir4)))
 
     def test_extract_any_identify_pdf(self):
-        with open(os.path.join(self.check_dir2,'1804.01587','commentary.txt'),'r') as tst_file:
+        with open(os.path.join(self.check_dir2,'1804.01587', commentary_filename),'r') as tst_file:
             self.assertTrue('pdf file' in tst_file.read())
-        with open(os.path.join(self.check_dir,'math.0303009','commentary.txt'),'r') as tst_file:
+        with open(os.path.join(self.check_dir,'math.0303009', commentary_filename),'r') as tst_file:
             self.assertTrue('pdf file' in tst_file.read())
 
     def test_extract_any_identify_cry_files(self):
-        with open(os.path.join(self.check_dir,'math.0303004','commentary.txt'),'r') as tst_file:
+        with open(os.path.join(self.check_dir,'math.0303004', commentary_filename),'r') as tst_file:
             self.assertTrue('.cry file' in tst_file.read())
-        with open(os.path.join(self.check_dir,'math.0303006','commentary.txt'),'r') as tst_file:
+        with open(os.path.join(self.check_dir,'math.0303006', commentary_filename),'r') as tst_file:
             self.assertTrue('.cry file' in tst_file.read())
-        with open(os.path.join(self.check_dir,'math.0303008','commentary.txt'),'r') as tst_file:
+        with open(os.path.join(self.check_dir,'math.0303008', commentary_filename),'r') as tst_file:
             self.assertTrue('.cry file' in tst_file.read())
 
 

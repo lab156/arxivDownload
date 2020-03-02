@@ -48,11 +48,11 @@ SELECT  articles.id, tags FROM manifest LEFT JOIN articles on manifest.id = arti
 
 * To check the files with with unknown encoding:
 ```bash
-   find . -name 'commentary.txt' -exec grep Ignoring {} \;
+   find . -name 'latexml_commentary.txt' -exec grep Ignoring {} \;
 ```
-* To process the first .tex file to an .xml file of the same name and last part of error stream to commentary.txt
+* To process the first .tex file to an .xml file of the same name and last part of error stream to latexml_commentary.txt
 ```bash
-TEXF=`ls *.tex`; latexml $TEXF.tex 2>&1 > ${TEXF%.*}.xml | tail -15 >> commentary.txt
+TEXF=`ls *.tex`; latexml $TEXF.tex 2>&1 > ${TEXF%.*}.xml | tail -15 >> latexml_commentary.txt
 ```
 
 * To find directories unprocessed by latexml (don't have a latexml_errors_mess.txt file)
@@ -82,6 +82,11 @@ Fatal:perl:die Perl died
 ### Problems
 * LateXML did not finish 2014/1411.6225/bcdr_en.tex
 
+### Testing
+* All the tests in the ./tests files are discovered with the command
+```
+python -m unittest discover -s tests
+```
 
 The xml_file.xml is modified by the search.py module:
 * *processed*, is False by default.

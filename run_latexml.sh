@@ -11,6 +11,8 @@
 source <(grep ^LATEXML_BIN "$PWD/config.toml")
 echo "latexml_bin file is: $LATEXML_BIN"
 
+COMMENTARY_FILENAME=latexml_commentary.txt
+
 #The maximum amount of time in seconds that LaTeXML is
 #allowed to run (seconds)
 source <(grep ^MAXT "$PWD/config.toml")
@@ -20,12 +22,12 @@ do
     f=$(perl get_main_tex.pl $article_dir)
     if [ -z "$f" ]
     then
-	    COMMENTARY_FILE=$article_dir/commentary.txt
+	    COMMENTARY_FILE=$article_dir/COMMENTARY_FILENAME
 	    echo "Could not find the main tex file. $COMMENTARY_FILE"
 	    [ -f "$COMMENTARY_FILE" ] && echo "Main TeX file not found" >> $COMMENTARY_FILE
     else
 	    echo "Running LaTeXML on the file " $f
-	    COMMENTARY_FILE=${f%/*}/commentary.txt 
+	    COMMENTARY_FILE=${f%/*}/COMMENTARY_FILENAME
 	    echo "main .tex file" $(basename $f) >> $COMMENTARY_FILE
 	    timeout $MAXT  $LATEXML_BIN $f --noparse 2>${f%/*}/latexml_errors_mess.txt > ${f%.*}.xml 
 	    if [ $? -eq 124 ]; then

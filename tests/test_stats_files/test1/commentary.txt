@@ -1,6 +1,0 @@
-tar_file: arXiv_src_1703_003.tar
-extraction_tool: tarfile
-main .tex file paper-draft.tex
-Finished in less than  seconds
-main .tex file paper-draft.tex
-Finished in less than 1200 seconds
