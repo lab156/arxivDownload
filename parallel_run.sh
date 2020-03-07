@@ -4,7 +4,7 @@
 #SBATCH --output=paralatexml.log
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
-#SBATCH --nodes=4
+#SBATCH --nodes=1
 
 MAIN_DIR="math05"
 for a in 0501_00{1,2}; do
@@ -16,6 +16,6 @@ echo "Done extracting";
 
 time parallel -P 95% ./run_latexml.sh ::: $SUBDIR/*;
 
-#mv /tmp/paralatexml.log $SUBDIR
+mv /tmp/paralatexml.log $SUBDIR
 
 done;
