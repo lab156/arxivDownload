@@ -182,7 +182,8 @@ class Xtraction(object):
             self.tar_path = tar_path
         else:
             raise(ValueError('There is no file at %s'%tar_path))
-        print('untaring file: %s    \r'%tar_path,end='\r')
+        #print('untaring file: %s    \r'%tar_path,end='\r')
+        print('untaring file: %s    '%tar_path)
         with tarfile.open(tar_path) as fa:
             self.art_lst = [k.get_info()['name'] for k in fa.getmembers()][1:]
 
@@ -346,8 +347,9 @@ class Xtraction(object):
 
         ff = tarfile.open(self.tar_path) #open the .tar file once
         for filename in loop_filenames:
-            print("\033[K",end='') 
-            print('writing file %s               \r'%filename, end='\r')
+            #print("\033[K",end='') 
+            #print('writing file %s               \r'%filename, end='\r')
+            print('writing file %s               '%filename)
 
             short_name = self.tar2api(filename, sep='.')
 
@@ -542,6 +544,7 @@ if __name__ == '__main__':
             X = Xtraction(T, db='sqlite:///' + args.db)
         else:
             X = Xtraction(T)
-        print("\033[K",end='')
-        print('writing file %s               \r'%T,end='\r')
+        #print("\033[K",end='')
+        #print('writing file %s               \r'%T,end='\r')
+        print('writing file %s               '%T)
         X.extract_tar(args.outdir, *(args.term))
