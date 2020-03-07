@@ -19,7 +19,8 @@ source <(grep ^MAXT "$PWD/config.toml")
 
 for article_dir in "$@"
 do
-    f=$(perl get_main_tex.pl $article_dir)
+    [ -d $article_dir ] && f=$(perl get_main_tex.pl $article_dir) ||\
+        { echo $article_dir "seems to not exist"; exit 0; }
     if [ -z "$f" ]
     then
 	    COMMENTARY_FILE=$article_dir/$COMMENTARY_FILENAME
