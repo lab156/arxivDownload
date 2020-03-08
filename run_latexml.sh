@@ -9,7 +9,7 @@
 #Define the LaTeXML binary file to run by sourcing the config file
 # This define the variable latexml_bin
 source <(grep ^LATEXML_BIN "$PWD/config.toml")
-echo "latexml_bin file is: $LATEXML_BIN"
+#echo "latexml_bin file is: $LATEXML_BIN"
 
 COMMENTARY_FILENAME=latexml_commentary.txt
 
@@ -39,5 +39,4 @@ do
 	    fi
     fi
 done
-
 
