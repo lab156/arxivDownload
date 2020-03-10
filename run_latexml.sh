@@ -19,12 +19,12 @@ source <(grep ^MAXT "$PWD/config.toml")
 
 for article_dir in "$@"
 do
-    [ -d $article_dir ] && f=$(perl get_main_tex.pl $article_dir) ||\
+    [ -d $article_dir ] && f=$(perl get_main_tex.pl $article_dir || echo "") ||\
         { echo $article_dir "seems to not exist"; exit 0; }
-    if [ -z "$f" ]
+    if [ -z $f ] #check if $f is string of length zero
     then
 	    COMMENTARY_FILE=$article_dir/$COMMENTARY_FILENAME
-	    echo "Could not find the main tex file. $COMMENTARY_FILE"
+	    echo "Could not find the main tex file." $f
 	    [ -f "$COMMENTARY_FILE" ] && echo "Main TeX file not found" >> $COMMENTARY_FILE
     else
 	    echo "Running LaTeXML on the file " $f

@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-#SBATCH --time=0-02:00:00
+#SBATCH --time=0-00:30:00
 #SBATCH --job-name=paralatexml
 #SBATCH --output=/tmp/paralatexml.log
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
@@ -16,12 +16,13 @@ source <(grep ^LATEXML_BIN "$PWD/config.toml")
 echo "latexml_bin file is: $LATEXML_BIN"
 
 MAIN_DIR=$SCRATCH/"math05"
-for a in `ls $SCRATCH/large_test`; do
+#for a in `ls $SCRATCH/large_test | awk 'BEGIN {FS="_"} {if ($3 > 508) print $0}'`; do
+for a in $(echo arXiv_src_0512_002.tar); do
 # Expecting names with format  arXiv_src_0508_001.tar 
 # and naming the subdir 0508_001
 SUBDIR=$MAIN_DIR/$(echo $a |  awk 'BEGIN {FS="[_.]"}; {print $3"_"$4}');
 mkdir -p $SUBDIR;
-python3 process.py $SCRATCH/large_test/$a $SUBDIR --term math --db $SCRATCH/arxiv2.db;
+#python3 process.py $SCRATCH/large_test/$a $SUBDIR --term math --db $SCRATCH/arxiv2.db;
 
 echo "Done extracting";
 
