@@ -232,6 +232,7 @@ class Xtraction(object):
          'utf-8':  ['utf-8',],
          'ascii':  ['utf-8',],
         'ISO-8859-1': ['ISO-8859-1',],
+        #'ISO-8859-5': ['iso8859_5',],
         'Windows-1252': ['latin1',],
          'SHIFT_JIS': ['shift_jis',],
          'GB2312': ['gbk', 'gb18030-2000'],
@@ -297,8 +298,8 @@ class Xtraction(object):
         commentary_dict = {}
         commentary_dict['encoding detected'] = encoding_detected
         if encoding_lst == 'Unk':
-            raise ValueError('Unknown encoding %s found in file %s\
-                    in tarfile %s'%(encoding_detected, filename,
+            raise ValueError('Unknown encoding: %s found in file: %s in tarfile %s'\
+                    %(encoding_detected, filename,
                       os.path.basename(self.tar_path)))
         elif encoding_lst:
             i = 0
@@ -391,6 +392,10 @@ class Xtraction(object):
                             except UnicodeDecodeError as ee:
                                 commentary_dict['decode_error'] = str(ee)
                                 decoded_str = 'Empty file goes here'
+                            except ValueError as ee: # In case a new encoding is used
+                                commentary_dict['decode_error'] = str(ee)
+                                decoded_str = 'Empty file goes here'
+
 
                             with open(os.path.join(output_path,
                                 short_name + '.tex'),'w') as fname:
