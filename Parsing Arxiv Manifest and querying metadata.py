@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.2
+#       jupytext_version: 1.3.3
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -240,9 +240,6 @@ print(snd_magic.name)
 with open('./zhu_untared.tex', 'w') as f:
     f.write(zhu_str.decode('utf-8'))
 
-# + jupyter={"outputs_hidden": true}
-print(zhu_str)
-
 # +
 import gzip
 import chardet
@@ -270,7 +267,7 @@ chardet.detect(t)
 
 #with open('../holita.txt','w') as holaf:
 #    holaf.write(allfile.read().decode('utf-8'))
-    
+
 
 # + jupyter={"outputs_hidden": true}
 t.decode('cp932')
@@ -282,49 +279,20 @@ try:
 except UnicodeDecodeError as e:
     print('todo bien')
     print(e)
-    
+
 
 import difflib
 Diffs = difflib.unified_diff(t.decode(errors='ignore').splitlines(), t.decode('koi8-r')) 
 for d in Diffs:
     print(d)
 
-tarfile.ReadError()
-
 with tarfile.open('tests/minitest.tar') as morgan:
     for mor in morgan:
         print(mor.name)
 
-
-# +
-# file_tar.extract?
-
-# +
-# tarfile.TarFile.extractall?
-# -
 
 import chardet
 chardet.detect(t)
 
 import glob
 glob.glob('/mnt/arXiv_src/src/arXiv_src_1805_*')
-
-# +
-# bytes.decode?
-# -
-
-type(t)
-
-import shutil
-shutil.rmtree('check_test/')
-
-with open('../check2/1601.00103/1601.00103.tex','r') as fu:
-    print(fu.readlines()[:10])
-
-# + jupyter={"outputs_hidden": true}
-os.listdir('../check6')
-# -
-
-set( ['commentary.txt', 'definitions.sty', 'hyperplane.bbl', 'hyperplane.tex'])== set(['commentary.txt', 'hyperplane.tex', 'definitions.sty', 'hyperplane.bbl'])
-
-
