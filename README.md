@@ -29,6 +29,10 @@
 
 
 ### Queries
+* Count the articles in a year of tar files
+```sql
+SELECT  count(articles.id) FROM manifest LEFT JOIN articles on manifest.id = articles.tarfile_id WHERE manifest.filename LIKE 'src/arXiv_src_06%' and articles.tags like '[{''term'': ''math%';
+```
 * Find the authors (in general) with the most publications
 ```sql
 SELECT author, count(*) AS c FROM articles GROUP BY author ORDER BY c DESC LIMIT 10;
