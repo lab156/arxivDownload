@@ -15,10 +15,12 @@ class TestXtraction1(unittest.TestCase):
         cls.f_path = 'tests/minitest.tar'
         cls.f_path2 = 'tests/minitest2.tar'
         cls.f_path3 = 'tests/minitest3.tar'   # sample from tarfile 1403_001
+        cls.f_path4 = 'tests/minitest4.tar'   # test unknown encodings
         cls.check_dir = os.path.join(os.path.curdir,'check_test')
         cls.check_dir2 = os.path.join(os.path.curdir,'check_test2')
         cls.check_dir3 = os.path.join(os.path.curdir,'check_test3')
         cls.check_dir4 = os.path.join(os.path.curdir,'check_test4')
+        cls.check_dir4b = os.path.join(os.path.curdir,'check_test4b')
         cls.x = Xtraction(cls.f_path)
         cls.xdb = Xtraction(cls.f_path, db='sqlite:///tests/test.db')
         cls.x.extract_tar(cls.check_dir)
@@ -28,6 +30,9 @@ class TestXtraction1(unittest.TestCase):
         cls.x2.extract_tar(cls.check_dir2, 'all')
         cls.x2.extract_tar(cls.check_dir4, 'all', article_name='^1804/1804\.0159.*')
         cls.x3 = Xtraction(cls.f_path3)
+        cls.x4 = Xtraction(cls.f_path4)
+        del cls.x4.encoding_dict['ISO-8859-5'] # this simulates not knowing of this file encoding
+        cls.x4.extract_tar(cls.check_dir4b, 'math')
 
     def test_save_articles_to_db(self):
         self.x3.save_articles_to_db('sqlite:///tests/test.db')
@@ -183,6 +188,32 @@ class TestXtraction1(unittest.TestCase):
             self.assertListEqual(expect_lst, tst_file_lines[:15])
             self.assertEqual(len(tst_file_lines), 1050)
 
+    def test_extract_unknown_encoding(self):
+        '''
+        to test the decode_error message comment the ISO-8859-5 entry in the encoding_dict of the process.py file
+        and uncomment the last line of this test
+        '''
+        with open(os.path.join(self.check_dir4b, 'math.0504299','latexml_commentary.txt'),'r') as tst_file:
+            tst_file_lines = tst_file.readlines()
+        self.assertTrue('encoding detected: ISO-8859-5\n' in tst_file_lines[1]) #This is always be in the commentary
+        self.assertEqual('decode_message: Unknown encoding: ISO-8859-5 found in file: 0504/math0504299.gz in tarfile minitest4.tar\n', tst_file_lines[2])
+
+    def test_extract_text4(self):
+        expect_lst = ['\n',
+                '\\documentclass[12pt,a4paper]{article}\n',
+                 ' \\usepackage{emlines2,amstext,amssymb,amscd}\n',
+                 ' %\\onehalfspace\n',
+                 ' %for changing interline space\n',
+                 '%\\textwidth=150mm \\textheight=210mm\n',
+                 '%Writing in russian\n',
+                 '% \\usepackage[russianb]{babel}\n',
+                 '%for russian hyphenation\n',]
+        with open(os.path.join(self.check_dir4b,  'math.0504299', 'math.0504299.tex'),'r') as tst_file:
+            tst_file_lines = tst_file.readlines()
+            self.assertListEqual(expect_lst, tst_file_lines[:9])
+            self.assertEqual(len(tst_file_lines), 2202)
+
+
 
     @classmethod
     def tearDownClass(cls):
@@ -190,6 +221,7 @@ class TestXtraction1(unittest.TestCase):
         shutil.rmtree(cls.check_dir2)
         shutil.rmtree(cls.check_dir3)
         shutil.rmtree(cls.check_dir4)
+        shutil.rmtree(cls.check_dir4b)
 
         eng = sa.create_engine('sqlite:///tests/test.db', echo=True)
         eng.connect()

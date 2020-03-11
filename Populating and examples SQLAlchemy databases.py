@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.0
+#       jupytext_version: 1.3.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -92,7 +92,9 @@ filedf['filename'] = filedf['filename'].astype(str)
 
 prob = pro.Xtraction('tests/minitest4.tar')
 
-prob.extract_tar('../rm_me_0504_002', 'math')
+prob.extract_tar('data/rm_me_0504_002', 'math')
+
+prob.encoding_dict
 
 mini.save_articles_to_db('sqlite:///tests/test.db')
 
