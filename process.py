@@ -233,6 +233,7 @@ class Xtraction(object):
          'ascii':  ['utf-8',],
         'ISO-8859-1': ['ISO-8859-1',],
         'ISO-8859-5': ['iso8859_5',],
+        'ISO-8859-9': ['iso8859_9',],
         'Windows-1252': ['latin1',],
          'SHIFT_JIS': ['shift_jis',],
          'GB2312': ['gbk', 'gb18030-2000'],
