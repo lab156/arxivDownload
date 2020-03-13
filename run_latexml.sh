@@ -24,7 +24,7 @@ do
     if [ -z $f ] #check if $f is string of length zero
     then
 	    COMMENTARY_FILE=$article_dir/$COMMENTARY_FILENAME
-	    echo "Could not find the main tex file." $f
+	    echo "Could not find the main tex file in:" $article_dir
 	    [ -f "$COMMENTARY_FILE" ] && echo "Main TeX file not found" >> $COMMENTARY_FILE
     else
 	    echo "Running LaTeXML on the file " $f
