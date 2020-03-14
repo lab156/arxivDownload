@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.0
+#       jupytext_version: 1.3.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -22,21 +22,40 @@ import os
 import numpy as np
 import collections as coll
 import pandas as pd
+import tarfile
 # %matplotlib inline  
 
 # %load_ext autoreload
 # %autoreload 2
 import latexml_err_mess_stats as err
 
-lst_error_files = glob.glob('../maxed_out_examples/*')
+p = err.ParseLaTeXMLLog('data/1806.00856/')
+p.result
+
+with tarfile.open('data/0808_003.tar') as tar_file:
+    article_set = set()
+    for pathname in tar_file.getnames():
+        dirname = pathname.split('/')[1]
+        article_set.add(dirname)
+    for name in [n for n in tar_file.getnames() if '0808.3219' in n]:
+        if 'commentary' in name:
+            print('The commentary is: %s'%tar_file.extractfile(name).name)
+        if 'errors' in name:
+            print('The error file starts with: %s'%tar_file.extractfile(name).read(100))
+        if '.xml' in name:
+            print('The xml file starts with: %s'%tar_file.extractfile(name).read(100))
+
+lst_error_files = glob.glob('data/problem_files_starting_1703/*/latexml_erro*')
 err.summary(lst_error_files)
-len(lst_error_files)
 
 p_lst = list(map(err.ParseLaTeXMLLog, lst_error_files))
-p_times = [p.errors for p in p_lst]
-p_times
+p_times = [p.time_secs for p in p_lst]
+Cut,bins = pd.cut(p_times, 8, retbins=True)
+count = coll.Counter(Cut)
+for c in sorted(list(count)):
+    print(c, count[c])
 
-bins
+type(np.NAN)
 
 for c in Cut:
     print(c.)
