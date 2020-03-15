@@ -46,7 +46,7 @@ class Result(enum.Flag):
     FAIL = FATAL | TIMED | MAXED | DIED
 
 class ParseLaTeXMLLog():
-    def __init__(self, error_log, commentary, max_errors=10000):
+    def __init__(self, error_log, commentary, article_name, max_errors=10000):
         '''
         Common actions to do on a latexml errors messages log
         log_path is the path to a latexml_err_mess_ log file
@@ -54,11 +54,11 @@ class ParseLaTeXMLLog():
         '''
         ## Error_log can be none but the commentary file is necessary
         self.commentary = commentary.readlines()
+        self.filename = article_name
         if error_log:
-            self.log = error_log.read()
-            self.filename = error_log.name
+            self.log = error_log.read().decode()
 
-            import pdb; pdb.set_trace()
+            #import pdb; pdb.set_trace()
 
         #if os.path.isfile(log_path):
         #    self.filename = log_path
