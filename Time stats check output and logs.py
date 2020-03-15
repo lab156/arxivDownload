@@ -23,14 +23,14 @@ import numpy as np
 import collections as coll
 import pandas as pd
 import tarfile
+import magic
 # %matplotlib inline  
 
 # %load_ext autoreload
 # %autoreload 2
 import latexml_err_mess_stats as err
 
-p = err.ParseLaTeXMLLog('data/1806.00856/')
-p.result
+magic.detect_from_filename('data/0808_003.tar')
 
 with tarfile.open('data/0808_003.tar') as tar_file:
     article_set = set()
@@ -39,11 +39,12 @@ with tarfile.open('data/0808_003.tar') as tar_file:
         article_set.add(dirname)
     for name in [n for n in tar_file.getnames() if '0808.3219' in n]:
         if 'commentary' in name:
-            print('The commentary is: %s'%tar_file.extractfile(name).name)
+            comm = tar_file.extractfile(name)
         if 'errors' in name:
-            print('The error file starts with: %s'%tar_file.extractfile(name).read(100))
+            log = tar_file.extractfile(name)
         if '.xml' in name:
             print('The xml file starts with: %s'%tar_file.extractfile(name).read(100))
+    pp = err.ParseLaTeXMLLog(log, comm)
 
 lst_error_files = glob.glob('data/problem_files_starting_1703/*/latexml_erro*')
 err.summary(lst_error_files)
