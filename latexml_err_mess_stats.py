@@ -6,6 +6,8 @@ import enum
 import numpy as np
 import pandas as pd
 import collections as coll
+import magic
+import tarfile
 
 commentary_filename = 'latexml_commentary.txt'
 
@@ -41,28 +43,41 @@ class Result(enum.Flag):
     MAXED = enum.auto() # maxed out the allowed number of errors
     DIED = enum.auto() # found dead: ex. no finished processing timestamp
     NOTEX = enum.auto()  # No TeX file was found it might be pdf only or a weird case like 1806.03429
+    #NOLOG = enum.auto() # No log file, different from DIED and NOTEX
     FAIL = FATAL | TIMED | MAXED | DIED
 
 class ParseLaTeXMLLog():
-    def __init__(self, log_path, max_errors=10000):
+    def __init__(self, error_log, commentary, article_name, max_errors=10000):
         '''
         Common actions to do on a latexml errors messages log
         log_path is the path to a latexml_err_mess_ log file
+        can be a .tar file also 
+        files need to be bufferedIO objects so open them up with the rb (b stands for binary) option
         '''
-        if os.path.isfile(log_path):
-            self.filename = log_path
-            self.dir_name = os.path.split(self.filename)[0]
-        else: # log_path is a directory
-            self.filename = os.path.join(log_path, 'latexml_errors_mess.txt')
-            self.dir_name = log_path
+        ## Error_log can be none but the commentary file is necessary
+        self.commentary = list(map(lambda x: x.decode(), commentary.readlines()))
+        self.filename = article_name
+        if error_log:
+            self.log = error_log.read().decode()
 
-        if os.path.isfile(self.filename):
-            with open(self.filename, 'r') as log_fobj:
-                self.log = log_fobj.read()
+
+        #if os.path.isfile(log_path):
+        #    self.filename = log_path
+        #    self.dir_name = os.path.split(self.filename)[0]
+        #else: # log_path is a directory
+        #    self.filename = os.path.join(log_path, 'latexml_errors_mess.txt')
+        #    self.dir_name = log_path
+
+#        if os.path.isfile(self.filename):
+#            with open(self.filename, 'r') as log_fobj:
+#                self.log = log_fobj.read()
 
             # Get the time span
-            self.start = re.search('\\nprocessing started (.*)\\n',
-                    self.log).group(1)
+            try:
+                self.start = re.search('\\nprocessing started (.*)\\n',
+                        self.log).group(1)
+            except AttributeError:
+                import pdb; pdb.set_trace()
             try:
                 self.finish = re.search('\\nprocessing finished (.*)\\n',
                         self.log).group(1)
@@ -97,9 +112,9 @@ class ParseLaTeXMLLog():
                     self.result |= Result.TIMED
 
         else:
-            #assert any(["Main TeX file not found" in line for line in self.commentary()]),\
-            #        "Error with file %s, don't know what to do in this case"%log_path
+            # TODO: need to break down why there is no error_log
             self.result = Result.NOTEX
+            #self.result += Result.NOLOG
             self.time_secs = np.NAN
 
 
@@ -116,7 +131,7 @@ class ParseLaTeXMLLog():
         Tries to get the encoding from the latexml_commentary files
         '''
         find_encod = lambda s: re.search(r'encoding detected: (.*)$', s)
-        encod_map = map(find_encod, self.commentary())
+        encod_map = map(find_encod, self.commentary)
         encod_lst = [e.group(1) for e in encod_map if e is not None]
 
         if  any(encod_lst):
@@ -133,7 +148,7 @@ class ParseLaTeXMLLog():
         return time if process timed out
         return None if process finished on time 
         '''
-        result = re.search('Finished in less than (\d+) seconds', self.commentary()[-1])
+        result = re.search('Finished in less than (\d+) seconds', self.commentary[-1])
 
         if result:
             return int(result.group(1))
@@ -145,7 +160,7 @@ class ParseLaTeXMLLog():
         return time if the LAST LINE of the commentary file says it timed out
         return None if process finished on time
         '''
-        result = re.search('Timeout of (\d+) seconds occured', self.commentary()[-1])
+        result = re.search('Timeout of (\d+) seconds occured', self.commentary[-1])
 
         if result:
             return int(result.group(1))
@@ -158,6 +173,8 @@ class ParseLaTeXMLLog():
         '''
         temp_result = None
 
+commentary_pred = lambda x: 'latexml_commentary' in x
+error_log_pred = lambda x: 'latexml_errors' in x
 
 def summary(dir_lst, **kwargs):
     '''
@@ -178,10 +195,23 @@ def summary(dir_lst, **kwargs):
 
     encoding_lst = []
     times_lst = []
-    for ind, a in enumerate(dir_lst):
-        p = ParseLaTeXMLLog(a)
-        assert hasattr(p, 'time_secs'), " Error, %s has no attribute time_secs"%p.filename
-        pvec += (fun_dict['success'](p),
+    article_dict = coll.defaultdict(list)
+    #for ind, a in enumerate(dir_lst):
+    with tarfile.open(dir_lst) as tar_file:
+        for pathname in tar_file.getnames():
+            dirname = pathname.split('/')[1]
+            article_dict[dirname].append(pathname)
+        for name,val in article_dict.items():
+            comm = tar_file.extractfile(next(filter(commentary_pred, val)))
+            log_name = next(filter(error_log_pred, val), None)
+            if log_name:
+                log = tar_file.extractfile(log_name)
+            else:
+                log = None
+            #print(log, ' ', comm, ' ')
+            p = ParseLaTeXMLLog(log, comm, name)
+            assert hasattr(p, 'time_secs'), " Error, %s has no attribute time_secs"%p.filename
+            pvec += (fun_dict['success'](p),
                 fun_dict['fail'](p),
                 fun_dict['fatal'](p),
                 fun_dict['maxed'](p),
@@ -189,11 +219,11 @@ def summary(dir_lst, **kwargs):
                 fun_dict['died'](p),
                 fun_dict['notex'](p),
                 )
-        encoding_lst.append(p.get_encoding())
-        times_lst.append(p.time_secs)
-        if print_opt:
-            if fun_dict[print_opt](p):
-                print(p.filename)
+            encoding_lst.append(p.get_encoding())
+            times_lst.append(p.time_secs)
+            if print_opt:
+                if fun_dict[print_opt](p):
+                    print(p.filename)
     print("Success Fail Fatal Maxed Timed Died no_tex")
     print("{:>7} {:>4} {:>5} {:>5} {:>5} {:>4} {:>6}".format(*list(pvec)))
     print(coll.Counter(encoding_lst))

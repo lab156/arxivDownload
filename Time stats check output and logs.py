@@ -22,21 +22,69 @@ import os
 import numpy as np
 import collections as coll
 import pandas as pd
+import tarfile
+import magic
+from collections import defaultdict
 # %matplotlib inline  
 
 # %load_ext autoreload
 # %autoreload 2
 import latexml_err_mess_stats as err
 
-lst_error_files = glob.glob('../maxed_out_examples/*')
+magic.detect_from_filename('data/0808_001.tar')
+
+err.summary('../0804_001.tar', print='fail')
+
+# + jupyter={"outputs_hidden": true}
+with tarfile.open('../0804_001.tar') as tar_file:
+    val = list(filter(lambda x: '0804.1905' in x, tar_file.getnames()))
+    comm = tar_file.extractfile(next(filter(commentary_pred, val)))
+    log_name = next(filter(error_log_pred, val), None)
+    if log_name:
+        log = tar_file.extractfile(log_name)
+    else:
+        log = None
+    pp = err.ParseLaTeXMLLog(log, comm, name)
+print(name,pp.log)
+
+# +
+article_dict = defaultdict(list)
+commentary_pred = lambda x: 'latexml_commentary' in x
+error_log_pred = lambda x: 'latexml_errors' in x
+with tarfile.open('../0808_003.tar') as tar_file:
+    article_set = set()
+    for pathname in tar_file.getnames():
+        dirname = pathname.split('/')[1]
+        article_set.add(dirname)
+        article_dict[dirname].append(pathname)
+    for name,val in article_dict.items():
+        comm = tar_file.extractfile(next(filter(commentary_pred, val)))
+        log_name = next(filter(error_log_pred, val), None)
+        if log_name:
+            log = tar_file.extractfile(log_name)
+        else:
+            log = None
+        the_name = name
+            #print(log, ' ', comm, ' ')
+        pp = err.ParseLaTeXMLLog(log, comm, name)
+        print(name,pp.result)
+            
+
+# -
+
+list(map(lambda x:x.decode(), pp.commentary))
+
+article_dictfiles = glob.glob('data/problem_files_starting_1703/*/latexml_erro*')
 err.summary(lst_error_files)
-len(lst_error_files)
 
 p_lst = list(map(err.ParseLaTeXMLLog, lst_error_files))
-p_times = [p.errors for p in p_lst]
-p_times
+p_times = [p.time_secs for p in p_lst]
+Cut,bins = pd.cut(p_times, 8, retbins=True)
+count = coll.Counter(Cut)
+for c in sorted(list(count)):
+    print(c, count[c])
 
-bins
+type(np.NAN)
 
 for c in Cut:
     print(c.)
@@ -59,7 +107,8 @@ print(re.search('\nConversion complete:(.*)', err).group(0))
 print(re.search('\nConversion complete: (No obvious problems\.)?(\d+ warnings?[;\.] ?)?(\d+ errors?[;\.] ?)?(\d+ fatal errors?[;\.] ?)?(\d+ undefined macros?\[[\*\@\{\}\\\\,\w\. ]+\][;\.] ?)?(\d+ missing files?\[[,\w\. ]+\])?.*\n', err).groups())
 
 
-os.path.split(lst_error_files[3])
+f = filter(lambda x: 'errors' in x, val)
+len(f)
 
 
 # +
