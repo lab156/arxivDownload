@@ -22,25 +22,33 @@ class TestParseConversion(unittest.TestCase):
 
 class TestParseLaTeXMLLog(unittest.TestCase):
     def test_time_space_init(self):
-        P = err.ParseLaTeXMLLog(\
-            './tests/test_stats_files/test1/latexml_errors_mess.txt')
-        self.assertEqual(24, P.time_secs)
+        with open('./tests/test_stats_files/test1/latexml_errors_mess.txt', 'rb') as log,\
+                open('./tests/test_stats_files/test1/latexml_commentary.txt', 'rb') as comm:
+            P = err.ParseLaTeXMLLog(log, comm, 'test1')
+            self.assertEqual(24, P.time_secs)
 
     def test_commentary(self):
-        P = err.ParseLaTeXMLLog(\
-        './tests/test_stats_files/test1/latexml_errors_mess.txt')
-        self.assertEqual(len(P.commentary()), 6)
+        with open('./tests/test_stats_files/test1/latexml_errors_mess.txt', 'rb') as log,\
+                open('./tests/test_stats_files/test1/latexml_commentary.txt', 'rb') as comm:
+            P = err.ParseLaTeXMLLog(log, comm, 'test1')
+            self.assertEqual(len(P.commentary), 6)
 
     def test_time_space_init_dir(self):
-        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test1')
-        self.assertEqual(24, P.time_secs)
+        with open('./tests/test_stats_files/test1/latexml_errors_mess.txt', 'rb') as log,\
+                open('./tests/test_stats_files/test1/latexml_commentary.txt', 'rb') as comm:
+            P = err.ParseLaTeXMLLog(log, comm, 'test1')
+            self.assertEqual(24, P.time_secs)
 
     def test_commentary_dir(self):
-        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test1')
-        self.assertEqual(len(P.commentary()), 6)
+        with open('./tests/test_stats_files/test1/latexml_errors_mess.txt', 'rb') as log,\
+                open('./tests/test_stats_files/test1/latexml_commentary.txt', 'rb') as comm:
+            P = err.ParseLaTeXMLLog(log, comm, 'test1')
+        self.assertEqual(len(P.commentary), 6)
 
     def test_init_parsing(self):
-        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test1')
+        with open('./tests/test_stats_files/test1/latexml_errors_mess.txt', 'rb') as log,\
+                open('./tests/test_stats_files/test1/latexml_commentary.txt', 'rb') as comm:
+            P = err.ParseLaTeXMLLog(log, comm, 'test1')
         self.assertEqual(P.warnings, 2)
         self.assertEqual(P.errors, 0)
         self.assertEqual(P.fatal_errors, 0)
@@ -50,18 +58,28 @@ class TestParseLaTeXMLLog(unittest.TestCase):
         self.assertEqual(P.no_prob, None)
 
     def test_finished(self):
-        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test1')
+        with open('./tests/test_stats_files/test1/latexml_errors_mess.txt', 'rb') as log,\
+                open('./tests/test_stats_files/test1/latexml_commentary.txt', 'rb') as comm:
+            P = err.ParseLaTeXMLLog(log, comm, 'test1')
         self.assertEqual(P.finished(), 1200)
 
     def test_init_flags(self):
-        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test1')
+        with open('./tests/test_stats_files/test1/latexml_errors_mess.txt', 'rb') as log,\
+                open('./tests/test_stats_files/test1/latexml_commentary.txt', 'rb') as comm:
+            P = err.ParseLaTeXMLLog(log, comm, 'test1')
         self.assertEqual(P.result, err.Result.SUCC)
         self.assertTrue(not(P.result in err.Result.FAIL))
-        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test2')
+        with open('./tests/test_stats_files/test2/latexml_errors_mess.txt', 'rb') as log,\
+                open('./tests/test_stats_files/test2/latexml_commentary.txt', 'rb') as comm:
+            P = err.ParseLaTeXMLLog(log, comm, 'test1')
         self.assertEqual(P.result, err.Result.FATAL)
         self.assertTrue(P.result in err.Result.FAIL)
-        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test3')
+        with open('./tests/test_stats_files/test3/latexml_errors_mess.txt', 'rb') as log,\
+                open('./tests/test_stats_files/test3/latexml_commentary.txt', 'rb') as comm:
+            P = err.ParseLaTeXMLLog(log, comm, 'test1')
         self.assertEqual(P.result, err.Result.TIMED|err.Result.FATAL)
         self.assertTrue(P.result in err.Result.FAIL)
-        P = err.ParseLaTeXMLLog('./tests/test_stats_files/test4')
+        with open('./tests/test_stats_files/test4/latexml_errors_mess.txt', 'rb') as log,\
+                open('./tests/test_stats_files/test4/latexml_commentary.txt', 'rb') as comm:
+            P = err.ParseLaTeXMLLog(log, comm, 'test1')
         self.assertEqual(P.result, err.Result.TIMED|err.Result.FATAL)

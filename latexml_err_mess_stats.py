@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import collections as coll
 import magic
+import tarfile
 
 commentary_filename = 'latexml_commentary.txt'
 
@@ -51,14 +52,14 @@ class ParseLaTeXMLLog():
         Common actions to do on a latexml errors messages log
         log_path is the path to a latexml_err_mess_ log file
         can be a .tar file also 
+        files need to be bufferedIO objects so open them up with the rb (b stands for binary) option
         '''
         ## Error_log can be none but the commentary file is necessary
-        self.commentary = commentary.readlines()
+        self.commentary = list(map(lambda x: x.decode(), commentary.readlines()))
         self.filename = article_name
         if error_log:
             self.log = error_log.read().decode()
 
-            #import pdb; pdb.set_trace()
 
         #if os.path.isfile(log_path):
         #    self.filename = log_path
@@ -72,8 +73,11 @@ class ParseLaTeXMLLog():
 #                self.log = log_fobj.read()
 
             # Get the time span
-            self.start = re.search('\\nprocessing started (.*)\\n',
-                    self.log).group(1)
+            try:
+                self.start = re.search('\\nprocessing started (.*)\\n',
+                        self.log).group(1)
+            except AttributeError:
+                import pdb; pdb.set_trace()
             try:
                 self.finish = re.search('\\nprocessing finished (.*)\\n',
                         self.log).group(1)
@@ -169,6 +173,8 @@ class ParseLaTeXMLLog():
         '''
         temp_result = None
 
+commentary_pred = lambda x: 'latexml_commentary' in x
+error_log_pred = lambda x: 'latexml_errors' in x
 
 def summary(dir_lst, **kwargs):
     '''
@@ -189,10 +195,23 @@ def summary(dir_lst, **kwargs):
 
     encoding_lst = []
     times_lst = []
-    for ind, a in enumerate(dir_lst):
-        p = ParseLaTeXMLLog(a)
-        assert hasattr(p, 'time_secs'), " Error, %s has no attribute time_secs"%p.filename
-        pvec += (fun_dict['success'](p),
+    article_dict = coll.defaultdict(list)
+    #for ind, a in enumerate(dir_lst):
+    with tarfile.open(dir_lst) as tar_file:
+        for pathname in tar_file.getnames():
+            dirname = pathname.split('/')[1]
+            article_dict[dirname].append(pathname)
+        for name,val in article_dict.items():
+            comm = tar_file.extractfile(next(filter(commentary_pred, val)))
+            log_name = next(filter(error_log_pred, val), None)
+            if log_name:
+                log = tar_file.extractfile(log_name)
+            else:
+                log = None
+            #print(log, ' ', comm, ' ')
+            p = ParseLaTeXMLLog(log, comm, name)
+            assert hasattr(p, 'time_secs'), " Error, %s has no attribute time_secs"%p.filename
+            pvec += (fun_dict['success'](p),
                 fun_dict['fail'](p),
                 fun_dict['fatal'](p),
                 fun_dict['maxed'](p),
@@ -200,11 +219,11 @@ def summary(dir_lst, **kwargs):
                 fun_dict['died'](p),
                 fun_dict['notex'](p),
                 )
-        encoding_lst.append(p.get_encoding())
-        times_lst.append(p.time_secs)
-        if print_opt:
-            if fun_dict[print_opt](p):
-                print(p.filename)
+            encoding_lst.append(p.get_encoding())
+            times_lst.append(p.time_secs)
+            if print_opt:
+                if fun_dict[print_opt](p):
+                    print(p.filename)
     print("Success Fail Fatal Maxed Timed Died no_tex")
     print("{:>7} {:>4} {:>5} {:>5} {:>5} {:>4} {:>6}".format(*list(pvec)))
     print(coll.Counter(encoding_lst))

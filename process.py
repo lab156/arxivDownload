@@ -336,9 +336,9 @@ class Xtraction(object):
         Optional argument 'term': string with term in the arxiv_primary_category to extract
         Examples for term: `math.AG`, `math` , `physics` etc
 
-        keyword article_name = r'string' 
+        keyword article_name = r'string'
         where string is a regular expresion contained in the self.art_lst
-        Ex. article_name=r'^1703\.0137.*' (DON'T FORGET THE R AT THE START)
+        Ex. article_name=r'^1703\.0137.*'
         This option overrides all others
 
         '''
@@ -354,7 +354,7 @@ class Xtraction(object):
 
         ff = tarfile.open(self.tar_path) #open the .tar file once
         for filename in loop_filenames:
-            #print("\033[K",end='') 
+            #print("\033[K",end='')
             #print('writing file %s               \r'%filename, end='\r')
             print('writing file %s               '%filename)
 
@@ -376,7 +376,7 @@ class Xtraction(object):
                 # With the magic info of the file we can tell if it is pdf only or .cry encrypted
                 # TODO improve this with a regex
                 if '.tex.cry"' in gz_magic.name:
-                    out_mess = '.tex.cry file found %s'%filename 
+                    out_mess = '.tex.cry file found %s'%filename
                     commentary_dict['file_error'] = out_mess
 
                 else:

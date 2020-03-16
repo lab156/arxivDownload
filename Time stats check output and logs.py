@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.2
+#       jupytext_version: 1.3.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -31,26 +31,50 @@ from collections import defaultdict
 # %autoreload 2
 import latexml_err_mess_stats as err
 
-magic.detect_from_filename('data/0808_003.tar')
+magic.detect_from_filename('data/0808_001.tar')
 
+err.summary('../0804_001.tar', print='fail')
+
+# + jupyter={"outputs_hidden": true}
+with tarfile.open('../0804_001.tar') as tar_file:
+    val = list(filter(lambda x: '0804.1905' in x, tar_file.getnames()))
+    comm = tar_file.extractfile(next(filter(commentary_pred, val)))
+    log_name = next(filter(error_log_pred, val), None)
+    if log_name:
+        log = tar_file.extractfile(log_name)
+    else:
+        log = None
+    pp = err.ParseLaTeXMLLog(log, comm, name)
+print(name,pp.log)
+
+# +
 article_dict = defaultdict(list)
-with tarfile.open('data/0808_003.tar') as tar_file:
+commentary_pred = lambda x: 'latexml_commentary' in x
+error_log_pred = lambda x: 'latexml_errors' in x
+with tarfile.open('../0808_003.tar') as tar_file:
     article_set = set()
     for pathname in tar_file.getnames():
         dirname = pathname.split('/')[1]
         article_set.add(dirname)
-        article_dict['dirname'].append(pathname)
-    for val in article_dict.values():
-        for name in val:
-            if 'commentary' in name:
-                comm = tar_file.extractfile(name)
-            if 'errors' in name:
-                log = tar_file.extractfile(name)
-                the_name = name
-        pp = err.ParseLaTeXMLLog(log, comm, the_name)
-pp.filename
+        article_dict[dirname].append(pathname)
+    for name,val in article_dict.items():
+        comm = tar_file.extractfile(next(filter(commentary_pred, val)))
+        log_name = next(filter(error_log_pred, val), None)
+        if log_name:
+            log = tar_file.extractfile(log_name)
+        else:
+            log = None
+        the_name = name
+            #print(log, ' ', comm, ' ')
+        pp = err.ParseLaTeXMLLog(log, comm, name)
+        print(name,pp.result)
+            
 
-lst_error_files = glob.glob('data/problem_files_starting_1703/*/latexml_erro*')
+# -
+
+list(map(lambda x:x.decode(), pp.commentary))
+
+article_dictfiles = glob.glob('data/problem_files_starting_1703/*/latexml_erro*')
 err.summary(lst_error_files)
 
 p_lst = list(map(err.ParseLaTeXMLLog, lst_error_files))
@@ -83,7 +107,8 @@ print(re.search('\nConversion complete:(.*)', err).group(0))
 print(re.search('\nConversion complete: (No obvious problems\.)?(\d+ warnings?[;\.] ?)?(\d+ errors?[;\.] ?)?(\d+ fatal errors?[;\.] ?)?(\d+ undefined macros?\[[\*\@\{\}\\\\,\w\. ]+\][;\.] ?)?(\d+ missing files?\[[,\w\. ]+\])?.*\n', err).groups())
 
 
-os.path.split(lst_error_files[3])
+f = filter(lambda x: 'errors' in x, val)
+len(f)
 
 
 # +
