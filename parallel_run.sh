@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 #SBATCH --time=0-08:00:00
 #SBATCH --job-name=paraII
 #SBATCH --output=paralatexml.log
@@ -24,18 +24,23 @@ source <(grep ^LATEXML_BIN "$PWD/config.toml")
 echo "latexml_bin file is: $LATEXML_BIN"
 
 NEW_NAME="math11"
-SOURCE_DIR=$SCRATCH/"11_tars"
+#SOURCE_DIR=$SCRATCH/"11_tars"
+SOURCE_DIR="/mnt/arXiv_src/src/"
+
+[ -z $RAMDISK ] && RAMDISK=/tmp
 MAIN_DIR=$RAMDISK/$NEW_NAME # temporary store for speed
-OUT_DIR=$SCRATCH/$NEW_NAME  # where the files should end up
-mkdir -p $SCRATCH/$NEW_NAME
-START_HOME=`pwd`
-cp $SCRATCH/arxiv2.db $RAMDISK/;
+
+[ -z $SCRATCH ] && SCRATCH=$HOME;
+OUT_DIR=$SCRATCH/$NEW_NAME;  # where the files should end up
+mkdir -p $SCRATCH/$NEW_NAME;
+START_HOME=$PWD
+#cp $SCRATCH/arxiv2.db $RAMDISK/;
 
 
 #for a in `ls $SOURCE_DIR`; do
 #for a in `ls $SOURCE_DIR/arXiv_src_1106* | xargs -n 1 basename`; do
-for a in `ls $SOURCE_DIR | awk 'BEGIN {FS="_"} {if ($3 > 1106) print $0}'`; do
-#for a in "arXiv_src_0808_002.tar" "arXiv_src_0808_003.tar"; do
+#for a in `ls $SOURCE_DIR | awk 'BEGIN {FS="_"} {if ($3 > 1106) print $0}'`; do
+for a in "arXiv_src_1112_004.tar"; do
 # names of tar files have format:  arXiv_src_0508_001.tar 
 # and naming the subdir 0508_001
 
@@ -43,7 +48,7 @@ SUBDIR_NAME=$(echo $a |  awk 'BEGIN {FS="[_.]"}; {print $3"_"$4}');
 SUBDIR=$MAIN_DIR/$SUBDIR_NAME;
 mkdir -p $SUBDIR;
 
-python3 process.py $SOURCE_DIR/$a $SUBDIR --term math --db $RAMDISK/arxiv2.db
+python3 process.py $SOURCE_DIR/$a $SUBDIR --term math #--db $RAMDISK/arxiv2.db
 
 echo "Done extracting";
 
@@ -65,6 +70,6 @@ done;
 echo "finished job at "`date`
 
 run_on_exit() {
-    cp paralatexml.log $SCRATCH/$NEW_NAME;
+[ -f paralatexml.log ] && cp paralatexml.log $SCRATCH/$NEW_NAME;
     }
 trap run_on_exit EXIT
