@@ -23,9 +23,9 @@ echo "starting job at "`date`
 source <(grep ^LATEXML_BIN "$PWD/config.toml")
 echo "latexml_bin file is: $LATEXML_BIN"
 
-NEW_NAME="math11"
+NEW_NAME="math12"
 #SOURCE_DIR=$SCRATCH/"11_tars"
-SOURCE_DIR="/mnt/arXiv_src/src/"
+SOURCE_DIR="/mnt/arXiv_src/src"
 
 [ -z $RAMDISK ] && RAMDISK=/tmp
 MAIN_DIR=$RAMDISK/$NEW_NAME # temporary store for speed
@@ -39,8 +39,10 @@ START_HOME=$PWD
 
 #for a in `ls $SOURCE_DIR`; do
 #for a in `ls $SOURCE_DIR/arXiv_src_1106* | xargs -n 1 basename`; do
-#for a in `ls $SOURCE_DIR | awk 'BEGIN {FS="_"} {if ($3 > 1106) print $0}'`; do
-for a in "arXiv_src_1112_004.tar"; do
+for a in `ls $SOURCE_DIR/arXiv_src_12* |\
+    xargs -n 1 basename |\
+    awk 'BEGIN {FS="_"} {if ($3 < 1204) print $0}'`; do
+#for a in "arXiv_src_1112_004.tar"; do
 # names of tar files have format:  arXiv_src_0508_001.tar 
 # and naming the subdir 0508_001
 
