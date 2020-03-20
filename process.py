@@ -354,9 +354,9 @@ class Xtraction(object):
 
         ff = tarfile.open(self.tar_path) #open the .tar file once
         for filename in loop_filenames:
-            #print("\033[K",end='')
-            #print('writing file %s               \r'%filename, end='\r')
-            print('writing file %s               '%filename)
+            print("\033[K",end='')
+            print('writing file %s               \r'%filename, end='\r')
+            #print('writing file %s               '%filename)
 
             short_name = self.tar2api(filename, sep='.')
 
