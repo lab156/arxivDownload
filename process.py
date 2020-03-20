@@ -559,8 +559,8 @@ if __name__ == '__main__':
         except OSError as ee:
             print(ee)
             sys.exit(1)
-        #print("\033[K",end='')
-        #print('writing file %s               \r'%T,end='\r')
-        print('writing file %s               '%T)
+        print("\033[K",end='')
+        print('writing file %s               \r'%T,end='\r')
+        #print('writing file %s               '%T)
         X.extract_tar(args.outdir, *(args.term))
         sys.exit(0)
