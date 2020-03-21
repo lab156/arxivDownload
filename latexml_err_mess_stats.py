@@ -42,9 +42,17 @@ class Result(enum.Flag):
     FATAL = enum.auto() # fatal error found
     MAXED = enum.auto() # maxed out the allowed number of errors
     DIED = enum.auto() # found dead: ex. no finished processing timestamp
-    NOTEX = enum.auto()  # No TeX file was found it might be pdf only or a weird case like 1806.03429
+    NOTEX = enum.auto() # No TeX file was found it might be pdf only or a weird case like 1806.03429
     #NOLOG = enum.auto() # No log file, different from DIED and NOTEX
     FAIL = FATAL | TIMED | MAXED | DIED
+
+fun_dict = { 'success' : lambda p: Result.SUCC in p.result,
+        'fail' : lambda p : p.result in Result.FAIL,
+        'fatal' : lambda p : Result.FATAL in p.result,
+        'maxed' : lambda p :  Result.MAXED in p.result,
+        'timed' : lambda p : Result.TIMED in p.result,
+        'died' : lambda p : Result.DIED in p.result,
+        'notex' : lambda p : Result.NOTEX == p.result,}
 
 class ParseLaTeXMLLog():
     def __init__(self, error_log, commentary, article_name, max_errors=10000):
@@ -176,27 +184,15 @@ class ParseLaTeXMLLog():
 commentary_pred = lambda x: 'latexml_commentary' in x
 error_log_pred = lambda x: 'latexml_errors' in x
 
-def summary(dir_lst, **kwargs):
+def open_tar(tarpath, **kwargs):
     '''
-    args is a list of objects that ParseLaTeXMLLog likes
-    returns a summary of all the results
-    '''
-    pvec = np.zeros(7)
-
-    fun_dict = { 'success' : lambda p: Result.SUCC in p.result,
-    'fail' : lambda p : p.result in Result.FAIL,
-    'fatal' : lambda p : Result.FATAL in p.result,
-    'maxed' : lambda p :  Result.MAXED in p.result,
-    'timed' : lambda p : Result.TIMED in p.result,
-    'died' : lambda p : Result.DIED in p.result,
-    'notex' : lambda p : Result.NOTEX == p.result,}
-
+     `tarpath` is the path of tar file in the specific format
+     '''
     print_opt = kwargs.get('print', None)
-
+    pvec = np.zeros(7)
     encoding_lst = []
     times_lst = []
     article_dict = coll.defaultdict(list)
-    #for ind, a in enumerate(dir_lst):
     with tarfile.open(dir_lst) as tar_file:
         for pathname in tar_file.getnames():
             dirname = pathname.split('/')[1]
@@ -224,6 +220,15 @@ def summary(dir_lst, **kwargs):
             if print_opt:
                 if fun_dict[print_opt](p):
                     print(p.filename)
+
+def summary(dir_lst, **kwargs):
+    '''
+    args is a list of objects that ParseLaTeXMLLog likes
+    returns a summary of all the results
+    '''
+
+    encoding_lst, times_lst, article_dict, pvec = open_tar(dir_lst, **kwargs)
+    #for ind, a in enumerate(dir_lst):
     print("Success Fail Fatal Maxed Timed Died no_tex")
     print("{:>7} {:>4} {:>5} {:>5} {:>5} {:>4} {:>6}".format(*list(pvec)))
     print(coll.Counter(encoding_lst))
