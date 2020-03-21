@@ -255,13 +255,22 @@ def open_dir(dirpath, **kwargs):
             print(p.filename)
     return (encoding_lst, times_lst, article_dict, pvec)
 
-def summary(dir_lst, **kwargs):
+def summary(summpath, **kwargs):
     '''
-    args is a list of objects that ParseLaTeXMLLog likes
+    `summpath` is walked finding all article directories
     returns a summary of all the results
     '''
+    pvec = np.zeros(7)
+    encoding_lst = []
+    times_lst = []
+    article_dict = coll.defaultdict(list)
+    for root, dirs, files in os.walk(summpath):
+        for tarfire in [f in files if '.tar' in f]:
+            print('summarizing tarfile: %s'%tarfile)
+            encoding_lst, times_lst, article_dict, pvec += open_tar(tarfile, **kwargs)
+        if 'latexml_commentary.txt' in files:
+            encoding_lst, times_lst, article_dict, pvec += open_dir(dirs[0], **kwargs)
 
-    encoding_lst, times_lst, article_dict, pvec = open_tar(dir_lst, **kwargs)
     #for ind, a in enumerate(dir_lst):
     print("Success Fail Fatal Maxed Timed Died no_tex")
     print("{:>7} {:>4} {:>5} {:>5} {:>5} {:>4} {:>6}".format(*list(pvec)))
