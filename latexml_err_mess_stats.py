@@ -193,7 +193,7 @@ def open_tar(tarpath, **kwargs):
     encoding_lst = []
     times_lst = []
     article_dict = coll.defaultdict(list)
-    with tarfile.open(dir_lst) as tar_file:
+    with tarfile.open(tarpath) as tar_file:
         for pathname in tar_file.getnames():
             dirname = pathname.split('/')[1]
             article_dict[dirname].append(pathname)
@@ -220,6 +220,40 @@ def open_tar(tarpath, **kwargs):
             if print_opt:
                 if fun_dict[print_opt](p):
                     print(p.filename)
+    return (encoding_lst, times_lst, article_dict, pvec)
+
+def open_dir(dirpath, **kwargs):
+    '''
+     `dirpath` is the path of a directory in the specific format (contains a commentary file)
+     '''
+    print_opt = kwargs.get('print', None)
+    pvec = np.zeros(7)
+    encoding_lst = []
+    times_lst = []
+    article_dict = coll.defaultdict(list)
+    with open(os.path.join(dirpath, 'latexml_commentary.txt', 'r')) as comm: 
+        log_path = os.path.join(dirpath, 'latexml_errors_mess.txt')
+        if os.path.isfile(log_path):
+            with open(log_path, 'r') as log:
+                p = ParseLaTeXMLLog(log, comm, os.path.basename(dirpath))
+        else:
+            log = None
+            p = ParseLaTeXMLLog(log, comm, os.path.basename(dirpath))
+    assert hasattr(p, 'time_secs'), " Error, %s has no attribute time_secs"%p.filename
+    pvec = (fun_dict['success'](p),
+        fun_dict['fail'](p),
+        fun_dict['fatal'](p),
+        fun_dict['maxed'](p),
+        fun_dict['timed'](p),
+        fun_dict['died'](p),
+        fun_dict['notex'](p),
+        )
+    encoding_lst.append(p.get_encoding())
+    times_lst.append(p.time_secs)
+    if print_opt:
+        if fun_dict[print_opt](p):
+            print(p.filename)
+    return (encoding_lst, times_lst, article_dict, pvec)
 
 def summary(dir_lst, **kwargs):
     '''
