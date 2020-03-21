@@ -231,10 +231,10 @@ def open_dir(dirpath, **kwargs):
     encoding_lst = []
     times_lst = []
     article_dict = coll.defaultdict(list)
-    with open(os.path.join(dirpath, 'latexml_commentary.txt', 'r')) as comm: 
+    with open(os.path.join(dirpath, 'latexml_commentary.txt'), 'rb') as comm: 
         log_path = os.path.join(dirpath, 'latexml_errors_mess.txt')
         if os.path.isfile(log_path):
-            with open(log_path, 'r') as log:
+            with open(log_path, 'rb') as log:
                 p = ParseLaTeXMLLog(log, comm, os.path.basename(dirpath))
         else:
             log = None

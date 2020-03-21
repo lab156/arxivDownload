@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.0
+#       jupytext_version: 1.3.3
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -29,11 +29,12 @@ from collections import defaultdict
 
 # %load_ext autoreload
 # %autoreload 2
-import latexml_err_mess_stats as err
+import latexml_err_mess_stats as Err
 
-magic.detect_from_filename('data/0808_001.tar')
+mono = os.walk('/mnt/promath/math05')
 
-err.summary('../0804_001.tar', print='fail')
+r = '/mnt/promath/math05/0501_001/math.0501206'
+Err.open_dir(r)
 
 # + jupyter={"outputs_hidden": true}
 with tarfile.open('../0804_001.tar') as tar_file:
@@ -46,8 +47,8 @@ with tarfile.open('../0804_001.tar') as tar_file:
         log = None
     pp = err.ParseLaTeXMLLog(log, comm, name)
 print(name,pp.log)
+# -
 
-# +
 article_dict = defaultdict(list)
 commentary_pred = lambda x: 'latexml_commentary' in x
 error_log_pred = lambda x: 'latexml_errors' in x
@@ -68,9 +69,6 @@ with tarfile.open('../0808_003.tar') as tar_file:
             #print(log, ' ', comm, ' ')
         pp = err.ParseLaTeXMLLog(log, comm, name)
         print(name,pp.result)
-            
-
-# -
 
 list(map(lambda x:x.decode(), pp.commentary))
 
