@@ -250,5 +250,5 @@ if __name__ == "__main__":
     parser.add_argument('--print', type=str,
             help='print articles matching this value')
     args = parser.parse_args(sys.argv[1:])
-    summary(args.dir_name, print=args.print)
+    summary(args.dir_name[0], print=args.print)
 
