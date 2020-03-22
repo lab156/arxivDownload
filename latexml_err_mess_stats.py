@@ -264,6 +264,7 @@ def summary(summpath, **kwargs):
     encoding_lst = []
     encoding_tmp = []
     times_lst = []
+    root = None # sentinel value to check if it loops
     for root, dirs, files in os.walk(summpath):
         for tarf in [f for f in files if '.tar' in f]:
             logging.debug('summarizing tarfile: %s'%tarf)
@@ -277,7 +278,7 @@ def summary(summpath, **kwargs):
             pvec += pvec_tmp
         except UnboundLocalError:
             pass
-    else: # In the case where summpath is just a single tarfile
+    if root == None:
         logging.debug('summarizing tarfile: %s'%summpath)
         encoding_lst, times_lst, pvec = open_tar(summpath, **kwargs)
 
