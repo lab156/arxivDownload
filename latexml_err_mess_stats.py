@@ -8,6 +8,7 @@ import pandas as pd
 import collections as coll
 import magic
 import tarfile
+import logging
 
 commentary_filename = 'latexml_commentary.txt'
 
@@ -265,10 +266,11 @@ def summary(summpath, **kwargs):
     times_lst = []
     for root, dirs, files in os.walk(summpath):
         for tarfire in [f for f in files if '.tar' in f]:
-            print('summarizing tarfile: %s'%tarfile)
+            logging.debug('summarizing tarfile: %s'%tarfile)
             encoding_tmp, times_tmp, pvec_tmp = open_tar(tarfile, **kwargs)
         if 'latexml_commentary.txt' in files:
-            encoding_tmp, times_tmp, pvec_tmp = open_dir(dirs[0], **kwargs)
+            logging.debug('summarizing article directory: %s'%dirs)
+            encoding_tmp, times_tmp, pvec_tmp = open_dir(root, **kwargs)
         try:
             encoding_lst += encoding_tmp
             times_lst += times_tmp
@@ -296,6 +298,12 @@ if __name__ == "__main__":
             help='Path to the processed files')
     parser.add_argument('--print', type=str,
             help='print articles matching this value')
+    parser.add_argument("--log", type=str, default=None,
+            help='log level, options are: debug, info, warning, error, critical')
     args = parser.parse_args(sys.argv[1:])
+
+    if args.log:
+        logging.basicConfig(level=getattr(logging, args.log.upper()))
+
     summary(args.dir_name, print=args.print)
 
