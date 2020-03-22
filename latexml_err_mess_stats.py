@@ -269,9 +269,12 @@ def summary(summpath, **kwargs):
             encoding_tmp, times_tmp, pvec_tmp = open_tar(tarfile, **kwargs)
         if 'latexml_commentary.txt' in files:
             encoding_tmp, times_tmp, pvec_tmp = open_dir(dirs[0], **kwargs)
-        encoding_lst += encoding_tmp
-        times_lst += times_tmp
-        pvec += pvec_tmp
+        try:
+            encoding_lst += encoding_tmp
+            times_lst += times_tmp
+            pvec += pvec_tmp
+        except UnboundLocalError:
+            pass
 
     #for ind, a in enumerate(dir_lst):
     print("Success Fail Fatal Maxed Timed Died no_tex")
