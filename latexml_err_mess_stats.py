@@ -265,9 +265,9 @@ def summary(summpath, **kwargs):
     encoding_tmp = []
     times_lst = []
     for root, dirs, files in os.walk(summpath):
-        for tarfire in [f for f in files if '.tar' in f]:
-            logging.debug('summarizing tarfile: %s'%tarfile)
-            encoding_tmp, times_tmp, pvec_tmp = open_tar(tarfile, **kwargs)
+        for tarf in [f for f in files if '.tar' in f]:
+            logging.debug('summarizing tarfile: %s'%tarf)
+            encoding_tmp, times_tmp, pvec_tmp = open_tar(tarf, **kwargs)
         if 'latexml_commentary.txt' in files:
             logging.debug('summarizing article directory: %s'%dirs)
             encoding_tmp, times_tmp, pvec_tmp = open_dir(root, **kwargs)
@@ -277,6 +277,9 @@ def summary(summpath, **kwargs):
             pvec += pvec_tmp
         except UnboundLocalError:
             pass
+    else: # In the case where summpath is just a single tarfile
+        logging.debug('summarizing tarfile: %s'%summpath)
+        encoding_lst, times_lst, pvec = open_tar(summpath, **kwargs)
 
     #for ind, a in enumerate(dir_lst):
     print("Success Fail Fatal Maxed Timed Died no_tex")
@@ -306,4 +309,3 @@ if __name__ == "__main__":
         logging.basicConfig(level=getattr(logging, args.log.upper()))
 
     summary(args.dir_name, print=args.print)
-
