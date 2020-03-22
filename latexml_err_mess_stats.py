@@ -261,8 +261,8 @@ def summary(summpath, **kwargs):
     '''
     pvec = np.zeros(7)
     encoding_lst = []
+    encoding_tmp = []
     times_lst = []
-    article_dict = coll.defaultdict(list)
     for root, dirs, files in os.walk(summpath):
         for tarfire in [f for f in files if '.tar' in f]:
             print('summarizing tarfile: %s'%tarfile)
