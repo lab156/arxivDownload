@@ -264,7 +264,7 @@ def summary(summpath, **kwargs):
     times_lst = []
     article_dict = coll.defaultdict(list)
     for root, dirs, files in os.walk(summpath):
-        for tarfire in [f in files if '.tar' in f]:
+        for tarfire in [f for f in files if '.tar' in f]:
             print('summarizing tarfile: %s'%tarfile)
             encoding_tmp, times_tmp, pvec_tmp = open_tar(tarfile, **kwargs)
         if 'latexml_commentary.txt' in files:
