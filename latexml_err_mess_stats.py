@@ -220,7 +220,7 @@ def open_tar(tarpath, **kwargs):
             if print_opt:
                 if fun_dict[print_opt](p):
                     print(p.filename)
-    return (encoding_lst, times_lst, article_dict, pvec)
+    return (encoding_lst, times_lst, pvec)
 
 def open_dir(dirpath, **kwargs):
     '''
@@ -230,7 +230,6 @@ def open_dir(dirpath, **kwargs):
     pvec = np.zeros(7)
     encoding_lst = []
     times_lst = []
-    article_dict = coll.defaultdict(list)
     with open(os.path.join(dirpath, 'latexml_commentary.txt'), 'rb') as comm: 
         log_path = os.path.join(dirpath, 'latexml_errors_mess.txt')
         if os.path.isfile(log_path):
@@ -253,7 +252,7 @@ def open_dir(dirpath, **kwargs):
     if print_opt:
         if fun_dict[print_opt](p):
             print(p.filename)
-    return (encoding_lst, times_lst, article_dict, pvec)
+    return (encoding_lst, times_lst, pvec)
 
 def summary(summpath, **kwargs):
     '''
@@ -267,9 +266,12 @@ def summary(summpath, **kwargs):
     for root, dirs, files in os.walk(summpath):
         for tarfire in [f in files if '.tar' in f]:
             print('summarizing tarfile: %s'%tarfile)
-            encoding_lst, times_lst, article_dict, pvec += open_tar(tarfile, **kwargs)
+            encoding_tmp, times_tmp, pvec_tmp = open_tar(tarfile, **kwargs)
         if 'latexml_commentary.txt' in files:
-            encoding_lst, times_lst, article_dict, pvec += open_dir(dirs[0], **kwargs)
+            encoding_tmp, times_tmp, pvec_tmp = open_dir(dirs[0], **kwargs)
+        encoding_lst += encoding_tmp
+        times_lst += times_tmp
+        pvec += pvec_tmp
 
     #for ind, a in enumerate(dir_lst):
     print("Success Fail Fatal Maxed Timed Died no_tex")
@@ -283,15 +285,14 @@ def summary(summpath, **kwargs):
     for c in sorted(list(count)):
         print(c, count[c])
 
-
 if __name__ == "__main__":
     import argparse
     import sys
     parser = argparse.ArgumentParser(description='Stats for documents processed with')
-    parser.add_argument('dir_name', type=str, nargs='+',
+    parser.add_argument('dir_name', type=str,
             help='Path to the processed files')
     parser.add_argument('--print', type=str,
             help='print articles matching this value')
     args = parser.parse_args(sys.argv[1:])
-    summary(args.dir_name[0], print=args.print)
+    summary(args.dir_name, print=args.print)
 
