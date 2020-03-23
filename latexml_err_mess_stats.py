@@ -266,19 +266,18 @@ def summary(summpath, **kwargs):
     times_lst = []
     root = None # sentinel value to check if it loops
     for root, dirs, files in os.walk(summpath):
-        for tarf in [f for f in files if '.tar' in f]:
-            logging.debug('summarizing tarfile: %s'%tarf)
-            encoding_tmp, times_tmp, pvec_tmp = open_tar(tarf, **kwargs)
+        # I don't think its important to support combination of tars and untars right now
+    #    for tarf in [f for f in files if '.tar' in f]:
+    #        logging.debug('summarizing tarfile: %s'%tarf)
+    #        encoding_tmp, times_tmp, pvec_tmp = open_tar(tarf, **kwargs)
         if 'latexml_commentary.txt' in files:
             logging.debug('summarizing article directory: %s'%dirs)
             encoding_tmp, times_tmp, pvec_tmp = open_dir(root, **kwargs)
-        try:
-            logging.info(sum(pvec_tmp))
+            if pvec[0]:
+                logging.info('adding 1 ')
             encoding_lst += encoding_tmp
             times_lst += times_tmp
             pvec += pvec_tmp
-        except UnboundLocalError:
-            pass
     if root == None:
         logging.debug('summarizing tarfile: %s'%summpath)
         encoding_lst, times_lst, pvec = open_tar(summpath, **kwargs)
@@ -308,6 +307,6 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
 
     if args.log:
-        logging.basicConfig(level=getattr(logging, args.log.upper()))
+        logging.basicConfig(filename='succ.log', level=getattr(logging, args.log.upper()))
 
     summary(args.dir_name, print=args.print)
