@@ -273,6 +273,7 @@ def summary(summpath, **kwargs):
             logging.debug('summarizing article directory: %s'%dirs)
             encoding_tmp, times_tmp, pvec_tmp = open_dir(root, **kwargs)
         try:
+            logging.info(sum(pvec_tmp))
             encoding_lst += encoding_tmp
             times_lst += times_tmp
             pvec += pvec_tmp
