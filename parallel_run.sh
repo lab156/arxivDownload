@@ -34,6 +34,7 @@ MAIN_DIR=$RAMDISK/$NEW_NAME # temporary store for speed
 OUT_DIR=$SCRATCH/$NEW_NAME;  # where the files should end up
 mkdir -p $SCRATCH/$NEW_NAME;
 START_HOME=$PWD
+TAR_EXT="tar.gz"   # file extension of the output files
 #cp $SCRATCH/arxiv2.db $RAMDISK/;
 
 
@@ -50,7 +51,8 @@ SUBDIR_NAME=$(echo $a |  awk 'BEGIN {FS="[_.]"}; {print $3"_"$4}');
 SUBDIR=$MAIN_DIR/$SUBDIR_NAME;
 mkdir -p $SUBDIR;
 
-python3 process.py $SOURCE_DIR/$a $SUBDIR --term math #--db $RAMDISK/arxiv2.db
+#python3 process.py $SOURCE_DIR/$a $SUBDIR --term math #--db $RAMDISK/arxiv2.db
+python3 process.py $SOURCE_DIR/$a $SUBDIR --term math || exit 1;
 
 echo "Done extracting";
 
@@ -58,14 +60,15 @@ time parallel -P 95% ./run_latexml.sh ::: $SUBDIR/*;
 
 echo "Taring files...";
 
-cd $MAIN_DIR; #cd to get the right paths for tar
+cd $MAIN_DIR; #cd to get the right paths. tar needs this
+OUTFILE_NAME=$SUBDIR_NAME.$TAR_EXT # ex. 0508_001.tar.gz
+
 find $SUBDIR_NAME -name 'latexml*' -print0 -o -name '*.xml' -print0 |\
-      tar -czf $RAMDISK/$SUBDIR_NAME.tar.gz --null -T - ;
+      tar -czf $RAMDISK/$OUTFILE_NAME --null -T - ;
 cd $START_HOME;
 
 rm -r $SUBDIR;  #Clean Up
-mv $RAMDISK/$SUBDIR_NAME.tar $SCRATCH/$NEW_NAME/; 
-
+mv $RAMDISK/$OUTFILE_NAME $SCRATCH/$NEW_NAME/; 
 
 done;
 
