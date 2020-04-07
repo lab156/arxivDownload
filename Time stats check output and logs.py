@@ -25,50 +25,28 @@ import pandas as pd
 import tarfile
 import magic
 from collections import defaultdict
+import itertools
+from functools import reduce
 # %matplotlib inline  
 
 # %load_ext autoreload
 # %autoreload 2
 import latexml_err_mess_stats as Err
 
-mono = os.walk('/mnt/promath/math05')
+with tarfile.open('/mnt/promath/math05/0503_001.tar.gz', 'r') as tar_file:
+    print(len(tar_file.getnames()))
 
-r = '/mnt/promath/math05/0501_001/math.0501206'
+Err.open_tar('/mnt/promath/math05/0503_001.tar.gz')[2]
+
+next(mono)
+
+l1 = {1: 'a', 2: 'b'}
+l2 = {3: 'c', 8: 'r'}
+l2.update(l1)
+print(l2)
+
+r = '/mnt/promath/math05/0501_001/math.0501207'
 Err.open_dir(r)
-
-# + jupyter={"outputs_hidden": true}
-with tarfile.open('../0804_001.tar') as tar_file:
-    val = list(filter(lambda x: '0804.1905' in x, tar_file.getnames()))
-    comm = tar_file.extractfile(next(filter(commentary_pred, val)))
-    log_name = next(filter(error_log_pred, val), None)
-    if log_name:
-        log = tar_file.extractfile(log_name)
-    else:
-        log = None
-    pp = err.ParseLaTeXMLLog(log, comm, name)
-print(name,pp.log)
-# -
-
-article_dict = defaultdict(list)
-commentary_pred = lambda x: 'latexml_commentary' in x
-error_log_pred = lambda x: 'latexml_errors' in x
-with tarfile.open('../0808_003.tar') as tar_file:
-    article_set = set()
-    for pathname in tar_file.getnames():
-        dirname = pathname.split('/')[1]
-        article_set.add(dirname)
-        article_dict[dirname].append(pathname)
-    for name,val in article_dict.items():
-        comm = tar_file.extractfile(next(filter(commentary_pred, val)))
-        log_name = next(filter(error_log_pred, val), None)
-        if log_name:
-            log = tar_file.extractfile(log_name)
-        else:
-            log = None
-        the_name = name
-            #print(log, ' ', comm, ' ')
-        pp = err.ParseLaTeXMLLog(log, comm, name)
-        print(name,pp.result)
 
 list(map(lambda x:x.decode(), pp.commentary))
 
@@ -81,11 +59,6 @@ Cut,bins = pd.cut(p_times, 8, retbins=True)
 count = coll.Counter(Cut)
 for c in sorted(list(count)):
     print(c, count[c])
-
-type(np.NAN)
-
-for c in Cut:
-    print(c.)
 
 encoding_lst = []
 for l in lst_error_files:
