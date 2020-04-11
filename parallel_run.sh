@@ -39,10 +39,10 @@ TAR_EXT="tar.gz"   # file extension of the output files
 
 
 #for a in `ls $SOURCE_DIR`; do
-#for a in `ls $SOURCE_DIR/arXiv_src_1209_0{03,04,05,06,07,08,09,10}.tar | xargs -n 1 basename`; do
-for a in `ls $SOURCE_DIR/arXiv_src_14* |\
-    xargs -n 1 basename |\
-    awk 'BEGIN {FS="[_.]"} {if ($3 > 1400 && $3 < 1404 && $4 > 0) print $0}'`; do
+for a in `ls $SOURCE_DIR/arXiv_src_1404_0{11,12,13}.tar | xargs -n 1 basename`; do
+#for a in `ls $SOURCE_DIR/arXiv_src_14* |\
+#    xargs -n 1 basename |\
+#    awk 'BEGIN {FS="[_.]"} {if ($3 > 1403 && $3 < 1407 && $4 > 0) print $0}'`; do
 #for a in "arXiv_src_1112_004.tar"; do
 # names of tar files have format:  arXiv_src_0508_001.tar 
 # and naming the subdir 0508_001
@@ -64,7 +64,8 @@ if [ $LOOP_SENTIN -gt 0 ]
 then
     echo "waiting a bit:" $LOOP_SENTIN;
     RN=$RANDOM; ((RN %= 20 )); ((RN += 10)); echo $RN
-    echo "process.py failed, waiting $RN second";
+    echo "process.py failed, waiting $RN second, and cleaning up";
+    rm -r $SUBDIR
     sleep $RN;
 else
     echo "done processing:" $LOOP_SENTIN;
