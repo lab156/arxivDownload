@@ -23,7 +23,7 @@ echo "starting job at "`date`
 source <(grep ^LATEXML_BIN "$PWD/config.toml")
 echo "latexml_bin file is: $LATEXML_BIN"
 
-NEW_NAME="math13"
+NEW_NAME="math14"
 #SOURCE_DIR=$SCRATCH/"11_tars"
 SOURCE_DIR="/mnt/arXiv_src/src"
 
@@ -40,9 +40,9 @@ TAR_EXT="tar.gz"   # file extension of the output files
 
 #for a in `ls $SOURCE_DIR`; do
 #for a in `ls $SOURCE_DIR/arXiv_src_1209_0{03,04,05,06,07,08,09,10}.tar | xargs -n 1 basename`; do
-for a in `ls $SOURCE_DIR/arXiv_src_13* |\
+for a in `ls $SOURCE_DIR/arXiv_src_14* |\
     xargs -n 1 basename |\
-    awk 'BEGIN {FS="[_.]"} {if ($3 > 1309 && $3 < 1313 && $4 > 3) print $0}'`; do
+    awk 'BEGIN {FS="[_.]"} {if ($3 > 1400 && $3 < 1404 && $4 > 0) print $0}'`; do
 #for a in "arXiv_src_1112_004.tar"; do
 # names of tar files have format:  arXiv_src_0508_001.tar 
 # and naming the subdir 0508_001
@@ -52,7 +52,25 @@ SUBDIR=$MAIN_DIR/$SUBDIR_NAME;
 mkdir -p $SUBDIR;
 
 #python3 process.py $SOURCE_DIR/$a $SUBDIR --term math #--db $RAMDISK/arxiv2.db
-python3 process.py $SOURCE_DIR/$a $SUBDIR --term math || exit 1;
+#python3 process.py $SOURCE_DIR/$a $SUBDIR --term math || exit 1;
+
+#LOOP UNTIL process IS SUCCSESFUL
+LOOP_SENTIN=1
+while [ $LOOP_SENTIN -gt 0 ]
+do
+python3 process.py $SOURCE_DIR/$a $SUBDIR --term math 
+LOOP_SENTIN=$?
+if [ $LOOP_SENTIN -gt 0 ]
+then
+    echo "waiting a bit:" $LOOP_SENTIN;
+    RN=$RANDOM; ((RN %= 20 )); ((RN += 10)); echo $RN
+    echo "process.py failed, waiting $RN second";
+    sleep $RN;
+else
+    echo "done processing:" $LOOP_SENTIN;
+fi
+done;
+
 
 echo "Done extracting";
 
