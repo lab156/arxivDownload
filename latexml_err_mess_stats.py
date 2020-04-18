@@ -189,7 +189,7 @@ def open_tar(tarpath, **kwargs):
     '''
      `tarpath` is the path of tar file in the specific format
      '''
-    compression = kwargs.get(com, None)
+    compression = kwargs.get('com', None)
     print_opt = kwargs.get('print', None)
     pvec = np.zeros(7)
     encoding_lst = []

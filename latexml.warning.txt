@@ -1,8 +1,0 @@
-WARNING: 2 file(s) in /usr/lib/perl5/5.26 are not tracked by pacman and need to be rebuilt.
- -> These were most likely installed directly by cpan or a similar tool.
-    Run the following command to get a list of these files:
-    LC_ALL=C find "/usr/lib/perl5/5.26" -type f -exec pacman -Qqo {} + |& sed -n 's/^error: No package owns \(.*\)$/\1/p'
-
-file 2000/math.0002031/amssym.tex contains several files with .tex extension.
-I think this will be a major issue when running latexml because it will
-replace the real files

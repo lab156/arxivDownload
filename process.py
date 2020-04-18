@@ -551,16 +551,16 @@ if __name__ == '__main__':
     print('Database path is:', args.db)
 
     for T in args.tarpath:
-        try:
-            if args.db:
-                X = Xtraction(T, db='sqlite:///' + args.db)
-            else:
-                X = Xtraction(T)
-        except OSError as ee:
-            print(ee)
-            sys.exit(1)
+        if args.db:
+            X = Xtraction(T, db='sqlite:///' + args.db)
+        else:
+            X = Xtraction(T)
         print("\033[K",end='')
         print('writing file %s               \r'%T,end='\r')
         #print('writing file %s               '%T)
-        X.extract_tar(args.outdir, *(args.term))
+        try:
+            X.extract_tar(args.outdir, *(args.term))
+        except OSError as ee:
+            print(ee)
+            sys.exit(1)
         sys.exit(0)
