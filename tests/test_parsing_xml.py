@@ -158,4 +158,45 @@ class TestDefinitionsXML(unittest.TestCase):
         list2 = dtest.get_def_text()[3].lower()
         self.assertEqual(list1, nltk.word_tokenize(list2))
 
+    def test_DefinitionsXML_takes_fileobj(self):
+        with open('tests/latexmled_files/math.0407523.xml', 'r') as xml_file:
+            dtest = px.DefinitionsXML(xml_file)
+        list1 = ['a',
+	     'coherent',
+	     'system',
+             '_inline_math_',
+	     'is',
+	     'injective',
+	     'if',
+	     'the',
+	     'evaluation',
+	     'morphism',
+             '_inline_math_',
+	     'is',
+	     'injective',
+	     'as',
+	     'a',
+	     'morphism',
+	     'of',
+	     'sheaves',
+	     '.',
+	     'moreover',
+             '_inline_math_',
+	     'is',
+	     'torsion-free',
+	     'if',
+	     'it',
+	     'is',
+	     'injective',
+	     'and',
+	     'the',
+	     'quotient',
+	     'sheaf',
+             '_inline_math_',
+	     'is',
+	     'torsion-free',
+	     '.']
+        list2 = dtest.get_def_text()[3].lower()
+        self.assertEqual(list1, nltk.word_tokenize(list2))
+
 

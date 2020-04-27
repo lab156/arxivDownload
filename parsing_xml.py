@@ -119,8 +119,15 @@ class DefinitionsXML(object):
         '''
         Read an xml file and parse it
         '''
-        self.file_path = file_path
-        self.filetype = self.file_path.split('.')[-1]
+        if isinstance(file_path, str):
+            self.file_path = file_path
+            self.filetype = self.file_path.split('.')[-1]
+        elif hasattr(file_path, 'read'):
+            # FileObj: assume that it is xml
+            self.file_path = file_path.name
+            self.filetype = 'xml'
+        else:
+            raise NotImplementedError('file_path is not str nor has read() attrib')
 
         try:
             if self.filetype == 'xml':

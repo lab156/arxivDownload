@@ -2,8 +2,9 @@
 rootkey.*
 #Jupyter stuff
 .ipynb_checkpoints
-#vim tilde files
+#vim editing files 
 *~
+*.swp
 #local settings
 config.toml
 
