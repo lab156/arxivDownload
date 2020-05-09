@@ -63,7 +63,7 @@ if __name__ == '__main__':
             structure from the arxiv, run the classifier and chunker in\
             parallel')
     parser.add_argument('dirnames', type=str, nargs='+',
-            help='path to dir with the article files: ex. math05')
+            help='path to dir with the article files: ex. math05/*.tar.gz')
     parser.add_argument('-c', '--classifier',
             help='Path to the classifier pickle', type=str)
     parser.add_argument('-b', '--bio',
@@ -74,8 +74,6 @@ if __name__ == '__main__':
             help='Path to the word tokenizer classfier pickle', type=str)
     parser.add_argument('-o', '--output',
             help='The output directory to store the definition definieda xml', type=str)
-    parser.add_argument('--query', action='store_true', 
-            help='Ignore file_names and query')
     parser.add_argument("--log", type=str, default=None,
             help='log level, options are: debug, info, warning, error, critical')
     args = parser.parse_args(sys.argv[1:])
