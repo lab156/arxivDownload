@@ -30,7 +30,7 @@ do
 	    echo "Running LaTeXML on the file " $f
 	    COMMENTARY_FILE=${f%/*}/$COMMENTARY_FILENAME
 	    echo "main .tex file" $(basename $f) >> $COMMENTARY_FILE
-	    timeout $MAXT  $LATEXML_BIN $f --noparse 2>${f%/*}/latexml_errors_mess.txt > ${f%.*}.xml 
+	    timeout --signal 9 $MAXT  $LATEXML_BIN $f --noparse 2>${f%/*}/latexml_errors_mess.txt > ${f%.*}.xml 
 	    if [ $? -eq 124 ]; then
 		    echo "Timeout Occured with file $f"
 		    echo "Timeout of $MAXT seconds occured" >> $COMMENTARY_FILE
