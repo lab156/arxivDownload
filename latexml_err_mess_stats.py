@@ -93,27 +93,34 @@ class ParseLaTeXMLLog():
                             line.decode()).group(1)
                 if b'Conversion complete' in line:
                     conversion_tuple = parse_conversion(line.decode())
-            d1 = duparser.parse(self.start)
-            d2 = duparser.parse(self.finish)
-            self.time_secs = (d2-d1).seconds
-
-            # Get the conversion stats
-            self.warnings = entry_handler(conversion_tuple[1])
-            self.errors = entry_handler(conversion_tuple[2])
-            self.fatal_errors = entry_handler(conversion_tuple[3])
-            self.undefined_macros = entry_handler(conversion_tuple[4])
-            self.missing_files = entry_handler(conversion_tuple[5])
-            self.no_prob = conversion_tuple[0]
-
-            if self.fatal_errors == 0:
-                self.result = Result.SUCC
+            try:
+                d1 = duparser.parse(self.start)
+                d2 = duparser.parse(self.finish)
+                self.time_secs = (d2-d1).seconds
+            except AttributeError as ee:
+                self.result = Result.DIED
+                self.warnings = self.errors =\
+                        self.fatal_errors = self.undefined_macros =\
+                        self.missing_files = self.no_prob = np.NAN
+                self.time_secs = np.NAN
             else:
-                if self.errors > max_errors:
-                    self.result = Result.MAXED
+                # Get the conversion stats
+                self.warnings = entry_handler(conversion_tuple[1])
+                self.errors = entry_handler(conversion_tuple[2])
+                self.fatal_errors = entry_handler(conversion_tuple[3])
+                self.undefined_macros = entry_handler(conversion_tuple[4])
+                self.missing_files = entry_handler(conversion_tuple[5])
+                self.no_prob = conversion_tuple[0]
+
+                if self.fatal_errors == 0:
+                    self.result = Result.SUCC
                 else:
-                    self.result = Result.FATAL
-                if self.timedout():
-                    self.result |= Result.TIMED
+                    if self.errors > max_errors:
+                        self.result = Result.MAXED
+                    else:
+                        self.result = Result.FATAL
+                    if self.timedout():
+                        self.result |= Result.TIMED
 
         else:
             # TODO: need to break down why there is no error_log

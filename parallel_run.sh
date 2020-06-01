@@ -44,7 +44,7 @@ TAR_EXT="tar.gz"   # file extension of the output files
 #for a in `ls $SOURCE_DIR/arXiv_src_08* |\
 #    xargs -n 1 basename |\
 #    awk 'BEGIN {FS="[_.]"} {if ($3 > 0806 && $3 < 0810 && $4 > 0) print $0}'`; do
-for a in "arXiv_src_0508_002.tar"; do
+for a in "arXiv_src_9404_001.tar"; do
 # names of tar files have format:  arXiv_src_0508_001.tar 
 # and naming the subdir 0508_001
 

@@ -1,0 +1,4 @@
+tar_file: arXiv_src_9404_001.tar
+encoding detected: ascii
+main .tex file math.9404207.tex
+Finished in less than 2400 seconds

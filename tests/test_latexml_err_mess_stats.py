@@ -2,6 +2,7 @@ import unittest
 import latexml_err_mess_stats as err
 import datetime as dt
 import dateutil
+import numpy as np
 
 #run with:
 #export PYTHONPATH="./tests"; python3 -m unittest test_latexml_err_mess_stats
@@ -65,23 +66,35 @@ class TestParseLaTeXMLLog(unittest.TestCase):
             P = err.ParseLaTeXMLLog(log, comm, 'test1')
         self.assertEqual(P.finished(), 1200)
 
+
     def test_init_flags(self):
         with open('./tests/test_stats_files/test1/latexml_errors_mess.txt', 'rb') as log,\
                 open('./tests/test_stats_files/test1/latexml_commentary.txt', 'rb') as comm:
             P = err.ParseLaTeXMLLog(log, comm, 'test1')
         self.assertEqual(P.result, err.Result.SUCC)
         self.assertTrue(not(P.result in err.Result.FAIL))
+
         with open('./tests/test_stats_files/test2/latexml_errors_mess.txt', 'rb') as log,\
                 open('./tests/test_stats_files/test2/latexml_commentary.txt', 'rb') as comm:
             P = err.ParseLaTeXMLLog(log, comm, 'test1')
         self.assertEqual(P.result, err.Result.FATAL)
         self.assertTrue(P.result in err.Result.FAIL)
+
         with open('./tests/test_stats_files/test3/latexml_errors_mess.txt', 'rb') as log,\
                 open('./tests/test_stats_files/test3/latexml_commentary.txt', 'rb') as comm:
             P = err.ParseLaTeXMLLog(log, comm, 'test1')
         self.assertEqual(P.result, err.Result.TIMED|err.Result.FATAL)
         self.assertTrue(P.result in err.Result.FAIL)
+        
         with open('./tests/test_stats_files/test4/latexml_errors_mess.txt', 'rb') as log,\
                 open('./tests/test_stats_files/test4/latexml_commentary.txt', 'rb') as comm:
             P = err.ParseLaTeXMLLog(log, comm, 'test1')
         self.assertEqual(P.result, err.Result.TIMED|err.Result.FATAL)
+
+        with open('./tests/test_stats_files/test5/latexml_errors_mess.txt', 'rb') as log,\
+                open('./tests/test_stats_files/test1/latexml_commentary.txt', 'rb') as comm:
+            P = err.ParseLaTeXMLLog(log, comm, 'test5')
+        self.assertEqual(P.result, err.Result.DIED)
+        self.assertTrue(np.isnan(P.time_secs))
+        self.assertTrue(np.isnan(P.warnings))
+        self.assertTrue(np.isnan(P.missing_files))
