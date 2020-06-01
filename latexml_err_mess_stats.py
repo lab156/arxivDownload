@@ -16,7 +16,7 @@ def parse_conversion(f_str):
     """
     parses the conversion line in the latexml_errors_mess.txt file
     """
-    return re.search('\\nConversion complete: (No obvious problems\.)?'
+    return re.search('Conversion complete: (No obvious problems\.)?'
     '(\d+ warnings?[;\.] ?)?'
     '(\d+ errors?[;\.] ?)?'
     '(\d+ fatal errors?[;\.] ?)?'
@@ -67,48 +67,43 @@ class ParseLaTeXMLLog():
         self.commentary = list(map(lambda x: x.decode(), commentary.readlines()))
         self.filename = article_name
         if error_log:
-            self.log = error_log.read().decode()
+#            try:
+#                self.log = error_log.read().decode()
+#            except MemoryError as ee:
+#                # Memory files are sometimes really large
+#                # pi@rpi3:~/reruns/checkit/0508_002/math.0508268 $ du -h *
+#                # 0       chaudhuridrtonrich_arxiv.xml
+#                # 4.0K    latexml_commentary.txt
+#                # 1.6G    latexml_errors_mess.txt
+#
+#
+#            # Get the time span
+#            try:
+#                self.start = re.search('\\nprocessing started (.*)\\n',
+#                        self.log).group(1)
+#                self.finish = re.search('\\nprocessing finished (.*)\\n',
+#                        self.log).group(1)
 
+            for line in error_log:
+                if b'processing started' in line:
+                    self.start = re.search('processing started (.*)\\n',
+                            line.decode()).group(1)
+                if b'processing finished' in line:
+                    self.finish = re.search('processing finished (.*)\\n',
+                            line.decode()).group(1)
+                if b'Conversion complete' in line:
+                    conversion_tuple = parse_conversion(line.decode())
+            d1 = duparser.parse(self.start)
+            d2 = duparser.parse(self.finish)
+            self.time_secs = (d2-d1).seconds
 
-        #if os.path.isfile(log_path):
-        #    self.filename = log_path
-        #    self.dir_name = os.path.split(self.filename)[0]
-        #else: # log_path is a directory
-        #    self.filename = os.path.join(log_path, 'latexml_errors_mess.txt')
-        #    self.dir_name = log_path
-
-#        if os.path.isfile(self.filename):
-#            with open(self.filename, 'r') as log_fobj:
-#                self.log = log_fobj.read()
-
-            # Get the time span
-            try:
-                self.start = re.search('\\nprocessing started (.*)\\n',
-                        self.log).group(1)
-            except AttributeError:
-                import pdb; pdb.set_trace()
-            try:
-                self.finish = re.search('\\nprocessing finished (.*)\\n',
-                        self.log).group(1)
-            except AttributeError:
-                self.result = Result.DIED
-                self.warnings = self.errors =\
-                        self.fatal_errors = self.undefined_macros =\
-                        self.missing_files = self.no_prob = np.NAN
-                self.time_secs = np.NAN
-            else:
-                d1 = duparser.parse(self.start)
-                d2 = duparser.parse(self.finish)
-                self.time_secs = (d2-d1).seconds
-
-                # Get the conversion stats
-                conversion_tuple = parse_conversion(self.log)
-                self.warnings = entry_handler(conversion_tuple[1])
-                self.errors = entry_handler(conversion_tuple[2])
-                self.fatal_errors = entry_handler(conversion_tuple[3])
-                self.undefined_macros = entry_handler(conversion_tuple[4])
-                self.missing_files = entry_handler(conversion_tuple[5])
-                self.no_prob = conversion_tuple[0]
+            # Get the conversion stats
+            self.warnings = entry_handler(conversion_tuple[1])
+            self.errors = entry_handler(conversion_tuple[2])
+            self.fatal_errors = entry_handler(conversion_tuple[3])
+            self.undefined_macros = entry_handler(conversion_tuple[4])
+            self.missing_files = entry_handler(conversion_tuple[5])
+            self.no_prob = conversion_tuple[0]
 
             if self.fatal_errors == 0:
                 self.result = Result.SUCC

@@ -3,6 +3,8 @@ import latexml_err_mess_stats as err
 import datetime as dt
 import dateutil
 
+#run with:
+#export PYTHONPATH="./tests"; python3 -m unittest test_latexml_err_mess_stats
 
 class TestParseConversion(unittest.TestCase):
     def test_parse_conversion1(self):
