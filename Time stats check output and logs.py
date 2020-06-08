@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.2
+#       jupytext_version: 1.3.3
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -15,14 +15,17 @@
 
 import datetime as dt
 import glob
+import pickle
 import re
 import dateutil
 import matplotlib.pyplot as plt
 import os
+import sys
 import numpy as np
 import collections as coll
 import pandas as pd
 import tarfile
+from functools import reduce
 import magic
 from collections import defaultdict
 import itertools
@@ -33,17 +36,89 @@ from functools import reduce
 # %autoreload 2
 import latexml_err_mess_stats as Err
 
-with tarfile.open('/mnt/promath/math05/0503_001.tar.gz', 'r') as tar_file:
-    print(len(tar_file.getnames()))
+with open('../stats.pickle', 'rb') as fh:
+    stat_lst = pickle.load(fh)
 
-Err.open_tar('/mnt/promath/math05/0503_001.tar.gz')[2]
+# +
+#Grand totals
+# SUCC    # everything went fine as far as I can tell
+# TIMED   # timed out -- used more than the allowed time 1200 or 2400
+# FATAL   # at least one fatal error found
+# MAXED   # maxed out the allowed number of errors 100,000
+# DIED    # found dead: ex. no finished processing timestamp (mostly out of memory errors)
+# NOTEX   # No TeX file was found it might be pdf only or a weird case like 1806.03429
+# #NOLOG  # No log file, different from DIED and NOTEX
+# FAIL = FATAL | TIMED | MAXED | DIED
 
-next(mono)
+pvec = sum(np.array(l[1][2]) for l in stat_lst)
+tot = float(pvec[0] + pvec[1])
 
-l1 = {1: 'a', 2: 'b'}
-l2 = {3: 'c', 8: 'r'}
-l2.update(l1)
-print(l2)
+str_fmt = lambda st: "{:>10} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10}".format(*list(st))
+title = ["Success", "Fail", "Fatal", "Maxed", "Timed", "Died", "no_tex"]
+print(str_fmt(title))
+print(str_fmt(pvec))
+print(str_fmt(np.round(pvec*100/tot, decimals=1)))
+# -
+
+# ## Size of the Processed file
+# * 7.0K    math91
+# * 8.9M    math92
+# * 8.5M    math93
+# * 13M     math94
+# * 14M     math95
+# * 15M     math96
+# * 22M     math97
+# * 132M    math98
+# * 169M    math99
+# * 212M    math00
+# * 233M    math01
+# * 306M    math02
+# * 371M    math03
+# * 481M    math04
+# * 574M    math05
+# * 818M    math06
+# * 941M    math07
+# * 901M    math08
+# * 25G     math09
+# * 24G     math10
+# * 29G     math11
+# * 24G     math12
+# * 1.8G    math13
+# * 2.0G    math14
+# * 2.2G    math15
+# * 2.4G    math16
+# * 2.5G    math17
+# * 2.7G    math18
+# * 2.8G    math19
+# * 975M    math20
+# * 124G    *total*
+
+# + jupyter={"outputs_hidden": true}
+stat_lst = []
+mem_err_lst = []
+common_path = '/mnt/promath/math05/'
+for walk in os.walk('/mnt/promath'):
+    for fname in walk[2]:
+        if '.tar' in fname:
+            try:
+                st = Err.open_tar(os.path.join(walk[0], fname))
+                print(fname, '  ', st[2])
+                stat_lst.append((fname,st))
+            except:
+                ee = sys.exc_info()
+                mem_err_lst.append((fname, ee))
+
+# + jupyter={"outputs_hidden": true}
+Err.open_tar('/home/pi/0508_002.tar.gz')[2]
+# -
+
+mem_err_lst
+
+try:
+    raise ReadError()
+except:
+    ee = sys.exc_info()
+    print('lived', ee)
 
 r = '/mnt/promath/math05/0501_001/math.0501207'
 Err.open_dir(r)

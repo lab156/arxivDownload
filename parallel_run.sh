@@ -23,7 +23,7 @@ echo "starting job at "`date`
 source <(grep ^LATEXML_BIN "$PWD/config.toml")
 echo "latexml_bin file is: $LATEXML_BIN"
 
-NEW_NAME="reruns"
+NEW_NAME="math12"
 #SOURCE_DIR=$SCRATCH/"11_tars"
 SOURCE_DIR="/mnt/arXiv_src/src"
 
@@ -41,10 +41,11 @@ TAR_EXT="tar.gz"   # file extension of the output files
 #for a in `ls $SOURCE_DIR`; do
 #for a in `ls $SOURCE_DIR/arXiv_src_1404_0{11,12,13}.tar | xargs -n 1 basename`; do
 #for a in `ls $SOURCE_DIR/arXiv_src_2003* | xargs -n 1 basename`; do
-#for a in `ls $SOURCE_DIR/arXiv_src_08* |\
-#    xargs -n 1 basename |\
-#    awk 'BEGIN {FS="[_.]"} {if ($3 > 0806 && $3 < 0810 && $4 > 0) print $0}'`; do
-for a in "arXiv_src_9404_001.tar"; do
+for a in `ls $SOURCE_DIR/arXiv_src_1212_* |\
+    xargs -n 1 basename |\
+    awk 'BEGIN {FS="[_.]"} {if ($4 > 0 && $4 < 3) print $0}'`; do
+    #awk 'BEGIN {FS="[_.]"} {if ($3 > 0806 && $3 < 0810 && $4 > 0) print $0}'`; do
+#for a in "arXiv_src_1110_011.tar"; do
 # names of tar files have format:  arXiv_src_0508_001.tar 
 # and naming the subdir 0508_001
 
