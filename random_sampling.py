@@ -2,11 +2,14 @@ import parsing_xml as px
 import xml.etree.ElementTree as ET
 import random
 import sys
+import magic
+import tarfile
+import logging
 
 '''
 This file contains routines to sample from 
-the same articles that we mine. 
-In search of the negative examples to train on
+the same articles that we mine for NEGATIVE examples 
+to train on
 '''
 
 ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
@@ -69,8 +72,13 @@ if __name__ == '__main__':
     else:
         for f in file_list:
             print(":::::::::::: %s ::::::::::::::::"%f)
-            p_lst = sample_article(f)
-            for p in p_lst:
-                print(p)
-                print('------------------------------')
+            if magic.detect_from_filename(f).mime_type == 'application/gzip':
+                with tarfile.open(tarpath) as tar_file:
+                    for pathname in tar_file.getnames():
+                        dirname = pathname.split('/')[1]
+                        article_dict[dirname].append(pathname)
+                    for name,val in article_dict.items():
+                        comm = tar_file.extractfile(next(filter('.tar.gz', val)))
+                    p_lst = sample_article(f, ns)
+            print('------------------------------')
 
