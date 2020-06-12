@@ -80,5 +80,5 @@ if __name__ == '__main__':
                     for name,val in article_dict.items():
                         comm = tar_file.extractfile(next(filter('.tar.gz', val)))
                     p_lst = sample_article(f, ns)
-            print('------------------------------')
+                print('------------------------------')
 
