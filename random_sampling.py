@@ -5,6 +5,7 @@ import sys
 import magic
 import tarfile
 import logging
+import collections as coll
 
 '''
 This file contains routines to sample from 
@@ -73,12 +74,14 @@ if __name__ == '__main__':
         for f in file_list:
             print(":::::::::::: %s ::::::::::::::::"%f)
             if magic.detect_from_filename(f).mime_type == 'application/gzip':
-                with tarfile.open(tarpath) as tar_file:
+                article_dict = coll.defaultdict(list)
+                with tarfile.open(f) as tar_file:
                     for pathname in tar_file.getnames():
                         dirname = pathname.split('/')[1]
                         article_dict[dirname].append(pathname)
                     for name,val in article_dict.items():
-                        comm = tar_file.extractfile(next(filter('.tar.gz', val)))
-                    p_lst = sample_article(f, ns)
+                        fobj = tar_file.extractfile(next(filter(lambda s: '.xml' in s, val)))
+                        p_lst = sample_article(fobj, ns)
+                        #import pdb; pdb.set_trace()
                 print('------------------------------')
 

@@ -112,7 +112,7 @@ for walk in os.walk('/mnt/promath'):
 Err.open_tar('/home/pi/0508_002.tar.gz')[2]
 # -
 
-mem_err_lst
+glob.glob('/mnt/promath/math09/*')
 
 try:
     raise ReadError()
