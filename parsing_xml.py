@@ -122,7 +122,7 @@ def recutext_html(root, nsstr=''):
     return re.sub('\s+', ' ', ret_str.replace('\n', ' '))
 
 class DefinitionsXML(object):
-    def __init__(self, file_path):
+    def __init__(self, file_path, fname=None):
         '''
         Read an xml file and parse it
         '''
@@ -131,7 +131,12 @@ class DefinitionsXML(object):
             self.filetype = self.file_path.split('.')[-1]
         elif hasattr(file_path, 'read'):
             # FileObj: assume that it is xml
-            self.file_path = file_path.name
+            if fname:
+                self.file_path = fname
+            else:
+                # In extracted file object the name of the tar file is the best
+                # we can do in the case when the fname is not provided
+                self.file_path = file_path.name
             self.filetype = 'xml'
         else:
             raise NotImplementedError('file_path is not str nor has read() attrib')
@@ -253,7 +258,12 @@ class DefinitionsXML(object):
         text_dict = {'real': self.get_def_text()}
         para_lst_nonrand = self.para_list()
 
-        para_lst = random.sample(para_lst_nonrand, sample_size)
+        try:
+            para_lst = random.sample(para_lst_nonrand, sample_size)
+        except ValueError as ee:
+            para_lst = []
+            print('article %s does not have enough paragraphs to \
+                    sample'%self.file_path)
         return_lst = []
         #create list of para inside def tags to check for repeats
         check_repeats = set(map(self.para_p, self.def_lst))
@@ -265,7 +275,7 @@ class DefinitionsXML(object):
                 if len(para_text.split()) >= min_words and p not in check_repeats:
                     return_lst.append(para_text)
             else:
-                print('article %s has messed up para'%self.file_path)
+                print('article %s has paragraphs with reported errors'%self.file_path)
         text_dict['nondef'] = return_lst
         return text_dict
 

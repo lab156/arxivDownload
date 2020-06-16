@@ -22,8 +22,8 @@ def tar_iter(tarpath, patt):
     pattern in their names
     """
     with tarfile.open(tarpath) as tar_file:
-        for f in filter(lambda n: patt in n, tar_file.getnames()):
-            yield tar_file.extractfile(f)
+        for fname in filter(lambda n: patt in n, tar_file.getnames()):
+            yield (fname, tar_file.extractfile(fname))
 
 
 
