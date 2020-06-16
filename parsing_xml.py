@@ -8,6 +8,9 @@ import nltk
 import random
 import os.path
 from collections import defaultdict
+import magic
+import tarfile
+import peep_tar as peep
 
 
 #Shortcut to set default to empty string instead Nonetype
@@ -49,41 +52,45 @@ def recutext_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
     ret_str = empty_if_none(root.text)
     #print('root is', root.tag, root.text, root.tail)
     for el in list(root):
-        #print('inside %s tag '%el.tag, el.text, el.tail)
-        if el.tag == (nsstr + 'Math'):
-            if el.attrib.get('mode') == 'inline':
-                ret_str += '_inline_math_'
-            elif el.attrib.get('mode') == 'display':
-                ret_str += '_display_math_'
-            ret_str += empty_if_none(el.tail)
-        elif el.tag == (nsstr + 'cite'):
-            ret_str += '_citation_'
-            ret_str += empty_if_none(el.tail)
-        elif el.tag == (nsstr + 'ERROR'):
-            #Ignore error messages such as:
-            #<ERROR class="undefined">\pmowner</ERROR>djao24
-            pass
-        elif el.tag == (nsstr + 'tags') and el.getparent().tag == (nsstr + 'item'):   
-            #Catch this pattern:
-            #<item>
-            #  <tags>
-            ret_str += '_item_'
-            ret_str += empty_if_none(el.tail)
-        elif el.tag == (nsstr + 'tag') and (el.attrib.get('role') == 'refnum' or el.attrib.get('role') == 'typerefnum'):
-            #Tags have a `role` attrib with text and this should be ignored
-          #<tags>
-          #  <tag>2.</tag>
-          #  <tag role="refnum">2</tag>
-          #  <tag role="typerefnum">item 2</tag>
-          #</tags>
-            pass
-        else:
-            #ret_str += empty_if_none(el.text)
-            if el.tag == (nsstr + 'break'):
-                # Substitute the line break for a blank space
-                ret_str += ' '
-            ret_str += recutext_xml(el, nsstr)
-            ret_str += empty_if_none(el.tail)
+        try:
+            #print('inside %s tag '%el.tag, el.text, el.tail)
+            if el.tag == (nsstr + 'Math'):
+                if el.attrib.get('mode') == 'inline':
+                    ret_str += '_inline_math_'
+                elif el.attrib.get('mode') == 'display':
+                    ret_str += '_display_math_'
+                ret_str += empty_if_none(el.tail)
+            elif el.tag == (nsstr + 'cite'):
+                ret_str += '_citation_'
+                ret_str += empty_if_none(el.tail)
+            elif el.tag == (nsstr + 'ERROR'):
+                #Ignore error messages such as:
+                #<ERROR class="undefined">\pmowner</ERROR>djao24
+                pass
+            elif el.tag == (nsstr + 'tags') and el.getparent().tag == (nsstr + 'item'):   
+                #Catch this pattern:
+                #<item>
+                #  <tags>
+                ret_str += '_item_'
+                ret_str += empty_if_none(el.tail)
+            elif el.tag == (nsstr + 'tag') and (el.attrib.get('role') == 'refnum' or el.attrib.get('role') == 'typerefnum'):
+                #Tags have a `role` attrib with text and this should be ignored
+              #<tags>
+              #  <tag>2.</tag>
+              #  <tag role="refnum">2</tag>
+              #  <tag role="typerefnum">item 2</tag>
+              #</tags>
+                pass
+            else:
+                #ret_str += empty_if_none(el.text)
+                if el.tag == (nsstr + 'break'):
+                    # Substitute the line break for a blank space
+                    ret_str += ' '
+                ret_str += recutext_xml(el, nsstr)
+                ret_str += empty_if_none(el.tail)
+        except AttributeError as EE: 
+            print(EE,'\n')
+            import pdb; pdb.set_trace()
     # remove any multiple space and trailing whitespaces
     return re.sub('\s+', ' ', ret_str.replace('\n', ' '))
 
@@ -258,7 +265,7 @@ class DefinitionsXML(object):
                 if len(para_text.split()) >= min_words and p not in check_repeats:
                     return_lst.append(para_text)
             else:
-                print('article %s has messed up para'%f)
+                print('article %s has messed up para'%self.file_path)
         text_dict['nondef'] = return_lst
         return text_dict
 
@@ -330,8 +337,6 @@ class PlanetMathXML(DefinitionsXML):
         return branch
 
 
-
-
 if __name__ == "__main__":
     '''
     Usage: python parsing_xml.py fileList FileToStoreDefs
@@ -345,6 +350,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='parsing xml commandline script')
     parser.add_argument('file_names', type=str, nargs='+',
             help='filenames to find definitions last position is the resulting files')
+    parser.add_argument('--defs', help='file to write the the real definitions', type=str)
+    parser.add_argument('--nondefs', help='file to write the the non-definitions', type=str)
     parser.add_argument('-l', '--logfile', help='file to write the logs', type=str)
     args = parser.parse_args(sys.argv[1:])
 
@@ -352,19 +359,22 @@ if __name__ == "__main__":
     allfiles = args.file_names[:-1]
     defs_file = args.file_names[-1]
     for f in allfiles:
-        try:
-            DD = DefinitionsXML(f)
-            print('writing file: %s'%f, end='\r')
-            DD.write_defs(defs_file)
-        except TypeError:
-            print('Error parsing file: %s'%f, end='\n')
-        # some definitions are empty and have no para tag
-        # para_p complains about this and it is important
-        # because I don't know the specifics about the format
-        except ValueError as e:
-            if args.logfile:
-                with open(args.logfile, 'a') as log_file:
-                    log_file.write(str(e) + '\n')
-            else:
-                raise e
+        if magic.detect_from_filename(f).mime_type == 'application/gzip':
+            try:
+                for fobj in peep.tar_iter(f, '.xml'):
+                    print('hola')
+                    DD = DefinitionsXML(fobj)
+                    print('writing file: %s'%f, end='\r')
+                    DD.write_defs(defs_file)
+            except TypeError as ee:
+                print('Error parsing file: %s ::: %s'%(f, ee), end='\n')
+            # some definitions are empty and have no para tag
+            # para_p complains about this and it is important
+            # because I don't know the specifics about the format
+            except ValueError as e:
+                if args.logfile:
+                    with open(args.logfile, 'a') as log_file:
+                        log_file.write(str(e) + '\n')
+                else:
+                    raise e
 

@@ -1,5 +1,6 @@
 import parsing_xml as px
 import xml.etree.ElementTree as ET
+from lxml import etree
 import random
 import sys
 import magic
@@ -16,22 +17,22 @@ to train on
 ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
 
 
-def sample_article(f, ns, para_per_article=2, min_words=15):
+def sample_article(f, ns, para_per_article=10, min_words=15):
     '''
     Usage: f be a parsable xml tree
     try to get para_per_article paragraphs from this article
     min_words: the paragraph has to have more that this amount of words
     '''
     try:
-        exml = ET.parse(f)
+        exml = etree.parse(f, etree.XMLParser(remove_comments=True))
         para_lst_nonrand = exml.findall('.//latexml:para',ns)
         para_lst = random.sample(para_lst_nonrand,
                 para_per_article)
-    except ET.ParseError:
+    except etree.ParseError:
         print('article %s could no be parsed'%f)
         para_lst = []
-    except ValueError:
-        print('article %s has few paragraphs'%f)
+    except ValueError as ve:
+        print('article %s has few paragraphs: %s'%(f,ve))
         para_lst = []
 
     return_lst = []
@@ -80,8 +81,9 @@ if __name__ == '__main__':
                         dirname = pathname.split('/')[1]
                         article_dict[dirname].append(pathname)
                     for name,val in article_dict.items():
-                        fobj = tar_file.extractfile(next(filter(lambda s: '.xml' in s, val)))
+                        fobj=tar_file.extractfile(next(filter(lambda s: '.xml' in s, val)))
+                        print("Starting to analyze article: ",name)
                         p_lst = sample_article(fobj, ns)
-                        #import pdb; pdb.set_trace()
+                        print('\n ###'.join(p_lst))
                 print('------------------------------')
 
