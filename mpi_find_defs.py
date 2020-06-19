@@ -24,7 +24,7 @@ mnt_path = '/mnt/promath/'
 for k,d in enumerate(dir_lst):   # d: math18
     if k%Size == rank:
         try:
-            tar_lst = os.listdir(os.path.join(mnt_path, d))
+            tar_lst = [p for p in  os.listdir(os.path.join(mnt_path, d)) if '.tar.gz' in p]
         except FileNotFoundError:
             print(' %s Not Found'%d)
             break
@@ -35,12 +35,12 @@ for k,d in enumerate(dir_lst):   # d: math18
         except FileExistsError as ee:
             print(ee, ' continuiung using this directory')
             
-        print(tar_lst)
+        #print(tar_lst)
         #root = etree.Element('root', name=d)
         for tarpath in tar_lst:   # tarpath: 9201_001.tar.gz
             #print(os.path.join(mnt_path, d, T))
             tfile_elm = etree.Element('tarfile', name=tarpath)
-            for fname,T in peep.tar_iter(os.path.join(mnt_path, d, tarpath), '213.xml'):
+            for fname,T in peep.tar_iter(os.path.join(mnt_path, d, tarpath), '.xml'):
                 print(fname)
                 try:
                     DD = px.DefinitionsXML(T)
@@ -59,7 +59,7 @@ for k,d in enumerate(dir_lst):   # d: math18
             #print(etree.tostring(tfile_elm, pretty_print=True).decode('utf-8'))
             gz_filename = os.path.basename(tarpath).split('.')[0] + '.xml.gz' 
             #logging.debug('The name of the gz_filename is: %s'%gz_filename)
-            print('The name of the gz_filename is: %s'%gz_filename)
+            #print('The name of the gz_filename is: %s'%gz_filename)
             gz_out_path = os.path.join(out_path, gz_filename) 
             with gzip.open(gz_out_path, 'wb') as out_f:
                 #logging.info("Writing to dfdum zipped file to: %s"%gz_out_path)
