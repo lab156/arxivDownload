@@ -2,6 +2,8 @@ from lxml import etree
 import tarfile
 import sys
 import collections as coll
+import time
+import random
 
 
 def article_name_dict(tar_obj):
@@ -30,11 +32,9 @@ def tar_iter(tarpath, patt):
                     yield (fname, tar_file.extractfile(fname))
             break
         except tarfile.ReadError as ee:
-            print(ee, "while opening tarfile: %s"%tarfile)
-
-
-
-
+            wait_delay = random.randint(5,15)
+            print(ee, "while opening tarfile: %s, waiting for %s"%(tarpath, wait_delay))
+            time.sleep(wait_delay)
 
 
 if __name__ == '__main__':
