@@ -21,9 +21,18 @@ def tar_iter(tarpath, patt):
     returns and iterator to the file objects of a tar zip that have a certain
     pattern in their names
     """
-    with tarfile.open(tarpath) as tar_file:
-        for fname in filter(lambda n: patt in n, tar_file.getnames()):
-            yield (fname, tar_file.extractfile(fname))
+    retries = 0
+    while retries < 10:
+        retries += 1
+        try:
+            with tarfile.open(tarpath) as tar_file:
+                for fname in filter(lambda n: patt in n, tar_file.getnames()):
+                    yield (fname, tar_file.extractfile(fname))
+            break
+        except tarfile.ReadError as ee:
+            print(ee, "while opening tarfile: %s"%tarfile)
+
+
 
 
 

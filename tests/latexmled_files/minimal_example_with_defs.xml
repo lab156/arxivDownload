@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?latexml searchpaths="/home/pi/mininal,/home/pi/arxivDownload"?>
+<?latexml class="article"?>
+<?latexml package="amsthm"?>
+<?latexml RelaxNGSchema="LaTeXML"?>
+<document xmlns="http://dlmf.nist.gov/LaTeXML">
+  <resource src="LaTeXML.css" type="text/css"/>
+  <resource src="ltx-article.css" type="text/css"/>
+  <para xml:id="p1">
+    <p>This is an example document. It is an excellent example and should have
+a decent amout of words so it is not classified as a short paragraph.</p>
+  </para>
+  <theorem class="ltx_theorem_defin" inlist="thm theorem:defin" xml:id="S0.Thmdefin1">
+    <tags>
+      <tag>Definition 0.1</tag>
+      <tag role="refnum">0.1</tag>
+      <tag role="typerefnum">Definition 0.1</tag>
+    </tags>
+    <title class="ltx_runin"><tag><text font="bold">Definition 0.1</text></tag>.</title>
+    <para xml:id="S0.Thmdefin1.p1">
+      <p>A Banach space is a complete vector space. Banach spaces have a very concise
+definition so that means that it is going to be artificially expanded in
+order to be usefull in testing.</p>
+    </para>
+  </theorem>
+  <para xml:id="p2">
+    <p>Second paragraph</p>
+  </para>
+  <theorem class="ltx_theorem_defin" inlist="thm theorem:defin" xml:id="S0.Thmdefin2">
+    <tags>
+      <tag>Definition 0.2</tag>
+      <tag role="refnum">0.2</tag>
+      <tag role="typerefnum">Definition 0.2</tag>
+    </tags>
+    <title class="ltx_runin"><tag><text font="bold">Definition 0.2</text></tag>.</title>
+    <para xml:id="S0.Thmdefin2.p1">
+      <p>Second Definition. This is also a long definition. This is just an example
+definition to do some testing. So we could define a definition.</p>
+    </para>
+  </theorem>
+</document>

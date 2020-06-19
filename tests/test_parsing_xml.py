@@ -199,4 +199,11 @@ class TestDefinitionsXML(unittest.TestCase):
         list2 = dtest.get_def_text()[3].lower()
         self.assertEqual(list1, nltk.word_tokenize(list2))
 
+    def test_DefinitionXML_sampling(self):
+        dd = px.DefinitionsXML('tests/latexmled_files/minimal_example_with_defs.xml')
+        sample_dict = dd.get_def_sample_text_with(sample_size=4)
+        self.assertEqual(len(sample_dict['real']), 2)
+        self.assertEqual(len(sample_dict['nondef']), 1)
+        self.assertTrue('This is an example document.' in sample_dict['nondef'][0])
+
 
