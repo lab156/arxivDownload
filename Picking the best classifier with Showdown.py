@@ -97,7 +97,7 @@ all_data_texts = []
 all_data_labels = []
 def_cnt = 0
 nondef_cnt = 0
-for X in xml_lst[:1000]:
+for X in xml_lst[:500]:
     tar_tree = etree.parse(X)
     def_lst = tar_tree.findall('.//definition')
     nondef_lst = tar_tree.findall('.//nondef')
