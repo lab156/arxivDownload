@@ -40,6 +40,7 @@ from nltk.stem.wordnet import WordNetLemmatizer
 import string
 import sys
 import re
+import time
 import glob
 import gzip
 from lxml import etree
@@ -90,14 +91,15 @@ import ner
 import parsing_xml as px
 # -
 
-# %%time
+stats = {}
+time1 = time.time()
 xml_lst = glob.glob("/mnt/training_defs/math1*/*.xml.gz")
 #allData = pd.DataFrame()
 all_data_texts = []
 all_data_labels = []
 def_cnt = 0
 nondef_cnt = 0
-for X in xml_lst[:500]:
+for X in xml_lst[:20]:
     tar_tree = etree.parse(X)
     def_lst = tar_tree.findall('.//definition')
     nondef_lst = tar_tree.findall('.//nondef')
@@ -107,10 +109,11 @@ for X in xml_lst[:500]:
     all_data_labels += len(nondef_lst)*[0.0]
     def_cnt += len(def_lst)
     nondef_cnt += len(nondef_lst)
-print("Definition count: %s.   NonDefinitions count: %s. Total: %s"%(def_cnt, nondef_cnt, (def_cnt+nondef_cnt)))
+stats['parsing_time'] = time.time() - time1
+print("Definition count: {0:,d}.   NonDefinitions count: {1:,d}. Total: {2:,d}".format(def_cnt, nondef_cnt, (def_cnt+nondef_cnt)))
+print('took {0:1.1f} secs'.format(stats['parsing_time']))
 
 # +
-# %%time
 # define Clean function to cleanse and standarize words
 stop = set(stopwords.words('english'))
 exclude = set(string.punctuation) 
@@ -120,6 +123,7 @@ def clean(doc):
     punc_free = ''.join(ch for ch in stop_free if ch not in exclude)
     normalized = " ".join(lemma.lemmatize(word) for word in punc_free.split())
     return normalize
+
 
 #prepare the dataset Using 2018 old dataset
 #allData = pd.DataFrame()
@@ -138,9 +142,11 @@ def clean(doc):
 # Split and randomize the datasets
 train_x, test_x, train_y, test_y = model_selection.train_test_split(all_data_texts, all_data_labels)
 
+time1 = time.time()
 # Vectorize all the paragraphs and definitions in the dataset
-count_vect = CountVectorizer(analyzer='word', tokenizer=nltk.word_tokenize, ngram_range=(1,3))
+count_vect = CountVectorizer(max_features=50000,analyzer='word', tokenizer=nltk.word_tokenize, ngram_range=(1,3))
 count_vect.fit(all_data_texts)
+stats['vectorizer_time'] = time.time() - time1
 xtrain = count_vect.transform(train_x)
 xtest = count_vect.transform(test_x)
 
@@ -148,18 +154,8 @@ xtest = count_vect.transform(test_x)
 #clf = naive_bayes.MultinomialNB().fit(xtrain, train_y)
 #predictions = clf.predict(xtest)
 #print(metrics.classification_report(predictions,test_y))
+print(f"vectorizer time: {stats['vectorizer_time']:1.2f}")
 # -
-
-# %%time
-Def = ['a banach space is defined as a complete vector space.',
-       'This is not a definition honestly. even if it includes technical words like scheme and cohomology',
-      'There is no real reason as to why this classifier is so good.',
-      'a triangle is equilateral if and only if all its sides are the same length.',
-      ' The paper is organized as follows. ',
-      'Proof. By definition (6.4) _display_math_ where _inline_math_ denotes the parity of _inline_math_ and _display_math_',
-      'Counting subobjects over finite fields, as in Ringel _citation_.']
-vdef = count_vect.transform(Def)
-clf.predict(vdef)
 
 with open('/mnt/PickleJar/count_vectorizer49.pickle', 'rb') as pickle_obj:
     count_vect = pickle.load(pickle_obj)
@@ -171,7 +167,7 @@ with open('/mnt/PickleJar/classifier49.pickle', 'rb') as pickle_obj:
 #classifiers=  [ naive_bayes.MultinomialNB(),]
 classifiers=  [SVC(kernel="rbf", C=1600, probability=True)]
 
-# + jupyter={"outputs_hidden": true}
+# +
 #for C_param, clf in zip(param_lst,SVC_lst):
 for C_param, clf in enumerate(classifiers):
     name = clf.__class__.__name__
@@ -198,31 +194,29 @@ print("="*30)
 
 print(metrics.classification_report(predictions,test_y))
 
+# %%time
+Def = ['a banach space is defined as a complete vector space.',
+       'This is not a definition honestly. even if it includes technical words like scheme and cohomology',
+      'There is no real reason as to why this classifier is so good.',
+      'a triangle is equilateral if and only if all its sides are the same length.',
+      ' The paper is organized as follows. ',
+      'Proof. By definition (6.4) _display_math_ where _inline_math_ denotes the parity of _inline_math_ and _display_math_',
+      'Counting subobjects over finite fields, as in Ringel _citation_.']
+vdef = count_vect.transform(Def)
+clf.predict(vdef)
+
 ex_nondef = [D.text for D in nondef_lst[:15]]
 clf.predict(count_vect.transform(ex_nondef))
 
-tar_tree = etree.parse('/mnt/training_defs/math10/1002_005.xml.gz')
-def_lst = tar_tree.findall('.//definition')
-nondef_lst = tar_tree.findall('.//nondef')
-ex_text = [D.text for D in nondef_lst[:100]]
-sum(clf.predict(count_vect.transform(ex_text)))
+
 
 with open('../PickleJar/count_vectorizer49.pickle', 'wb') as class_f:
     pickle.dump(count_vect, class_f)
 
 len(ww)
 
-# Get the n-grams
-ww = count_vect.get_feature_names()
-
-# + jupyter={"outputs_hidden": true}
-# Get the n-grams (same as features) with identity number (not freq count)
-count_vect.vocabulary_
-
-# + jupyter={"outputs_hidden": true}
-s = 2000000
-l = 100
-ww[s:(s+l)]
-# -
+s = {}
+s['kk'] = 1
+print(f'hola {s}')
 
 
