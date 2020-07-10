@@ -205,18 +205,13 @@ Def = ['a banach space is defined as a complete vector space.',
 vdef = count_vect.transform(Def)
 clf.predict(vdef)
 
+tar_tree = etree.parse('/mnt/training_defs/math10/1002_005.xml.gz')
+def_lst = tar_tree.findall('.//definition')
+nondef_lst = tar_tree.findall('.//nondef')
+ex_text = [D.text for D in nondef_lst[:100]]
+sum(clf.predict(count_vect.transform(ex_text)))
 ex_nondef = [D.text for D in nondef_lst[:15]]
 clf.predict(count_vect.transform(ex_nondef))
 
-
-
 with open('../PickleJar/count_vectorizer49.pickle', 'wb') as class_f:
     pickle.dump(count_vect, class_f)
-
-len(ww)
-
-s = {}
-s['kk'] = 1
-print(f'hola {s}')
-
-
