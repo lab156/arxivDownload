@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.3.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -144,7 +144,13 @@ train_x, test_x, train_y, test_y = model_selection.train_test_split(all_data_tex
 
 time1 = time.time()
 # Vectorize all the paragraphs and definitions in the dataset
+<<<<<<< HEAD
 count_vect = CountVectorizer(max_features=50000,analyzer='word', tokenizer=nltk.word_tokenize, ngram_range=(1,3))
+||||||| merged common ancestors
+count_vect = CountVectorizer(analyzer='word', tokenizer=nltk.word_tokenize, ngram_range=(1,3))
+=======
+count_vect = CountVectorizer(max_features=100000, analyzer='word', tokenizer=nltk.word_tokenize, ngram_range=(1,3))
+>>>>>>> 0f086264354bb35b3209e7d3cdcd43d6be706e74
 count_vect.fit(all_data_texts)
 stats['vectorizer_time'] = time.time() - time1
 xtrain = count_vect.transform(train_x)
@@ -191,6 +197,17 @@ for C_param, clf in enumerate(classifiers):
     
 print("="*30)
 # -
+
+# %%time
+Def = ['a banach space is defined as a complete vector space.',
+       'This is not a definition honestly. even if it includes technical words like scheme and cohomology',
+      'There is no real reason as to why this classifier is so good.',
+      'a triangle is equilateral if and only if all its sides are the same length.',
+      ' The paper is organized as follows. ',
+      'Proof. By definition (6.4) _display_math_ where _inline_math_ denotes the parity of _inline_math_ and _display_math_',
+      'Counting subobjects over finite fields, as in Ringel _citation_.']
+vdef = count_vect.transform(Def)
+clf.predict(vdef)
 
 print(metrics.classification_report(predictions,test_y))
 
