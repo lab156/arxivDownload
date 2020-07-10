@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.3.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -139,7 +139,7 @@ def clean(doc):
 train_x, test_x, train_y, test_y = model_selection.train_test_split(all_data_texts, all_data_labels)
 
 # Vectorize all the paragraphs and definitions in the dataset
-count_vect = CountVectorizer(analyzer='word', tokenizer=nltk.word_tokenize, ngram_range=(1,3))
+count_vect = CountVectorizer(max_features=100000, analyzer='word', tokenizer=nltk.word_tokenize, ngram_range=(1,3))
 count_vect.fit(all_data_texts)
 xtrain = count_vect.transform(train_x)
 xtest = count_vect.transform(test_x)
@@ -149,17 +149,6 @@ xtest = count_vect.transform(test_x)
 #predictions = clf.predict(xtest)
 #print(metrics.classification_report(predictions,test_y))
 # -
-
-# %%time
-Def = ['a banach space is defined as a complete vector space.',
-       'This is not a definition honestly. even if it includes technical words like scheme and cohomology',
-      'There is no real reason as to why this classifier is so good.',
-      'a triangle is equilateral if and only if all its sides are the same length.',
-      ' The paper is organized as follows. ',
-      'Proof. By definition (6.4) _display_math_ where _inline_math_ denotes the parity of _inline_math_ and _display_math_',
-      'Counting subobjects over finite fields, as in Ringel _citation_.']
-vdef = count_vect.transform(Def)
-clf.predict(vdef)
 
 with open('/mnt/PickleJar/count_vectorizer49.pickle', 'rb') as pickle_obj:
     count_vect = pickle.load(pickle_obj)
@@ -171,7 +160,7 @@ with open('/mnt/PickleJar/classifier49.pickle', 'rb') as pickle_obj:
 #classifiers=  [ naive_bayes.MultinomialNB(),]
 classifiers=  [SVC(kernel="rbf", C=1600, probability=True)]
 
-# + jupyter={"outputs_hidden": true}
+# +
 #for C_param, clf in zip(param_lst,SVC_lst):
 for C_param, clf in enumerate(classifiers):
     name = clf.__class__.__name__
@@ -195,6 +184,17 @@ for C_param, clf in enumerate(classifiers):
     
 print("="*30)
 # -
+
+# %%time
+Def = ['a banach space is defined as a complete vector space.',
+       'This is not a definition honestly. even if it includes technical words like scheme and cohomology',
+      'There is no real reason as to why this classifier is so good.',
+      'a triangle is equilateral if and only if all its sides are the same length.',
+      ' The paper is organized as follows. ',
+      'Proof. By definition (6.4) _display_math_ where _inline_math_ denotes the parity of _inline_math_ and _display_math_',
+      'Counting subobjects over finite fields, as in Ringel _citation_.']
+vdef = count_vect.transform(Def)
+clf.predict(vdef)
 
 print(metrics.classification_report(predictions,test_y))
 
