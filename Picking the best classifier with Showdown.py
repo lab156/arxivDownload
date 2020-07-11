@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.0
+#       jupytext_version: 1.3.3
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -144,13 +144,7 @@ train_x, test_x, train_y, test_y = model_selection.train_test_split(all_data_tex
 
 time1 = time.time()
 # Vectorize all the paragraphs and definitions in the dataset
-<<<<<<< HEAD
 count_vect = CountVectorizer(max_features=50000,analyzer='word', tokenizer=nltk.word_tokenize, ngram_range=(1,3))
-||||||| merged common ancestors
-count_vect = CountVectorizer(analyzer='word', tokenizer=nltk.word_tokenize, ngram_range=(1,3))
-=======
-count_vect = CountVectorizer(max_features=100000, analyzer='word', tokenizer=nltk.word_tokenize, ngram_range=(1,3))
->>>>>>> 0f086264354bb35b3209e7d3cdcd43d6be706e74
 count_vect.fit(all_data_texts)
 stats['vectorizer_time'] = time.time() - time1
 xtrain = count_vect.transform(train_x)
@@ -161,6 +155,8 @@ xtest = count_vect.transform(test_x)
 #predictions = clf.predict(xtest)
 #print(metrics.classification_report(predictions,test_y))
 print(f"vectorizer time: {stats['vectorizer_time']:1.2f}")
+print(f"Train size: {len(train_x):,d}. Test size {len(test_x)}. Total {len(test_x)+len(train_x):,d}")
+print(f"Vocab len: {len(count_vect.vocabulary_):,d}")
 # -
 
 with open('/mnt/PickleJar/count_vectorizer49.pickle', 'rb') as pickle_obj:
@@ -198,17 +194,6 @@ for C_param, clf in enumerate(classifiers):
 print("="*30)
 # -
 
-# %%time
-Def = ['a banach space is defined as a complete vector space.',
-       'This is not a definition honestly. even if it includes technical words like scheme and cohomology',
-      'There is no real reason as to why this classifier is so good.',
-      'a triangle is equilateral if and only if all its sides are the same length.',
-      ' The paper is organized as follows. ',
-      'Proof. By definition (6.4) _display_math_ where _inline_math_ denotes the parity of _inline_math_ and _display_math_',
-      'Counting subobjects over finite fields, as in Ringel _citation_.']
-vdef = count_vect.transform(Def)
-clf.predict(vdef)
-
 print(metrics.classification_report(predictions,test_y))
 
 # %%time
@@ -222,13 +207,19 @@ Def = ['a banach space is defined as a complete vector space.',
 vdef = count_vect.transform(Def)
 clf.predict(vdef)
 
-tar_tree = etree.parse('/mnt/training_defs/math10/1002_005.xml.gz')
+tar_tree = etree.parse('/mnt/training_defs/math11/1102_005.xml.gz')
 def_lst = tar_tree.findall('.//definition')
 nondef_lst = tar_tree.findall('.//nondef')
-ex_text = [D.text for D in nondef_lst[:100]]
-sum(clf.predict(count_vect.transform(ex_text)))
+ex_def = [D.text for D in def_lst[:15]]
 ex_nondef = [D.text for D in nondef_lst[:15]]
-clf.predict(count_vect.transform(ex_nondef))
+preds_nondef = clf.predict(count_vect.transform(ex_nondef))
+preds_def = clf.predict(count_vect.transform(ex_def))
+print(f"Should be all zero: {preds_nondef}")
+print('\n'.join(repr(k)+' --- '+ex_nondef[k] for k in np.nonzero(preds_nondef)[0]))
+print(f"Should be all zero: {preds_def}")
+print('\n'.join(repr(k)+' --- '+ex_def[k] for k in np.nonzero(preds_def-1)[0]))
+
+np.nonzero(preds+1)
 
 with open('../PickleJar/count_vectorizer49.pickle', 'wb') as class_f:
     pickle.dump(count_vect, class_f)
