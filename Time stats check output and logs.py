@@ -30,6 +30,7 @@ import magic
 from collections import defaultdict
 import itertools
 from functools import reduce
+import numpy as np
 # %matplotlib inline  
 
 # %load_ext autoreload
@@ -107,10 +108,33 @@ for walk in os.walk('/mnt/promath'):
             except:
                 ee = sys.exc_info()
                 mem_err_lst.append((fname, ee))
-
-# + jupyter={"outputs_hidden": true}
-Err.open_tar('/home/pi/0508_002.tar.gz')[2]
 # -
+
+times_rpi = []
+for path in glob.glob('/mnt/promath/math00/*.tar.gz'):
+    _, times, _ = Err.open_tar(path)
+    times_rpi += times
+for path in glob.glob('/mnt/promath/math01/*.tar.gz'):
+    _, times, _ = Err.open_tar(path)
+    times_rpi += times
+for path in glob.glob('/mnt/promath/math02/*.tar.gz'):
+    _, times, _ = Err.open_tar(path)
+    times_rpi += times
+#_, timesrpi, _ = Err.open_tar('/mnt/promath/math05/1001_001.tar.gz')
+
+times_bridges = []
+for path in glob.glob('/mnt/promath/math06/*.tar.gz'):
+    _, times, _ = Err.open_tar(path)
+    times_bridges += times
+
+n, bins, patches = plt.hist(times_rpi, bins=900,alpha=0.7, label='local')
+n, bins, patches = plt.hist(times_bridges, bins=900,color='tab:green',alpha=0.7, label='bridges')
+plt.xlim(0,150)
+plt.legend()
+plt.xlabel('processing time (sec)')
+plt.ylabel('number of articles')
+plt.savefig('/home/pi/time_hist.png')
+plt.show()
 
 glob.glob('/mnt/promath/math09/*')
 
