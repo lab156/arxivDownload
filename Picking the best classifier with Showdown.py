@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.3.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -207,16 +207,19 @@ Def = ['a banach space is defined as a complete vector space.',
 vdef = count_vect.transform(Def)
 clf.predict(vdef)
 
-tar_tree = etree.parse('/mnt/training_defs/math11/1102_005.xml.gz')
+tar_tree = etree.parse('/mnt/training_defs/math19/1902_001.xml.gz')
 def_lst = tar_tree.findall('.//definition')
 nondef_lst = tar_tree.findall('.//nondef')
 ex_def = [D.text for D in def_lst[:15]]
 ex_nondef = [D.text for D in nondef_lst[:15]]
 preds_nondef = clf.predict(count_vect.transform(ex_nondef))
 preds_def = clf.predict(count_vect.transform(ex_def))
-print(f"Should be all zero: {preds_nondef}")
+print(f"Should be all zeros: {preds_nondef}")
+print('Showing the false positives')
 print('\n'.join(repr(k)+' --- '+ex_nondef[k] for k in np.nonzero(preds_nondef)[0]))
-print(f"Should be all zero: {preds_def}")
+print('-------------------------------------------')
+print(f"Should be all ones: {preds_def}")
+print('Showing the false negatives')
 print('\n'.join(repr(k)+' --- '+ex_def[k] for k in np.nonzero(preds_def-1)[0]))
 
 np.nonzero(preds+1)

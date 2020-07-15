@@ -29,6 +29,7 @@ from matplotlib import rcParams
 
 from html.parser import HTMLParser
 from urllib.request import urlretrieve
+import sklearn.metrics as metrics
 from sklearn.datasets import get_data_home
 from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.linear_model import SGDClassifier
@@ -48,41 +49,39 @@ def _not_in_sphinx():
 
 xml_lst = glob("/mnt/training_defs/math1*/*.xml.gz")
 def stream_arxiv_paragraphs(samples=1000):
+    data_texts = []
+    data_labels = []
+    cnt = {'defs': 0, 'nondefs': 0}
     for X in xml_lst:
-        all_data_texts = []
-        all_data_labels = []
-        cnt = {'defs': 0, 'nondefs': 0}
-        while cnt['defs'] + cnt['nondefs'] < samples:
-            tar_tree = etree.parse(X)
-            def_lst = tar_tree.findall('.//definition')
-            nondef_lst = tar_tree.findall('.//nondef')
-            all_data_texts += [D.text for D in def_lst]
-            all_data_labels += len(def_lst)*[1.0]
-            all_data_texts += [D.text for D in nondef_lst]
-            all_data_labels += len(nondef_lst)*[0.0]
-            cnt['defs'] += len(def_lst)
-            cnt['nondefs'] += len(nondef_lst)
+        tar_tree = etree.parse(X)
+        def_lst = tar_tree.findall('.//definition')
+        nondef_lst = tar_tree.findall('.//nondef')
+        data_texts += [D.text for D in (def_lst + nondef_lst)] 
+        data_labels += (len(def_lst)*[1.0] + len(nondef_lst)*[0.0])
+        cnt['defs'] += len(def_lst)
+        cnt['nondefs'] += len(nondef_lst)
+        
+        if cnt['defs'] + cnt['nondefs'] > samples:
+            out_lst = list(zip(data_texts, data_labels))
+            shuffle(out_lst)
+            yield list(zip(*out_lst))
+            data_texts = []
+            data_labels = []
+            cnt = {'defs': 0, 'nondefs': 0}
+    return
         #print("Definition count: %s.   NonDefinitions count: %s. Total: %s"%(cnt['defs'], cnt['nondefs'], (cnt['defs']+ cnt['nondefs'])))   
-        out_lst = list(zip(all_data_texts, all_data_labels))
-        shuffle(out_lst)
-        yield list(zip(*out_lst))
 
-
-
-h1 = next(stream)
-h2 = next(stream)
-print(len(h1[0]), len(h2[0]))
 
 # +
-# 2^18 = 262144
-vectorizer = HashingVectorizer(decode_error='ignore', n_features=2 ** 19,
-                               alternate_sign=False)
+# 2^18 = 262,144
+# 2^21 = 2,097,152
+###### CONFIG #####
+cfg = {}
+cfg['stream_samples'] = 25000
+vectorizer = HashingVectorizer(decode_error='ignore', n_features=2 ** 23,
+                               alternate_sign=False, ngram_range=(1,3))
 
 logs_file = '../sgd_log.txt'
-
-# Iterator over parsed definition example pairs
-data_stream = stream_arxiv_paragraphs()
-
 
 # Here are some classifiers that support the `partial_fit` method
 partial_fit_classifiers = {
@@ -98,7 +97,7 @@ partial_fit_classifiers = {
 test_stats = {'n_test': 0, 'n_test_pos': 0}
 
 # First we hold out a number of examples to estimate accuracy
-stream = stream_arxiv_paragraphs(samples=25000)
+stream = stream_arxiv_paragraphs(samples=cfg['stream_samples'])
 tick = time.time()
 X_test_text, y_test = next(stream)
 parsing_time = time.time() - tick
@@ -135,7 +134,7 @@ for cls_name in partial_fit_classifiers:
 # We will feed the classifier with mini-batches of 1000 documents; this means
 # we have at most 1000 docs in memory at any time.  The smaller the document
 # batch, the bigger the relative overhead of the partial fit methods.
-minibatch_size = 1000
+#minibatch_size = 1000
 
 # Create the data_stream that parses Reuters SGML files and iterates on
 # documents as a stream.
@@ -168,12 +167,12 @@ for i, (X_train_text, y_train) in enumerate(stream):
                        total_vect_time + cls_stats[cls_name]['total_fit_time'])
         cls_stats[cls_name]['runtime_history'].append(run_history)
 
-        if i % 30 == 0:
+        if i % 3 == 0:
             print(progress(cls_name, cls_stats[cls_name]))
             if logs_file:
                 with open(logs_file, 'a') as logs_fobj:
                     print(progress(cls_name, cls_stats[cls_name]),'\n', file = logs_fobj)
-    if i % 30 == 0:
+    if i % 3 == 0:
         print('\n')
 
 
@@ -269,7 +268,7 @@ plt.setp(plt.xticks()[1], rotation=30)
 ymax = max(cls_runtime) * 1.2
 ax.set_ylim((0, ymax))
 ax.set_ylabel('runtime (s)')
-ax.set_title('Prediction Times (%d instances)' % n_test_documents)
+ax.set_title(f'Prediction Times ({cfg["stream_samples"]:,d} instances)')
 autolabel(rectangles)
 plt.tight_layout()
 plt.show()
@@ -277,5 +276,21 @@ plt.show()
 
 with open('data/datalog/sgd_2tothe19_math18.pickle', 'wb') as pickle_fobj:
     pickle.dump(cls_stats, pickle_fobj)
+
+tar_tree = etree.parse('/mnt/training_defs/math99/9902_001.xml.gz')
+def_lst = tar_tree.findall('.//definition')
+nondef_lst = tar_tree.findall('.//nondef')
+ex_def = [D.text for D in def_lst[:15]]
+ex_nondef = [D.text for D in nondef_lst[:15]]
+preds_nondef = cls.predict(vectorizer.transform(ex_nondef))
+preds_def = cls.predict(vectorizer.transform(ex_def))
+print(f"Should be all zero: {preds_nondef}")
+print('\n'.join(repr(k)+' --- '+ex_nondef[k] for k in np.nonzero(preds_nondef)[0]))
+print('\n')
+print(f"Should be all one: {preds_def}")
+print('\n'.join(repr(k)+' --- '+ex_def[k] for k in np.nonzero(preds_def-1)[0]))
+
+predictions = cls.predict(X_test)
+print(metrics.classification_report(predictions,y_test))
 
 
