@@ -116,7 +116,7 @@ if __name__ == '__main__':
     args = parser.parse_args(sys.argv[1:])
 
     cfg = {'save_dir': args.savedir,
-            'n_samples': 200, }
+            'n_samples': args.samples, }
 
     # Create save_dir if not exists
     os.makedirs(cfg['save_dir'], exist_ok=True)
