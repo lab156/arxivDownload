@@ -101,13 +101,35 @@ def stream_arxiv_paragraphs(xml_lst, samples=1000):
     return
 
 if __name__ == '__main__':
-    cfg = {'save_dir': '/mnt/PickleJar/trainer_datalog/',
+    import argparse
+    parser = argparse.ArgumentParser(description='Train Classifier and Vectorize')
+    parser.add_argument('xmlpath', type=str, nargs='+',
+            help='Paths to the training data xml files ex. /mnt/training_defs/math1*/*.xml.gz')
+    parser.add_argument('savedir', type=str,
+            default='/mnt/PickleJar/trainer_datalog/',
+            help='Complete path to the directory to save. /mnt/PickleJar/trainer_datalog/')
+    parser.add_argument('--samples', type=int, 
+            default=200,
+            help='Minimum size of batches of paragraphs to use for training')
+    parser.add_argument('--log', type=str, default="info",
+            help='Log level warning, info, debug, etc.')
+    args = parser.parse_args(sys.argv[1:])
+
+    cfg = {'save_dir': args.savedir,
             'n_samples': 200, }
-    logging.basicConfig(filename=(cfg['save_dir'] + 'classifier_trainer.log'), level=logging.DEBUG)
+
+    # Create save_dir if not exists
+    os.makedirs(cfg['save_dir'], exist_ok=True)
+
+    logging.basicConfig(filename=os.path.join(cfg['save_dir'], 'classifier_trainer.log'),
+            level=getattr(logging, args.log.upper()))
 
     # Get the data from the sample text
 
-    xml_lst = glob.glob("/mnt/training_defs/math1*/*.xml.gz")
+    #xml_lst = glob.glob("/mnt/training_defs/math1*/*.xml.gz")
+    xml_lst = args.xmlpath
+    logging.debug(f'xml_lst is: {xml_lst[:3]}')
+    logging.debug('The number of samples is: {n_samples}'.format(**cfg))
     stream = stream_arxiv_paragraphs(xml_lst, samples=cfg['n_samples'])
     data_texts, data_labels = next(stream)
 
