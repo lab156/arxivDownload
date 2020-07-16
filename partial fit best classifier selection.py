@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.0
+#       jupytext_version: 1.3.3
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -47,7 +47,7 @@ def _not_in_sphinx():
 
 # -
 
-xml_lst = glob("/mnt/training_defs/math1*/*.xml.gz")
+xml_lst = glob("/mnt/training_defs/math*/*.xml.gz")
 def stream_arxiv_paragraphs(samples=1000):
     data_texts = []
     data_labels = []
@@ -112,7 +112,7 @@ print("Test set is %d documents (%d positive)" % (len(y_test), sum(y_test)))
 def progress(cls_name, stats):
     """Report progress information, return a string."""
     duration = time.time() - stats['t0']
-    s = "%12s classifier : \t" % cls_name
+    s = "%s classifier : " % cls_name
     s += "%(n_train)6d train docs (%(n_train_pos)6d positive) " % stats
     s += "%(n_test)6d test docs (%(n_test_pos)6d positive) " % test_stats
     s += "accuracy: %(accuracy).3f " % stats
@@ -174,6 +174,10 @@ for i, (X_train_text, y_train) in enumerate(stream):
                     print(progress(cls_name, cls_stats[cls_name]),'\n', file = logs_fobj)
     if i % 3 == 0:
         print('\n')
+# -
+
+# %%time
+print(metrics.classification_report(cls.predict(X_test),y_test))
 
 
 # +
@@ -202,35 +206,35 @@ for _, stats in sorted(cls_stats.items()):
     ax.set_ylim((0.7, 1))
 plt.legend(cls_names, loc='best')
 
-plt.figure()
-for _, stats in sorted(cls_stats.items()):
-    # Plot accuracy evolution with runtime
-    accuracy, runtime = zip(*stats['runtime_history'])
-    plot_accuracy(runtime, accuracy, 'runtime (s)')
-    ax = plt.gca()
-    ax.set_ylim((0.8, 1))
-plt.legend(cls_names, loc='best')
+#plt.figure()
+#for _, stats in sorted(cls_stats.items()):
+#    # Plot accuracy evolution with runtime
+#    accuracy, runtime = zip(*stats['runtime_history'])
+#    plot_accuracy(runtime, accuracy, 'runtime (s)')
+#    ax = plt.gca()
+#    ax.set_ylim((0.8, 1))
+#plt.legend(cls_names, loc='best')
 
 # Plot fitting times
-plt.figure()
-fig = plt.gcf()
-cls_runtime = [stats['total_fit_time']
-               for cls_name, stats in sorted(cls_stats.items())]
+#plt.figure()
+#fig = plt.gcf()
+#cls_runtime = [stats['total_fit_time']
+#               for cls_name, stats in sorted(cls_stats.items())]
 
-cls_runtime.append(total_vect_time)
-cls_names.append('Vectorization')
-bar_colors = ['b', 'g', 'r', 'c', 'm', 'y']
+#cls_runtime.append(total_vect_time)
+#cls_names.append('Vectorization')
+#bar_colors = ['b', 'g', 'r', 'c', 'm', 'y']
 
-ax = plt.subplot(111)
-rectangles = plt.bar(range(len(cls_names)), cls_runtime, width=0.5,
-                     color=bar_colors)
+#ax = plt.subplot(111)
+#rectangles = plt.bar(range(len(cls_names)), cls_runtime, width=0.5,
+#                     color=bar_colors)
 
-ax.set_xticks(np.linspace(0, len(cls_names) - 1, len(cls_names)))
-ax.set_xticklabels(cls_names, fontsize=10)
-ymax = max(cls_runtime) * 1.2
-ax.set_ylim((0, ymax))
-ax.set_ylabel('runtime (s)')
-ax.set_title('Training Times')
+#ax.set_xticks(np.linspace(0, len(cls_names) - 1, len(cls_names)))
+#ax.set_xticklabels(cls_names, fontsize=10)
+#ymax = max(cls_runtime) * 1.2
+#ax.set_ylim((0, ymax))
+#ax.set_ylabel('runtime (s)')
+#ax.set_title('Training Times')
 
 
 def autolabel(rectangles):
@@ -243,35 +247,35 @@ def autolabel(rectangles):
         plt.setp(plt.xticks()[1], rotation=30)
 
 
-autolabel(rectangles)
-plt.tight_layout()
-plt.show()
+#autolabel(rectangles)
+#plt.tight_layout()
+#plt.show()
 
 # Plot prediction times
-plt.figure()
-cls_runtime = []
-cls_names = list(sorted(cls_stats.keys()))
-for cls_name, stats in sorted(cls_stats.items()):
-    cls_runtime.append(stats['prediction_time'])
-cls_runtime.append(parsing_time)
-cls_names.append('Read/Parse\n+Feat.Extr.')
-cls_runtime.append(vectorizing_time)
-cls_names.append('Hashing\n+Vect.')
-
-ax = plt.subplot(111)
-rectangles = plt.bar(range(len(cls_names)), cls_runtime, width=0.5,
-                     color=bar_colors)
-
-ax.set_xticks(np.linspace(0, len(cls_names) - 1, len(cls_names)))
-ax.set_xticklabels(cls_names, fontsize=8)
-plt.setp(plt.xticks()[1], rotation=30)
-ymax = max(cls_runtime) * 1.2
-ax.set_ylim((0, ymax))
-ax.set_ylabel('runtime (s)')
-ax.set_title(f'Prediction Times ({cfg["stream_samples"]:,d} instances)')
-autolabel(rectangles)
-plt.tight_layout()
-plt.show()
+#plt.figure()
+#cls_runtime = []
+#cls_names = list(sorted(cls_stats.keys()))
+#for cls_name, stats in sorted(cls_stats.items()):
+#    cls_runtime.append(stats['prediction_time'])
+#cls_runtime.append(parsing_time)
+#cls_names.append('Read/Parse\n+Feat.Extr.')
+#cls_runtime.append(vectorizing_time)
+#cls_names.append('Hashing\n+Vect.')
+#
+#ax = plt.subplot(111)
+#rectangles = plt.bar(range(len(cls_names)), cls_runtime, width=0.5,
+#                     color=bar_colors)
+#
+#ax.set_xticks(np.linspace(0, len(cls_names) - 1, len(cls_names)))
+#ax.set_xticklabels(cls_names, fontsize=8)
+#plt.setp(plt.xticks()[1], rotation=30)
+#ymax = max(cls_runtime) * 1.2
+#ax.set_ylim((0, ymax))
+#ax.set_ylabel('runtime (s)')
+#ax.set_title(f'Prediction Times ({cfg["stream_samples"]:,d} instances)')
+#autolabel(rectangles)
+#plt.tight_layout()
+#plt.show()
 # -
 
 with open('data/datalog/sgd_2tothe19_math18.pickle', 'wb') as pickle_fobj:
@@ -292,5 +296,7 @@ print('\n'.join(repr(k)+' --- '+ex_def[k] for k in np.nonzero(preds_def-1)[0]))
 
 predictions = cls.predict(X_test)
 print(metrics.classification_report(predictions,y_test))
+
+os.
 
 
