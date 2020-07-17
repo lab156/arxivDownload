@@ -1,6 +1,6 @@
 import numpy as np
 import os
-import pandas as pd
+#import pandas as pd
 #import seaborn as sns
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -26,6 +26,7 @@ import sys
 import re
 import time
 import glob
+import socket
 import gzip
 import logging
 from lxml import etree
@@ -170,10 +171,11 @@ if __name__ == '__main__':
     predictions = clf.predict(xtest)
     cfg['clf_acc'] = accuracy_score(test_y, predictions)
 
+    cfg['host'] = socket.gethostname()
     cfg['timestamp'] = datetime.now().strftime("%H-%M_%d-%m")
 
     logging.info("""
-    Timestamp: {timestamp}
+    Timestamp: {timestamp} on {host}
     Time vectorizing: {vectorizer_time:3.1f}
     Time spent training: {train_time:3.1f}
     Number of Paragraphs: {n_parag:,d} Training: {train_size:,d} Testing: {test_size:3.3f}
