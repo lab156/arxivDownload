@@ -177,7 +177,7 @@ if __name__ == '__main__':
     Time vectorizing: {vectorizer_time:3.1f}
     Time spent training: {train_time:3.1f}
     Number of Paragraphs: {n_parag:,d} Training: {train_size:,d} Testing: {test_size:3.3f}
-    Classifier Accuracy: {clf_acc:0.3f}
+    Classifier Accuracy: {clf_acc:3.3f}
     """.format(**cfg))
 
     # Store the results
