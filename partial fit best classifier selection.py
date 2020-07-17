@@ -37,49 +37,25 @@ from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.linear_model import Perceptron
 from sklearn.naive_bayes import MultinomialNB
 
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import uniform
+
 from lxml import etree
 from random import shuffle
 
-def _not_in_sphinx():
-    # Hack to detect whether we are running by the sphinx builder
-    return '__file__' in globals()
-
-
-# -
-
-xml_lst = glob("/mnt/training_defs/math*/*.xml.gz")
-def stream_arxiv_paragraphs(samples=1000):
-    data_texts = []
-    data_labels = []
-    cnt = {'defs': 0, 'nondefs': 0}
-    for X in xml_lst:
-        tar_tree = etree.parse(X)
-        def_lst = tar_tree.findall('.//definition')
-        nondef_lst = tar_tree.findall('.//nondef')
-        data_texts += [D.text for D in (def_lst + nondef_lst)] 
-        data_labels += (len(def_lst)*[1.0] + len(nondef_lst)*[0.0])
-        cnt['defs'] += len(def_lst)
-        cnt['nondefs'] += len(nondef_lst)
-        
-        if cnt['defs'] + cnt['nondefs'] > samples:
-            out_lst = list(zip(data_texts, data_labels))
-            shuffle(out_lst)
-            yield list(zip(*out_lst))
-            data_texts = []
-            data_labels = []
-            cnt = {'defs': 0, 'nondefs': 0}
-    return
-        #print("Definition count: %s.   NonDefinitions count: %s. Total: %s"%(cnt['defs'], cnt['nondefs'], (cnt['defs']+ cnt['nondefs'])))   
-
+from classifier_trainer.trainer import stream_arxiv_paragraphs
 
 # +
 # 2^18 = 262,144
 # 2^21 = 2,097,152
 ###### CONFIG #####
-cfg = {}
-cfg['stream_samples'] = 25000
-vectorizer = HashingVectorizer(decode_error='ignore', n_features=2 ** 23,
-                               alternate_sign=False, ngram_range=(1,3))
+xml_lst = glob("/mnt/training_defs/math18/*.xml.gz")
+cfg = {'batch_size': 25000,
+      'hash_vect': {'decode_error':'ignore',
+                    'n_features': 2 ** 23,
+                    'alternate_sign': False,
+                    'ngram_range': (1,3)}, }
+vectorizer = HashingVectorizer(**cfg['hash_vect'])
 
 logs_file = '../sgd_log.txt'
 
@@ -91,13 +67,11 @@ partial_fit_classifiers = {
     #'Passive-Aggressive': PassiveAggressiveClassifier(),
 }
 
-
-
 # test data statistics
 test_stats = {'n_test': 0, 'n_test_pos': 0}
 
 # First we hold out a number of examples to estimate accuracy
-stream = stream_arxiv_paragraphs(samples=cfg['stream_samples'])
+stream = stream_arxiv_paragraphs(xml_lst, samples=cfg['batch_size'])
 tick = time.time()
 X_test_text, y_test = next(stream)
 parsing_time = time.time() - tick
@@ -131,16 +105,7 @@ for cls_name in partial_fit_classifiers:
 #get_minibatch(data_stream, n_test_documents)
 # Discard test set
 
-# We will feed the classifier with mini-batches of 1000 documents; this means
-# we have at most 1000 docs in memory at any time.  The smaller the document
-# batch, the bigger the relative overhead of the partial fit methods.
-#minibatch_size = 1000
-
-# Create the data_stream that parses Reuters SGML files and iterates on
-# documents as a stream.
-#minibatch_iterators = iter_minibatches(data_stream, minibatch_size)
 total_vect_time = 0.0
-
 # Main loop : iterate on mini-batches of examples
 for i, (X_train_text, y_train) in enumerate(stream):
 
@@ -296,7 +261,5 @@ print('\n'.join(repr(k)+' --- '+ex_def[k] for k in np.nonzero(preds_def-1)[0]))
 
 predictions = cls.predict(X_test)
 print(metrics.classification_report(predictions,y_test))
-
-os.
 
 

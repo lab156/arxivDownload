@@ -95,7 +95,6 @@ def stream_arxiv_paragraphs(xml_lst, samples=1000):
             logging.debug('Definition count: defs: {defs} nondefs: {nondefs}'.format(**cnt))
             yield list(zip(*out_lst))
             data_texts = []
-            print('Im runiing dont worry')
             data_labels = []
             cnt = {'defs': 0, 'nondefs': 0}
     return
