@@ -160,7 +160,7 @@ if __name__ == '__main__':
             'C': 1600,
             'probability': True,}
     clf = SVC(**cfg['clf'])
-    cfg['clf']['name'] = clf.__class__.__name__
+    cfg['clf_name'] = clf.__class__.__name__
 
     # Train the classifier
     time1 = time.time()
@@ -168,7 +168,7 @@ if __name__ == '__main__':
     cfg['train_time'] = time.time() - time1
 
     predictions = clf.predict(xtest)
-    cfg['clf']['acc'] = accuracy_score(test_y, predictions)
+    cfg['clf_acc'] = accuracy_score(test_y, predictions)
 
     cfg['timestamp'] = datetime.now().strftime("%H-%M_%d-%m")
 
@@ -177,6 +177,7 @@ if __name__ == '__main__':
     Time vectorizing: {vectorizer_time:3.1f}
     Time spent training: {train_time:3.1f}
     Number of Paragraphs: {n_parag:,d} Training: {train_size:,d} Testing: {test_size:3.3f}
+    Classifier Accuracy: {clf_acc:0.3f}
     """.format(**cfg))
 
     # Store the results
