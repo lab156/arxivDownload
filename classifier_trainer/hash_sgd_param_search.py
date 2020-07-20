@@ -30,8 +30,7 @@ from random import shuffle
 
 from trainer import stream_arxiv_paragraphs
 
-hash_param_grid = {'decode_error':'ignore',
-              'n_features': [2 ** 21, 2 ** 22, 2 ** 23, 2**24],
+hash_param_grid = { 'n_features': [2 ** 21, 2 ** 22, 2 ** 23, 2**24],
               'alternate_sign': [False, True],
               'ngram_range': [(1,2), (1,3)],
              'binary': [False, True],
