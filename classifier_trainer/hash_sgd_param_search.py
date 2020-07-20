@@ -46,10 +46,10 @@ clf_param_grid = {'loss': ['hinge', 'log', 'squared_hinge', 'modified_huber'],
               'shuffle': [False, True],
               'learning_rate': ['constant', 'optimal', 'invscaling', 'adaptive'],
                  'eta0': uniform(0.01, 1),}
-cfg_param_grid = {'batch_size': [12500, 25000, 50000], 'u': uniform()}
-HashSampler = ParameterSampler(hash_param_grid, n_iter=500000000)
-clfSampler = ParameterSampler(clf_param_grid,   n_iter=500000000)
-cfgSampler = ParameterSampler(cfg_param_grid,   n_iter=500000000)
+cfg_param_grid = {'batch_size': [12500, 25000, 50000], }
+HashSampler = ParameterSampler(hash_param_grid, n_iter=1)
+clfSampler = ParameterSampler(clf_param_grid,   n_iter=1)
+cfgSampler = ParameterSampler(cfg_param_grid,   n_iter=1)
 
 tboy_acc = 0
 cnt = 0
