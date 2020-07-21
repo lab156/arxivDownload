@@ -106,6 +106,7 @@ with open(cfg['tokr'], 'rb') as class_f:
 
 for k,dirname in enumerate(dir_lst):   # dirname: math18
     if k%Size == rank:
+        print('I am rpi%s and dealing with dir %s \n'%(rank, dirname))
         if k<Size: time.sleep(rank*20) # Only wait the first time around
         try:
             full_path = os.path.join(cfg['mnt_path'], dirname)
@@ -113,7 +114,6 @@ for k,dirname in enumerate(dir_lst):   # dirname: math18
         except FileNotFoundError:
             print(' %s Not Found'%d)
             break
-        print('I am rpi%s and dealing with dir %s \n'%(rank, dirname))
         out_path = os.path.join(cfg['save_path'], dirname)
         os.makedirs(out_path, exist_ok=True)
             

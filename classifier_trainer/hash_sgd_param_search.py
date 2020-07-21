@@ -30,7 +30,7 @@ from random import shuffle
 
 from trainer import stream_arxiv_paragraphs
 
-cfg = {'train_data': "/mnt/training_defs/math18/*.xml.gz"}  
+cfg = {'train_data': "/home/lab232/training_defs/math18/*.xml.gz"}  
 hash_param_grid = { 'n_features': [2 ** 21, 2 ** 22, 2 ** 23, 2**24],
               'alternate_sign': [False, True],
               'ngram_range': [(1,2), (1,3)],
