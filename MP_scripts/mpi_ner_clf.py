@@ -61,7 +61,7 @@ def parse_clf_chunk(file_obj, clf, bio, vzer, tokr, max_stale_tries=15):
         try:
             DD = px.DefinitionsXML(file_obj)
             break
-        except: OSError as ee:
+        except OSError as ee:
             wait_delay = randint(5,15)
             logging.warning(f"{ee} waiting for {wait_delay} retry: {retried}")
             time.sleep(wait_delay)
