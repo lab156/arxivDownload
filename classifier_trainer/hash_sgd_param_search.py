@@ -30,6 +30,7 @@ from random import shuffle
 
 from trainer import stream_arxiv_paragraphs
 
+cfg = {'train_data': "/mnt/training_defs/math18/*.xml.gz"}  
 hash_param_grid = { 'n_features': [2 ** 21, 2 ** 22, 2 ** 23, 2**24],
               'alternate_sign': [False, True],
               'ngram_range': [(1,2), (1,3)],
@@ -53,11 +54,9 @@ cfgSampler = ParameterSampler(cfg_param_grid,   n_iter=1)
 tboy_acc = 0
 cnt = 0
 while True:
-    xml_lst = glob("/mnt/training_defs/math18/*.xml.gz")
+    xml_lst = glob(cfg['train_data'])
     hash_param = next(HashSampler.__iter__())
     vectorizer = HashingVectorizer(**hash_param)
-
-    logs_file = '../sgd_log.txt'
 
     clf_param = next(clfSampler.__iter__())
     # Here are some classifiers that support the `partial_fit` method

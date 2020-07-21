@@ -36,7 +36,7 @@ Start = 1991
 End = 2020
 dir_lst = ['math' + repr(s)[-2:] for s in range(Start, End + 1)]
 cfg = {'mnt_path': '/mnt/promath/',
-        'save_path':'/tmp/',
+        'save_path':'/home/pi/glossary',
         'clf': '/mnt/PickleJar/sgd_clf_21-07.pickle',
         'bio': '/mnt/PickleJar/chunker.pickle', 
         'vzer': '/mnt/PickleJar/hash_vect_21-07.pickle',
@@ -65,7 +65,8 @@ def parse_clf_chunk(file_obj, clf, bio, vzer, tokr, max_stale_tries=15):
             wait_delay = randint(5,15)
             logging.warning(f"{ee} waiting for {wait_delay} retry: {retried}")
             time.sleep(wait_delay)
-    ddum = Definiendum(DD, clf, bio, vzer, tokr)
+        # Letting this fail for now (fails with UnboundLocalError)
+        ddum = Definiendum(DD, clf, bio, vzer, tokr)
     return ddum.root
 
 def untar_clf_write(tarpath, output_dir,  *args):
@@ -122,7 +123,7 @@ for k,dirname in enumerate(dir_lst):   # dirname: math18
             
         #print(tar_lst)
         #root = etree.Element('root', name=d)
-        pool = mp.Pool(processes=4)
-        arg_lst = [(t, out_path, clf, bio, vzer, tokr) for t in tar_lst]
-        logging.debug(f'First elements of arg_lst are: {arg_lst[:5]}')
-        pool.starmap(untar_clf_write, arg_lst)
+        with mp.Pool(processes=3, maxtasksperchild=1) as pool:
+            arg_lst = [(t, out_path, clf, bio, vzer, tokr) for t in tar_lst]
+            logging.debug(f'First elements of arg_lst are: {arg_lst[:5]}')
+            pool.starmap(untar_clf_write, arg_lst)
