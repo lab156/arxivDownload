@@ -116,7 +116,7 @@ for k,dirname in enumerate(dir_lst):   # dirname: math18
             break
         print('I am rpi%s and dealing with dir %s \n'%(rank, dirname))
         out_path = os.path.join(cfg['save_path'], dirname)
-        os.makedirs(out_path, exists_ok=True)
+        os.makedirs(out_path, exist_ok=True)
             
         #print(tar_lst)
         #root = etree.Element('root', name=d)
