@@ -60,13 +60,12 @@ def parse_clf_chunk(file_obj, clf, bio, vzer, tokr, max_stale_tries=15):
         retried += 1
         try:
             DD = px.DefinitionsXML(file_obj)
+            ddum = Definiendum(DD, clf, bio, vzer, tokr)
             break
         except OSError as ee:
             wait_delay = randint(5,15)
             logging.warning(f"{ee} waiting for {wait_delay} retry: {retried}")
             time.sleep(wait_delay)
-        # Letting this fail for now (fails with UnboundLocalError)
-        ddum = Definiendum(DD, clf, bio, vzer, tokr)
     return ddum.root
 
 def untar_clf_write(tarpath, output_dir,  *args):
