@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Run with
-# mpiexec -n 4 /mnt/PickleJar/chunker.pick--host 10.0.0.71,10.0.0.72,10.0.0.73,10.0.0.74 python3 /home/pi/arxivDownload/mpi_find_defs.py
+# mpiexec -np 2 --bind-to none --host 10.0.0.71,10.0.0.72 python3 /home/pi/arxivDownload/MP_scripts/mpi_ner_clf.py
 
 from mpi4py import MPI
 from random import randint
