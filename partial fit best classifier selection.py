@@ -301,8 +301,3 @@ print('\n'.join(repr(k)+' --- '+ex_def[k] for k in np.nonzero(preds_def-1)[0]))
 
 predictions = cls.predict(X_test)
 print(metrics.classification_report(predictions,y_test))
-
-import inspect
-os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-
-
