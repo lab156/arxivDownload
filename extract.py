@@ -16,7 +16,7 @@ import re
 # If Definiendum gets no vectorizer, then it should not classify 
 
 class Definiendum():
-    def __init__(self, px, clf, bio, vzer, tzer):
+    def __init__(self, px, clf, bio, vzer, tzer, **kwargs):
         '''
         Extracts the definitions with of an xml/html file
         `px`: parsing_xml.DefinitionsXML object
@@ -27,8 +27,9 @@ class Definiendum():
         Output is a dictionary of a list of definiendum, statement of the definition
         paragraph number
         '''
+        min_words = kwargs.get('min_words', 15)
         self.px = px
-        self.para_lst = list(map(px.recutext, px.para_list()))
+        self.para_lst = [p for p in map(px.recutext, px.para_list()) if len(p.split()) >= min_words]
         self.vzer = vzer
         #self.clf = clf
         self.chunk = lambda x: bio.parse(pos_tag(word_tokenize(x)))

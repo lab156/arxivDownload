@@ -78,19 +78,34 @@ for _ in range(15):
 # 2^18 = 262,144
 # 2^21 = 2,097,152
 ###### CONFIG #####
-xml_lst = glob("/mnt/training_defs/math18/*.xml.gz")
+xml_lst = glob("/mnt/training_defs/math*/*.xml.gz")
 # THIS CONFIGURATION WORKS BEAUTIFULLY BUT STILL TRYING TO MAKE IT BETTER
 #cfg = {'batch_size': 25000,
 #      'hash_vect': {'decode_error':'ignore',
 #                    'n_features': 2 ** 23,
 #                    'alternate_sign': False,
 #                    'ngram_range': (1,3)}, }
-hash_param = next(HashSampler.__iter__())
+#hash_param = next(HashSampler.__iter__())
+hash_param = {'stop_words': None,
+              'norm': 'l2',
+               'ngram_range': (1, 3),
+              'n_features': 2097152,
+               'lowercase': False,
+               'decode_error': 'r',
+               'binary': True,
+               'analyzer': 'word',
+               'alternate_sign': False}
 vectorizer = HashingVectorizer(**hash_param)
 
 logs_file = '../sgd_log.txt'
 
-clf_param = next(clfSampler.__iter__())
+#clf_param = next(clfSampler.__iter__())
+clf_param = {'alpha': 1.0329770832803815e-05,
+             'eta0': 0.9052428812490275,
+              'learning_rate': 'optimal',
+              'loss': 'log',
+              'penalty': 'elasticnet',
+              'shuffle': True}
 # Here are some classifiers that support the `partial_fit` method
 partial_fit_classifiers = {
     'SGD': SGDClassifier(**clf_param),
@@ -172,8 +187,6 @@ for i, (X_train_text, y_train) in enumerate(stream):
     if i % 3 == 0:
         print('\n')
 # -
-
-hash_param
 
 # %%time
 predictions = cls.predict(X_test)
@@ -283,8 +296,10 @@ def autolabel(rectangles):
 #plt.show()
 # -
 
-with open('data/datalog/sgd_2tothe19_math18.pickle', 'wb') as pickle_fobj:
-    pickle.dump(cls_stats, pickle_fobj)
+with open('/mnt/PickleJar/sgd_clf_21-07.pickle', 'wb') as pickle_fobj:
+    pickle.dump(cls, pickle_fobj)
+with open('/mnt/PickleJar/hash_vect_21-07.pickle', 'wb') as pickle_fobj:
+    pickle.dump(vectorizer, pickle_fobj)
 
 tar_tree = etree.parse('/mnt/training_defs/math99/9902_001.xml.gz')
 def_lst = tar_tree.findall('.//definition')
@@ -301,3 +316,5 @@ print('\n'.join(repr(k)+' --- '+ex_def[k] for k in np.nonzero(preds_def-1)[0]))
 
 predictions = cls.predict(X_test)
 print(metrics.classification_report(predictions,y_test))
+
+

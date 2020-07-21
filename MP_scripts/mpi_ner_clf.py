@@ -32,17 +32,19 @@ from ner.chunker import NamedEntityChunker, features
 comm = MPI.COMM_WORLD
 rank = comm.rank
 Size = comm.Get_size()
-Start = 2018
+Start = 1991
 End = 2020
 dir_lst = ['math' + repr(s)[-2:] for s in range(Start, End + 1)]
 cfg = {'mnt_path': '/mnt/promath/',
-        'out_path':'/tmp/',
-        'clf': '/mnt/PickleJar/clf_20-18_16-07.pickle',
+        'save_path':'/tmp/',
+        'clf': '/mnt/PickleJar/sgd_clf_21-07.pickle',
         'bio': '/mnt/PickleJar/chunker.pickle', 
-        'vzer': '/mnt/PickleJar/count_vect_20-18_16-07.pickle',
+        'vzer': '/mnt/PickleJar/hash_vect_21-07.pickle',
         'tokr': '/mnt/PickleJar/tokenizer.pickle'}
 
-logging.basicConfig(level = logging.DEBUG)
+logging.basicConfig(level = logging.WARNING)
+
+#TODO:
 
 def parse_clf_chunk(file_obj, clf, bio, vzer, tokr):
     '''
@@ -101,16 +103,15 @@ for k,dirname in enumerate(dir_lst):   # dirname: math18
             print(' %s Not Found'%d)
             break
         print('I am rpi%s and dealing with dir %s \n'%(rank, dirname))
-        out_path = os.path.join('/tmp/', dirname)
+        out_path = os.path.join(cfg['save_path'], dirname)
         try:
             os.mkdir(out_path)
         except FileExistsError as ee:
-            print(ee, ' continuing using this directory')
+            logging.warning(ee, ' continuing using this directory')
             
         #print(tar_lst)
         #root = etree.Element('root', name=d)
         pool = mp.Pool(processes=4)
-        out_path = cfg['out_path']
         arg_lst = [(t, out_path, clf, bio, vzer, tokr) for t in tar_lst]
         logging.debug(f'First elements of arg_lst are: {arg_lst[:5]}')
         pool.starmap(untar_clf_write, arg_lst)
