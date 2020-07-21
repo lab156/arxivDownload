@@ -46,14 +46,25 @@ logging.basicConfig(level = logging.WARNING)
 
 #TODO:
 
-def parse_clf_chunk(file_obj, clf, bio, vzer, tokr):
+def parse_clf_chunk(file_obj, clf, bio, vzer, tokr, max_stale_tries=15):
     '''
     Runs the classifier and chunker on the file_obj
     file_obj: file object
 
     clf, bio, vzer, tokr: pickled classifiers and tokenizer
+
+    max_stale_tries: number of retries of OSError Stale file handle
     '''
-    DD = px.DefinitionsXML(file_obj)
+    retried = 0
+    while retried < max_stale_tries:
+        retried += 1
+        try:
+            DD = px.DefinitionsXML(file_obj)
+            break
+        except: OSError as ee:
+            wait_delay = randint(5,15)
+            logging.warning(f"{ee} waiting for {wait_delay} retry: {retried}")
+            time.sleep(wait_delay)
     ddum = Definiendum(DD, clf, bio, vzer, tokr)
     return ddum.root
 
@@ -95,7 +106,7 @@ with open(cfg['tokr'], 'rb') as class_f:
 
 for k,dirname in enumerate(dir_lst):   # dirname: math18
     if k%Size == rank:
-        time.sleep(rank*20)
+        if k<Size: time.sleep(rank*20) # Only wait the first time around
         try:
             full_path = os.path.join(cfg['mnt_path'], dirname)
             tar_lst = [os.path.join(full_path, p) for p in  os.listdir(full_path) if '.tar.gz' in p]

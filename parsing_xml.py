@@ -152,10 +152,11 @@ class DefinitionsXML(object):
                 raise NotImplementedError("Filetype: %s not implemented yet"%\
                         self.filetype)
         except etree.ParseError as e:
-            print('The file ', file_path, ' produced an error: ', e)
+            #print('The file ', file_path, ' produced an error: ', e)
             raise ValueError('XML Syntax error')
         except etree.XMLSyntaxError as e:
-            print('The file ', file_path, ' produced an error: ', e)
+            #print('The file ', file_path, ' produced an error: ', e)
+            pass
 
         self.ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
         self.def_lst = []
