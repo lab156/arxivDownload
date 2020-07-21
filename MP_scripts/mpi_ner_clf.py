@@ -37,9 +37,9 @@ End = 2020
 dir_lst = ['math' + repr(s)[-2:] for s in range(Start, End + 1)]
 cfg = {'mnt_path': '/mnt/promath/',
         'out_path':'/tmp/',
-        'clf': '/home/pi/rm_train_datalog/clf_20-18_16-07.pickle',
+        'clf': '/mnt/PickleJar/clf_20-18_16-07.pickle',
         'bio': '/mnt/PickleJar/chunker.pickle', 
-        'vzer': '/home/pi/rm_train_datalog/count_vect_20-18_16-07.pickle',
+        'vzer': '/mnt/PickleJar/count_vect_20-18_16-07.pickle',
         'tokr': '/mnt/PickleJar/tokenizer.pickle'}
 
 logging.basicConfig(level = logging.DEBUG)
@@ -93,6 +93,7 @@ with open(cfg['tokr'], 'rb') as class_f:
 
 for k,dirname in enumerate(dir_lst):   # dirname: math18
     if k%Size == rank:
+        time.sleep(rank*20)
         try:
             full_path = os.path.join(cfg['mnt_path'], dirname)
             tar_lst = [os.path.join(full_path, p) for p in  os.listdir(full_path) if '.tar.gz' in p]
