@@ -117,7 +117,7 @@ for k,dirname in enumerate(dir_lst):   # dirname: math18
         print('I am rpi%s and dealing with dir %s \n'%(rank, dirname))
         out_path = os.path.join(cfg['save_path'], dirname)
         try:
-            os.mkdir(out_path)
+            os.mkdir(out_path, parents=True)
         except FileExistsError as ee:
             logging.warning(f'{ee} continuing using this directory')
             
