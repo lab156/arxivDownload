@@ -24,6 +24,7 @@ import sys
 import pickle
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 
@@ -37,31 +38,77 @@ from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.linear_model import Perceptron
 from sklearn.naive_bayes import MultinomialNB
 
-from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import RandomizedSearchCV, ParameterSampler
 from scipy.stats import uniform
 
 from lxml import etree
 from random import shuffle
 
 from classifier_trainer.trainer import stream_arxiv_paragraphs
+# -
+
+rng = np.random.RandomState(0)
+hash_param_grid = {'decode_error':'ignore',
+              'n_features': [2 ** 21, 2 ** 22, 2 ** 23, 2**24],
+              'alternate_sign': [False, True],
+              'ngram_range': [(1,2), (1,3)],
+             'binary': [False, True],
+             'norm': ['l1', 'l2'],
+             'analyzer': ['word', 'char', 'char_wb'],
+             'stop_words': ['english', None],
+             'lowercase': [False, True],
+                  }
+clf_param_grid = {'loss': ['hinge', 'log', 'squared_hinge', 'modified_huber'],
+              'penalty': ['l2', 'l1', 'elasticnet'],
+              'alpha': uniform(0.0001/10, 0.0001*1.4),
+              'shuffle': [False, True],
+              'learning_rate': ['constant', 'optimal', 'invscaling', 'adaptive'],
+                 'eta0': uniform(0.01, 1),}
+cfg_param_grid = {'batch_size': [12500, 25000, 50000]}
+HashSampler = ParameterSampler(hash_param_grid, n_iter=1)
+clfSampler = ParameterSampler(clf_param_grid, n_iter=50000000)
+cfgSampler = ParameterSampler(cfg_param_grid,   n_iter=1, random_state=rng)
+
+for _ in range(15):
+    print(next(cfgSampler.__iter__()))
+#for p in cfgSampler:
+    #print(p)
 
 # +
 # 2^18 = 262,144
 # 2^21 = 2,097,152
 ###### CONFIG #####
-xml_lst = glob("/mnt/training_defs/math18/*.xml.gz")
-cfg = {'batch_size': 25000,
-      'hash_vect': {'decode_error':'ignore',
-                    'n_features': 2 ** 23,
-                    'alternate_sign': False,
-                    'ngram_range': (1,3)}, }
-vectorizer = HashingVectorizer(**cfg['hash_vect'])
+xml_lst = glob("/mnt/training_defs/math*/*.xml.gz")
+# THIS CONFIGURATION WORKS BEAUTIFULLY BUT STILL TRYING TO MAKE IT BETTER
+#cfg = {'batch_size': 25000,
+#      'hash_vect': {'decode_error':'ignore',
+#                    'n_features': 2 ** 23,
+#                    'alternate_sign': False,
+#                    'ngram_range': (1,3)}, }
+#hash_param = next(HashSampler.__iter__())
+hash_param = {'stop_words': None,
+              'norm': 'l2',
+               'ngram_range': (1, 3),
+              'n_features': 2097152,
+               'lowercase': False,
+               'decode_error': 'r',
+               'binary': True,
+               'analyzer': 'word',
+               'alternate_sign': False}
+vectorizer = HashingVectorizer(**hash_param)
 
 logs_file = '../sgd_log.txt'
 
+#clf_param = next(clfSampler.__iter__())
+clf_param = {'alpha': 1.0329770832803815e-05,
+             'eta0': 0.9052428812490275,
+              'learning_rate': 'optimal',
+              'loss': 'log',
+              'penalty': 'elasticnet',
+              'shuffle': True}
 # Here are some classifiers that support the `partial_fit` method
 partial_fit_classifiers = {
-    'SGD': SGDClassifier(max_iter=5),
+    'SGD': SGDClassifier(**clf_param),
     #'Perceptron': Perceptron(),
     #'NB Multinomial': MultinomialNB(alpha=0.01),
     #'Passive-Aggressive': PassiveAggressiveClassifier(),
@@ -142,7 +189,10 @@ for i, (X_train_text, y_train) in enumerate(stream):
 # -
 
 # %%time
-print(metrics.classification_report(cls.predict(X_test),y_test))
+predictions = cls.predict(X_test)
+print(metrics.classification_report(predictions,y_test))
+auc_roc = metrics.roc_auc_score(predictions,y_test)
+print(f'AUC-ROC: {auc_roc:3.2f}')
 
 
 # +
@@ -171,6 +221,9 @@ for _, stats in sorted(cls_stats.items()):
     ax.set_ylim((0.7, 1))
 plt.legend(cls_names, loc='best')
 
+plt.figure()
+fpr, tpr, thresholds = metrics.roc_curve(y_test_array[:,1], pred_prob)
+plt.plot(fpr, tpr, lw=3)
 #plt.figure()
 #for _, stats in sorted(cls_stats.items()):
 #    # Plot accuracy evolution with runtime
@@ -243,8 +296,10 @@ def autolabel(rectangles):
 #plt.show()
 # -
 
-with open('data/datalog/sgd_2tothe19_math18.pickle', 'wb') as pickle_fobj:
-    pickle.dump(cls_stats, pickle_fobj)
+with open('/mnt/PickleJar/sgd_clf_21-07.pickle', 'wb') as pickle_fobj:
+    pickle.dump(cls, pickle_fobj)
+with open('/mnt/PickleJar/hash_vect_21-07.pickle', 'wb') as pickle_fobj:
+    pickle.dump(vectorizer, pickle_fobj)
 
 tar_tree = etree.parse('/mnt/training_defs/math99/9902_001.xml.gz')
 def_lst = tar_tree.findall('.//definition')
