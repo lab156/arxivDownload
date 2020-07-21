@@ -107,7 +107,7 @@ for k,dirname in enumerate(dir_lst):   # dirname: math18
         try:
             os.mkdir(out_path)
         except FileExistsError as ee:
-            logging.warning(ee, ' continuing using this directory')
+            logging.warning(f'{ee} continuing using this directory')
             
         #print(tar_lst)
         #root = etree.Element('root', name=d)
