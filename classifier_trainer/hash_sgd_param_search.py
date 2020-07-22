@@ -30,7 +30,8 @@ from random import shuffle
 
 from trainer import stream_arxiv_paragraphs
 
-cfg = {'train_data': "/home/lab232/training_defs/math18/*.xml.gz"}  
+cfg = {'train_data': "/home/lab232/training_defs/math18/*.xml.gz",
+        'logfile': "/home/lab232/hash_sgd_param_search.log"}  
 hash_param_grid = { 'n_features': [2 ** 21, 2 ** 22, 2 ** 23, 2**24],
               'alternate_sign': [False, True],
               'ngram_range': [(1,2), (1,3)],
@@ -86,12 +87,13 @@ while True:
     temp_acc = cls.score(X_test, y_test)
     if temp_acc > tboy_acc:
         tboy_acc = temp_acc
-        print(f'''Found a better set of params with acc: {temp_acc}
-        Batch size: {cfg_param["batch_size"]} at iteration: {cnt}
-        Hash Parameters: {hash_param} 
-        Classifier Params: {clf_param}
-        ---------------------
+        with open(cfg['logfile'], 'a') as log_fobj:
+            log_fobj.write(f'''Found a better set of params with acc: {temp_acc}
+            Batch size: {cfg_param["batch_size"]} at iteration: {cnt}
+            Hash Parameters: {hash_param} 
+            Classifier Params: {clf_param}
+            ---------------------
 
-        ''')
+            ''')
     cnt += 1
 
