@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.3.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -297,9 +297,9 @@ def autolabel(rectangles):
 # -
 
 with open('/mnt/PickleJar/sgd_clf_21-07.pickle', 'wb') as pickle_fobj:
-    pickle.dump(cls, pickle_fobj)
+    cls = pickle.load(pickle_fobj)
 with open('/mnt/PickleJar/hash_vect_21-07.pickle', 'wb') as pickle_fobj:
-    pickle.dump(vectorizer, pickle_fobj)
+    vectorizer = pickle.load(pickle_fobj)
 
 tar_tree = etree.parse('/mnt/training_defs/math99/9902_001.xml.gz')
 def_lst = tar_tree.findall('.//definition')
@@ -316,5 +316,3 @@ print('\n'.join(repr(k)+' --- '+ex_def[k] for k in np.nonzero(preds_def-1)[0]))
 
 predictions = cls.predict(X_test)
 print(metrics.classification_report(predictions,y_test))
-
-

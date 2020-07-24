@@ -16,6 +16,7 @@
 # +
 import numpy as np
 import pandas as pd
+from datetime import datetime
 #import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -113,6 +114,30 @@ stats['parsing_time'] = time.time() - time1
 print("Definition count: {0:,d}.   NonDefinitions count: {1:,d}. Total: {2:,d}".format(def_cnt, nondef_cnt, (def_cnt+nondef_cnt)))
 print('took {0:1.1f} secs'.format(stats['parsing_time']))
 
+xml_lst = glob.glob("/mnt/training_defs/math9*/*.xml.gz")
+def stream_arxiv_paragraphs(samples=1000):
+    data_texts = []
+    data_labels = []
+    cnt = {'defs': 0, 'nondefs': 0}
+    for X in xml_lst:
+        tar_tree = etree.parse(X)
+        def_lst = tar_tree.findall('.//definition')
+        nondef_lst = tar_tree.findall('.//nondef')
+        data_texts += [D.text for D in (def_lst + nondef_lst)] 
+        data_labels += (len(def_lst)*[1.0] + len(nondef_lst)*[0.0])
+        cnt['defs'] += len(def_lst)
+        cnt['nondefs'] += len(nondef_lst)
+        
+        if cnt['defs'] + cnt['nondefs'] > samples:
+            out_lst = list(zip(data_texts, data_labels))
+            random.shuffle(out_lst)
+            yield list(zip(*out_lst))
+            data_texts = []
+            data_labels = []
+            cnt = {'defs': 0, 'nondefs': 0}
+    return
+
+
 # +
 # define Clean function to cleanse and standarize words
 stop = set(stopwords.words('english'))
@@ -167,7 +192,9 @@ with open('/mnt/PickleJar/classifier49.pickle', 'rb') as pickle_obj:
 #param_lst = [1550, 1650, 1750]
 #SVC_lst = [SVC(kernel="rbf", C=param, probability=True) for param in param_lst]
 #classifiers=  [ naive_bayes.MultinomialNB(),]
-classifiers=  [SVC(kernel="rbf", C=1600, probability=True)]
+cfg={'kernel':"rbf", 'C':1600, 'probability':True}
+classifiers=  [SVC(**cfg)]
+classifiers[0].__class__.__name__
 
 # +
 #for C_param, clf in zip(param_lst,SVC_lst):
@@ -194,6 +221,10 @@ for C_param, clf in enumerate(classifiers):
 print("="*30)
 # -
 
+# %%time
+stream = stream_arxiv_paragraphs(samples=2500)
+test_x, test_y = next(stream)
+predictions = clf.predict(count_vect.transform(test_x))
 print(metrics.classification_report(predictions,test_y))
 
 # %%time
@@ -222,7 +253,10 @@ print(f"Should be all ones: {preds_def}")
 print('Showing the false negatives')
 print('\n'.join(repr(k)+' --- '+ex_def[k] for k in np.nonzero(preds_def-1)[0]))
 
-np.nonzero(preds+1)
+#pred_prob = clf.predict_proba(count_vect.transform(test_x))
+y_test_array = pd.get_dummies(test_y, drop_first=False).values
+plt.figure()
+fpr, tpr, thresholds = metrics.roc_curve(test_y, pred_prob[:,1])
+plt.plot(fpr, tpr, lw=3)
 
-with open('../PickleJar/count_vectorizer49.pickle', 'wb') as class_f:
-    pickle.dump(count_vect, class_f)
+pred_prob[:,1].shape
