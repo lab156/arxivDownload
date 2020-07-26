@@ -44,3 +44,4 @@ cnl_latextual/simple_transformation/test_dtd
 .merlin
 #dune build dirs
 cnl_latextual/LaTeXtual/_build/
+/virtualenv/
