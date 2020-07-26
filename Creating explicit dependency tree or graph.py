@@ -29,16 +29,15 @@ mathag = etree.parse('data/mathAG_2015.xml').getroot()
 len(planetmath.getchildren())
 
 # +
-ag = planetmath
-G = nx.DiGraph()
+ag = planetmath # ???
 def_dict = {} #keys: dfndum Value: list of hashes of statements where the is appears
-hash_dict = {} # keys: hashe of statements, Values: the text of the statement
-for D in ag.iter(tag = 'stmnt'):
-    hash_dict[hash(D.text)] = D.text
+# hash_dict = {} # keys: hashes of statements, Values: the text of the statement
+# for D in ag.iter(tag = 'stmnt'):
+#     hash_dict[hash(D.text)] = D.text
     
 for d in ag.iter(tag = 'dfndum'):
     D = d.getparent().find('stmnt').text
-    if d.text.strip() in def_dict:
+    if d.text.strip() in def_dict: # in case there are repeats
         def_dict[d.text.strip()].append(hash(D))
     else:
         def_dict[d.text.strip()] = [hash(D),]
@@ -46,6 +45,7 @@ print('def_dict has this many elements ', len(def_dict.values()))
 # -
 
 dgraph = nx.DiGraph()
+
 
 empty_str_if_none = lambda s: s if s  else ''
 for k,d_raw in enumerate(def_dict.keys()):
