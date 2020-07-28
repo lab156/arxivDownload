@@ -32,7 +32,7 @@ class Definiendum():
         self.para_lst = [p for p in map(px.recutext, px.para_list()) if len(p.split()) >= min_words]
         self.vzer = vzer
         #self.clf = clf
-        self.chunk = lambda x: bio.parse(pos_tag(word_tokenize(x)))
+        self.chunk = lambda x: bio.parse(pos_tag(word_tokenize(self.clean_rm(x))))
         #first we need to vectorize
 
         self.trans_vect = vzer.transform(self.para_lst)
@@ -42,7 +42,7 @@ class Definiendum():
                 if self.predictions[ind]]
 
         self.root = etree.Element('article')
-        self.root.attrib['name'] = px.file_path
+        self.root.attrib['name'] = kwargs.get('fname', "")
         self.root.attrib['num'] = repr(len(self.para_lst))
         for ind,p in self.def_lst:
             defxml = self.create_definition_branch(ind, p)
@@ -57,6 +57,15 @@ class Definiendum():
         dfndum_lst = list(filter(lambda x: isinstance(x, nltk.tree.Tree), chunked))
         join_tokens = lambda D: ' '.join([d[0] for d in D])
         return [join_tokens(s) for s in dfndum_lst]
+
+    def clean_rm(para):
+        """
+        Given a paragraph do the final cleanup before chunking
+        This is basically removing the strings that are not in the
+        wikipedia dataset due to their different origins:
+        (wikipedia data is html and it's not produced by LaTeXML)
+        """
+        return re.sub(r"<s/>|</s>|_cite_|_item_", "", para)
 
     def create_definition_branch(self, ind, defi):
         root = etree.Element("definition")

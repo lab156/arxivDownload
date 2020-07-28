@@ -27,13 +27,12 @@ import parsing_xml as px
 from extract import Definiendum
 import peep_tar as peep
 from ner.chunker import NamedEntityChunker, features
-#from mp_extract import parse_clf_chunk, untar_clf_write
 
 comm = MPI.COMM_WORLD
 rank = comm.rank
 Size = comm.Get_size()
-Start = 1991
-End = 2020
+Start = 2019
+End = 2019
 dir_lst = ['math' + repr(s)[-2:] for s in range(Start, End + 1)]
 cfg = {'mnt_path': '/mnt/promath/',
         'save_path':'/home/pi/glossary',
@@ -46,7 +45,7 @@ logging.basicConfig(level = logging.WARNING)
 
 #TODO:
 
-def parse_clf_chunk(file_obj, clf, bio, vzer, tokr, max_stale_tries=15):
+def parse_clf_chunk(fname, file_obj, clf, bio, vzer, tokr, max_stale_tries=15):
     '''
     Runs the classifier and chunker on the file_obj
     file_obj: file object
@@ -60,7 +59,7 @@ def parse_clf_chunk(file_obj, clf, bio, vzer, tokr, max_stale_tries=15):
         retried += 1
         try:
             DD = px.DefinitionsXML(file_obj)
-            ddum = Definiendum(DD, clf, bio, vzer, tokr)
+            ddum = Definiendum(DD, clf, bio, vzer, tokr, fname=fname)
             break
         except OSError as ee:
             wait_delay = randint(5,15)
@@ -82,7 +81,7 @@ def untar_clf_write(tarpath, output_dir,  *args):
 
     for fname, tar_fileobj in peep.tar_iter(tarpath, '.xml'): 
         try:
-            art_tree = parse_clf_chunk(tar_fileobj, *args)
+            art_tree = parse_clf_chunk(fname, tar_fileobj, *args)
             root.append(art_tree)
         except ValueError as ee:
             logging.debug(' '.join([repr(ee), 'file: ', fname, ' is empty']))
