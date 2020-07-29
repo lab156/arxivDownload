@@ -65,7 +65,7 @@ class Definiendum():
         wikipedia dataset due to their different origins:
         (wikipedia data is html and it's not produced by LaTeXML)
         """
-        return re.sub(r"<s/>|</s>|_cite_|_item_", "", para)
+        return re.sub(r"<s/>|</s>|_cite_|_citation_|_item_", "", para)
 
     def create_definition_branch(self, ind, defi):
         root = etree.Element("definition")
