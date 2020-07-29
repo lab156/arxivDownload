@@ -58,7 +58,7 @@ class Definiendum():
         join_tokens = lambda D: ' '.join([d[0] for d in D])
         return [join_tokens(s) for s in dfndum_lst]
 
-    def clean_rm(para):
+    def clean_rm(self, para):
         """
         Given a paragraph do the final cleanup before chunking
         This is basically removing the strings that are not in the
