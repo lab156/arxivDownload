@@ -4,6 +4,8 @@ import sys
 import collections as coll
 import time
 import random
+import parsing_xml as px
+from functools import partial
 
 
 def article_name_dict(tar_obj):
@@ -36,6 +38,38 @@ def tar_iter(tarpath, patt):
             print(ee, "while opening tarfile: %s, waiting for %s"%(tarpath, wait_delay))
             time.sleep(wait_delay)
 
+def tar(tarpath, *args):
+    """
+    tarpath: Is the address of a processed by LaTeXML .tar.gz file
+    args may be: 
+          int: return the i-th file
+          str: return the first match of the names in the tarfile
+    """
+    with tarfile.open(tarpath) as tar_file:
+        if args:
+            if isinstance(args[0], int):
+                contains = lambda ftype,fname: ftype in fname
+                xmlname = list(filter(partial(contains, '.xml'), tar_file.getnames()))[args[0]]
+                logname = list(filter(partial(contains, '.txt'), tar_file.getnames()))[args[0]]
+            elif isinstance(args[0], str): 
+                def contains(ftype,fname): 
+                    return (args[0] in fname and ftype in fname)
+                try:
+                    xmlname = next(filter(partial(contains, '.xml'), tar_file.getnames()))
+                    xml_xtract = px.DefinitionsXML(tar_file.extractfile(xmlname))
+                except StopIteration:
+                    print(f"No xml results for {args[0]} in {tarpath}")
+                    xmlname = None
+                try:
+                    logname = next(filter(partial(contains, '.txt'), tar_file.getnames()))
+                    log_xtract = tar_file.extractfile(logname).read().decode('utf8')
+                except StopIteration:
+                    print(f"No txt results for {args[0]} in {tarpath}")
+                    logname = None
+        else:
+            xmlname = tar_file.getnames()[0]
+        
+    return (log_xtract, xml_xtract)
 
 if __name__ == '__main__':
     import argparse

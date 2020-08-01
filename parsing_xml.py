@@ -7,10 +7,12 @@ import sys
 import nltk
 import random
 import os.path
-from collections import defaultdict
+from collections import defaultdict, Counter
 import magic
 import tarfile
 import peep_tar as peep
+from langdetect import detect
+from langdetect.lang_detect_exception import LangDetectException
 
 
 #Shortcut to set default to empty string instead Nonetype
@@ -231,9 +233,6 @@ class DefinitionsXML(object):
                     %(self.file_path, etree.tostring(root).decode('utf-8')))
         return root_found
 
-    def get_definiendum(self):
-        pass
-
     def get_def_text(self):
         '''
         uses the method specified to get the text from 
@@ -247,6 +246,28 @@ class DefinitionsXML(object):
             self.find_definitions()
 
         return [self.recutext(self.para_p(r)) for r in self.def_lst]
+
+    def det_language(self, sample_size=5, min_words=15):
+        """
+        Use langdetect library to find the language of the article.
+        """
+        lang_counter = Counter()
+        for k, p in enumerate(self.para_list()):
+            p_text = self.recutext(p)
+            if len(p_text.split()) >= min_words and k > 10:
+                try:
+                    lang_counter.update([detect(p_text)])
+                except LangDetectException:
+                    print(f'Article {self.file_path} gave no features error')
+            if sum(lang_counter.values()) >= sample_size:
+                break
+        else:
+            # if the whole para_list was looped without finding good paragraphs
+            return None
+        #assert len(set(lang_list)) == 1, f"""Article {self.file_path} has multiple
+        #        languages {lang_list}"""
+        return lang_counter.most_common()[0][0]
+
 
     def get_def_sample_text_with(self, sample_size=3, min_words=15):
         '''

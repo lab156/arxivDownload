@@ -29,6 +29,14 @@
 
 
 ### Queries
+* Index the article ID column to speedup queries
+```sql
+CREATE INDEX id_ind on articles(id);
+```
+Run with the following:
+```sql
+select tags from articles where id between "http://arxiv.org/abs/{0}" and "http://arxiv.org/abs/{0}{{";
+```
 * Count the articles in a year of tar files
 ```sql
 SELECT  count(articles.id) FROM manifest LEFT JOIN articles on manifest.id = articles.tarfile_id WHERE manifest.filename LIKE 'src/arXiv_src_06%' and articles.tags like '[{''term'': ''math%';
