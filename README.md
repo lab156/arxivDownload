@@ -14,6 +14,11 @@
 * getting problem articles for latexml.ipynb
     * Identify articles that are not included in the arxmliv database 
     * Try to process these problematic articles with either removing environments or with LaTeXTual
+* Word embeddings generation and evaluation.py
+    * read the binary files produced by word2vec
+    * Get the raw text ready for embedders
+    * Search for arxiv.db for the tags of an article
+    * tSNE visualization of the tags of terms
 
 ## Scripts
 * update_db.py
@@ -33,7 +38,7 @@
 ```sql
 CREATE INDEX id_ind on articles(id);
 ```
-Run with the following:
+To search and article, run with the following query:
 ```sql
 select tags from articles where id between "http://arxiv.org/abs/{0}" and "http://arxiv.org/abs/{0}{{";
 ```

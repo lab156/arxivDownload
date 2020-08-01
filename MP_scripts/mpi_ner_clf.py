@@ -59,6 +59,7 @@ def parse_clf_chunk(fname, file_obj, clf, bio, vzer, tokr, max_stale_tries=15):
         retried += 1
         try:
             DD = px.DefinitionsXML(file_obj)
+            if jj
             ddum = Definiendum(DD, clf, bio, vzer, tokr, fname=fname)
             break
         except OSError as ee:

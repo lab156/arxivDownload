@@ -247,14 +247,14 @@ class DefinitionsXML(object):
 
         return [self.recutext(self.para_p(r)) for r in self.def_lst]
 
-    def det_language(self, sample_size=5, min_words=15):
+    def det_language(self, sample_size=5, min_words=15, start_at=5):
         """
         Use langdetect library to find the language of the article.
         """
         lang_counter = Counter()
         for k, p in enumerate(self.para_list()):
             p_text = self.recutext(p)
-            if len(p_text.split()) >= min_words and k > 10:
+            if len(p_text.split()) >= min_words and k > start_at:
                 try:
                     lang_counter.update([detect(p_text)])
                 except LangDetectException:

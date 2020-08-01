@@ -24,7 +24,7 @@ sys.path.insert(0,'arxiv.py/')
 import arxiv
 import databases.create_db_define_models as cre
 
-with open('data/arXiv_src_manifest_Oct_2019.xml', 'r') as f:
+with open('/mnt/arXiv_src/', 'r') as f:
     mani = etree.parse(f)
     
 # Get list of filenames with xpath
