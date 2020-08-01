@@ -24,19 +24,21 @@ sys.path.insert(0,'arxiv.py/')
 import arxiv
 import databases.create_db_define_models as cre
 
-with open('/mnt/arXiv_src/', 'r') as f:
+with open('/mnt/arXiv_src/src/arXiv_src_manifest.xml', 'r') as f:
     mani = etree.parse(f)
     
 # Get list of filenames with xpath
 fname = mani.xpath('.//filename')
 len(fname)
 fname_set = set([f.text for f in fname])
-
 # -
 
 # %load_ext autoreload
 # %autoreload 2
 import process as pro
+
+fname_lst = set([f.text for f in fname])
+sorted(fname_lst)[1400:]
 
 # +
 # Connect to the database

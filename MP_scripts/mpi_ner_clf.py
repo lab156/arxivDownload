@@ -31,8 +31,8 @@ from ner.chunker import NamedEntityChunker, features
 comm = MPI.COMM_WORLD
 rank = comm.rank
 Size = comm.Get_size()
-Start = 2019
-End = 2019
+Start = 1991
+End = 2020
 dir_lst = ['math' + repr(s)[-2:] for s in range(Start, End + 1)]
 cfg = {'mnt_path': '/mnt/promath/',
         'save_path':'/home/pi/glossary',
@@ -59,14 +59,16 @@ def parse_clf_chunk(fname, file_obj, clf, bio, vzer, tokr, max_stale_tries=15):
         retried += 1
         try:
             DD = px.DefinitionsXML(file_obj)
-            if jj
-            ddum = Definiendum(DD, clf, bio, vzer, tokr, fname=fname)
+            if DD.det_language() in ['en', None]:
+                ddum_root = Definiendum(DD, clf, bio, vzer, tokr, fname=fname).root
+            else:
+                ddum_root = None
             break
         except OSError as ee:
             wait_delay = randint(5,15)
             logging.warning(f"{ee} waiting for {wait_delay} retry: {retried}")
             time.sleep(wait_delay)
-    return ddum.root
+    return ddum_root
 
 def untar_clf_write(tarpath, output_dir,  *args):
     '''
@@ -83,7 +85,7 @@ def untar_clf_write(tarpath, output_dir,  *args):
     for fname, tar_fileobj in peep.tar_iter(tarpath, '.xml'): 
         try:
             art_tree = parse_clf_chunk(fname, tar_fileobj, *args)
-            root.append(art_tree)
+            if art_tree: root.append(art_tree)
         except ValueError as ee:
             logging.debug(' '.join([repr(ee), 'file: ', fname, ' is empty']))
 

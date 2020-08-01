@@ -125,10 +125,10 @@ for xml_path in tqdm(glob.glob('/mnt/glossary/v1.1/math15/*.xml.gz')):
 term_cnt.most_common()[25:]
 # -
 
-s = 3002
+s = 300
 Term = term_cnt.most_common()[s]
-#print(f'The term: {Term} appears in articles tagged:')
-term_dict_cnt['weight vector']
+print(f'The term: {Term} appears in articles tagged:')
+term_dict_cnt[Term]
 
 # Decode word2vec .bin file
 with open('../../word2vec/math15-vectors-phrase.bin', 'rb') as mfobj:
