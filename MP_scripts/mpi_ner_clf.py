@@ -85,7 +85,7 @@ def untar_clf_write(tarpath, output_dir,  *args):
     for fname, tar_fileobj in peep.tar_iter(tarpath, '.xml'): 
         try:
             art_tree = parse_clf_chunk(fname, tar_fileobj, *args)
-            if art_tree: root.append(art_tree)
+            if art_tree is not None: root.append(art_tree)
         except ValueError as ee:
             logging.debug(' '.join([repr(ee), 'file: ', fname, ' is empty']))
 
