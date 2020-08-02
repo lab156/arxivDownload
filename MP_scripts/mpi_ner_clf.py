@@ -36,9 +36,9 @@ End = 2020
 dir_lst = ['math' + repr(s)[-2:] for s in range(Start, End + 1)]
 cfg = {'mnt_path': '/mnt/promath/',
         'save_path':'/home/pi/glossary',
-        'clf': '/mnt/PickleJar/sgd_clf_21-07.pickle',
+        'clf': '/mnt/PickleJar/sgd_clf_21-44_28-07.pickle',
         'bio': '/mnt/PickleJar/chunker.pickle', 
-        'vzer': '/mnt/PickleJar/hash_vect_21-07.pickle',
+        'vzer': '/mnt/PickleJar/hash_vect_21-44_28-07.pickle',
         'tokr': '/mnt/PickleJar/tokenizer.pickle'}
 
 logging.basicConfig(level = logging.WARNING)
