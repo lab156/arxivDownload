@@ -37,6 +37,10 @@ import struct as st
 from itertools import islice
 import numpy as np
 from yellowbrick.text import TSNEVisualizer
+from scipy.cluster.vq import kmeans
+from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt
+import umap
 
 # %load_ext autoreload
 # %autoreload 2
@@ -80,11 +84,16 @@ def qq(art_str):
     return lst
 qq('1512.09109')
 
-
-# -
-
+# +
 # %%time
-def qq(art_str, database = 'sqlite:///../../arxiv2_test_ind.db'):
+# Connect to the database
+database = 'sqlite:///../../arxiv3.db'
+eng = sa.create_engine(database, echo=False)
+eng.connect().execute('pragma case_sensitive_like=OFF;')
+SMaker = sessionmaker(bind=eng)
+sess = SMaker()
+
+def qq(art_str, database = 'sqlite:///../../arxiv3.db'):
     # Connect to the database
     eng = sa.create_engine(database, echo=False)
     with eng.connect() as con:
@@ -98,6 +107,7 @@ def qq(art_str, database = 'sqlite:///../../arxiv2_test_ind.db'):
     res_dict = eval(resu[0])
     return res_dict[0]['term']
 qq('1512.09109')    
+# -
 
 ## Grab the Glossary data
 dfndum_set = set()
@@ -107,7 +117,7 @@ rep_ratio = []
 term_cnt = Counter()
 term_dict_cnt = defaultdict(Counter)
 perc_array = np.array([])
-for xml_path in tqdm(glob.glob('/mnt/glossary/v1.1/math15/*.xml.gz')):
+for xml_path in tqdm(glob.glob('/mnt/glossary/v2/math*/*.xml.gz')):
     gtree = etree.parse(xml_path).getroot()
     for art in gtree.iter(tag='article'):
         d_lst = [d.text for d in art.findall('.//dfndum')]
@@ -116,17 +126,18 @@ for xml_path in tqdm(glob.glob('/mnt/glossary/v1.1/math15/*.xml.gz')):
         new_dfndum_lst.append(len(dfndum_set))
         tot_dfndum_lst.append(tot_dfndum_lst[-1] + len(d_lst))
         rep_ratio.append(tot_dfndum_lst[-1]/len(dfndum_set))
-        arxiv_class = qq(art.attrib['name'].split('/')[1])
-        #print(f"Found arxiv class {arxiv_class}")
-        for D in d_lst:
-            term_dict_cnt[D].update([arxiv_class])
+        try:
+            arxiv_class = qq(art.attrib['name'].split('/')[1])
+            #print(f"Found arxiv class {arxiv_class}")
+            for D in d_lst:
+                term_dict_cnt[D].update([arxiv_class])
+        except StopIteration:
+            pass
 
-# + jupyter={"outputs_hidden": true}
-term_cnt.most_common()[25:]
-# -
+term_cnt.most_common()[:15]
 
 s = 300
-Term = term_cnt.most_common()[s]
+Term = term_cnt.most_common()[s][0]
 print(f'The term: {Term} appears in articles tagged:')
 term_dict_cnt[Term]
 
@@ -160,7 +171,7 @@ with open('../../word2vec/math15-vectors-phrase.bin', 'rb') as mfobj:
         cnt +=1
         embed[word] = vec
 
-common_term = term_cnt.most_common()[2001][0].lower().replace(' ', '_')
+common_term = term_cnt.most_common()[200][0].lower().replace(' ', '_')
 print(f" The term is: {common_term}")
 embed.get(common_term, None)[:10]
 
@@ -203,6 +214,105 @@ tot_vec = np.stack(ag_lst + dg_lst, axis=0)
 labels_vec = len(ag_lst)*['math.AG'] + len(dg_lst)*['math.DG']
 tsne2 = TSNEVisualizer(labels=['math.AG','math.DG'])
 tsne2.fit(tot_vec, labels_vec)
-tsne2.poof(figsize=100)
+tsne2.show(figsize=100)
+
+tsne1 = TSNE()
+tot_vec = np.stack(ag_lst + dg_lst, axis=0)
+means = kmeans(tot_vec, 3)
+tot_vec = np.concatenate([tot_vec, means[0]], axis=0)
+labels_vec = len(ag_lst)*['math.AG'] + len(dg_lst)*['math.DG'] + 2*['center']
+tran_vec = tsne1.fit_transform(tot_vec, labels_vec)
+x,y =  list(zip(tran_vec.transpose()))
+plt.figure(figsize=[7,7])
+plt.scatter(x[0][:500],y[0][:500])
+plt.scatter(x[0][500:1000], y[0][500:1000], color='green')
+plt.scatter(x[0][1000:], y[0][1000:], color='red')
+plt.savefig('/home/luis/tsne_ag_dg.png')
+plt.show()
+for k,center in enumerate(means[0]):
+    print(f"----------- Center {k} nearest neighbors ------------")
+    for word,dist in nearest(center, n_near=7):
+        print(word, "{0:3.2f}".format(dist))
+
+umap1 = umap.UMAP()
+tot_vec = np.stack(ag_lst + dg_lst, axis=0)
+means = kmeans(tot_vec, 3)
+tot_vec = np.concatenate([tot_vec, means[0]], axis=0)
+labels_vec = len(ag_lst)*['math.AG'] + len(dg_lst)*['math.DG'] + len(means[0])*['center']
+tran_vec = umap1.fit_transform(tot_vec, labels_vec)
+x,y =  list(zip(tran_vec.transpose()))
+plt.figure(figsize=[7,7])
+plt.scatter(x[0][:500],y[0][:500])
+plt.scatter(x[0][500:1000], y[0][500:1000], color='green')
+plt.scatter(x[0][1000:], y[0][1000:], color='red')
+plt.show()
+
+# +
+cos_dist = lambda x, y: np.dot(x,y)/np.linalg.norm(x)/np.linalg.norm(y)
+unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
+
+def nearest(word_vec, n_near=10):
+    dist_dict = {}
+    unit_word_vec = word_vec/np.linalg.norm(word_vec)
+    for w, v in unit_embed.items():
+        #dist_dict[w] = cos_dist(v, word_vec)
+        dist_dict[w] = unit_word_vec.dot(v)
+    return sorted(dist_dict.items(), key=lambda pair: pair[1], reverse=True)[:n_near]
+
+
+# +
+#topic,cap = ('math.GN',3) # General Topology
+#topic,cap = ('math.GT', 15) 
+#topic,cap = ('math.AT', 10) #poor results
+#topic,cap = ('math.DG', 10) 
+#topic,cap = ('math.LO', 5) 
+#topic,cap = ('math.DS', 15) 
+#topic,cap = ('math.PR', 15) # very "graphy" center
+#topic,cap = ('math.NT', 15) 
+#topic,cap = ('math.FA', 15) 
+#topic,cap = ('math.GM', 2) 
+topic,cap = ('math.OC', 1) 
+
+
+veryTop = {}
+color_dict = {}
+for Term_pair in tqdm(term_cnt.most_common()):
+    Term = Term_pair[0]
+    if term_dict_cnt[Term][topic] > cap:
+        emb_term = Term.lower().replace(' ', '_')
+        embed_vec = embed.get(emb_term, None)
+        if embed_vec is not None: 
+            veryTop[Term] = embed_vec
+            color_dict[Term] = float(term_dict_cnt[Term][topic])/sum(term_dict_cnt[Term].values())
+# -
+
+# %%time
+tsne1 = TSNE()
+term_lst = list(veryTop.keys())
+tot_vec = np.stack([veryTop[t] for t in term_lst], axis=0)
+n_centers = 3
+colors = [3*[color_dict[t]*0.8] for t in term_lst] + n_centers*[[1,0,0]]
+means = kmeans(tot_vec, n_centers)
+tot_vec = np.concatenate([tot_vec, means[0]], axis=0)
+#labels_vec = len(ag_lst)*['math.AG'] + len(dg_lst)*['math.DG'] + 2*['center']
+tran_vec = tsne1.fit_transform(tot_vec)
+x,y =  list(zip(tran_vec.transpose()))
+plt.figure(figsize=[7,7])
+plt.scatter(x[0],y[0],c=colors)
+plt.show()
+for k,center in enumerate(means[0]):
+    print(f"----------- Center {k} nearest neighbors ------------")
+    for word,dist in nearest(center, n_near=7):
+        print(word, "{0:3.2f}".format(dist))
+
+n_average = 5 # Number of samples to average out
+dist_lst = []
+for n_centers in tqdm(range(2,20)):
+    mean_dist = 0
+    for _ in range(n_average):
+        mean_dist += kmeans(tot_vec, n_centers)[1]
+    dist_lst.append(mean_dist/n_average)
+plt.plot(dist_lst)
+plt.show()
 
 
