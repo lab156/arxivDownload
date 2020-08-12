@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=0-40:00:00
+#SBATCH --time=0-50:00:00
 #SBATCH --job-name=param_search
 #SBATCH --output=param_search.log
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
