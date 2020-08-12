@@ -47,20 +47,22 @@ import umap
 from report_lengths import generate
 # -
 
-------- Do not run -----
+#------- Do not run -----
 # This strips all the text from the xml articles and saves to text file
-for art_path in tqdm(glob.glob('/mnt/promath/math15/*.tar.gz')):
-    art_str = ""
-    for name, fobj in peep.tar_iter(art_path, '.xml'):
-        try:
-            article = px.DefinitionsXML(fobj)
-            art_str = " ".join([article.recutext(a) for a in article.para_list()])
-        except ValueError as ee:
-            #print(ee, f"file {name} produced an error")
-            art_str = " "
-        with open('../data/math15','a') as art_fobj:
-            print(art_str, file=art_fobj)
-        #print(f"Saved art {name} from {art_path}")
+for math_year in ['math12', 'math13', 'math14','math16','math17','math18','math19', 'math20']:
+    #math_year = 'math97'
+    for art_path in tqdm(glob.glob('/mnt/promath/{}/*.tar.gz'.format(math_year))):
+        art_str = ""
+        for name, fobj in peep.tar_iter(art_path, '.xml'):
+            try:
+                article = px.DefinitionsXML(fobj)
+                art_str = " ".join([article.recutext(a) for a in article.para_list()])
+            except ValueError as ee:
+                #print(ee, f"file {name} produced an error")
+                art_str = " "
+            with open('../data/clean_text/{}'.format(math_year),'a') as art_fobj:
+                print(art_str, file=art_fobj)
+            #print(f"Saved art {name} from {art_path}")
 
 
 # +
@@ -120,19 +122,19 @@ perc_array = np.array([])
 for xml_path in tqdm(glob.glob('/mnt/glossary/v2/math*/*.xml.gz')):
     gtree = etree.parse(xml_path).getroot()
     for art in gtree.iter(tag='article'):
-        d_lst = [d.text for d in art.findall('.//dfndum')]
+        d_lst = [d.text.lower() for d in art.findall('.//dfndum')]
         dfndum_set.update(d_lst)
         term_cnt.update(d_lst)
         new_dfndum_lst.append(len(dfndum_set))
         tot_dfndum_lst.append(tot_dfndum_lst[-1] + len(d_lst))
         rep_ratio.append(tot_dfndum_lst[-1]/len(dfndum_set))
-        try:
-            arxiv_class = qq(art.attrib['name'].split('/')[1])
-            #print(f"Found arxiv class {arxiv_class}")
-            for D in d_lst:
-                term_dict_cnt[D].update([arxiv_class])
-        except StopIteration:
-            pass
+       # try:
+       #     arxiv_class = qq(art.attrib['name'].split('/')[1])
+       #     #print(f"Found arxiv class {arxiv_class}")
+       #     for D in d_lst:
+       #         term_dict_cnt[D].update([arxiv_class])
+       # except StopIteration:
+       #     pass
 
 term_cnt.most_common()[:15]
 
@@ -218,7 +220,7 @@ tsne2.show(figsize=100)
 
 tsne1 = TSNE()
 tot_vec = np.stack(ag_lst + dg_lst, axis=0)
-means = kmeans(tot_vec, 3)
+means = kmeans(tot_vec, 10)
 tot_vec = np.concatenate([tot_vec, means[0]], axis=0)
 labels_vec = len(ag_lst)*['math.AG'] + len(dg_lst)*['math.DG'] + 2*['center']
 tran_vec = tsne1.fit_transform(tot_vec, labels_vec)
@@ -271,7 +273,7 @@ def nearest(word_vec, n_near=10):
 #topic,cap = ('math.NT', 15) 
 #topic,cap = ('math.FA', 15) 
 #topic,cap = ('math.GM', 2) 
-topic,cap = ('math.OC', 1) 
+topic,cap = ('math.OC', 5) 
 
 
 veryTop = {}
@@ -290,7 +292,7 @@ for Term_pair in tqdm(term_cnt.most_common()):
 tsne1 = TSNE()
 term_lst = list(veryTop.keys())
 tot_vec = np.stack([veryTop[t] for t in term_lst], axis=0)
-n_centers = 3
+n_centers = 10
 colors = [3*[color_dict[t]*0.8] for t in term_lst] + n_centers*[[1,0,0]]
 means = kmeans(tot_vec, n_centers)
 tot_vec = np.concatenate([tot_vec, means[0]], axis=0)
@@ -302,8 +304,13 @@ plt.scatter(x[0],y[0],c=colors)
 plt.show()
 for k,center in enumerate(means[0]):
     print(f"----------- Center {k} nearest neighbors ------------")
-    for word,dist in nearest(center, n_near=7):
-        print(word, "{0:3.2f}".format(dist))
+    near_lst = nearest(center, n_near=7)
+    cnt_list = []
+    for word,dist in near_lst:
+        print(word, "{0:3.2f}".format(dist),
+              sum(term_dict_cnt[word].values()))
+        cnt_list.append( sum(term_dict_cnt[word].values()))
+    print( '----- ',max(cnt_list))
 
 n_average = 5 # Number of samples to average out
 dist_lst = []
@@ -314,5 +321,7 @@ for n_centers in tqdm(range(2,20)):
     dist_lst.append(mean_dist/n_average)
 plt.plot(dist_lst)
 plt.show()
+
+term_dict_cnt['markov chain']
 
 
