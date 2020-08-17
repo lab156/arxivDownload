@@ -47,7 +47,7 @@ import umap
 from report_lengths import generate
 # -
 
-#------- Do not run -----
+------- Do not run -----
 # This strips all the text from the xml articles and saves to text file
 for math_year in ['math12', 'math13', 'math14','math16','math17','math18','math19', 'math20']:
     #math_year = 'math97'
@@ -128,23 +128,24 @@ for xml_path in tqdm(glob.glob('/mnt/glossary/v2/math*/*.xml.gz')):
         new_dfndum_lst.append(len(dfndum_set))
         tot_dfndum_lst.append(tot_dfndum_lst[-1] + len(d_lst))
         rep_ratio.append(tot_dfndum_lst[-1]/len(dfndum_set))
-       # try:
-       #     arxiv_class = qq(art.attrib['name'].split('/')[1])
-       #     #print(f"Found arxiv class {arxiv_class}")
-       #     for D in d_lst:
-       #         term_dict_cnt[D].update([arxiv_class])
-       # except StopIteration:
-       #     pass
+        try:
+            arxiv_class = qq(art.attrib['name'].split('/')[1])
+            #print(f"Found arxiv class {arxiv_class}")
+            for D in d_lst:
+                term_dict_cnt[D].update([arxiv_class])
+        except StopIteration:
+            pass
 
+# The 15 most common words are
 term_cnt.most_common()[:15]
 
-s = 300
+s = 304
 Term = term_cnt.most_common()[s][0]
 print(f'The term: {Term} appears in articles tagged:')
 term_dict_cnt[Term]
 
 # Decode word2vec .bin file
-with open('../../word2vec/math15-vectors-phrase.bin', 'rb') as mfobj:
+with open('/mnt/embeddings/model14-14_12-08/vectors.bin', 'rb') as mfobj:
     m = mfobj.read()
     #print(m[0].decode('utf8'))
     #s = st.Struct('ii')
@@ -203,12 +204,9 @@ for Term_pair in tqdm(term_cnt.most_common()):
         except TypeError:
             pass
 
+# Show some typical elements
 print(list(veryAG.keys())[:15])
 print(list(veryDG.keys())[:15])
-veryAG['graph']
-
-ag_vec = [v[0] for v in veryAG.values()]
-len(ag_vec[0])
 
 ag_lst = [v[0] for v in veryAG.values()][:500]
 dg_lst = [v[0] for v in veryDG.values()][:500]
@@ -323,5 +321,3 @@ plt.plot(dist_lst)
 plt.show()
 
 term_dict_cnt['markov chain']
-
-

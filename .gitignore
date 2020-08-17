@@ -13,6 +13,8 @@ __pycache__
 
 #Data file
 data
+# TAGS files from ctags
+tags
 
 #Undesirable image files
 tmp.ps

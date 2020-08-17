@@ -37,6 +37,7 @@ fname_set = set([f.text for f in fname])
 # %autoreload 2
 import process as pro
 
+# + jupyter={"outputs_hidden": true}
 fname_lst = set([f.text for f in fname])
 sorted(fname_lst)[1400:]
 
