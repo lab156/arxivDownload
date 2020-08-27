@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.0
+#       jupytext_version: 1.5.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -89,13 +89,13 @@ qq('1512.09109')
 # +
 # %%time
 # Connect to the database
-database = 'sqlite:///../../arxiv3.db'
+database = 'sqlite:////media/hd1/databases/arxiv3.db'
 eng = sa.create_engine(database, echo=False)
 eng.connect().execute('pragma case_sensitive_like=OFF;')
 SMaker = sessionmaker(bind=eng)
 sess = SMaker()
 
-def qq(art_str, database = 'sqlite:///../../arxiv3.db'):
+def qq(art_str, database = database):
     # Connect to the database
     eng = sa.create_engine(database, echo=False)
     with eng.connect() as con:
@@ -119,7 +119,7 @@ rep_ratio = []
 term_cnt = Counter()
 term_dict_cnt = defaultdict(Counter)
 perc_array = np.array([])
-for xml_path in tqdm(glob.glob('/mnt/glossary/v2/math*/*.xml.gz')):
+for xml_path in tqdm(glob.glob('/media/hd1/glossary/v2/math*/*.xml.gz')):
     gtree = etree.parse(xml_path).getroot()
     for art in gtree.iter(tag='article'):
         d_lst = [d.text.lower() for d in art.findall('.//dfndum')]
@@ -145,7 +145,7 @@ print(f'The term: {Term} appears in articles tagged:')
 term_dict_cnt[Term]
 
 # Decode word2vec .bin file
-with open('/mnt/embeddings/model14-14_12-08/vectors.bin', 'rb') as mfobj:
+with open('/media/hd1/embeddings/model14-51_20-08/vectors.bin', 'rb') as mfobj:
     m = mfobj.read()
     #print(m[0].decode('utf8'))
     #s = st.Struct('ii')
@@ -166,8 +166,8 @@ with open('/mnt/embeddings/model14-14_12-08/vectors.bin', 'rb') as mfobj:
             else:
                 word += next_char
         #print(word)
-        vec = np.zeros(200)
-        for k in range(200):
+        vec = np.zeros(n_dim)
+        for k in range(n_dim):
             vec[k] = st.unpack('<f', m[cnt:cnt+4])[0]
             cnt += 4
         assert st.unpack('<1s', m[cnt:cnt+1])[0] == b'\n'
@@ -175,7 +175,7 @@ with open('/mnt/embeddings/model14-14_12-08/vectors.bin', 'rb') as mfobj:
         embed[word] = vec
 
 common_term = term_cnt.most_common()[200][0].lower().replace(' ', '_')
-print(f" The term is: {common_term}")
+print(f" The term is: {common_term} and the first components of the vector are:")
 embed.get(common_term, None)[:10]
 
 # Create a dict of "very AG" vectors
@@ -242,9 +242,9 @@ labels_vec = len(ag_lst)*['math.AG'] + len(dg_lst)*['math.DG'] + len(means[0])*[
 tran_vec = umap1.fit_transform(tot_vec, labels_vec)
 x,y =  list(zip(tran_vec.transpose()))
 plt.figure(figsize=[7,7])
-plt.scatter(x[0][:500],y[0][:500])
-plt.scatter(x[0][500:1000], y[0][500:1000], color='green')
-plt.scatter(x[0][1000:], y[0][1000:], color='red')
+plt.scatter(x[0][:500],y[0][:500], s=5)
+plt.scatter(x[0][500:1000], y[0][500:1000], color='green', s=5)
+plt.scatter(x[0][1000:], y[0][1000:], color='red' )
 plt.show()
 
 # +
@@ -261,18 +261,18 @@ def nearest(word_vec, n_near=10):
 
 
 # +
+# Create a "very topical" set of terms
 #topic,cap = ('math.GN',3) # General Topology
 #topic,cap = ('math.GT', 15) 
 #topic,cap = ('math.AT', 10) #poor results
-#topic,cap = ('math.DG', 10) 
+topic,cap = ('math.DG', 10) 
 #topic,cap = ('math.LO', 5) 
 #topic,cap = ('math.DS', 15) 
 #topic,cap = ('math.PR', 15) # very "graphy" center
 #topic,cap = ('math.NT', 15) 
 #topic,cap = ('math.FA', 15) 
 #topic,cap = ('math.GM', 2) 
-topic,cap = ('math.OC', 5) 
-
+#topic,cap = ('math.OC', 5) 
 
 veryTop = {}
 color_dict = {}
@@ -312,7 +312,7 @@ for k,center in enumerate(means[0]):
 
 n_average = 5 # Number of samples to average out
 dist_lst = []
-for n_centers in tqdm(range(2,20)):
+for n_centers in tqdm(range(10,100)):
     mean_dist = 0
     for _ in range(n_average):
         mean_dist += kmeans(tot_vec, n_centers)[1]
@@ -320,4 +320,4 @@ for n_centers in tqdm(range(2,20)):
 plt.plot(dist_lst)
 plt.show()
 
-term_dict_cnt['markov chain']
+
