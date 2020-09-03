@@ -3,6 +3,44 @@ import numpy as np
 import sys
 from math import floor
 from collections import OrderedDict as odict
+from contextlib import contextmanager
+import struct as st
+
+@contextmanager
+def open_w2v(filename):
+    mfobj = open(filename, 'rb') 
+    try:
+        m = mfobj.read()
+        #print(m[0].decode('utf8'))
+        #s = st.Struct('ii')
+        #m_it = m.__iter__()
+        head_dims = st.unpack('<11s', m[:11])
+        n_vocab, n_dim = map(int,head_dims[0].strip().split())
+        print(f"Vocabulary size: {n_vocab} and dimension of embed: {n_dim}")
+        embed = {}
+        #[next(m_it) for _ in range(11)]
+        cnt = 11
+        for line_cnt in range(n_vocab):
+            word = ''
+            while True:
+                next_char = st.unpack('<1s', m[cnt:cnt+1])[0].decode('utf8')
+                cnt += 1
+                if next_char == ' ':
+                    break
+                else:
+                    word += next_char
+            #print(word)
+            vec = np.zeros(n_dim)
+            for k in range(n_dim):
+                vec[k] = st.unpack('<f', m[cnt:cnt+4])[0]
+                cnt += 4
+            assert st.unpack('<1s', m[cnt:cnt+1])[0] == b'\n'
+            cnt +=1
+            embed[word] = vec
+        yield embed
+    finally:
+        mfobj.close()
+
 
 def generate(vect_dict):
     '''

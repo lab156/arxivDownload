@@ -44,7 +44,7 @@ import umap
 
 # %load_ext autoreload
 # %autoreload 2
-from report_lengths import generate
+from embed_utils import generate
 # -
 
 ------- Do not run -----
