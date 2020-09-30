@@ -285,8 +285,8 @@ def train_model(X, y, model, epochs=10):
     return out
 model_bilstm_lstm = get_bilstm_lstm_model(cf)
 #plot_model(model_bilstm_lstm)
-# -
 
+# + jupyter={"outputs_hidden": true}
 train_lab2_cat = np.array([to_categorical(c, num_classes=cf['n_tags']) for c in train_lab2])
 history = train_model(train_seq2, train_lab2_cat, model_bilstm_lstm, epochs=250)
 
@@ -307,13 +307,13 @@ model_bilstm_lstm.predict(T)
 
 
 def decoder(T, L):
-    pred = model_bilstm_lstm.predict(T.reshape(1,42))
-    P = pred #np.argmax(pred.squeeze(), axis=1)
+    pred = model_bilstm_lstm.predict(T)
+    P = np.argmax(pred.squeeze(), axis=1)
     for ind, t in enumerate(T):
-        if t != 0:
+        if True: #t != 0:
             print("{0:>22}: {1:} {2:}".format(rev_word_index[t], L[ind], P[ind]))
 #decoder(sample_pad[0], np.argmax(pred.squeeze(), axis=1))
-N = -27
+N = -52
 decoder(train_seq2[N], train_lab2[N])
 
 
@@ -329,5 +329,7 @@ def plot_graphs(history, string, start_at=0):
 plot_graphs(history, "accuracy", start_at=400)
 plot_graphs(history, "loss", start_at=400)
 # -
+
+wiki[850]
 
 

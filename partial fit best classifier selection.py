@@ -78,7 +78,7 @@ for _ in range(15):
 # 2^18 = 262,144
 # 2^21 = 2,097,152
 ###### CONFIG #####
-xml_lst = glob("/mnt/training_defs/math*/*.xml.gz")
+xml_lst = glob("/media/hd1/training_defs/math*/*.xml.gz")
 # THIS CONFIGURATION WORKS BEAUTIFULLY BUT STILL TRYING TO MAKE IT BETTER
 #cfg = {'batch_size': 25000,
 #      'hash_vect': {'decode_error':'ignore',
@@ -96,7 +96,7 @@ hash_param = {'stop_words': None,
                'analyzer': 'word',
                'alternate_sign': False}
 vectorizer = HashingVectorizer(**hash_param)
-
+cfg = {'batch_size': 5000}
 logs_file = '../sgd_log.txt'
 
 #clf_param = next(clfSampler.__iter__())
@@ -151,6 +151,7 @@ for cls_name in partial_fit_classifiers:
 
 #get_minibatch(data_stream, n_test_documents)
 # Discard test set
+# -
 
 total_vect_time = 0.0
 # Main loop : iterate on mini-batches of examples
@@ -186,7 +187,6 @@ for i, (X_train_text, y_train) in enumerate(stream):
                     print(progress(cls_name, cls_stats[cls_name]),'\n', file = logs_fobj)
     if i % 3 == 0:
         print('\n')
-# -
 
 # %%time
 predictions = cls.predict(X_test)
@@ -296,12 +296,12 @@ def autolabel(rectangles):
 #plt.show()
 # -
 
-with open('/mnt/PickleJar/sgd_clf_21-07.pickle', 'wb') as pickle_fobj:
+with open('/media/hd1/PickleJar/sgd_clf_21-44_28-07.pickle', 'rb') as pickle_fobj:
     cls = pickle.load(pickle_fobj)
-with open('/mnt/PickleJar/hash_vect_21-07.pickle', 'wb') as pickle_fobj:
+with open('/media/hd1/PickleJar/hash_vect_21-44_28-07.pickle', 'rb') as pickle_fobj:
     vectorizer = pickle.load(pickle_fobj)
 
-tar_tree = etree.parse('/mnt/training_defs/math99/9902_001.xml.gz')
+tar_tree = etree.parse('/media/hd1/training_defs/math99/9902_001.xml.gz')
 def_lst = tar_tree.findall('.//definition')
 nondef_lst = tar_tree.findall('.//nondef')
 ex_def = [D.text for D in def_lst[:15]]
@@ -314,5 +314,5 @@ print('\n')
 print(f"Should be all one: {preds_def}")
 print('\n'.join(repr(k)+' --- '+ex_def[k] for k in np.nonzero(preds_def-1)[0]))
 
-predictions = cls.predict(X_test)
+predictions = cls.predict(vectorizer.transform(X_test_text))
 print(metrics.classification_report(predictions,y_test))

@@ -39,12 +39,13 @@ import numpy as np
 from yellowbrick.text import TSNEVisualizer
 from scipy.cluster.vq import kmeans
 from sklearn.manifold import TSNE
+from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 import umap
 
 # %load_ext autoreload
 # %autoreload 2
-from embed_utils import generate
+from embed_utils import generate, nearest, open_w2v 
 # -
 
 ------- Do not run -----
@@ -63,28 +64,6 @@ for math_year in ['math12', 'math13', 'math14','math16','math17','math18','math1
             with open('../data/clean_text/{}'.format(math_year),'a') as art_fobj:
                 print(art_str, file=art_fobj)
             #print(f"Saved art {name} from {art_path}")
-
-
-# +
-# %%time
-# Connect to the database
-#database = 'sqlite:///../../arxiv2.db'
-#eng = sa.create_engine(database, echo=False)
-#eng.connect().execute('pragma case_sensitive_like=OFF;')
-#SMaker = sessionmaker(bind=eng)
-#sess = SMaker()
-
-# Get tarfile set of names
-def qq(art_str):
-    q = sess.query(cre.Article)
-    res = q.filter(cre.Article.id.like("http://arxiv.org/abs/"+ art_str + "%")).first()
-    try:
-        lst = eval(res.tags)[0]['term']
-    except AttributeError:
-        lst = None
-    print(res.id)
-    return lst
-qq('1512.09109')
 
 # +
 # %%time
@@ -108,7 +87,7 @@ def qq(art_str, database = database):
     #resu format: ("[{'term': 'math.RT', 'scheme': 'http://arxiv.org/schemas/atom', 'label': None}]",)
     res_dict = eval(resu[0])
     return res_dict[0]['term']
-qq('1512.09109')    
+qq('1703.01352')    
 # -
 
 ## Grab the Glossary data
@@ -174,6 +153,9 @@ with open('/media/hd1/embeddings/model14-51_20-08/vectors.bin', 'rb') as mfobj:
         cnt +=1
         embed[word] = vec
 
+with open_w2v('/media/hd1/embeddings/model00-19_15-08/vectors.bin') as embed:
+    unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
+
 common_term = term_cnt.most_common()[200][0].lower().replace(' ', '_')
 print(f" The term is: {common_term} and the first components of the vector are:")
 embed.get(common_term, None)[:10]
@@ -231,7 +213,7 @@ plt.savefig('/home/luis/tsne_ag_dg.png')
 plt.show()
 for k,center in enumerate(means[0]):
     print(f"----------- Center {k} nearest neighbors ------------")
-    for word,dist in nearest(center, n_near=7):
+    for word,dist in nearest(center, unit_embed, n_near=7):
         print(word, "{0:3.2f}".format(dist))
 
 umap1 = umap.UMAP()
@@ -248,6 +230,7 @@ plt.scatter(x[0][1000:], y[0][1000:], color='red' )
 plt.show()
 
 # +
+---- Don't run, this should be in the embed_utils.py module now
 cos_dist = lambda x, y: np.dot(x,y)/np.linalg.norm(x)/np.linalg.norm(y)
 unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
 
@@ -319,5 +302,48 @@ for n_centers in tqdm(range(10,100)):
     dist_lst.append(mean_dist/n_average)
 plt.plot(dist_lst)
 plt.show()
+
+
+# +
+def plot_wordcloud(text, mask=None, max_words=200, max_font_size=100, figure_size=(24.0, 16.0), 
+                  title=None, title_size=40, image_color=False):
+    stopwords = set(STOPWORDS)
+    more_stopwords = {'_inline_math_', '_display_math_', 'fo', 'Unknown'}
+    stopwords = stopwords.union(more_stopwords)
+
+    wordcloud = WordCloud(background_color='black',
+                    stopwords = stopwords,
+                    max_words = max_words,
+                    max_font_size = max_font_size, 
+                    random_state = 42,
+                    width=800, 
+                    height=400,
+                    mask = mask)
+    wordcloud.generate(str(text))
+    
+    plt.figure(figsize=figure_size)
+    if image_color:
+        image_colors = ImageColorGenerator(mask);
+        plt.imshow(wordcloud.recolor(color_func=image_colors), interpolation="bilinear");
+        plt.title(title, fontdict={'size': title_size,  
+                                  'verticalalignment': 'bottom'})
+    else:
+        plt.imshow(wordcloud);
+        plt.title(title, fontdict={'size': title_size, 'color': 'black', 
+                                           'verticalalignment': 'bottom'})
+    plt.axis('off');
+    plt.tight_layout()  
+    plt.savefig('article_wm.png')
+    
+#plot_wordcloud(df[df.target==1]['value vector'], title='Similar words')
+
+
+# -
+
+for name, fobj in  peep.tar_iter('/media/hd1/promath/math17/1703_004.tar.gz', '.xml'):
+    if '1703.01352' in name:
+        article = px.DefinitionsXML(fobj)
+        art_str = " ".join([article.recutext(a) for a in article.para_list()])
+plot_wordcloud(art_str, title='arXiv:1703.01352')
 
 

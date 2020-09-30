@@ -1,20 +1,3 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:light
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.5.2
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
-# ---
-
-# +
 from glob import glob
 import os
 import numpy as np
@@ -22,17 +5,13 @@ from lxml import etree
 from collections import Counter
 from random import shuffle
 
-from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
                       GRU, Dropout, GlobalAveragePooling1D, Conv1D
 from tensorflow.keras.models import Sequential
-from tensorflow_addons.callbacks import TQDMProgressBar
-
 
 
 import sklearn.metrics as metrics
-import matplotlib.pyplot as plt
 # -
 
 # %load_ext autoreload
@@ -46,7 +25,7 @@ from classifier_trainer.trainer import stream_arxiv_paragraphs
 
 # +
 cfg = {'batch_size': 5000}
-xml_lst = glob('/media/hd1/training_defs/math0*/*.xml.gz')
+xml_lst = glob('/media/hd1/training_defs/math09/*.xml.gz')
 #xml_lst += glob('/media/hd1/training_defs/math14/*.xml.gz')
 stream = stream_arxiv_paragraphs(xml_lst, samples=cfg['batch_size'])
 
@@ -117,67 +96,7 @@ with open_w2v('/media/hd1/embeddings/model14-14_12-08/vectors.bin') as embed_dic
             embed_matrix[ind] = vect
             coverage_cnt += 1
 
-# Lengths of the definitions to get the max_seq_len parameter
-plt.figure(figsize=[9,6])
-ax = plt.subplot(111)
-plt.hist([min(len(s),2500) for s in training[0]], 100)
-plt.grid()
-plt.title('Length in characters of the definitions in the training set')
-plt.show()
 
-# + jupyter={"outputs_hidden": true}
-conv_model = Sequential([
-    Embedding(cfg['tot_words'], 200, input_length=max_seq_len, weights=[embed_matrix], trainable=False),
-    Conv1D(128, 5, activation='relu'),
-    GlobalAveragePooling1D(),
-    Dropout(0.2),
-    Dense(64, activation='relu'),
-    Dense(1, activation='sigmoid'),
-])
-conv_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-conv_model.summary()
-tqdm_callback = TQDMProgressBar()
-history = conv_model.fit(train_seq, np.array(training[1]),
-                epochs=20, validation_data=(validation_seq, np.array(validation[1])),
-                batch_size=512,
-                verbose=0,
-                callbacks=[tqdm_callback])
-# -
-
-# Conv stats results
-plot_graphs(history, "accuracy")
-plot_graphs(history, "loss")
-predictions = conv_model.predict(validation_seq)
-print(metrics.classification_report(np.round(predictions), validation[1]))
-
-# +
-tar_tree = etree.parse('/media/hd1/training_defs/math99/9902_001.xml.gz')
-def_lst = tar_tree.findall('.//definition')
-nondef_lst = tar_tree.findall('.//nondef')
-
-def show_false_pos_negs(model, def_lst, nondef_lst, samples=15):
-    ex_def = [D.text for D in def_lst[:samples]]
-    ex_def_tok = padding_fun([text2seq(d) for d in ex_def])
-
-
-    ex_nondef = [D.text for D in nondef_lst[:samples]]
-    ex_nondef_tok = padding_fun([text2seq(d) for d in ex_nondef])
-
-
-    preds_nondef = model.predict(ex_nondef_tok)
-    preds_def = model.predict(ex_def_tok)
-    #print(f"Should be all zero: {preds_nondef}")
-    print('\n'.join("{0} -- {1:.3} -- {2:} -- {3:}"\
-                    .format(repr(k),float(preds_nondef[k]), len(ex_nondef[k]) ,ex_nondef[k])\
-                    for k in np.nonzero(preds_nondef.squeeze()>0.5)[0]))
-    print('\n')
-    #print(f"Should be all one: {preds_def}")
-    print('\n'.join("{0} -- {1:.3} -- {2:} -- {3:}"\
-                    .format(repr(k),float(preds_def[k]), len(ex_def[k]), ex_def[k])\
-                    for k in np.nonzero(preds_def.squeeze()<0.5)[0]))
-
-show_false_pos_negs(lstm_model, def_lst, nondef_lst, samples=20)
-# -
 
 lstm_model = Sequential([
     Embedding(cfg['tot_words'], 200, 
@@ -198,36 +117,9 @@ history = lstm_model.fit(train_seq, np.array(training[1]),
                 batch_size=512,
                 verbose=1)
 
-history = lstm_model.fit(train_seq, np.array(training[1]),
-                epochs=7, validation_data=(validation_seq, np.array(validation[1])),
-                batch_size=512,
-                verbose=1)
 
-
-# +
-def plot_graphs(history, string):
-    plt.plot(history.history[string])
-    plt.plot(history.history['val_'+string])
-    plt.xlabel('Epochs')
-    plt.ylabel(string)
-    plt.legend([string, 'val_'+string])
-    plt.show()
-    
-#plot_graphs(history, "accuracy")
-#plot_graphs(history, "loss")
-
-
-# -
-
-# LSTM stats results
-plot_graphs(history, "accuracy")
-plot_graphs(history, "loss")
 predictions = lstm_model.predict(validation_seq)
 print(metrics.classification_report(np.round(predictions), validation[1]))
 
-from datetime import datetime as dt
-hoy = dt.now()
-timestamp = hoy.strftime("%H-%M_%Y-%b-%d")
-lstm_model.save_weights('/media/hd1/trained_models/lstm_classifier/one_layer_'+timestamp)
 
 

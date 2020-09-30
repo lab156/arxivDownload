@@ -5,6 +5,8 @@ from math import floor
 from collections import OrderedDict as odict
 from contextlib import contextmanager
 import struct as st
+import functools
+import re
 
 @contextmanager
 def open_w2v(filename):
@@ -59,6 +61,66 @@ def generate(vect_dict):
             
     return odict(sorted(lengths.items(), key=lambda t: t[1]))
 
+def nearest(word_vec, unit_embed, n_near=10):
+    '''
+    Returns the `n_near` closest vectors to the `word_vec` vector
+    NOTE that `unit_embed` needs to be unitary vectors
+    '''
+    dist_dict = {}
+    unit_word_vec = word_vec/np.linalg.norm(word_vec)
+    for w, v in unit_embed.items():
+        #dist_dict[w] = cos_dist(v, word_vec)
+        dist_dict[w] = unit_word_vec.dot(v)
+    return sorted(dist_dict.items(), key=lambda pair: pair[1], reverse=True)[:n_near]
+
+def normalize_text(text):
+    '''
+    a copy of the normalize_text function in the word2vec repo
+    see the `demo-train-big-model.sh` file
+    run tests with python3 -m doctest -v embed_utils.py
+
+    >>> normalize_text('hi, there.')
+    'hi , there . '
+
+    >>> normalize_text('This |is work=ing')
+    'this  is work ing'
+
+    >>> normalize_text('remove the <br> <br /> <br     />')
+    'remove the      '
+
+    >>> normalize_text('en 1823, Colon llego a ?')
+    'en   , colon llego a  ? '
+    '''
+
+    repl_list = [text,
+            ("’","'") ,
+            ("′","'") ,
+           ("''", " "),
+            ("'"," ' ") ,
+            ("“",'"') ,
+            ('"',' " ') ,
+            ('.',' . ') ,
+            (', ',' , ') ,
+            ('(',' ( ') ,
+            (')',' ) ') ,
+            ('!',' ! '),
+            ('?',' ? ') ,
+            (';',' ') ,
+            (':',' ') ,
+            ('-',' - ') ,
+            ('=',' ') ,
+            ('=',' ') ,
+            ('*',' ') , 
+            ('|',' ') ,
+            ('«',' ') ,
+            ('»', ' ')]
+    text = functools.reduce(lambda a,b: a.replace(*b), repl_list)
+
+    text = re.sub(r'<br\s*/?>', ' ', text)
+    text = re.sub(r'[0-9]+', ' ', text)
+
+    return text.lower()
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('words', nargs='+')
@@ -78,4 +140,7 @@ if __name__ == "__main__":
     with open(args.out_file, 'a') as out_f:
         for o in sorted_dict:
             out_f.write("{:<15} {}\n".format(o, sorted_dict[o]))
+
+
+
 
