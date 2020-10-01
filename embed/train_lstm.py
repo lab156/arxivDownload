@@ -26,7 +26,7 @@ from classifier_trainer.trainer import stream_arxiv_paragraphs
 # +
 cfg = {'batch_size': 5000}
 xml_lst = glob('/media/hd1/training_defs/math09/*.xml.gz')
-#xml_lst += glob('/media/hd1/training_defs/math14/*.xml.gz')
+xml_lst += glob('/media/hd1/training_defs/math14/*.xml.gz')
 stream = stream_arxiv_paragraphs(xml_lst, samples=cfg['batch_size'])
 
 all_data = []
@@ -68,6 +68,7 @@ def text2seq(text):
     return [tkn2idx.get(s, 0) for s in text]
 train_seq = [text2seq(t) for t in training[0]]
 validation_seq = [text2seq(t) for t in validation[0]]
+test_seq = [text2seq(t) for t in test[0]]
 
 max_seq_len = 400
 padding_fun = lambda seq: pad_sequences(seq, maxlen=max_seq_len,
@@ -76,6 +77,7 @@ padding_fun = lambda seq: pad_sequences(seq, maxlen=max_seq_len,
                                         value=tkn2idx['�']) 
 train_seq = padding_fun(train_seq)
 validation_seq = padding_fun(validation_seq)
+test_seq = padding_fun(test_seq)
 
 # +
 #tknr = Tokenizer()
@@ -86,16 +88,18 @@ validation_seq = padding_fun(validation_seq)
 #validation_seq = tknr.texts_to_sequences(validation[0])
 # -
 
+print('Starting the embedding matrix')
 embed_matrix = np.zeros((cfg['tot_words'], 200))
 coverage_cnt = 0
 with open_w2v('/media/hd1/embeddings/model14-14_12-08/vectors.bin') as embed_dict:
     for word, ind in tkn2idx.items():
         vect = embed_dict.get(word)
         if vect is not None:
-            vect = vect/np.linalg.norm(vect)
+            #vect = vect/np.linalg.norm(vect)
             embed_matrix[ind] = vect
             coverage_cnt += 1
 
+print("The coverage percetage is: {}".format(coverage_cnt/len(idx2tkn)))
 
 
 lstm_model = Sequential([
@@ -113,13 +117,28 @@ lstm_model = Sequential([
 lstm_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 lstm_model.summary()
 history = lstm_model.fit(train_seq, np.array(training[1]),
-                epochs=2, validation_data=(validation_seq, np.array(validation[1])),
+                epochs=5, validation_data=(validation_seq, np.array(validation[1])),
                 batch_size=512,
                 verbose=1)
 
 
-predictions = lstm_model.predict(validation_seq)
-print(metrics.classification_report(np.round(predictions), validation[1]))
+f1_max = 0.0; opt_prob = None
+pred_validation = lstm_model.predict(validation_seq)
+
+for thresh in np.arange(0.1, 0.901, 0.01):
+    thresh = np.round(thresh, 2)
+    f1 = metrics.f1_score(validation[1], (pred_validation > thresh).astype(int))
+    #print('F1 score at threshold {} is {}'.format(thresh, f1))
+    
+    if f1 > f1_max:
+        f1_max = f1
+        opt_prob = thresh
+
+print('Optimal probabilty threshold is {} for maximum F1 score {}'.format(opt_prob, f1_max))
+
+pred_test = lstm_model.predict(test_seq)
+
+print(metrics.classification_report((pred_test > opt_prob).astype(int), test[1]))
 
 
 

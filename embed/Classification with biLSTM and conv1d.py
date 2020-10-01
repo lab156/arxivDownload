@@ -46,7 +46,7 @@ from classifier_trainer.trainer import stream_arxiv_paragraphs
 
 # +
 cfg = {'batch_size': 5000}
-xml_lst = glob('/media/hd1/training_defs/math0*/*.xml.gz')
+xml_lst = glob('/media/hd1/training_defs/math15/*.xml.gz')
 #xml_lst += glob('/media/hd1/training_defs/math14/*.xml.gz')
 stream = stream_arxiv_paragraphs(xml_lst, samples=cfg['batch_size'])
 
@@ -179,6 +179,7 @@ def show_false_pos_negs(model, def_lst, nondef_lst, samples=15):
 show_false_pos_negs(lstm_model, def_lst, nondef_lst, samples=20)
 # -
 
+################## DEFINE LSTM MODEL #####################
 lstm_model = Sequential([
     Embedding(cfg['tot_words'], 200, 
               input_length=max_seq_len,
@@ -199,7 +200,7 @@ history = lstm_model.fit(train_seq, np.array(training[1]),
                 verbose=1)
 
 history = lstm_model.fit(train_seq, np.array(training[1]),
-                epochs=7, validation_data=(validation_seq, np.array(validation[1])),
+                epochs=2, validation_data=(validation_seq, np.array(validation[1])),
                 batch_size=512,
                 verbose=1)
 
@@ -225,9 +226,41 @@ plot_graphs(history, "loss")
 predictions = lstm_model.predict(validation_seq)
 print(metrics.classification_report(np.round(predictions), validation[1]))
 
-from datetime import datetime as dt
-hoy = dt.now()
-timestamp = hoy.strftime("%H-%M_%Y-%b-%d")
-lstm_model.save_weights('/media/hd1/trained_models/lstm_classifier/one_layer_'+timestamp)
+# +
+#from datetime import datetime as dt
+#hoy = dt.now()
+#timestamp = hoy.strftime("%H-%M_%b-%d")
+#lstm_model.save_weights('/media/hd1/trained_models/lstm_classifier/one_layer_'+timestamp)
+# -
+
+test[0][1]
+
+# + jupyter={"outputs_hidden": true}
+pred_test_y = lstm_model.predict([test], batch_size=10, verbose=1)
+
+# +
+opt_prob = None
+f1_max = 0
+test_seq = padding_fun([text2seq(d) for d in test[0]])
+pred_test_y = lstm_model.predict([test_seq], batch_size=10, verbose=1)
+
+plot_point = []
+for thresh in np.arange(0.1, 0.901, 0.01):
+    thresh = np.round(thresh, 2)
+    f1 = metrics.f1_score(test[1], (pred_test_y > thresh).astype(int))
+    #print('F1 score at threshold {} is {}'.format(thresh, f1))
+    plot_point.append((thresh, f1))
+    
+    if f1 > f1_max:
+        f1_max = f1
+        opt_prob = thresh
+        
+print('Optimal probabilty threshold is {} for maximum F1 score {}'.format(opt_prob, f1_max))
+# -
+
+P = list(zip(*plot_point))
+plt.plot(P[0], P[1])
+
+(pred_test_y > opt_prob).astype(int)
 
 
