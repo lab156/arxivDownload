@@ -4,6 +4,7 @@ import numpy as np
 from lxml import etree
 from collections import Counter
 from random import shuffle
+from datetime import datetime as dt
 
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
@@ -24,9 +25,10 @@ sys.path.insert(0,parentdir)
 from classifier_trainer.trainer import stream_arxiv_paragraphs
 
 # +
+base_dir = '/media/hd1'
 cfg = {'batch_size': 5000}
-xml_lst = glob('/media/hd1/training_defs/math09/*.xml.gz')
-xml_lst += glob('/media/hd1/training_defs/math14/*.xml.gz')
+xml_lst = glob(base_dir + '/training_defs/math09/*.xml.gz')
+#xml_lst += glob('/media/hd1/training_defs/math14/*.xml.gz')
 stream = stream_arxiv_paragraphs(xml_lst, samples=cfg['batch_size'])
 
 all_data = []
@@ -91,7 +93,7 @@ test_seq = padding_fun(test_seq)
 print('Starting the embedding matrix')
 embed_matrix = np.zeros((cfg['tot_words'], 200))
 coverage_cnt = 0
-with open_w2v('/media/hd1/embeddings/model14-14_12-08/vectors.bin') as embed_dict:
+with open_w2v(base_dir + '/embeddings/model14-14_12-08/vectors.bin') as embed_dict:
     for word, ind in tkn2idx.items():
         vect = embed_dict.get(word)
         if vect is not None:
@@ -117,7 +119,7 @@ lstm_model = Sequential([
 lstm_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 lstm_model.summary()
 history = lstm_model.fit(train_seq, np.array(training[1]),
-                epochs=5, validation_data=(validation_seq, np.array(validation[1])),
+                epochs=2, validation_data=(validation_seq, np.array(validation[1])),
                 batch_size=512,
                 verbose=1)
 
@@ -140,5 +142,7 @@ pred_test = lstm_model.predict(test_seq)
 
 print(metrics.classification_report((pred_test > opt_prob).astype(int), test[1]))
 
-
+hoy = dt.now()
+timestamp = hoy.strftime("%H-%M_%b-%d")
+lstm_model.save_weights(base_dir + '/trained_models/lstm_classifier/one_layer_'+timestamp)
 

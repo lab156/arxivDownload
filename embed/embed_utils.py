@@ -90,6 +90,9 @@ def normalize_text(text):
 
     >>> normalize_text('en 1823, Colon llego a ?')
     'en   , colon llego a  ? '
+
+    >>> normalize_text('I rem/ember káhler painlevé in § 74')
+    'i rem / ember khler painlev in   '
     '''
 
     repl_list = [text,
@@ -112,12 +115,14 @@ def normalize_text(text):
             ('=',' ') ,
             ('*',' ') , 
             ('|',' ') ,
+            ('/',' / ') ,
             ('«',' ') ,
             ('»', ' ')]
     text = functools.reduce(lambda a,b: a.replace(*b), repl_list)
 
-    text = re.sub(r'<br\s*/?>', ' ', text)
+    text = re.sub(r'<br\s*/? ?>', ' ', text) # remove <br /> variants
     text = re.sub(r'[0-9]+', ' ', text)
+    text = re.sub(r'[^\x00-\x7F]+', '', text)
 
     return text.lower()
 

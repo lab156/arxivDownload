@@ -89,6 +89,7 @@ def text2seq(text):
     return [tkn2idx.get(s, 0) for s in text]
 train_seq = [text2seq(t) for t in training[0]]
 validation_seq = [text2seq(t) for t in validation[0]]
+test_seq = [text2seq(t) for t in test[0]]
 
 max_seq_len = 400
 padding_fun = lambda seq: pad_sequences(seq, maxlen=max_seq_len,
@@ -97,6 +98,7 @@ padding_fun = lambda seq: pad_sequences(seq, maxlen=max_seq_len,
                                         value=tkn2idx['�']) 
 train_seq = padding_fun(train_seq)
 validation_seq = padding_fun(validation_seq)
+test_seq = padding_fun(test_seq)
 
 # +
 #tknr = Tokenizer()
@@ -105,8 +107,8 @@ validation_seq = padding_fun(validation_seq)
 #print(f"There is a total of {tot_words}")
 #train_seq = tknr.texts_to_sequences(training[0])
 #validation_seq = tknr.texts_to_sequences(validation[0])
-# -
 
+# + jupyter={"outputs_hidden": true}
 embed_matrix = np.zeros((cfg['tot_words'], 200))
 coverage_cnt = 0
 with open_w2v('/media/hd1/embeddings/model14-14_12-08/vectors.bin') as embed_dict:
@@ -116,6 +118,11 @@ with open_w2v('/media/hd1/embeddings/model14-14_12-08/vectors.bin') as embed_dic
             vect = vect/np.linalg.norm(vect)
             embed_matrix[ind] = vect
             coverage_cnt += 1
+        else:
+            print(word)
+# -
+
+coverage_cnt
 
 # Lengths of the definitions to get the max_seq_len parameter
 plt.figure(figsize=[9,6])
