@@ -113,9 +113,14 @@ src/arXiv_src_1908_006.tar|803583004
 * LateXML did not finish 2014/1411.6225/bcdr_en.tex
 
 ### Testing
-* All the tests in the ./tests files are discovered with the command
+* All the tests in the ./tests directory are discovered with the command. Run
+  from the repo directory
 ```
-python -m unittest discover -s tests
+PYTHONPATH="./tests" python -m unittest discover -s tests
+```
+Or, from the `tests` directory, run:
+```
+PYTHONPATH=".." python -m unittest discover -s tests
 ```
 
 The xml_file.xml is modified by the search.py module:
