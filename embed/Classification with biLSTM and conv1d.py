@@ -270,16 +270,17 @@ def untar_clf_write(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
     `clf` model with .predict() attribute
     `vzer` funtion that take the text of a paragraph and outputs padded np.arrays for `clf`
     '''
-    tot_defs = 0
+    
+    root = etree.Element('root')
     for fname, tar_fobj in peep.tar_iter(tfile, '.xml'):
         try:
             DD = px.DefinitionsXML(tar_fobj) 
             if DD.det_language() in ['en', None]:
-                ddum_root = Definiendum(DD, lstm_model, None, vzer, None, fname=fname, thresh=opt_prob).root
+                art_tree = Definiendum(DD, lstm_model, None, vzer, None, fname=fname, thresh=opt_prob).root
+                if art_tree is not None: root.append(art_tree)
         except ValueError as ee:
             print(f"{repr(ee)}, 'file: ', {fname}, ' is empty'")
-            ddum_root = None
-    return ddum_root
+    return root
     
 for k, dirname in enumerate(['math01',]):
     try:
@@ -299,6 +300,6 @@ for k, dirname in enumerate(['math01',]):
 # -
 
 droot = untar_clf_write('../tests/five_actual_articles.tar.gz', out_path, lstm_model, vzer)
-print(etree.tostring(def_root, pretty_print=True).decode())
+print(etree.tostring(droot, pretty_print=True).decode())
 
 
