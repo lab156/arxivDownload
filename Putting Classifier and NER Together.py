@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.0
+#       jupytext_version: 1.5.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -53,7 +53,8 @@ import glob
 from unwiki import unwiki
 import ner
 import parsing_xml as px
-import mp_extract
+import extract
+import peep_tar as peep
 
 # +
 with open('/mnt/promath/math05/0503_001/math.0503029/math.0503029.xml', 'r') as art_file:
@@ -66,10 +67,11 @@ with open('/home/pi/rm_me_please.gz', 'wb') as pl:
 
 glob.glob('/mnt/promath/math15/1501_00*.tar.gz')
 
-clsf = '/mnt/PickleJar/classifier.pickle'
-chun = '/mnt/PickleJar/chunker.pickle'
-vect = '/mnt/PickleJar/vectorizer.pickle'
-toke = '/mnt/PickleJar/tokenizer.pickle'
+# +
+clsf = '/media/hd1/PickleJar/sgd_clf_21-44_28-07.pickle'
+chun = '/media/hd1/PickleJar/chunker.pickle'
+vect = '/media/hd1/PickleJar/hash_vect_21-44_28-07.pickle'
+toke = '/media/hd1/PickleJar/tokenizer.pickle'
 logging.basicConfig(level = logging.DEBUG)
 with open(clsf, 'rb') as class_f:                                                                                        
     clf = pickle.load(class_f)                                                                                                      
@@ -83,7 +85,15 @@ with open(toke, 'rb') as class_f:
     #root = mp_extract.parse_clf_chunk(art_file, clf, bio, vzer, tokr)
 #    print(art_file.getnames())
 #print(etree.tostring(root, pretty_print=True))
-mp_extract.untar_clf_write('/mnt/promath/math15/1501_001.tar.gz', '/home/pi/hola_rm_me', clf, bio, vzer, tokr)
+#mp_extract.untar_clf_write('/mnt/promath/math15/1501_001.tar.gz', '/home/pi/hola_rm_me', clf, bio, vzer, tokr)
+
+droot = etree.Element('root')
+for fname, tar_fobj in peep.tar_iter('tests/five_actual_articles.tar.gz', '.xml'):
+    DD = px.DefinitionsXML(tar_fobj)
+    art_tree = extract.Definiendum(DD, clf, bio, vzer, tokr, fname=fname ).root
+    droot.append(art_tree)
+
+print(etree.tostring(droot, pretty_print=True).decode())
 
 # +
 # define Clean function to cleanse and standarize words
