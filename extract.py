@@ -19,31 +19,58 @@ class Definiendum():
     def __init__(self, px, clf, bio, vzer, tzer, **kwargs):
         '''
         Extracts the definitions with of an xml/html file
+        Arguments:
         `px`: parsing_xml.DefinitionsXML object
         `clf`: definition classifier  (all these objects should be unpickled once)
+               if the prediction method returns probabilities need to include the 
+               `thresh` parameter
         `bio`: iob or bio classifier
         `vzer`: word vectorizer
 
-        Output is a dictionary of a list of definiendum, statement of the definition
-        paragraph number
+        Output: attrib .root is a XML tree with the format:
+        <root>
+          <article>
+            <definition>
+              <stmnt>
+              <dfndum>
         '''
         min_words = kwargs.get('min_words', 15)
         self.px = px
-        self.para_lst = [p for p in map(px.recutext, px.para_list()) if len(p.split()) >= min_words]
+        self.para_lst_idx = [(idx,p) for idx,p in enumerate(map(px.recutext, px.para_list()))\
+                         if len(p.split()) >= min_words]
+        
+        if self.para_lst_idx != []:
+            self.para_lst = list(zip(*(self.para_lst_idx)))[1]
+        else:
+            self.para_lst = []
         self.vzer = vzer
         #self.clf = clf
-        self.chunk = lambda x: bio.parse(pos_tag(word_tokenize(self.clean_rm(x))))
+        if bio is not None:
+            self.chunk = lambda x: bio.parse(pos_tag(word_tokenize(self.clean_rm(x))))
+        else:
+            self.chunk = lambda x: []
         #first we need to vectorize
 
         self.trans_vect = vzer.transform(self.para_lst)
-        self.predictions = clf.predict(self.trans_vect)
+        thresh = kwargs.get('thresh', None)
+        if thresh is None:
+            self.predictions = clf.predict(self.trans_vect)
+        else:
+            # clf.predict will give probabilities and thresh is the cutoff
+            try:
+                preds = clf.predict(self.trans_vect, batch_size=3)
+                self.predictions = (preds > thresh).astype(int)
+            except UnboundLocalError as ee:
+                print(ee)
+                print('length of trans_vect is: ', len(self.trans_vect))
+            
         # Create list of pairs of definitions paired with the index in which they appear in the article
-        self.def_lst = [(ind,p) for ind, p in enumerate(self.para_lst)
+        self.def_lst = [p for ind, p in enumerate(self.para_lst_idx)
                 if self.predictions[ind]]
 
         self.root = etree.Element('article')
         self.root.attrib['name'] = kwargs.get('fname', "")
-        self.root.attrib['num'] = repr(len(self.para_lst))
+        self.root.attrib['num'] = repr(len(px.para_list()))
         for ind,p in self.def_lst:
             defxml = self.create_definition_branch(ind, p)
             self.root.append(defxml)

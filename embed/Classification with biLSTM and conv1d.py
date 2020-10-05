@@ -29,8 +29,6 @@ from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
 from tensorflow.keras.models import Sequential
 from tensorflow_addons.callbacks import TQDMProgressBar
 
-
-
 import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
 # -
@@ -43,6 +41,9 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 from classifier_trainer.trainer import stream_arxiv_paragraphs
+import peep_tar as peep
+import parsing_xml as px
+from extract import Definiendum
 
 # +
 cfg = {'batch_size': 5000}
@@ -99,91 +100,79 @@ padding_fun = lambda seq: pad_sequences(seq, maxlen=max_seq_len,
 train_seq = padding_fun(train_seq)
 validation_seq = padding_fun(validation_seq)
 test_seq = padding_fun(test_seq)
+# -
 
-# +
-#tknr = Tokenizer()
-#tknr.fit_on_texts(list(validation[0]) + training[0])
-#tot_words = len(tknr.word_index) + 1
-#print(f"There is a total of {tot_words}")
-#train_seq = tknr.texts_to_sequences(training[0])
-#validation_seq = tknr.texts_to_sequences(validation[0])
-
-# + jupyter={"outputs_hidden": true}
 embed_matrix = np.zeros((cfg['tot_words'], 200))
 coverage_cnt = 0
 with open_w2v('/media/hd1/embeddings/model14-14_12-08/vectors.bin') as embed_dict:
     for word, ind in tkn2idx.items():
         vect = embed_dict.get(word)
         if vect is not None:
-            vect = vect/np.linalg.norm(vect)
+            #vect = vect/np.linalg.norm(vect)
             embed_matrix[ind] = vect
             coverage_cnt += 1
-        else:
-            print(word)
-# -
 
-coverage_cnt
+# + magic_args="echo skipping" language="script"
+# # Lengths of the definitions to get the max_seq_len parameter
+# plt.figure(figsize=[9,6])
+# ax = plt.subplot(111)
+# plt.hist([min(len(s),2500) for s in training[0]], 100)
+# plt.grid()
+# plt.title('Length in characters of the definitions in the training set')
+# plt.show()
 
-# Lengths of the definitions to get the max_seq_len parameter
-plt.figure(figsize=[9,6])
-ax = plt.subplot(111)
-plt.hist([min(len(s),2500) for s in training[0]], 100)
-plt.grid()
-plt.title('Length in characters of the definitions in the training set')
-plt.show()
+# + magic_args="echo skipping" language="script"
+# conv_model = Sequential([
+#     Embedding(cfg['tot_words'], 200, input_length=max_seq_len, weights=[embed_matrix], trainable=False),
+#     Conv1D(128, 5, activation='relu'),
+#     GlobalAveragePooling1D(),
+#     Dropout(0.2),
+#     Dense(64, activation='relu'),
+#     Dense(1, activation='sigmoid'),
+# ])
+# conv_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# conv_model.summary()
+# tqdm_callback = TQDMProgressBar()
+# history = conv_model.fit(train_seq, np.array(training[1]),
+#                 epochs=20, validation_data=(validation_seq, np.array(validation[1])),
+#                 batch_size=512,
+#                 verbose=0,
+#                 callbacks=[tqdm_callback])
 
-# + jupyter={"outputs_hidden": true}
-conv_model = Sequential([
-    Embedding(cfg['tot_words'], 200, input_length=max_seq_len, weights=[embed_matrix], trainable=False),
-    Conv1D(128, 5, activation='relu'),
-    GlobalAveragePooling1D(),
-    Dropout(0.2),
-    Dense(64, activation='relu'),
-    Dense(1, activation='sigmoid'),
-])
-conv_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-conv_model.summary()
-tqdm_callback = TQDMProgressBar()
-history = conv_model.fit(train_seq, np.array(training[1]),
-                epochs=20, validation_data=(validation_seq, np.array(validation[1])),
-                batch_size=512,
-                verbose=0,
-                callbacks=[tqdm_callback])
-# -
+# + magic_args="echo skipping" language="script"
+# # Conv stats results
+# plot_graphs(history, "accuracy")
+# plot_graphs(history, "loss")
+# predictions = conv_model.predict(validation_seq)
+# print(metrics.classification_report(np.round(predictions), validation[1]))
 
-# Conv stats results
-plot_graphs(history, "accuracy")
-plot_graphs(history, "loss")
-predictions = conv_model.predict(validation_seq)
-print(metrics.classification_report(np.round(predictions), validation[1]))
-
-# +
-tar_tree = etree.parse('/media/hd1/training_defs/math99/9902_001.xml.gz')
-def_lst = tar_tree.findall('.//definition')
-nondef_lst = tar_tree.findall('.//nondef')
-
-def show_false_pos_negs(model, def_lst, nondef_lst, samples=15):
-    ex_def = [D.text for D in def_lst[:samples]]
-    ex_def_tok = padding_fun([text2seq(d) for d in ex_def])
-
-
-    ex_nondef = [D.text for D in nondef_lst[:samples]]
-    ex_nondef_tok = padding_fun([text2seq(d) for d in ex_nondef])
-
-
-    preds_nondef = model.predict(ex_nondef_tok)
-    preds_def = model.predict(ex_def_tok)
-    #print(f"Should be all zero: {preds_nondef}")
-    print('\n'.join("{0} -- {1:.3} -- {2:} -- {3:}"\
-                    .format(repr(k),float(preds_nondef[k]), len(ex_nondef[k]) ,ex_nondef[k])\
-                    for k in np.nonzero(preds_nondef.squeeze()>0.5)[0]))
-    print('\n')
-    #print(f"Should be all one: {preds_def}")
-    print('\n'.join("{0} -- {1:.3} -- {2:} -- {3:}"\
-                    .format(repr(k),float(preds_def[k]), len(ex_def[k]), ex_def[k])\
-                    for k in np.nonzero(preds_def.squeeze()<0.5)[0]))
-
-show_false_pos_negs(lstm_model, def_lst, nondef_lst, samples=20)
+# + magic_args="echo skipping" language="script"
+# tar_tree = etree.parse('/media/hd1/training_defs/math99/9902_001.xml.gz')
+# def_lst = tar_tree.findall('.//definition')
+# nondef_lst = tar_tree.findall('.//nondef')
+#
+# def show_false_pos_negs(model, def_lst, nondef_lst, samples=15):
+#     ex_def = [D.text for D in def_lst[:samples]]
+#     ex_def_tok = padding_fun([text2seq(d) for d in ex_def])
+#
+#
+#     ex_nondef = [D.text for D in nondef_lst[:samples]]
+#     ex_nondef_tok = padding_fun([text2seq(d) for d in ex_nondef])
+#
+#
+#     preds_nondef = model.predict(ex_nondef_tok)
+#     preds_def = model.predict(ex_def_tok)
+#     #print(f"Should be all zero: {preds_nondef}")
+#     print('\n'.join("{0} -- {1:.3} -- {2:} -- {3:}"\
+#                     .format(repr(k),float(preds_nondef[k]), len(ex_nondef[k]) ,ex_nondef[k])\
+#                     for k in np.nonzero(preds_nondef.squeeze()>0.5)[0]))
+#     print('\n')
+#     #print(f"Should be all one: {preds_def}")
+#     print('\n'.join("{0} -- {1:.3} -- {2:} -- {3:}"\
+#                     .format(repr(k),float(preds_def[k]), len(ex_def[k]), ex_def[k])\
+#                     for k in np.nonzero(preds_def.squeeze()<0.5)[0]))
+#
+# show_false_pos_negs(lstm_model, def_lst, nondef_lst, samples=20)
 # -
 
 ################## DEFINE LSTM MODEL #####################
@@ -206,11 +195,12 @@ history = lstm_model.fit(train_seq, np.array(training[1]),
                 batch_size=512,
                 verbose=1)
 
-history = lstm_model.fit(train_seq, np.array(training[1]),
-                epochs=2, validation_data=(validation_seq, np.array(validation[1])),
-                batch_size=512,
-                verbose=1)
 
+# + magic_args="echo skipping" language="script"
+# history = lstm_model.fit(train_seq, np.array(training[1]),
+#                 epochs=2, validation_data=(validation_seq, np.array(validation[1])),
+#                 batch_size=512,
+#                 verbose=1)
 
 # +
 def plot_graphs(history, string):
@@ -238,12 +228,6 @@ print(metrics.classification_report(np.round(predictions), validation[1]))
 #hoy = dt.now()
 #timestamp = hoy.strftime("%H-%M_%b-%d")
 #lstm_model.save_weights('/media/hd1/trained_models/lstm_classifier/one_layer_'+timestamp)
-# -
-
-test[0][1]
-
-# + jupyter={"outputs_hidden": true}
-pred_test_y = lstm_model.predict([test], batch_size=10, verbose=1)
 
 # +
 opt_prob = None
@@ -268,6 +252,54 @@ print('Optimal probabilty threshold is {} for maximum F1 score {}'.format(opt_pr
 P = list(zip(*plot_point))
 plt.plot(P[0], P[1])
 
-(pred_test_y > opt_prob).astype(int)
+# + jupyter={"outputs_hidden": true}
+cfg = {'mnt_path': '/media/hd1/promath/',
+    'save_path': '/home/luis/glossary/test/'}
+
+class Vectorizer():
+    def __init__(self):
+        pass
+    def transform(self, L):
+        return padding_fun([text2seq(d) for d in L])
+
+def untar_clf_write(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
+    '''
+    Arguments:
+    `tfile` tarfile with arxiv format ex. 1401_001.tar.gz
+    `out_path` directory to save the xml.tar.gz file with the same name as `tfile`
+    `clf` model with .predict() attribute
+    `vzer` funtion that take the text of a paragraph and outputs padded np.arrays for `clf`
+    '''
+    
+    root = etree.Element('root')
+    for fname, tar_fobj in peep.tar_iter(tfile, '.xml'):
+        try:
+            DD = px.DefinitionsXML(tar_fobj) 
+            if DD.det_language() in ['en', None]:
+                art_tree = Definiendum(DD, lstm_model, None, vzer, None, fname=fname, thresh=opt_prob).root
+                if art_tree is not None: root.append(art_tree)
+        except ValueError as ee:
+            print(f"{repr(ee)}, 'file: ', {fname}, ' is empty'")
+    return root
+    
+for k, dirname in enumerate(['math01',]):
+    try:
+        full_path = os.path.join(cfg['mnt_path'], dirname)
+        tar_lst = [os.path.join(full_path, p) for p in  os.listdir(full_path) if '.tar.gz' in p]
+    except FileNotFoundError:
+        print(' %s Not Found'%d)
+        break
+    out_path = os.path.join(cfg['save_path'], dirname)
+    os.makedirs(out_path, exist_ok=True)
+   
+    for tfile in tar_lst:
+        clf = lstm_model
+        vzer = Vectorizer()
+        def_root = untar_clf_write(tfile, out_path, lstm_model, vzer)
+        print(etree.tostring(def_root, pretty_print=True))
+# -
+
+droot = untar_clf_write('../tests/five_actual_articles.tar.gz', out_path, lstm_model, vzer)
+print(etree.tostring(droot, pretty_print=True).decode())
 
 
