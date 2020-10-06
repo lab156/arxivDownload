@@ -21,6 +21,7 @@ import numpy as np
 from lxml import etree
 from collections import Counter
 from random import shuffle
+import gzip
 
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -254,7 +255,7 @@ plt.plot(P[0], P[1])
 
 # + jupyter={"outputs_hidden": true}
 cfg = {'mnt_path': '/media/hd1/promath/',
-    'save_path': '/home/luis/glossary/test/'}
+    'save_path': '/home/luis/rm_me_glossary/test/',}
 
 class Vectorizer():
     def __init__(self):
@@ -262,7 +263,7 @@ class Vectorizer():
     def transform(self, L):
         return padding_fun([text2seq(d) for d in L])
 
-def untar_clf_write(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
+def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
     '''
     Arguments:
     `tfile` tarfile with arxiv format ex. 1401_001.tar.gz
@@ -295,11 +296,14 @@ for k, dirname in enumerate(['math01',]):
     for tfile in tar_lst:
         clf = lstm_model
         vzer = Vectorizer()
-        def_root = untar_clf_write(tfile, out_path, lstm_model, vzer)
-        print(etree.tostring(def_root, pretty_print=True))
+        def_root = untar_clf_append(tfile, out_path, lstm_model, vzer)
+        #print(etree.tostring(def_root, pretty_print=True).decode())
+        gz_filename = os.path.basename(tfile).split('.')[0] + '.xml.gz' 
+        print(gz_filename)
+        gz_out_path = os.path.join(out_path, gz_filename) 
+        with gzip.open(gz_out_path, 'wb') as out_f:
+            print("Writing to dfdum zipped file to: %s"%gz_out_path)
+            out_f.write(etree.tostring(def_root, pretty_print=True))
 # -
-
-droot = untar_clf_write('../tests/five_actual_articles.tar.gz', out_path, lstm_model, vzer)
-print(etree.tostring(droot, pretty_print=True).decode())
 
 
