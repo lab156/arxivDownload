@@ -179,36 +179,6 @@ class DefinitionsXML(object):
                     namespaces={"re": "http://exslt.org/regular-expressions"})
         return self.def_lst
 
-    def create_xml_branch(self):
-        '''
-        Sat 28 Sep 2019
-        This is intended to work only to the stacks project xml at first
-        self being one xml file create a branch with the following structure
-
-        <article name="chow.xml">
-            <definition>
-              <stmnt> Let _inline_math_ be a ring.  complex over _inline_math_ </stmnt>
-              <dfndum>-periodic complex</dfndum>
-              <dfndum>cohomology modules</dfndum>
-              <dfndum>exact</dfndum>
-            </definition>
-      '''
-        branch = etree.Element('article')
-        branch.attrib['name'] = os.path.basename(self.file_path)
-        # for each tag like <theorem class="ltx_theorem_definition" in def_lst
-        for defi_rt in self.find_definitions():
-            root = etree.Element("definition")
-            #root.attrib['index'] = repr(ind) -- not defining an index
-            statement = etree.SubElement(root, 'stmnt')
-            statement.text = self.recutext(self.para_p(defi_rt))
-            all_dfndum = defi_rt.xpath('.//latexml:text[contains(@font, "italic")]',
-                    namespaces=self.ns)
-            for dum in all_dfndum:
-                dfndum = etree.SubElement(root, 'dfndum')
-                dfndum.text = dum.text
-            branch.append(root)
-        return branch
-
     def para_p(self, root):
         '''
         The xml format for a definition is as follows:
@@ -329,22 +299,75 @@ class DefinitionsXML(object):
 
 # Inherit from DefinitionsXML
 #
-class PlanetMathXML(DefinitionsXML):
+class StacksProjectXML(DefinitionsXML):
     def __init__(self, file_path):
+        super().__init__(file_path)
+
+    def create_xml_branch(self):
         '''
+        This is intended to work only to the stacks project xml at first
+        self being one xml file create a branch with the following structure
+
+        <article name="chow.xml">
+            <definition>
+              <stmnt> Let _inline_math_ be a ring.  complex over _inline_math_ </stmnt>
+              <dfndum>-periodic complex</dfndum>
+              <dfndum>cohomology modules</dfndum>
+              <dfndum>exact</dfndum>
+            </definition>
+      '''
+        branch = etree.Element('article')
+        branch.attrib['name'] = os.path.basename(self.file_path)
+        # for each tag like <theorem class="ltx_theorem_definition" in def_lst
+        for defi_rt in self.find_definitions():
+            root = etree.Element("definition")
+            #root.attrib['index'] = repr(ind) -- not defining an index
+            statement = etree.SubElement(root, 'stmnt')
+            statement.text = self.recutext(self.para_p(defi_rt))
+            all_dfndum = defi_rt.xpath('.//latexml:text[contains(@font, "italic")]',
+                    namespaces=self.ns)
+            for dum in all_dfndum:
+                dfndum = etree.SubElement(root, 'dfndum')
+                dfndum.text = dum.text
+            branch.append(root)
+        return branch
+
+
+class PlanetMathXML(DefinitionsXML):
+    def __init__(self, file_path, also_see_tex=True):
+        '''
+        If the original .tex files are sitting beside the .xml files 
+        and the `also_see_tex` flag is set to True then we search the 
+        the file of the commands of the form \pmmeta
+        
+        If the XML output has error tags we can get the meta data by:
         add support for the planet math pmmeta headers ex.
         <ERROR class="undefined">\pmtype</ERROR>Definition
         <ERROR class="undefined">\pmcomment</ERROR>trigger rebuild
         '''
-        super(PlanetMathXML, self).__init__(file_path)
-        self.tag_lst = self.exml.xpath('.//latexml:ERROR', namespaces=self.ns)
-        self.tag_vals = defaultdict(list)
-        for t in self.tag_lst:
-            # Ex. t.text: '\\pmtype' and  t.tail: 'Definition\n' 
-            if t.text.startswith('\\pm'):
-                trim_str = t.text[1:]
-                if t.tail:
-                    self.tag_vals[trim_str].append( t.tail.strip() )
+        super().__init__(file_path)
+        if also_see_tex:
+            # Search for the .tex file with the same path just different filetype
+            with open(file_path[:-4] + '.tex', 'r') as tex_fobj:
+                self.tag_lst = re.findall('\\\\(pm[a-z]+)\{(.*?)\}', tex_fobj.read())
+                # This has the format: [('pmtype', 'Definition'), ('pmcomment', 'trigger rebuild')]
+            self.tag_vals = defaultdict(list)
+            for t in self.tag_lst:
+                if t[1]:
+                    self.tag_vals[t[0]].append(t[1])
+                else:
+                    # just call to create an entry
+                    self.tag_vals[t[0]]
+
+        else:
+            self.tag_lst = self.exml.xpath('.//latexml:ERROR', namespaces=self.ns)
+            self.tag_vals = defaultdict(list)
+            for t in self.tag_lst:
+                # Ex. t.text: '\\pmtype' and  t.tail: 'Definition\n' 
+                if t.text.startswith('\\pm'):
+                    trim_str = t.text[1:]
+                    if t.tail:
+                        self.tag_vals[trim_str].append( t.tail.strip() )
 
     def extract_text(self):
         return_str = ""
@@ -358,10 +381,22 @@ class PlanetMathXML(DefinitionsXML):
 
         root = etree.Element("definition")
         statement = etree.SubElement(root, 'stmnt')
-        statement.text = self.extract_text()
+        def_text = self.extract_text()
+        statement.text = def_text
 
-        if self.tag_vals['pmtitle']:
+    # sometimes tag_vals do not contain a pmdefines value but the title seems usable
+    #example: 26B05-LogarithmicDerivative.xml 'pmdefines': [] 'pmtitle': ['logarithmic derivative']
+
+        if self.tag_vals['pmdefines'] != []:
+            dum = self.tag_vals['pmdefines'][0]
+        elif self.tag_vals['pmtitle'] != []:
             dum = self.tag_vals['pmtitle'][0]
+        else:
+            # make sure the next condition is never true
+            dum = 'never go in there'
+            def_text = ''
+
+        if dum.lower() in def_text.lower():
             dfndum = etree.SubElement(root, 'dfndum')
             dfndum.text = dum
 

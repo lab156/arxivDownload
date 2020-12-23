@@ -42,28 +42,34 @@ from sklearn.manifold import TSNE
 from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 import umap
+import scattertext as st
+
+from ripser import ripser
+from ripser import Rips
+from persim import plot_diagrams
 
 # %load_ext autoreload
 # %autoreload 2
 from embed_utils import generate, nearest, open_w2v 
-# -
+from clean_and_token_text import normalize_text, token_phrases2
 
-------- Do not run -----
-# This strips all the text from the xml articles and saves to text file
-for math_year in ['math12', 'math13', 'math14','math16','math17','math18','math19', 'math20']:
-    #math_year = 'math97'
-    for art_path in tqdm(glob.glob('/mnt/promath/{}/*.tar.gz'.format(math_year))):
-        art_str = ""
-        for name, fobj in peep.tar_iter(art_path, '.xml'):
-            try:
-                article = px.DefinitionsXML(fobj)
-                art_str = " ".join([article.recutext(a) for a in article.para_list()])
-            except ValueError as ee:
-                #print(ee, f"file {name} produced an error")
-                art_str = " "
-            with open('../data/clean_text/{}'.format(math_year),'a') as art_fobj:
-                print(art_str, file=art_fobj)
-            #print(f"Saved art {name} from {art_path}")
+# + magic_args="echo skipping" language="script"
+# ------- Do not run -----
+# # This strips all the text from the xml articles and saves to text file
+# for math_year in ['math12', 'math13', 'math14','math16','math17','math18','math19', 'math20']:
+#     #math_year = 'math97'
+#     for art_path in tqdm(glob.glob('/mnt/promath/{}/*.tar.gz'.format(math_year))):
+#         art_str = ""
+#         for name, fobj in peep.tar_iter(art_path, '.xml'):
+#             try:
+#                 article = px.DefinitionsXML(fobj)
+#                 art_str = " ".join([article.recutext(a) for a in article.para_list()])
+#             except ValueError as ee:
+#                 #print(ee, f"file {name} produced an error")
+#                 art_str = " "
+#             with open('../data/clean_text/{}'.format(math_year),'a') as art_fobj:
+#                 print(art_str, file=art_fobj)
+#             #print(f"Saved art {name} from {art_path}")
 
 # +
 # %%time
@@ -90,6 +96,8 @@ def qq(art_str, database = database):
 qq('1703.01352')    
 # -
 
+glob.glob('/media/hd1/glossary/v2/math18/1811_026.xml.gz')
+
 ## Grab the Glossary data
 dfndum_set = set()
 new_dfndum_lst = [0]
@@ -115,6 +123,8 @@ for xml_path in tqdm(glob.glob('/media/hd1/glossary/v2/math*/*.xml.gz')):
         except StopIteration:
             pass
 
+
+
 # The 15 most common words are
 term_cnt.most_common()[:15]
 
@@ -124,7 +134,7 @@ print(f'The term: {Term} appears in articles tagged:')
 term_dict_cnt[Term]
 
 # Decode word2vec .bin file
-with open('/media/hd1/embeddings/model14-51_20-08/vectors.bin', 'rb') as mfobj:
+with open('/media/hd1/embeddings/model14-14_12-08/vectors.bin', 'rb') as mfobj:
     m = mfobj.read()
     #print(m[0].decode('utf8'))
     #s = st.Struct('ii')
@@ -153,7 +163,7 @@ with open('/media/hd1/embeddings/model14-51_20-08/vectors.bin', 'rb') as mfobj:
         cnt +=1
         embed[word] = vec
 
-with open_w2v('/media/hd1/embeddings/model00-19_15-08/vectors.bin') as embed:
+with open_w2v('/media/hd1/embeddings/model14-14_12-08/vectors.bin') as embed:
     unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
 
 common_term = term_cnt.most_common()[200][0].lower().replace(' ', '_')
@@ -163,6 +173,7 @@ embed.get(common_term, None)[:10]
 # Create a dict of "very AG" vectors
 veryAG = {}
 veryDG = {}
+veryDict = {}
 for Term_pair in tqdm(term_cnt.most_common()):
     Term = Term_pair[0]
     if term_dict_cnt[Term]['math.AG'] > 4*term_dict_cnt[Term]['math.DG']:
@@ -173,6 +184,7 @@ for Term_pair in tqdm(term_cnt.most_common()):
             color_intensity = (term_dict_cnt[Term]['math.AG']/tot, term_dict_cnt[Term]['math.DG']/tot)
             if embed_vec is not None:
                 veryAG[Term] = (embed_vec, color_intensity)
+                veryDict[Term] = embed_vec
         except TypeError:
             pass
     if term_dict_cnt[Term]['math.DG'] > 4*term_dict_cnt[Term]['math.AG']:
@@ -183,6 +195,7 @@ for Term_pair in tqdm(term_cnt.most_common()):
             color_intensity = (term_dict_cnt[Term]['math.AG']/tot, term_dict_cnt[Term]['math.DG']/tot)
             if embed_vec is not None:
                 veryDG[Term] = (embed_vec, color_intensity)
+                veryDict[Term] = embed_vec
         except TypeError:
             pass
 
@@ -229,19 +242,28 @@ plt.scatter(x[0][500:1000], y[0][500:1000], color='green', s=5)
 plt.scatter(x[0][1000:], y[0][1000:], color='red' )
 plt.show()
 
-# +
----- Don't run, this should be in the embed_utils.py module now
-cos_dist = lambda x, y: np.dot(x,y)/np.linalg.norm(x)/np.linalg.norm(y)
-unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
+# + jupyter={"outputs_hidden": true}
+html = st.produce_projection_explorer(None,
+                                      word2vec_model=veryDict,
+                                      projection_model=umap1,
+                                      category='mathAG',
+                                      category_name='mathAG',
+                                      not_category_name='mathDG',
+                                      metadata=None)      
 
-def nearest(word_vec, n_near=10):
-    dist_dict = {}
-    unit_word_vec = word_vec/np.linalg.norm(word_vec)
-    for w, v in unit_embed.items():
-        #dist_dict[w] = cos_dist(v, word_vec)
-        dist_dict[w] = unit_word_vec.dot(v)
-    return sorted(dist_dict.items(), key=lambda pair: pair[1], reverse=True)[:n_near]
 
+# + magic_args="echo skipping" language="script"
+# ---- Don't run, this should be in the embed_utils.py module now
+# cos_dist = lambda x, y: np.dot(x,y)/np.linalg.norm(x)/np.linalg.norm(y)
+# unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
+#
+# def nearest(word_vec, n_near=10):
+#     dist_dict = {}
+#     unit_word_vec = word_vec/np.linalg.norm(word_vec)
+#     for w, v in unit_embed.items():
+#         #dist_dict[w] = cos_dist(v, word_vec)
+#         dist_dict[w] = unit_word_vec.dot(v)
+#     return sorted(dist_dict.items(), key=lambda pair: pair[1], reverse=True)[:n_near]
 
 # +
 # Create a "very topical" set of terms
@@ -267,6 +289,7 @@ for Term_pair in tqdm(term_cnt.most_common()):
         if embed_vec is not None: 
             veryTop[Term] = embed_vec
             color_dict[Term] = float(term_dict_cnt[Term][topic])/sum(term_dict_cnt[Term].values())
+            https://pitt.zoom.us/j/95321239316
 # -
 
 # %%time
@@ -293,9 +316,10 @@ for k,center in enumerate(means[0]):
         cnt_list.append( sum(term_dict_cnt[word].values()))
     print( '----- ',max(cnt_list))
 
+# plots the R-squared of the k-means clustering value
 n_average = 5 # Number of samples to average out
 dist_lst = []
-for n_centers in tqdm(range(10,100)):
+for n_centers in tqdm(range(2,4)):
     mean_dist = 0
     for _ in range(n_average):
         mean_dist += kmeans(tot_vec, n_centers)[1]
@@ -346,4 +370,8 @@ for name, fobj in  peep.tar_iter('/media/hd1/promath/math17/1703_004.tar.gz', '.
         art_str = " ".join([article.recutext(a) for a in article.para_list()])
 plot_wordcloud(art_str, title='arXiv:1703.01352')
 
-
+# Create the ripser object
+rips = Rips(maxdim=2)
+data = np.asarray(ag_lst)
+diagrams = rips.fit_transform(data)
+rips.plot(diagrams)

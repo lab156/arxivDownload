@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.0
+#       jupytext_version: 1.5.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -18,11 +18,15 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
 import pygraphviz as pgv
+import random
+import numpy as np
 
 import extract as X
 import parsing_xml as px
 
-planetmath = etree.parse('data/planetmath_defs.xml').getroot()
+from gensim.models.callbacks import 
+
+planetmath = etree.parse('/media/hd1/planetmath/datasets/planetmath_definitions.xml.gz').getroot()
 
 mathag = etree.parse('data/mathAG_2015.xml').getroot()
 
@@ -63,8 +67,38 @@ for k,d_raw in enumerate(def_dict.keys()):
                 add_edges_lst = [(d, p.strip()) for p in dfndum_lst if d != p]
                 dgraph.add_edges_from(add_edges_lst)
 
-len(dgraph.nodes())
+list(dgraph.nodes())[:10]
 
+# + jupyter={"outputs_hidden": true}
+nx.shortest_path_length(dgraph,'integer', 'digamma')
+
+
+# +
+def bound_dist(n1, n2):
+    try:
+        dist = nx.shortest_path_length(dgraph, n1, n2)
+    except nx.NodeNotFound:
+        dist = 5
+    except nx.NetworkXNoPath:
+        dist = 5
+    return dist
+
+bound_dist('integer', 'amenable')
+# -
+
+node_lst = list(dgraph.nodes())
+delta_list = []
+for k in range(1000):
+    x,y,z,t = random.sample(node_lst, 4)
+    s1 = bound_dist(x,y) + bound_dist(z,t)
+    s2 = bound_dist(x,z) + bound_dist(y,t)
+    s3 = bound_dist(x,t) + bound_dist(z,y)
+    big1, big2 = sorted([s1,s2,s3], reverse=True)[:2]
+    delta = 0.5*(big1 - big2)
+    delta_list.append(delta)
+print('Approx delta-hyperbolicity: {}'.format(sum(delta_list)/float(len(delta_list))))
+
+# + jupyter={"outputs_hidden": true}
 opts = {
     'node_size': 10,
     'width': 0.1,
@@ -75,13 +109,12 @@ plt.figure(1, figsize=(15,10))
 pos = graphviz_layout(dgraph, prog='dot')
 nx.draw_networkx(dgraph, pos, **opts)
 #plt.savefig('data/starts_with_p_spectral.png')
+# -
 
 nx.find_cycle(dgraph)
 
-nx.drawing.nx_agraph.write_dot(dgraph, 'data/dgraph.dot')
+# + magic_args="echo This save the image to a file" language="script"
+# nx.drawing.nx_agraph.write_dot(dgraph, 'data/dgraph.dot')
 
 # +
 # nx.draw_networkx?
-# -
-
-

@@ -40,9 +40,12 @@ class TestDefiniendumInit(unittest.TestCase):
         clf = FarseClf()
         vzer = FarseVectorizer()
         bio = FarseBio()
-        for fname, tfobj in peep.tar_iter('five_actual_articles.tar.gz', '.xml'):
+        for fname, tfobj in peep.tar_iter('few_actual_articles.tar.gz', '.xml'):
             parsing_fobj = px.DefinitionsXML(tfobj)
-            Def = X.Definiendum(parsing_fobj, clf, bio, vzer, None, min_words=240)
+            try:
+                Def = X.Definiendum(parsing_fobj, clf, bio, vzer, None, min_words=240)
+            except ValueError:
+                pass
         idx = Def.root.findall('definition')[0].attrib['index']
         idx = int(idx)
         # This value should not depend on `min_words`
@@ -52,9 +55,12 @@ class TestDefiniendumInit(unittest.TestCase):
         clf = FarseClf()
         vzer = FarseVectorizer()
         bio = FarseBio()
-        for fname, tfobj in peep.tar_iter('five_actual_articles.tar.gz', '.xml'):
+        for fname, tfobj in peep.tar_iter('few_actual_articles.tar.gz', '.xml'):
             parsing_fobj = px.DefinitionsXML(tfobj)
-            Def = X.Definiendum(parsing_fobj, clf, bio, vzer, None, min_words=200)
+            try:
+                Def = X.Definiendum(parsing_fobj, clf, bio, vzer, None, min_words=200)
+            except ValueError:
+                pass
         idx = Def.root.attrib['num']
         idx = int(idx)
         # This value should not depend on `min_words`
@@ -64,10 +70,20 @@ class TestDefiniendumInit(unittest.TestCase):
         clf = RandClf()
         vzer = FarseVectorizer()
         bio = None
-        for fname, tfobj in peep.tar_iter('five_actual_articles.tar.gz', '.xml'):
+        for fname, tfobj in peep.tar_iter('few_actual_articles.tar.gz', '.xml'):
             parsing_fobj = px.DefinitionsXML(tfobj)
-            Def = X.Definiendum(parsing_fobj, clf, bio, vzer, None, min_words=40,
-                    thresh=0.96)
+            try:
+                Def = X.Definiendum(parsing_fobj, clf, bio, vzer, None, min_words=40,
+                        thresh=0.96)
+            except ValueError:
+                pass
         # This value should not depend on `min_words`
         self.assertEqual(len(Def.root), 4)
+
+    def test_vectorizer_raises_valueerror(self):
+        clf = RandClf()
+        vzer = FarseVectorizer()
+        xml = peep.tar('/media/hd1/promath/math01/0103_001.tar.gz', '0103239')[1]
+        with self.assertRaises(ValueError):
+            X.Definiendum(xml, clf, None, vzer, None, min_words=40 )
 

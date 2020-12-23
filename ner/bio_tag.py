@@ -6,8 +6,14 @@ for ind, val in enumerate(tag.values()):
 
 def bio_tagger(title, sent):
     '''
-    title: ['word1', 'word2'] a list of words
-    sent: [('word', 'pos')] a sentence in this form
+    title: ['word1', 'word2'] a list of words i.e. the title of an wikipedia
+    article
+    sent: [('word', 'pos')] a sentence in this form thay may or may not contain
+    the title.
+
+    Returns:
+    A labeled IOB sentence in the format [(word1, pos, iob), ... (wordN, pos, iob)]
+
     '''
     sent_len = len(sent)
     title_len = len(title)

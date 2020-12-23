@@ -51,14 +51,20 @@ class Definiendum():
             self.chunk = lambda x: []
         #first we need to vectorize
 
-        self.trans_vect = vzer.transform(self.para_lst)
+        if self.para_lst != []:
+            self.trans_vect = vzer.transform(self.para_lst)
+        else:
+            # the nltk vectorizer raises this error on the on the empty list
+            # OTOH, the NN vectorizer is normally implemented ad-hoc
+            # This exception evens the behaviour
+            raise ValueError('trying to vectorize empty para_lst.')
         thresh = kwargs.get('thresh', None)
         if thresh is None:
             self.predictions = clf.predict(self.trans_vect)
         else:
             # clf.predict will give probabilities and thresh is the cutoff
             try:
-                preds = clf.predict(self.trans_vect, batch_size=3)
+                preds = clf.predict(self.trans_vect, batch_size=1)
                 self.predictions = (preds > thresh).astype(int)
             except UnboundLocalError as ee:
                 print(ee)
