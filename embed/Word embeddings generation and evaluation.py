@@ -47,11 +47,25 @@ import scattertext as st
 from ripser import ripser
 from ripser import Rips
 from persim import plot_diagrams
+import multiprocessing as mp
 
 # %load_ext autoreload
 # %autoreload 2
 from embed_utils import generate, nearest, open_w2v 
 from clean_and_token_text import normalize_text, token_phrases2
+
+
+# -
+
+def square(x): 
+    print(f'Hola, squaring {x}')
+    return x**2
+with mp.Pool(processes=3, maxtasksperchild=1) as pool:
+    arg_lst = range(10)
+    exit = pool.map(square, arg_lst)
+print(exit)
+exit.remove(16)
+print(exit)
 
 # + magic_args="echo skipping" language="script"
 # ------- Do not run -----
@@ -96,8 +110,6 @@ def qq(art_str, database = database):
 qq('1703.01352')    
 # -
 
-glob.glob('/media/hd1/glossary/v2/math18/1811_026.xml.gz')
-
 ## Grab the Glossary data
 dfndum_set = set()
 new_dfndum_lst = [0]
@@ -123,7 +135,7 @@ for xml_path in tqdm(glob.glob('/media/hd1/glossary/v2/math*/*.xml.gz')):
         except StopIteration:
             pass
 
-
+[ normalize_text(t[0]) for t in term_cnt.most_common() if '_inline_math_ and' in t[0] ][:100]
 
 # The 15 most common words are
 term_cnt.most_common()[:15]

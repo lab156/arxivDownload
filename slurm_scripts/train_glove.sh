@@ -21,13 +21,16 @@ SCRATCH="/home/luis/Paquetes/GloVe"
 cd $SCRATCH
 #DATA="/pylon5/ms5pi8p/lab232/miniclean"
 #MODEL="/pylon5/ms5pi8p/lab232/model"`date '+%H-%M_%d-%m'`
-DATA="/media/hd1/clean_text"
+#DATA="/media/hd1/clean_text"
+DATA="/home/luis/Documents/arxivDownload/embed/joined_math"
 MODEL="/home/luis/rm_me/model"`date '+%H-%M_%d-%m'`
 
 mkdir -p $MODEL
-for file in $DATA/math10;
+for file in $DATA/math*;
 do
-    normalize_text < $file >> $MODEL/data.txt
+#    normalize_text < $file >> $MODEL/data.txt
+    echo "adding $file to data"
+    cat $file >> $MODEL/data.txt
 done
 
 CORPUS=$MODEL/data.txt

@@ -4,9 +4,12 @@ import re
 import unidecode
 from lxml import etree
 import glob
+from tqdm import tqdm
+import multiprocessing as mp
+import os
 
 
-def normalize_text(text, *vargs):
+def normalize_text(text, *vargs, **kwargs):
     '''
     a copy of the normalize_text function in the word2vec repo
     see the `demo-train-big-model.sh` file
@@ -24,14 +27,25 @@ def normalize_text(text, *vargs):
     >>> normalize_text('remove the <br> <br /> <br     /> and not the <')
     'remove the and not the <'
 
-    >>> normalize_text('remove the <br> <br /> <br     /> and the <', 'rm_punct')
-    'remove the and the '
-
     >>> normalize_text('en 1492, Colon llegó a ?')
     'en , colon llego a ? '
 
+    >>> normalize_text('I rem/ember káhler painlevé in § 74', 'rm_special_chars')
+    'i rem / ember khler painlev in '
+
+    >>> normalize_text('Kähler manifolds are, fun, and interesting.')
+    'kahler manifolds are , fun , and interesting . '
+
+    >>> normalize_text('Málaga Kähler  Étale française problème')
+    'malaga kahler etale francaise probleme'
+
+    TESTS WITH rm_punct
+
     >>> normalize_text('en 1492, Colón llegó a ?', 'rm_punct')
     'en colon llego a '
+
+    >>> normalize_text('remove the <br> <br /> <br     /> and the <', 'rm_punct')
+    'remove the and the '
 
     >>> normalize_text('en el siglo XV, Colón llego a ?', 'rm_punct')
     'en el siglo xv colon llego a '
@@ -39,17 +53,8 @@ def normalize_text(text, *vargs):
     >>> normalize_text('restricts to a ”weak” symplectic', 'rm_punct')
     'restricts to a weak symplectic'
 
-    >>> normalize_text('I rem/ember káhler painlevé in § 74', 'rm_special_chars')
-    'i rem / ember khler painlev in '
-
     >>> normalize_text('a Hamiltonian action, i.e. a Lie algebra', 'rm_punct')
     'a hamiltonian action ie a lie algebra'
-
-    >>> normalize_text('Kähler manifolds are, fun, and interesting.')
-    'kahler manifolds are , fun , and interesting . '
-
-    >>> normalize_text('Málaga Kähler  Étale française problème')
-    'malaga kahler etale francaise probleme'
 
     >>> normalize_text('¡al sonoro rugir del cañón!\\n', 'rm_punct')
     'al sonoro rugir del canon \\n '
@@ -60,20 +65,24 @@ def normalize_text(text, *vargs):
     '''
 
     # Intended purpose: NER
-    repl_list = [("’","'") ,
-            ("′","'") ,
-           ("''", " "),
-            ("'"," ' ") ,
-            ("“",'"') ,
-            ('"',' " ') ,
+    repl_list = [("’","") ,
+            ("′","") ,
+           ("''", ""),
+            ("'","") ,
+            ("“",'') ,
+            ('"','') ,
             ('.',' . ') ,
             (', ',' , ') ,
+            ('; ',' ; ') ,
+            (': ',' : ') ,
             ('(',' ( ') ,
             (')',' ) ') ,
+            ('[', ''),
+            (']', ''),
+            ('{', ''),
+            ('}', ''),
             ('!',' ! '),
             ('?',' ? ') ,
-            (';',' ') ,
-            (':',' ') ,
             ('-',' - ') ,
             ('=',' ') ,
             ('=',' ') ,
@@ -321,58 +330,81 @@ def next_word_dict(phrases):
                 nwd[tok].add(ph_lst[k + 1])
     return nwd
 
+def tokenize_and_write(in_file, out_file, phrases_list):
+    in_fobj = open(in_file, 'r') 
+    out_fobj = open(out_file, 'a') 
+    print("Writing {} to {}".format(in_fobj.name, out_fobj.name))
+    while (line := in_fobj.readline()) != '':
+        line = normalize_text(line)
+        #line = token_phrases3(line, phrases_list)
+        out_fobj.write(line)
+    in_fobj.close()
+    out_fobj.close()
+
+phrase_blacklist = ['_inline_math_ and',
+        '_inline_math_ _inline_math_',
+        'recent years',
+        '_inline_math_ of',
+        'for _inline_math_',
+        '_inline_math_ if',
+        '_inline_math_ also',
+        'suppose that',
+        'condition for',
+        '_inline_math_ on',
+        '_inline_math_ a',
+        'family of',]
+
 
 if __name__ == "__main__":
+    '''
+    Examples:
+    time python3 clean_and_token_text.py /media/hd1/clean_text/math* joined_math --phrases_file /media/hd1/glossary/v3/math*/*.xml.gz  --num_phrases 2500
+
+    '''
+
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('in_file', type=str, 
-            help='path to text file that needs normalization and phrase joining')
-    parser.add_argument('out_file', type=str,
+    parser.add_argument('in_files', type=str, nargs='+',
+            help='One or more path to text file that needs normalization and phrase joining')
+    parser.add_argument('out_dir', type=str,
             help='path to file to write the normalized text if empty prints to shell')
-    parser.add_argument('--phrases_file', default='phrases.xml', type=str, nargs='+',
+    parser.add_argument('--phrases_file', default=None, type=str, nargs='+',
             help='XML file with the phrases to be joined')
     parser.add_argument('--norm_args', nargs='?', default=['rm_punct'],
             help='arguments for the tokenization function')
-    parser.add_argument('--num_phrases', type=int, default=2000,
+    parser.add_argument('--num_phrases', type=int, default=None,
             help='Max number of phrases to use')
     #parser.add_argument('--skip_n', default=1, type=int)
     args = parser.parse_args()
 
-    #Open the input text file
-    #with open(args.in_file, 'r') as in_fobj:
-    #    in_lines = in_fobj.readlines()
-    in_fobj = open(args.in_file, 'r')
-        #in_file = in_fobj.read()
 
     print('Started reading the phrases...')
-    with open(args.out_file, 'a') as out_fobj:
-        if args.phrases_file is not None:
-            phrases_cnt = Counter()
-            for xml_path in args.phrases_file:
-                root = etree.parse(xml_path)
-                phrases_list_temp = [normalize_text(r.text, 'rm_punct')\
-                        for r in root.findall('//dfndum') ]
-                phrases_cnt.update([r for r in phrases_list_temp if len(r.split()) > 1])
-            print('Joining {} phrases found'.format(len(phrases_cnt)))
-        else:
-            print('No phrases selected :(')
+    phrases_cnt = Counter()
+    if args.phrases_file is not None:
+        for xml_path in tqdm(args.phrases_file):
+            root = etree.parse(xml_path)
+            phrases_list_temp = [normalize_text(r.text)\
+                    for r in root.findall('//dfndum') ]
+            phrases_cnt.update([r for r in phrases_list_temp if len(r.split()) > 1])
+        print('Joining {} phrases found'.format(len(phrases_cnt)))
+    else:
+        print('No phrases selected :(')
 
-        phrases_list = [ph[0] for ph in phrases_cnt.most_common()][:args.num_phrases]
+    phrases_list = [ph[0] for ph in phrases_cnt.most_common()]
+    for ph in phrase_blacklist:
+        try:
+            phrases_list.remove(ph)
+        except ValueError:
+            print(f"phrase {ph} not in the phrase list")
+    phrases_list = phrases_list[:args.num_phrases]
+    os.makedirs(args.out_dir, exist_ok=True)
 
-        #for line in in_lines:
-        #norm_line = normalize_text(in_file, 'rm_punct')
-        #if len(phrases_list) > 0: 
-        #    #norm_line = functools.reduce(token_phrases, [norm_line] + phrases_list)
-        #    for cnt, ph in enumerate(phrases_list):
-        #        norm_line = token_phrases(norm_line, ph)
-        #        if cnt%40 == 0:
-        #            print("doing phrase: {} -- number {}".format(ph, cnt))
+    with mp.Pool(processes=5, maxtasksperchild=1) as pool:
+        arg_lst = []
+        for infile in args.in_files:
+            fname = os.path.basename(infile).split('.')[0] 
+            out_file = os.path.join(args.out_dir, fname)
+            arg_lst.append((infile, out_file, phrases_list)) 
+        pool.starmap(tokenize_and_write, arg_lst)
 
-        #norm_line = token_phrases2(norm_line, phrases_list)
-        while (line := in_fobj.readline()) != '':
-            line = normalize_text(line, 'rm_punct')
-            line = token_phrases3(line, phrases_list)
-            out_fobj.write(line)
-
-    in_fobj.close()
 
