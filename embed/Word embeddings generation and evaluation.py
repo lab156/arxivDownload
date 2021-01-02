@@ -52,20 +52,7 @@ import multiprocessing as mp
 # %load_ext autoreload
 # %autoreload 2
 from embed_utils import generate, nearest, open_w2v 
-from clean_and_token_text import normalize_text, token_phrases2
-
-
-# -
-
-def square(x): 
-    print(f'Hola, squaring {x}')
-    return x**2
-with mp.Pool(processes=3, maxtasksperchild=1) as pool:
-    arg_lst = range(10)
-    exit = pool.map(square, arg_lst)
-print(exit)
-exit.remove(16)
-print(exit)
+from clean_and_token_text import normalize_text, token_phrases3
 
 # + magic_args="echo skipping" language="script"
 # ------- Do not run -----

@@ -48,7 +48,7 @@ from embed_utils import open_w2v
 # +
 with open('/media/hd1/wikipedia/wiki_definitions_improved.txt', 'r') as wiki_f:
     wiki = wiki_f.readlines()
-    
+
 # Get data and train the Sentence tokenizer
 # Uses a standard algorithm (Kiss-Strunk) for unsupervised sentence boundary detection
 text = ''
@@ -60,7 +60,23 @@ trainer.INCLUDE_ALL_COLLOCS = True
 trainer.train(text)
 sent_tok = PunktSentenceTokenizer(trainer.get_params())
 print(sent_tok._params.abbrev_types)
+
+# +
+# Detecting abbreviations from clean text
+with open('/media/hd1/clean_text/math05', 'r') as text_f:
+    text = text_f.read()[:100000]
+
+# Get data and train the Sentence tokenizer
+# Uses a standard algorithm (Kiss-Strunk) for unsupervised sentence boundary detection
+
+trainer = PunktTrainer()
+trainer.INCLUDE_ALL_COLLOCS = True
+trainer.train(text, finalize=True)
+sent_tok = PunktSentenceTokenizer(trainer.get_params())
+print(sent_tok._params.abbrev_types)
 # -
+
+{'eq', 'i.e', 'e.g', 'f.g', 'eqs', 'w.r.t'}
 
 # ### TODO
 # * protect _inline_math_ from keras tokenizer, right now it is breaking it up

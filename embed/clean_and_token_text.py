@@ -18,8 +18,19 @@ def normalize_text(text, *vargs, **kwargs):
         # rm_punct
         # rm_special_chars
 
-    >>> normalize_text('hi, there.')
+    abb_lst TESTS
+
+    >>> normalize_text('hi, there.', abbrev_lst=['i.e.', 'Dr.'])
     'hi , there . '
+
+    >>> normalize_text('en 1492, Colón, i.e. Cristóbal llegó a Ámerica', abbrev_lst=['i.e.', 'Dr.'])
+    'en , colon , i.e. cristobal llego a america '
+
+    >>> normalize_text('Please, call me Dr., i.e. Dr. Asimov', abbrev_lst=['i.e.', 'Dr.'])
+    'please , call me dr. , i.e. dr. asimov '
+
+    >>> normalize_text('Please, call me Dr., (i.e. Dr.) Asimov', abbrev_lst=['i.e.', 'Dr.'])
+    'please , call me dr. , ( i.e. dr. ) asimov '
 
     >>> normalize_text('This |is\t \twork=ing')
     'this is work ing'
@@ -72,9 +83,9 @@ def normalize_text(text, *vargs, **kwargs):
             ("“",'') ,
             ('"','') ,
             ('.',' . ') ,
-            (', ',' , ') ,
-            ('; ',' ; ') ,
-            (': ',' : ') ,
+            (',',' , ') ,
+            (';',' ; ') ,
+            (':',' : ') ,
             ('(',' ( ') ,
             (')',' ) ') ,
             ('[', ''),
@@ -136,105 +147,34 @@ def normalize_text(text, *vargs, **kwargs):
 
     if 'rm_punct' in vargs:
         text = functools.reduce(lambda a,b: a.replace(*b), [text] + punct_list)
+    elif 'abbrev_lst' in kwargs:
+        out_text = ''
+        word_regex = re.compile(r'\S+')
+        for word_obj in re.finditer(word_regex, text):
+            word = word_obj.group(0)
+            try:
+                # Find the abbreviation if any
+                abb_text = next(filter(lambda x: x in word, kwargs['abbrev_lst']))
+                # Need to normalize the surrounding text '' if none
+                w1, w2 = word.split(abb_text)
+                out_text += functools.reduce(lambda a,b: a.replace(*b),\
+                        [w1] + repl_list) +\
+                        abb_text +\
+                        functools.reduce(lambda a,b: a.replace(*b),\
+                        [w2] + repl_list) + ' '
+            except StopIteration:
+                out_text += functools.reduce(lambda a,b: a.replace(*b),\
+                        [word] + repl_list) + ' '
+            except ValueError:
+                print('Too many values to unpack: abbrev = {} on word {}'.format(abb_text, word))
+        text = out_text
     else:
         text = functools.reduce(lambda a,b: a.replace(*b), [text] + repl_list)
+
 
     text = re.sub(r'[ \t]+', ' ', text) # Normalize all spaces (\s) to one blank space
 
     return text.lower()
-
-def token_phrases(text, phrase, join_str='_'):
-    '''
-    expecting clean text
-
-    >>> token_phrases('hi riemann how is your riemann metric today', 'riemann integral')
-    'hi riemann how is your riemann metric today '
-
-    >>> token_phrases('hi riemann how is your riemann integral today', 'riemann integral')
-    'hi riemann how is your riemann_integral today '
-
-    >>> token_phrases('hi rr how is your rr ii ii today rr ii vv oo', 'rr ii')
-    'hi rr how is your rr_ii ii today rr_ii vv oo '
-
-    >>> token_phrases('hi rr how is your rr ii uu today rr ii vv oo', 'rr ii uu')
-    'hi rr how is your rr_ii_uu today rr ii vv oo '
-
-    >>> token_phrases('hi rr how is your rr ii uu today rr ii oo uu', 'ii oo uu')
-    'hi rr how is your rr ii uu today rr ii_oo_uu '
-    '''
-    text_lst = text.split()
-    ngram_len = len(phrase.split())
-    #sub_token = '_'.join(phrase.split())
-    mod_text = ''
-    k = 0
-    while k < len(text_lst) :
-        ngram = text_lst[k:(k+ngram_len)]
-        if ngram == phrase.split():
-            mod_text += join_str.join(phrase.split()) + ' '
-            k += ngram_len
-        else:
-            mod_text += text_lst[k] + ' '
-            k += 1
-
-    return mod_text #+ ' '.join(text_lst[:(k - len(text_lst))])
-
-def token_phrases2(text, phrase_lst, join_str='_'):
-    '''
-    Second more efficient try
-
-    >>> token_phrases2('hi riemann how is your riemann metric today', ['riemann integral'])
-    'hi riemann how is your riemann metric today '
-
-    >>> token_phrases2('hi riemann how is your riemann integral today', ['riemann integral'])
-    'hi riemann how is your riemann_integral today '
-
-    >>> token_phrases2('hi rr how is your rr ii ii today rr ii vv oo', ['rr ii'])
-    'hi rr how is your rr_ii ii today rr_ii vv oo '
-
-    >>> token_phrases2('hi rr how is your rr ii uu today rr ii vv rr', ['rr ii uu'])
-    'hi rr how is your rr_ii_uu today rr ii vv rr '
-
-    >>> token_phrases2('hi rr how is your rr ii uu today rr ii oo uu \\n ', ['ii oo uu', 'ii uu'])
-    'hi rr how is your rr ii_uu today rr ii_oo_uu \\n  '
-
-    >>> token_phrases2('hi rr how is your rr ii ii today rr ii vv oo', ['rr ii', 'how is'])
-    'hi rr how_is your rr_ii ii today rr_ii vv oo '
-    '''
-    # First prepare the phrases
-    phrase_dict = defaultdict(set)
-    for ph in phrase_lst:
-        ph_lst = ph.strip().split()
-        if len(ph_lst) > 1:
-            phrase_dict[ph_lst[0]].add(tuple(ph_lst[1:]))
-        else:
-            raise ValueError('A phrase with only too few words was given. Phrase: {}'.format(ph))
-
-    text_lst = text.split(' ')
-    phrase_dict = dict(phrase_dict)
-
-    k = 0
-    mod_text = ''
-    while k < len(text_lst):
-        try:
-            next_words_lst = phrase_dict[text_lst[k]]
-            advance_just_one_word = True
-            for nw in next_words_lst:
-                ngram_len = len(nw) + 1
-                nw_text = tuple(text_lst[ (k+1) : (k+ngram_len) ])
-                if nw == nw_text:
-                    mod_text += join_str.join(text_lst[k: k+ngram_len]) + ' '
-                    k += ngram_len
-                    advance_just_one_word = False
-            if advance_just_one_word:
-                mod_text += text_lst[k] + ' '
-                k += 1
-        except KeyError:
-            mod_text += text_lst[k] + ' '
-            k += 1
-        except IndexError:
-            import pdb; pdb.set_trace()
-
-    return mod_text
 
 
 def token_phrases3(text, phrase_lst, join_str='_'):
@@ -300,7 +240,8 @@ def token_phrases3(text, phrase_lst, join_str='_'):
             break
     return mod_text + (( ' '.join(words)) if words != [] else '')
 
-
+def abbrev_protect_normalize(text, abbrev_lst):
+    text_iter = (x.group(0) for x in re.finditer(r"[a-z\n_]+", text))
 
 
 def next_word_dict(phrases):
@@ -336,10 +277,21 @@ def tokenize_and_write(in_file, out_file, phrases_list):
     print("Writing {} to {}".format(in_fobj.name, out_fobj.name))
     while (line := in_fobj.readline()) != '':
         line = normalize_text(line)
-        #line = token_phrases3(line, phrases_list)
+        line = token_phrases3(line, phrases_list)
         out_fobj.write(line)
     in_fobj.close()
     out_fobj.close()
+
+def just_normalize_and_write(in_file, out_file, abbrev_lst):
+    in_fobj = open(in_file, 'r') 
+    out_fobj = open(out_file, 'a') 
+    print("Writing {} to {}".format(in_fobj.name, out_fobj.name))
+    while (line := in_fobj.readline()) != '':
+        line = normalize_text(line, abbrev_lst=abbrev_lst)
+        out_fobj.write(line)
+    in_fobj.close()
+    out_fobj.close()
+    
 
 phrase_blacklist = ['_inline_math_ and',
         '_inline_math_ _inline_math_',
@@ -378,6 +330,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
+    os.makedirs(args.out_dir, exist_ok=True)
     print('Started reading the phrases...')
     phrases_cnt = Counter()
     if args.phrases_file is not None:
@@ -386,25 +339,37 @@ if __name__ == "__main__":
             phrases_list_temp = [normalize_text(r.text)\
                     for r in root.findall('//dfndum') ]
             phrases_cnt.update([r for r in phrases_list_temp if len(r.split()) > 1])
+            
         print('Joining {} phrases found'.format(len(phrases_cnt)))
-    else:
-        print('No phrases selected :(')
+        phrases_list = [ph[0] for ph in phrases_cnt.most_common()]
+        for ph in phrase_blacklist:
+            try:
+                phrases_list.remove(ph)
+            except ValueError:
+                print(f"phrase {ph} not in the phrase list")
+        phrases_list = phrases_list[:args.num_phrases]
 
-    phrases_list = [ph[0] for ph in phrases_cnt.most_common()]
-    for ph in phrase_blacklist:
-        try:
-            phrases_list.remove(ph)
-        except ValueError:
-            print(f"phrase {ph} not in the phrase list")
-    phrases_list = phrases_list[:args.num_phrases]
-    os.makedirs(args.out_dir, exist_ok=True)
-
-    with mp.Pool(processes=5, maxtasksperchild=1) as pool:
         arg_lst = []
+        tokenize_fun = tokenize_and_write
         for infile in args.in_files:
             fname = os.path.basename(infile).split('.')[0] 
             out_file = os.path.join(args.out_dir, fname)
             arg_lst.append((infile, out_file, phrases_list)) 
-        pool.starmap(tokenize_and_write, arg_lst)
+    else:
+        print('No phrases selected, means we are doing NER then.')
+        abbrev_set = {'eq.', 'eqs.', 'i.e.', 'e.g.', 'f.g.', 'w.r.t.', 'cf.', 'dr.', 'resp.',
+                'etc.', 'no.', 'a.e.', 'ph.d.', 'i.i.d.', 'fig.', 'vol.', 'thm.'}
+        abbrev_lst = list(abbrev_set)
+        tokenize_fun = just_normalize_and_write
+        arg_lst = []
+        for infile in args.in_files:
+            fname = os.path.basename(infile).split('.')[0] 
+            out_file = os.path.join(args.out_dir, fname)
+            arg_lst.append((infile, out_file, abbrev_lst)) 
+
+    with mp.Pool(processes=5, maxtasksperchild=1) as pool:
+        pool.starmap(tokenize_fun, arg_lst)
+
+
 
 
