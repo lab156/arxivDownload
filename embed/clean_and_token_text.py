@@ -312,6 +312,9 @@ if __name__ == "__main__":
     Examples:
     time python3 clean_and_token_text.py /media/hd1/clean_text/math* joined_math --phrases_file /media/hd1/glossary/v3/math*/*.xml.gz  --num_phrases 2500
 
+    example of normalization for NER:
+    time python3 clean_and_token_text.py  /media/hd1/clean_text/math* normText4NER
+
     '''
 
     import argparse
