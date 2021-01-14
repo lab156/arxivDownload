@@ -6,6 +6,10 @@ except ModuleNotFoundError:
 
 #RUN WITH: python -m unittest tests.py 
 
+class dummy_tok:
+    def tokenize(self, s):
+        return [s]
+
 class TestBIOTagger(unittest.TestCase):
     def test_short_sentence(self):
         sent = [('hello', 'NN')]
@@ -79,6 +83,44 @@ class TestBIOTagger(unittest.TestCase):
              ('wiki', 'NN', 'I-DFNDUM')]
         p2 = iob.bio_tagger(title.split(), sent)
         self.assertEqual(p1, p2)
+
+    def test_common_plural_case(self):
+        sent = [('The', 'DT'), 
+                  ('set', 'NN'),
+                  ('of', 'IN'),
+                  ('hybrid', 'JJ'),
+                  ('numbers', 'NNS'),
+                  ('_inline_math_', 'VBP'),]
+        title = 'Hybrid number'
+        p1 = [('The', 'DT', 'O'),
+              ('set', 'NN', 'O'),
+              ('of', 'IN', 'O'),
+              ('hybrid', 'JJ', 'B-DFNDUM'),
+              ('numbers', 'NNS', 'I-DFNDUM'),
+              ('_inline_math_', 'VBP', 'O'),]
+        p2 = iob.bio_tagger(title.split(), sent)
+        self.assertEqual(p1, p2)
+
+    def test_put_pos_ner_tags(self):
+        in_data = ('Government hacking', '', "One such option is the so-called government hacking.")
+        out_data = [{'title': 'Government hacking',
+                      'section': '',
+                      'defin': 'One such option is the so-called government hacking.',
+                      'ner': [(('One', 'CD'), 'O'),
+                       (('such', 'JJ'), 'O'),
+                       (('option', 'NN'), 'O'),
+                       (('is', 'VBZ'), 'O'),
+                       (('the', 'DT'), 'O'),
+                       (('so-called', 'JJ'), 'O'),
+                       (('government', 'NN'), 'B-DFNDUM'),
+                       (('hacking', 'NN'), 'I-DFNDUM'),
+                       (('.', '.'), 'O')]}]
+        check = iob.put_pos_ner_tags([in_data], dummy_tok())
+        self.assertEqual(check, out_data)
+
+
+
+
 
 
 if __name__ == '__main__':

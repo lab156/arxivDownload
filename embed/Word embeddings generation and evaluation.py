@@ -41,8 +41,10 @@ from scipy.cluster.vq import kmeans
 from sklearn.manifold import TSNE
 from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import umap
 import scattertext as st
+import random
 
 from ripser import ripser
 from ripser import Rips
@@ -105,7 +107,8 @@ rep_ratio = []
 term_cnt = Counter()
 term_dict_cnt = defaultdict(Counter)
 perc_array = np.array([])
-for xml_path in tqdm(glob.glob('/media/hd1/glossary/v2/math*/*.xml.gz')):
+stopiterations_lst = []
+for xml_path in tqdm(glob.glob('/media/hd1/glossary/v3/math*/*.xml.gz')):
     gtree = etree.parse(xml_path).getroot()
     for art in gtree.iter(tag='article'):
         d_lst = [d.text.lower() for d in art.findall('.//dfndum')]
@@ -115,22 +118,102 @@ for xml_path in tqdm(glob.glob('/media/hd1/glossary/v2/math*/*.xml.gz')):
         tot_dfndum_lst.append(tot_dfndum_lst[-1] + len(d_lst))
         rep_ratio.append(tot_dfndum_lst[-1]/len(dfndum_set))
         try:
-            arxiv_class = qq(art.attrib['name'].split('/')[1])
+            art_name = art.attrib['name'].split('/')[1]
+            arxiv_class = qq(art_name)
             #print(f"Found arxiv class {arxiv_class}")
-            for D in d_lst:
-                term_dict_cnt[D].update([arxiv_class])
         except StopIteration:
-            pass
+            art_name = art_name.replace('.', '/')
+            try:
+                arxiv_class = qq(art_name)
+            except StopIteration:
+                stopiterations_lst.append(art.attrib['name'])
+        for D in d_lst:
+            term_dict_cnt[D].update([arxiv_class])
 
-[ normalize_text(t[0]) for t in term_cnt.most_common() if '_inline_math_ and' in t[0] ][:100]
+art_name = art.attrib['name'].split('/')[1]
+art_name.replace('.', '/')
+
+len(stopiterations_lst),stopiterations_lst[:10]
+
+qq('1604/07520')
 
 # The 15 most common words are
 term_cnt.most_common()[:15]
 
-s = 304
+
+# + jupyter={"outputs_hidden": true}
+def baseline_dist(database=database):
+    '''
+    creates a Counter objects where the arXiv subject categories 
+    map to the count of articles with that tag
+    '''
+    eng = sa.create_engine(database, echo=False)
+    subject_lst = []
+    with eng.connect() as con:
+        #con.execute('pragma case_sensitive_like=OFF;')
+        q_str = '''select tags from articles'''
+        for r in tqdm(con.execute(q_str)):
+            res_dict = eval(r[0])[0]
+            #print(type(res_dict))
+            subject_lst.append(res_dict['term'])
+            
+    #resu format: ("[{'term': 'math.RT', 'scheme': 'http://arxiv.org/schemas/atom', 'label': None}]",)
+    return Counter(subject_lst)
+
+bs_dist = baseline_dist()
+print(bs_dist.most_common())
+s = 1
 Term = term_cnt.most_common()[s][0]
 print(f'The term: {Term} appears in articles tagged:')
 term_dict_cnt[Term]
+# -
+
+term_dict_cnt['banach space']
+
+
+# +
+def KLdiv(P,Q):
+    if P == 0:
+        return 0
+    else:
+        return P*np.log(P/Q)
+
+def term_bias(term, term_dict=term_dict_cnt, bs_dist=bs_dist):
+    tot_art = float(sum(bs_dist.values())) #total number of articles
+    #bs_dict = {k: v/tot for k,v in bs_dist.items()}
+    this_term_dict = term_dict[term]
+    tot_term = float(sum(this_term_dict.values()))
+    resu_dict = {}
+    for k,v in bs_dist.items():
+        try:
+            #resu_dict[k] = this_term_dict[k]/tot_term * np.log(tot_art/bs_dist[k])
+            resu_dict[k] = KLdiv(this_term_dict[k]/tot_term, bs_dist[k]/tot_art)
+        except KeyError:
+            resu_dict[k] = 0.0
+        except ZeroDivisionError:
+            print('The term: {} gave problems'.format(term))
+    return resu_dict
+
+entropy = lambda t: sum(term_bias(t).values())
+
+#b_ = term_bias('finsler metric')
+#print(sorted(b_.items(), key=lambda x: -x[1])[:10])
+#sum(b_.values())
+
+def common_low_entropy_terms(N1, N2):
+    '''
+    N1  # number of the most common term in glossary
+    N2  # number with the least entropy
+    '''
+    term_entropy = []
+    for t,c in term_cnt.most_common()[:N1]:
+        tb = term_bias(t)
+        max_subject = max(tb.items(), key=lambda x: x[1])[0]
+        term_entropy.append((t, max_subject, sum(tb.values())))
+    return sorted(term_entropy, key=lambda x: x[2])[:N2]
+
+
+# -
 
 # Decode word2vec .bin file
 with open('/media/hd1/embeddings/model14-14_12-08/vectors.bin', 'rb') as mfobj:
@@ -162,8 +245,11 @@ with open('/media/hd1/embeddings/model14-14_12-08/vectors.bin', 'rb') as mfobj:
         cnt +=1
         embed[word] = vec
 
-with open_w2v('/media/hd1/embeddings/model14-14_12-08/vectors.bin') as embed:
+term_dict_cnt['green symbol']
+
+with open_w2v('/media/hd1/embeddings/model14-51_20-08/vectors.bin') as embed_temp:
     unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
+    embed = embed_temp
 
 common_term = term_cnt.most_common()[200][0].lower().replace(' ', '_')
 print(f" The term is: {common_term} and the first components of the vector are:")
@@ -241,7 +327,46 @@ plt.scatter(x[0][500:1000], y[0][500:1000], color='green', s=5)
 plt.scatter(x[0][1000:], y[0][1000:], color='red' )
 plt.show()
 
-# + jupyter={"outputs_hidden": true}
+# +
+tsne1 = TSNE()
+umap1 = umap.UMAP()
+plt.rcParams["image.cmap"] = 'brg'
+vec_lst = []
+labels_vec = []
+term_lst = []
+embed_coverage_cnt = 0
+#clSt = common_low_entropy_terms(100000, 50000)
+for t,s,e in clSt:
+    if (v := unit_embed.get(t.replace(' ', '_'))) is not None:
+        embed_coverage_cnt += 1
+        #if s in ['math.PR','math.AG'  ]:
+        #if s in ['math.SG','math.DG'  ]:
+        if s in ['math.FA','math.DG' , 'math.OC', 'math.NT' ]:
+        #if s in ['math.NA','math.OC'  ]:
+        #if s in ['math.PR','math.AG' , 'math.ST' ]:
+        #if s in ['math.PR','math.NA' , 'math.ST' ]:
+        #if s in ['math.AG','math.AT' , 'math.DG' ]:
+            vec_lst.append(v)
+            term_lst.append(t)
+            labels_vec.append(s)
+print('Embed coverage: {}%'.format(embed_coverage_cnt/len(clSt)))
+pick_text = set(np.random.randint(0,len(vec_lst), size=20))
+labels_set_list = list(set(labels_vec)) # to find the colormap
+cc = [labels_set_list.index(l) for l in labels_vec]
+tot_vec = np.stack(vec_lst, axis=0)
+tran_vec = tsne1.fit_transform(tot_vec, labels_vec)
+#tran_vec = umap1.fit_transform(tot_vec, labels_vec)
+x,y =  list(zip(tran_vec.transpose()))
+plt.figure(figsize=[12,12])
+scatter = plt.scatter(x[0],y[0], c = cc, s=12)
+leg1 = plt.legend(scatter.legend_elements()[0], labels_set_list)
+for i in pick_text:
+    plt.text(x[0][i], y[0][i], term_lst[i])
+    
+plt.show()
+
+# -
+
 html = st.produce_projection_explorer(None,
                                       word2vec_model=veryDict,
                                       projection_model=umap1,

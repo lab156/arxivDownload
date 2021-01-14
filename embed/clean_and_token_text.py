@@ -79,6 +79,7 @@ def normalize_text(text, *vargs, **kwargs):
     repl_list = [("’","") ,
             ("′","") ,
            ("''", ""),
+           ("``", ""),
             ("'","") ,
             ("“",'') ,
             ('"','') ,
@@ -306,6 +307,9 @@ phrase_blacklist = ['_inline_math_ and',
         '_inline_math_ a',
         'family of',]
 
+abbrev_set = {'eq.', 'eqs.', 'i.e.', 'e.g.', 'f.g.', 'w.r.t.', 'cf.', 'dr.', 'resp.',
+        'etc.', 'no.', 'a.e.', 'ph.d.', 'i.i.d.', 'fig.', 'vol.', 'thm.'}
+abbrev_lst = list(abbrev_set)
 
 if __name__ == "__main__":
     '''
@@ -360,9 +364,6 @@ if __name__ == "__main__":
             arg_lst.append((infile, out_file, phrases_list)) 
     else:
         print('No phrases selected, means we are doing NER then.')
-        abbrev_set = {'eq.', 'eqs.', 'i.e.', 'e.g.', 'f.g.', 'w.r.t.', 'cf.', 'dr.', 'resp.',
-                'etc.', 'no.', 'a.e.', 'ph.d.', 'i.i.d.', 'fig.', 'vol.', 'thm.'}
-        abbrev_lst = list(abbrev_set)
         tokenize_fun = just_normalize_and_write
         arg_lst = []
         for infile in args.in_files:
