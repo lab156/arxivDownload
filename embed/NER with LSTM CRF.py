@@ -401,28 +401,25 @@ for i, w in enumerate(sample_pad[0]):
         break
 
 
-sample_str = '_display_math_ The Ursell functions of a single random variable X are obtained from these by setting _inline_math_..._inline_math_ .'
-ner.bio_tag.put_pos_ner_tags([('Ursell functions', '', sample_str)], sent_tok)
+preds = model_bilstm_lstm.predict(test_seq)
 
-sample_str = ner.bio_tag.put_pos_ner_tags([sample_str], sent_tok)
-sample_tok, _ = prep_data(sample_str.split(), wind, cfg)
+# Compute the Loss independently
+bce = tf.keras.losses.BinaryCrossentropy()
+bce(test_lab, np.squeeze(preds)).numpy()
 
+tf.keras.losses.A
+
+
+# +
+#1/5404.0*(np.sum(test_lab*np.log(np.squeeze(preds))) + np.sum((1-test_lab)*np.log(np.squeeze(1-preds))))
+# -
 
 # # get_bilstm_lstm_model Training history
 # ## First working attempt:
 # Epochs: 70 [01:00<00:00, 3.00s/epoch, loss=0.0513, accuracy=0.98, val_loss=0.0636, val_accuracy=0.975]
 #
-
-def decoder(T, L):
-    pred = model_bilstm_lstm.predict(T)
-    P = np.argmax(pred.squeeze(), axis=1)
-    for ind, t in enumerate(T):
-        if True: #t != 0:
-            print("{0:>22}: {1:} {2:}".format(rev_word_index[t], L[ind], P[ind]))
-#decoder(sample_pad[0], np.argmax(pred.squeeze(), axis=1))
-N = -52
-decoder(train_seq2[N], train_lab2[N])
-
+# commit e4c41f0
+#
 
 # +
 def plot_graphs(history, string, start_at=0):

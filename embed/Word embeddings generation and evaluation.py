@@ -367,6 +367,8 @@ plt.show()
 
 # -
 
+
+
 html = st.produce_projection_explorer(None,
                                       word2vec_model=veryDict,
                                       projection_model=umap1,
