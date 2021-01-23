@@ -7,6 +7,7 @@ import glob
 from tqdm import tqdm
 import multiprocessing as mp
 import os
+#from concurrent.futures import ProcessPoolExecutor
 
 
 def normalize_text(text, *vargs, **kwargs):
@@ -371,7 +372,7 @@ if __name__ == "__main__":
             out_file = os.path.join(args.out_dir, fname)
             arg_lst.append((infile, out_file, abbrev_lst)) 
 
-    with mp.Pool(processes=5, maxtasksperchild=1) as pool:
+    with mp.Pool(processes=30, maxtasksperchild=1) as pool:
         pool.starmap(tokenize_fun, arg_lst)
 
 
