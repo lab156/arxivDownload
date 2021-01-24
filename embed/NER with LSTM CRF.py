@@ -17,8 +17,8 @@
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
-                      GRU, Dropout, GlobalAveragePooling1D, Conv1D, TimeDistributed,\
-                      Input, Concatenate
+                      GRU, Dropout,GlobalAveragePooling1D, Conv1D, TimeDistributed,\
+                      Input, Concatenate, GlobalMaxPooling1D
 from tensorflow.keras import Sequential, Model, Input
 from tensorflow.keras.utils import plot_model, to_categorical
 from tensorflow.keras.optimizers import Adam
@@ -274,9 +274,10 @@ pred = [model.predict(text_batch[i])[1] for i in range(len(text_batch))]
 cfg.update({'input_dim': len(wind),
       'output_dim': 200,
      'input_length': cfg['padseq']['maxlen'],
-            'pos_dim': 5,
+     'pos_dim': 5,
      'n_tags': 2,
      'batch_size': 1000,
+     'lstm_units': 150,
       'adam': {'lr': 0.05, 'beta_1': 0.9, 'beta_2': 0.999}})
 
 
@@ -300,13 +301,14 @@ def bilstm_lstm_model_w_pos(cfg_dict):
     full_embed = Concatenate(axis=2)([word_embed, pos_embed])
     
     
-    out = Bidirectional(LSTM(units=cfg_dict['output_dim']+cfg_dict['pos_dim'],
+    out = Bidirectional(LSTM(units=cfg['lstm_units'],
                                  return_sequences=True,
                                  dropout=0.2, 
-                                 recurrent_dropout=0.2), merge_mode = 'concat')(full_embed)
-    
+                                 recurrent_dropout=0.2),
+                        merge_mode = 'concat')(full_embed)
+    #out = GlobalMaxPooling1D(out) 
     # Add LSTM
-    out = Bidirectional(LSTM(units=cfg_dict['output_dim']+cfg_dict['pos_dim'],
+    out = Bidirectional(LSTM(units=cfg['lstm_units'],
                    return_sequences=True, dropout=0.2, recurrent_dropout=0.2,
                    recurrent_initializer='glorot_uniform'),
                         merge_mode = 'concat')(out)
@@ -323,12 +325,12 @@ def bilstm_lstm_model_w_pos(cfg_dict):
     return model
 with_pos = bilstm_lstm_model_w_pos(cfg)
 
-res = with_pos.fit([train_seq, train_pos_seq], train_lab, verbose=1, epochs=30,
+res = with_pos.fit([train_seq, train_pos_seq], train_lab, verbose=1, epochs=70,
                 batch_size=cfg['batch_size'],
                 validation_data=([test_seq, test_pos_seq], test_lab))
 
 
-# +
+# + jupyter={"outputs_hidden": true}
 # DEFINE MODEL WITH biLSTM AND TRAIN FUNCTION    
 def get_bilstm_lstm_model(cfg_dict):
     model = Sequential()
@@ -372,9 +374,10 @@ def train_model(X, y, model, epochs=10):
     return res
 model_bilstm_lstm = get_bilstm_lstm_model(cfg)
 #plot_model(model_bilstm_lstm)
-# -
 
+# + jupyter={"source_hidden": true, "outputs_hidden": true}
 history = train_model(train_seq, train_lab, model_bilstm_lstm, epochs=20)
+# -
 
 #r = history
 r = res
@@ -388,6 +391,7 @@ ax2.plot(r.history['accuracy'], label='acc')
 ax2.plot(r.history['val_accuracy'], label='val_acc')
 ax2.legend()
 
+# + jupyter={"outputs_hidden": true}
 #sample_str = 'a banach space is defined as complete vector space of some kind .'
 #sample_str = 'We define a shushu space as a complete vector space of some kind .'
 sample_str = '_display_math_ The Ursell functions of a single random variable X are obtained from these by setting _inline_math_..._inline_math_ .'
@@ -401,12 +405,13 @@ for i, w in enumerate(sample_pad[0]):
     print(wind[w], np.round(pred)[0][i])
     if wind[w] == '.':
         break
+# -
 
 
 #preds = model_bilstm_lstm.predict(test_seq)
 preds = with_pos.predict([test_seq, test_pos_seq])
 
-k = 175
+k = 198
 for i in range(len(preds[k])):
     try:
         print('{:<20} {} {:1.2f}'.format(test_def_lst[k]['ner'][i][0][0], 
@@ -457,7 +462,8 @@ def switch_to_pred(test_def_lst, preds, cutoff = 0.5):
         out_lst.append(switched_def_lst)
     return out_lst
  
-test_pred_lst = switch_to_pred(test_def_lst, preds, cutoff=0.3)
+CutOFF = 0.4
+test_pred_lst = switch_to_pred(test_def_lst, preds, cutoff=CutOFF)
 unpack = lambda l: [(tok, pos, ner) for ((tok, pos), ner) in l]
 Tree_lst_gold = [conlltags2tree(unpack(t['ner'])) for t in test_def_lst]
 Tree_lst_pred = [conlltags2tree(unpack(t)) for t in test_pred_lst]
@@ -466,6 +472,7 @@ chunkscore = ChunkScore()
 for i in range(len(Tree_lst_gold)):
     chunkscore.score(Tree_lst_gold[i], Tree_lst_pred[i])
 print(chunkscore)
+print(f"Cutoff:  {CutOFF}")
 # -
 
 # Compute the Loss independently
@@ -496,12 +503,24 @@ test_def_lst[0]
 #         Precision:     53.2%%
 #         Recall:        47.6%%
 #         F-Measure:     50.3%%
-# * POS now with both LSTMs Bidirectional: loss: 0.0446 - accuracy: 0.9824 - val_loss: 0.0601 - val_accuracy: 0.9770
+# ### Added both LSTMs Bidirectional:
+# In the previous models the second LSTM layer was not Bidirectional. This makes no sense
+# loss: 0.0446 - accuracy: 0.9824 - val_loss: 0.0601 - val_accuracy: 0.9770 commit: c53ab68
+#
 #     ChunkParse score:
 #         IOB Accuracy:  85.1%%
 #         Precision:     48.7%%
 #         Recall:        62.8%%
 #         F-Measure:     54.9%%
+#         
+# With just 150 lstm units
+#
+#     ChunkParse score:
+#         IOB Accuracy:  87.7%%
+#         Precision:     61.4%%
+#         Recall:        62.3%%
+#         F-Measure:     61.8%%
+#     Cutoff:  0.4
 
 cfg
 
