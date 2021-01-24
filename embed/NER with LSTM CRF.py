@@ -17,7 +17,8 @@
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
-                      GRU, Dropout, GlobalAveragePooling1D, Conv1D, TimeDistributed
+                      GRU, Dropout, GlobalAveragePooling1D, Conv1D, TimeDistributed,\
+                      Input, Concatenate
 from tensorflow.keras import Sequential, Model, Input
 from tensorflow.keras.utils import plot_model, to_categorical
 from tensorflow.keras.optimizers import Adam
@@ -43,6 +44,7 @@ import gzip
 from lxml import etree
 from tqdm import tqdm
 import random
+from collections import Counter
 
 # %load_ext autoreload
 # %autoreload 2
@@ -82,19 +84,16 @@ print(sent_tok._params.abbrev_types)
 
 def_lst = ner.bio_tag.put_pos_ner_tags(wiki, sent_tok)
 
-# +
-#cf = {'input_dim': len(word_tok.word_index)+1,
-#      'output_dim': 25,
-#     'input_length': max([len(l) for l in fields['tokens']])//12,
-#     'n_tags': 4,
-#     'batch_size': 1000}    
+# Finding the POS set 
+pos_cnt = Counter()
+for Def in def_lst:
+    pos_cnt.update([el[0][1] for el in Def['ner']])
+print("Found {} alphanum POS tags in the data, the most common are: {}"\
+      .format(len(pos_cnt), pos_cnt.most_common()[:10]))
+pos_lst = list(pos_cnt)
+pos_ind_dict = {pos: k for k, pos in enumerate(pos_lst)}
+# -
 
-
-# Define the categorical labels
-#train_lab2_cat = np.array([to_categorical(c, num_classes=cf['n_tags']) for c in train_lab2])
-#embed_matrix = np.zeros((cf['input_dim'], 200))
-#coverage_cnt = 0
-#coverage_lst = []
 with open_w2v('/media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin') as embed_dict:
     wind = ['<UNK>',] + list(embed_dict.keys())
     cfg['emb_nvocab'] = len(wind) 
@@ -105,7 +104,6 @@ with open_w2v('/media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin') as embe
             #vect = vect/np.linalg.norm(vect)
         embed_matrix[ind] = vec
 #print("Coverage of embed is: {}".format(coverage_cnt/len(embed_dict)))
-# -
 
 sent_lengths = []
 for d in def_lst:
@@ -144,26 +142,41 @@ def prep_data(dat, wind, cfg, *args):
             ind_words.append(wind.index(w))
         except ValueError:
             ind_words.append(0)
-    #ind_words = pad_sequences([ind_words], **cfg['padseq'])
-    #labels  = pad_sequences([labels], **cfg['padseq'])
-    #labels  = to_categorical(labels, num_classes=cfg['n_tags'])
     return ind_words, labels
+
+def prep_pos(dat, pos_ind_dict):
+    '''
+    dat is in the format:
+    [(('In', 'IN'), 'O'),
+     (('Southern', 'NNP'), 'O'),
+     (('Africa', 'NNP'), 'O'),
+     ((',', ','), 'O'),
+     (('the', 'DT'), 'O'),
+     (('word', 'NN'), 'O')]
+    '''
+    out_lst = []
+    for d in dat:
+        out_lst.append(pos_ind_dict[d[0][1]])
+    return out_lst
 
 train_data = [prep_data(d['ner'], wind, cfg) for d in train_def_lst]
 train_seq, train_lab = zip(*train_data)
+train_pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in train_def_lst]
 train_seq = pad_sequences(train_seq, **cfg['padseq'])
+train_pos_seq = pad_sequences(train_pos_seq, **cfg['padseq'])
 train_lab = pad_sequences(train_lab, **cfg['padseq'])
 #train_lab = np.array([to_categorical(s, num_classes=cfg['n_tags']) for s in train_lab])
 
 test_data = [prep_data(d['ner'], wind, cfg) for d in test_def_lst]
 test_seq, test_lab = zip(*test_data)
+test_pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in test_def_lst]
 test_seq = pad_sequences(test_seq, **cfg['padseq'])
+test_pos_seq = pad_sequences(test_pos_seq, **cfg['padseq'])
 test_lab = pad_sequences(test_lab, **cfg['padseq'])
 #test_lab = np.array([to_categorical(s, num_classes=cfg['n_tags']) for s in test_lab])
 # -
 
 # ### TODO
-# * protect _inline_math_ from keras tokenizer, right now it is breaking it up
 # * Search for a minimal stemmer that strips plural or adverbial suffices for example zero-sum games in zero-sum game or absolute continuity and absolute continuous
 
 # + jupyter={"source_hidden": true}
@@ -261,9 +274,58 @@ pred = [model.predict(text_batch[i])[1] for i in range(len(text_batch))]
 cfg.update({'input_dim': len(wind),
       'output_dim': 200,
      'input_length': cfg['padseq']['maxlen'],
+            'pos_dim': 5,
      'n_tags': 2,
      'batch_size': 1000,
       'adam': {'lr': 0.05, 'beta_1': 0.9, 'beta_2': 0.999}})
+
+
+def bilstm_lstm_model_w_pos(cfg_dict):
+    
+    words_in = Input(shape=(cfg_dict['input_length'], ))
+    pos_in = Input(shape=(cfg_dict['input_length'], ))
+    #capitalized = Input(shape=(1,), name='capitalized')
+    
+    word_embed = Embedding(cfg_dict['input_dim'], 
+                        output_dim=cfg_dict['output_dim'],
+                        input_length=cfg_dict['input_length'],
+                       weights = [embed_matrix],
+                       trainable = False,
+                          name='word-embed')(words_in)
+    pos_embed = Embedding(len(pos_cnt), 
+                        output_dim=cfg_dict['pos_dim'],
+                        input_length=cfg_dict['input_length'],
+                       trainable = True,
+                         name='pos-embed')(pos_in)
+    full_embed = Concatenate(axis=2)([word_embed, pos_embed])
+    
+    
+    out = Bidirectional(LSTM(units=cfg_dict['output_dim']+cfg_dict['pos_dim'],
+                                 return_sequences=True,
+                                 dropout=0.2, 
+                                 recurrent_dropout=0.2), merge_mode = 'concat')(full_embed)
+    
+    # Add LSTM
+    out = Bidirectional(LSTM(units=cfg_dict['output_dim']+cfg_dict['pos_dim'],
+                   return_sequences=True, dropout=0.2, recurrent_dropout=0.2,
+                   recurrent_initializer='glorot_uniform'),
+                        merge_mode = 'concat')(out)
+    # Add timeDistributed Layer
+    out = TimeDistributed(Dense(1, activation="sigmoid"))(out)
+    #Optimiser 
+    adam = Adam(**cfg['adam'])
+    # Compile model
+    #bce = tf.keras.losses.BinaryCrossentropy(sample_weight=[0.3, 0.7])
+    model = Model([words_in, pos_in], out)
+    model.compile(loss = 'binary_crossentropy',
+                  optimizer=adam, metrics=['accuracy'])
+    model.summary()
+    return model
+with_pos = bilstm_lstm_model_w_pos(cfg)
+
+res = with_pos.fit([train_seq, train_pos_seq], train_lab, verbose=1, epochs=30,
+                batch_size=cfg['batch_size'],
+                validation_data=([test_seq, test_pos_seq], test_lab))
 
 
 # +
@@ -297,8 +359,8 @@ def get_bilstm_lstm_model(cfg_dict):
     model.compile(loss = 'binary_crossentropy',
                   optimizer=adam, metrics=['accuracy'])
     model.summary()
-    
     return model
+
 
 def train_model(X, y, model, epochs=10):
     # fit model for one epoch on this sequence
@@ -314,7 +376,8 @@ model_bilstm_lstm = get_bilstm_lstm_model(cfg)
 
 history = train_model(train_seq, train_lab, model_bilstm_lstm, epochs=20)
 
-r = history
+#r = history
+r = res
 fig = plt.figure(figsize=(12, 6))
 ax1 = plt.subplot(121)
 ax1.plot(r.history['loss'], label='loss')
@@ -340,7 +403,17 @@ for i, w in enumerate(sample_pad[0]):
         break
 
 
-preds = model_bilstm_lstm.predict(test_seq)
+#preds = model_bilstm_lstm.predict(test_seq)
+preds = with_pos.predict([test_seq, test_pos_seq])
+
+k = 175
+for i in range(len(preds[k])):
+    try:
+        print('{:<20} {} {:1.2f}'.format(test_def_lst[k]['ner'][i][0][0], 
+                                         test_def_lst[k]['ner'][i][1],
+                                         round(preds[k][i][0],2)))
+    except IndexError:
+        break
 
 
 # +
@@ -384,7 +457,7 @@ def switch_to_pred(test_def_lst, preds, cutoff = 0.5):
         out_lst.append(switched_def_lst)
     return out_lst
  
-test_pred_lst = switch_to_pred(test_def_lst, preds)
+test_pred_lst = switch_to_pred(test_def_lst, preds, cutoff=0.3)
 unpack = lambda l: [(tok, pos, ner) for ((tok, pos), ner) in l]
 Tree_lst_gold = [conlltags2tree(unpack(t['ner'])) for t in test_def_lst]
 Tree_lst_pred = [conlltags2tree(unpack(t)) for t in test_pred_lst]
@@ -401,17 +474,37 @@ bce(test_lab, np.squeeze(preds)).numpy()
 
 test_def_lst[0]
 
-
 # +
 #1/5404.0*(np.sum(test_lab*np.log(np.squeeze(preds))) + np.sum((1-test_lab)*np.log(np.squeeze(1-preds))))
 # -
 
 # # get_bilstm_lstm_model Training history
-# ## First working attempt:
+# ## First working attempt:  commit e4c41f0
+#
 # Epochs: 70 [01:00<00:00, 3.00s/epoch, loss=0.0513, accuracy=0.98, val_loss=0.0636, val_accuracy=0.975]
 #
-# commit e4c41f0
-#
+# * Same attempt but first ChunkScore Epochs: approx 80,  commit: 8a3678c
+#         ChunkParse score:
+#             IOB Accuracy:  86.3%%
+#             Precision:     56.4%%
+#             Recall:        53.8%%
+#             F-Measure:     55.1%%
+#             
+# ## Working attempt with POS: Epochs: 70
+#     ChunkParse score:
+#         IOB Accuracy:  85.4%%
+#         Precision:     53.2%%
+#         Recall:        47.6%%
+#         F-Measure:     50.3%%
+# * POS now with both LSTMs Bidirectional: loss: 0.0446 - accuracy: 0.9824 - val_loss: 0.0601 - val_accuracy: 0.9770
+#     ChunkParse score:
+#         IOB Accuracy:  85.1%%
+#         Precision:     48.7%%
+#         Recall:        62.8%%
+#         F-Measure:     54.9%%
+
+cfg
+
 
 # +
 def plot_graphs(history, string, start_at=0):
