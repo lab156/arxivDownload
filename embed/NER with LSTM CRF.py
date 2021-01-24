@@ -29,12 +29,15 @@ import re
 from nltk import sent_tokenize, word_tokenize, pos_tag, ne_chunk
 import nltk.data
 from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktTrainer
+from nltk.chunk.util import ChunkScore
 import pickle
 import math
 #import collections.Iterable as Iterable
 
 import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
+
+from nltk.chunk import conlltags2tree, tree2conlltags
 
 import gzip
 from lxml import etree
@@ -163,70 +166,6 @@ test_lab = pad_sequences(test_lab, **cfg['padseq'])
 # * protect _inline_math_ from keras tokenizer, right now it is breaking it up
 # * Search for a minimal stemmer that strips plural or adverbial suffices for example zero-sum games in zero-sum game or absolute continuity and absolute continuous
 
-# + jupyter={"source_hidden": true} magic_args="echo this is a goner" language="script"
-# cfg = {'oov_token': '<UNK>', }
-#
-# tok_set = set()
-# for d in def_lst:
-#     
-#
-# word_tok = Tokenizer(oov_token='<UNK>')
-# clean_str = lambda s: unwiki.loads(eval(s)).replace('\n', ' ')
-# fields = {'texts': [], 'titles': [], }
-# for w in wiki:
-#     title, section, defin_parag = w.split('-#-%-')
-#     defin_parag = clean_str(defin_parag)
-#     for defin in sent_tok.tokenize(defin_parag):
-#         fields['titles'].append(title.lower().strip())
-#         fields['texts'].append(defin)
-# word_tok.fit_on_texts(fields['titles'] + fields['texts'])
-#
-# rev_word_index = (1 + len(word_tok.word_index))*['***']
-# for word,ind in word_tok.word_index.items():
-#     rev_word_index[ind] = word
-
-# + jupyter={"source_hidden": true, "outputs_hidden": true}
-fields['texts'][1683]
-
-
-# + jupyter={"source_hidden": true, "outputs_hidden": true} magic_args="echo this is a goner" language="script"
-# fields['labels'] = []
-# fields['tokens'] = word_tok.texts_to_sequences(fields['texts'])
-# empty_sentence_lst = []
-# for N in range(len(fields['texts'])):
-#     title_lst = word_tok.texts_to_sequences([fields['titles'][N].strip()])[0]
-#     tags = ner.bio_tag.bio_tkn_tagger(title_lst, fields['tokens'][N] )
-#     try:
-#         fields['labels'].append(list(zip(*tags))[1])
-#     except IndexError:
-#         fields['labels'].append(['0'])
-#         empty_sentence_lst.append(N)
-# print(f'Found {len(empty_sentence_lst)} empty sentences')
-
-# + jupyter={"source_hidden": true, "outputs_hidden": true} magic_args="echo this is a goner" language="script"
-# K = 31765
-# Tex = fields['texts'][K]
-# Tok = fields['tokens'][K]
-# Lab = fields['labels'][K]
-# Tit = fields['titles'][K]
-# print(f'the title of the article is: {Tit}')
-# for ind, t in enumerate(Tok):
-#     print('{0:>5} {1:>12} {2:>5}'.format(t, rev_word_index[t], Lab[ind]))
-
-# + jupyter={"source_hidden": true, "outputs_hidden": true} magic_args="echo This is a goner" language="script"
-# cfg['maxlen'] = 50 #max([len(l) for l in fields['tokens']])//12
-# cfg['padding'] = 'post'
-# train_seq = pad_sequences(fields['tokens'], maxlen=cfg['maxlen'], padding=cfg['padding'])
-# train_lab = pad_sequences(fields['labels'], maxlen=cfg['maxlen'], padding=cfg['padding'])
-# train_seq2 = []
-# train_lab2 = []
-# for ind, t in enumerate(train_lab):
-#     if 2 in t:
-#         train_seq2.append(train_seq[ind])
-#         train_lab2.append(train_lab[ind])
-# train_seq2 = np.array(train_seq2)
-# train_lab2 = np.array(train_lab2)
-
 # + jupyter={"source_hidden": true}
 class NerModel(tf.keras.Model):
     def __init__(self, hidden_num, vocab_size, label_size, embedding_size):
@@ -261,7 +200,7 @@ class NerModel(tf.keras.Model):
 #model.summary()
 
 
-# + jupyter={"source_hidden": true, "outputs_hidden": true}
+# + jupyter={"outputs_hidden": true, "source_hidden": true}
 # Train NER model
 cfg['learning_rate'] = 0.1
 model = NerModel(64, len(word_tok.word_index)+1, 4, 100)
@@ -309,10 +248,10 @@ for epoch in range(epochs):
                 #ckpt_manager.save()
                 print("model saved")
 
-# + jupyter={"source_hidden": true, "outputs_hidden": true}
+# + jupyter={"outputs_hidden": true, "source_hidden": true}
 model.summary()
 
-# + jupyter={"source_hidden": true, "outputs_hidden": true}
+# + jupyter={"outputs_hidden": true, "source_hidden": true}
 sample_str = 'A banach space is defined as named entity recognition'
 sample_tok = word_tok.texts_to_sequences([sample_str])
 sample_pad = pad_sequences(sample_tok, maxlen=cfg['maxlen'], padding=cfg['padding'])
@@ -387,8 +326,8 @@ ax2.plot(r.history['val_accuracy'], label='val_acc')
 ax2.legend()
 
 #sample_str = 'a banach space is defined as complete vector space of some kind .'
-sample_str = 'We define a shushu space as a complete vector space of some kind .'
-#sample_str = '_display_math_ The Ursell functions of a single random variable X are obtained from these by setting _inline_math_..._inline_math_ .'
+#sample_str = 'We define a shushu space as a complete vector space of some kind .'
+sample_str = '_display_math_ The Ursell functions of a single random variable X are obtained from these by setting _inline_math_..._inline_math_ .'
 sample_pad, _ = prep_data(sample_str, wind, cfg, 'no_tags')
 sample_pad = pad_sequences([sample_pad], **cfg['padseq'])
 pred = model_bilstm_lstm.predict(sample_pad)
@@ -403,11 +342,64 @@ for i, w in enumerate(sample_pad[0]):
 
 preds = model_bilstm_lstm.predict(test_seq)
 
+
+# +
+def tf_bio_tagger(tf_pred, tag_def='DFNDUM', tag_o = 'O'):
+    '''
+    Convert a T/F (binary) Sequence into a BIO tag sequence
+    [True, False, False] -> [B-DFNDUM, O, O]
+    '''
+    begin_tag = 'B-' + tag_def
+    inside_tag = 'I-' + tag_def
+    out_tag = tag_o
+    return_tags = []
+    for ind, x in enumerate(tf_pred):
+        if x:
+            if ind > 0:
+                ret = inside_tag if tf_pred[ind - 1] else begin_tag
+                return_tags.append(ret)
+            else:
+                return_tags.append(begin_tag)
+        else:
+            return_tags.append(out_tag)
+    return return_tags
+        
+def switch_to_pred(test_def_lst, preds, cutoff = 0.5):
+    #if len(preds.shape) == 2:
+        #case just one prediction (50, 1) 
+    #    preds = [preds]
+    out_lst = []
+    for k, pred in enumerate(preds):
+        tf_pred = (pred > cutoff)
+        test_def = test_def_lst[k]['ner']
+        bio_pred = tf_bio_tagger(tf_pred)
+        switched_def_lst = []
+        for i in range(len(bio_pred)):    #rate(bio_pred):
+            try:
+                # test_def[i] example: (('Fock', 'NNP'), 'B-DFNDUM')
+                tok_pos = test_def[i][0]
+                switched_def_lst.append((tok_pos, bio_pred[i]))
+            except IndexError:
+                break
+        out_lst.append(switched_def_lst)
+    return out_lst
+ 
+test_pred_lst = switch_to_pred(test_def_lst, preds)
+unpack = lambda l: [(tok, pos, ner) for ((tok, pos), ner) in l]
+Tree_lst_gold = [conlltags2tree(unpack(t['ner'])) for t in test_def_lst]
+Tree_lst_pred = [conlltags2tree(unpack(t)) for t in test_pred_lst]
+
+chunkscore = ChunkScore()
+for i in range(len(Tree_lst_gold)):
+    chunkscore.score(Tree_lst_gold[i], Tree_lst_pred[i])
+print(chunkscore)
+# -
+
 # Compute the Loss independently
 bce = tf.keras.losses.BinaryCrossentropy()
 bce(test_lab, np.squeeze(preds)).numpy()
 
-tf.keras.losses.A
+test_def_lst[0]
 
 
 # +
@@ -432,8 +424,3 @@ def plot_graphs(history, string, start_at=0):
     
 plot_graphs(history, "accuracy", start_at=400)
 plot_graphs(history, "loss", start_at=400)
-# -
-
-wiki[850]
-
-
