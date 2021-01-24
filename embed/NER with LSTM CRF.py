@@ -313,13 +313,14 @@ def bilstm_lstm_model_w_pos(cfg_dict):
                    recurrent_initializer='glorot_uniform'),
                         merge_mode = 'concat')(out)
     # Add timeDistributed Layer
+    out = TimeDistributed(Dense(10, activation="relu"))(out)
     out = TimeDistributed(Dense(1, activation="sigmoid"))(out)
     #Optimiser 
     adam = Adam(**cfg['adam'])
     # Compile model
-    #bce = tf.keras.losses.BinaryCrossentropy(sample_weight=[0.3, 0.7])
+    bce = tf.keras.losses.BinaryCrossentropy()  #(sample_weight=[0.3, 0.7])
     model = Model([words_in, pos_in], out)
-    model.compile(loss = 'binary_crossentropy',
+    model.compile(loss = bce,   #'binary_crossentropy',
                   optimizer=adam, metrics=['accuracy'])
     model.summary()
     return model
@@ -330,7 +331,7 @@ res = with_pos.fit([train_seq, train_pos_seq], train_lab, verbose=1, epochs=70,
                 validation_data=([test_seq, test_pos_seq], test_lab))
 
 
-# + jupyter={"outputs_hidden": true}
+# + jupyter={"outputs_hidden": true, "source_hidden": true}
 # DEFINE MODEL WITH biLSTM AND TRAIN FUNCTION    
 def get_bilstm_lstm_model(cfg_dict):
     model = Sequential()
@@ -391,7 +392,7 @@ ax2.plot(r.history['accuracy'], label='acc')
 ax2.plot(r.history['val_accuracy'], label='val_acc')
 ax2.legend()
 
-# + jupyter={"outputs_hidden": true}
+# + jupyter={"outputs_hidden": true, "source_hidden": true}
 #sample_str = 'a banach space is defined as complete vector space of some kind .'
 #sample_str = 'We define a shushu space as a complete vector space of some kind .'
 sample_str = '_display_math_ The Ursell functions of a single random variable X are obtained from these by setting _inline_math_..._inline_math_ .'
@@ -411,7 +412,7 @@ for i, w in enumerate(sample_pad[0]):
 #preds = model_bilstm_lstm.predict(test_seq)
 preds = with_pos.predict([test_seq, test_pos_seq])
 
-k = 198
+k = 283
 for i in range(len(preds[k])):
     try:
         print('{:<20} {} {:1.2f}'.format(test_def_lst[k]['ner'][i][0][0], 
@@ -461,25 +462,42 @@ def switch_to_pred(test_def_lst, preds, cutoff = 0.5):
                 break
         out_lst.append(switched_def_lst)
     return out_lst
- 
-CutOFF = 0.4
-test_pred_lst = switch_to_pred(test_def_lst, preds, cutoff=CutOFF)
-unpack = lambda l: [(tok, pos, ner) for ((tok, pos), ner) in l]
-Tree_lst_gold = [conlltags2tree(unpack(t['ner'])) for t in test_def_lst]
-Tree_lst_pred = [conlltags2tree(unpack(t)) for t in test_pred_lst]
 
-chunkscore = ChunkScore()
-for i in range(len(Tree_lst_gold)):
-    chunkscore.score(Tree_lst_gold[i], Tree_lst_pred[i])
-print(chunkscore)
-print(f"Cutoff:  {CutOFF}")
+def get_chunkscore(CutOFF):
+    test_pred_lst = switch_to_pred(test_def_lst, preds, cutoff=CutOFF)
+    unpack = lambda l: [(tok, pos, ner) for ((tok, pos), ner) in l]
+    Tree_lst_gold = [conlltags2tree(unpack(t['ner'])) for t in test_def_lst]
+    Tree_lst_pred = [conlltags2tree(unpack(t)) for t in test_pred_lst]
+
+    chunkscore = ChunkScore()
+    for i in range(len(Tree_lst_gold)):
+        chunkscore.score(Tree_lst_gold[i], Tree_lst_pred[i])
+    return chunkscore
+ 
+#CutOFF = 0.4
+#print(get_chunkscore(CutOFF))
+#print(f"Cutoff:  {CutOFF}")
+
+data_points = []
+BOY_f_score = (0, 0) # (CutOff, score)
+for co in np.arange(0.1, 1, 0.1):
+    cs = get_chunkscore(co)
+    data_points.append((cs.accuracy(), cs.f_measure()))
+    if cs.f_measure() > BOY_f_score[1]:
+        BOY_f_score = (co, cs.f_measure())
+
+plt.plot(list(zip(*data_points))[0], label='acc')
+plt.plot(list(zip(*data_points))[1], label='F1')
+plt.legend()
+plt.show()
+
+print(get_chunkscore(BOY_f_score[0]))
+print(f"Cutoff:  {BOY_f_score[0]}")
 # -
 
 # Compute the Loss independently
-bce = tf.keras.losses.BinaryCrossentropy()
-bce(test_lab, np.squeeze(preds)).numpy()
-
-test_def_lst[0]
+bce = tf.keras.losses.BinaryCrossentropy(label_smoothing=0)
+bce([1.0,0.0,1.0], [1.0,0.0,1.0]).numpy()
 
 # +
 #1/5404.0*(np.sum(test_lab*np.log(np.squeeze(preds))) + np.sum((1-test_lab)*np.log(np.squeeze(1-preds))))
@@ -513,7 +531,7 @@ test_def_lst[0]
 #         Recall:        62.8%%
 #         F-Measure:     54.9%%
 #         
-# With just 150 lstm units
+# With just 150 lstm units. Commit: 53dd596
 #
 #     ChunkParse score:
 #         IOB Accuracy:  87.7%%
@@ -521,6 +539,8 @@ test_def_lst[0]
 #         Recall:        62.3%%
 #         F-Measure:     61.8%%
 #     Cutoff:  0.4
+#     
+# with 
 
 cfg
 
