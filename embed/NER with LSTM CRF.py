@@ -33,6 +33,7 @@ from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktTrainer
 from nltk.chunk.util import ChunkScore
 import pickle
 import math
+import string
 #import collections.Iterable as Iterable
 
 import sklearn.metrics as metrics
@@ -159,116 +160,101 @@ def prep_pos(dat, pos_ind_dict):
         out_lst.append(pos_ind_dict[d[0][1]])
     return out_lst
 
+#binary_fun_lst = [
+#    lambda w: word[0] in string.ascii_uppercase,  # Capitalized
+#]
+def binary_features(dat):
+    out_lst = []
+    for d in dat:
+        word =d[0][0]
+        capitalized = float(word[0] in string.ascii_uppercase)
+        contains_dash = float('-' in word)
+        
+        out_lst.append((capitalized, contains_dash))
+    return out_lst
+    
+
+# Create Train data
 train_data = [prep_data(d['ner'], wind, cfg) for d in train_def_lst]
 train_seq, train_lab = zip(*train_data)
 train_pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in train_def_lst]
+train_bin_seq = [binary_features(d['ner']) for d in train_def_lst]
+cfg['nbin_feats'] = len(train_bin_seq[0][0])
+# Pad it
 train_seq = pad_sequences(train_seq, **cfg['padseq'])
 train_pos_seq = pad_sequences(train_pos_seq, **cfg['padseq'])
+train_bin_seq = pad_sequences(train_bin_seq, **cfg['padseq'],
+                              value = cfg['nbin_feats']*[0.0],
+                             dtype='float32')
 train_lab = pad_sequences(train_lab, **cfg['padseq'])
 #train_lab = np.array([to_categorical(s, num_classes=cfg['n_tags']) for s in train_lab])
 
+# Create Test data
 test_data = [prep_data(d['ner'], wind, cfg) for d in test_def_lst]
 test_seq, test_lab = zip(*test_data)
 test_pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in test_def_lst]
+test_bin_seq = [binary_features(d['ner']) for d in test_def_lst]
+# Pad it
 test_seq = pad_sequences(test_seq, **cfg['padseq'])
 test_pos_seq = pad_sequences(test_pos_seq, **cfg['padseq'])
+test_bin_seq = pad_sequences(test_bin_seq, **cfg['padseq'],
+                             value = cfg['nbin_feats']*[0.0],
+                            dtype='float32')
 test_lab = pad_sequences(test_lab, **cfg['padseq'])
 #test_lab = np.array([to_categorical(s, num_classes=cfg['n_tags']) for s in test_lab])
 # -
 
 # ### TODO
+# * Right the different concatenated pieces are in different orders of magnitude. Normalization might help
 # * Search for a minimal stemmer that strips plural or adverbial suffices for example zero-sum games in zero-sum game or absolute continuity and absolute continuous
 
-# + jupyter={"source_hidden": true}
-class NerModel(tf.keras.Model):
-    def __init__(self, hidden_num, vocab_size, label_size, embedding_size):
-        super(NerModel, self).__init__()
-        self.hidden_num = hidden_num
-        self.vocab_size = vocab_size
-        self.label_size = label_size
-        
-        self.embedding = Embedding(vocab_size, embedding_size)
-        self.biLSTM = Bidirectional(LSTM(hidden_num, return_sequences=True))
-        self.dropout = tf.keras.layers.Dropout(0.2)
-        self.dense = Dense(label_size)
-        
-        self.transition_params = tf.Variable(tf.random.uniform(shape=(label_size, label_size)))
-        
-    def call(self, text, labels=None, training=None):
-        text_lens = tf.math.reduce_sum(tf.cast(tf.math.not_equal(text, 0), dtype=tf.int32), axis=-1)
-        inputs = self.embedding(text)
-        inputs = self.biLSTM(inputs)
-        inputs = self.dropout(inputs, training)
-        logits = self.dense(inputs)
-        
-        if labels is not None:
-            label_sequences = tf.convert_to_tensor(labels, dtype=tf.int32)
-            log_likelihood, self.transition_params = \
-            tfa.text.crf_log_likelihood(logits, label_sequences, text_lens,
-                                        transition_params=self.transition_params)
-            return logits, text_lens, log_likelihood
-        else:
-            return logits, text_lens
-        
-#model.summary()
-
-
-# + jupyter={"outputs_hidden": true, "source_hidden": true}
-# Train NER model
-cfg['learning_rate'] = 0.1
-model = NerModel(64, len(word_tok.word_index)+1, 4, 100)
-optimizer = tf.keras.optimizers.Adam()
-def train_one_step(text_batch, labels_batch):
-    with tf.GradientTape() as tape:
-        logits, text_lens, log_likelihood = model(text_batch, labels_batch, training=True)
-        loss = - tf.reduce_mean(log_likelihood)
-    gradients = tape.gradient(loss, model.trainable_variables)
-    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-    return loss, logits, text_lens
-
-def get_acc_one_step(logits, text_lens, labels_batch):
-    paths = []
-    accuracy = 0
-    for logit, text_len, labels in zip(logits, text_lens, labels_batch):
-        viterbi_path, _ = tfa.text.viterbi_decode(logit[:text_len], model.transition_params)
-        paths.append(viterbi_path)
-        correct_prediction = tf.equal(
-            tf.convert_to_tensor(tf.keras.preprocessing.sequence.pad_sequences([viterbi_path],
-                                                            padding='post'), dtype=tf.int32),
-            tf.convert_to_tensor(tf.keras.preprocessing.sequence.pad_sequences([labels[:text_len]],
-                                                            padding='post'), dtype=tf.int32)
-        )
-        accuracy = accuracy + tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-        # print(tf.reduce_mean(tf.cast(correct_prediction, tf.float32)))
-    accuracy = accuracy / len(paths)
-    return accuracy
-
-best_acc = 0
-step = 0
-epochs = 20
-bs = 1000
-for epoch in range(epochs):
-    for (text_batch, labels_batch) in \
-    [[train_seq2[bs*i:bs*(i+1)], train_lab2[bs*i:bs*(i+1)]]\
-     for i in range(math.ceil(len(train_seq2)/bs))]:
-        step = step + 1
-        loss, logits, text_lens = train_one_step(text_batch, labels_batch)
-        if step % 20 == 0:
-            accuracy = get_acc_one_step(logits, text_lens, labels_batch)
-            print('epoch %d, step %d, loss %.4f , accuracy %.4f' % (epoch, step, loss, accuracy))
-            if accuracy > best_acc:
-                best_acc = accuracy
-                #ckpt_manager.save()
-                print("model saved")
-
-# + jupyter={"outputs_hidden": true, "source_hidden": true}
-model.summary()
-
-# + jupyter={"outputs_hidden": true, "source_hidden": true}
-sample_str = 'A banach space is defined as named entity recognition'
-sample_tok = word_tok.texts_to_sequences([sample_str])
-sample_pad = pad_sequences(sample_tok, maxlen=cfg['maxlen'], padding=cfg['padding'])
-pred = [model.predict(text_batch[i])[1] for i in range(len(text_batch))]
+# + magic_args="echo Skip this" language="script"
+# # Train NER model
+# cfg['learning_rate'] = 0.1
+# model = NerModel(64, len(word_tok.word_index)+1, 4, 100)
+# optimizer = tf.keras.optimizers.Adam()
+# def train_one_step(text_batch, labels_batch):
+#     with tf.GradientTape() as tape:
+#         logits, text_lens, log_likelihood = model(text_batch, labels_batch, training=True)
+#         loss = - tf.reduce_mean(log_likelihood)
+#     gradients = tape.gradient(loss, model.trainable_variables)
+#     optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+#     return loss, logits, text_lens
+#
+# def get_acc_one_step(logits, text_lens, labels_batch):
+#     paths = []
+#     accuracy = 0
+#     for logit, text_len, labels in zip(logits, text_lens, labels_batch):
+#         viterbi_path, _ = tfa.text.viterbi_decode(logit[:text_len], model.transition_params)
+#         paths.append(viterbi_path)
+#         correct_prediction = tf.equal(
+#             tf.convert_to_tensor(tf.keras.preprocessing.sequence.pad_sequences([viterbi_path],
+#                                                             padding='post'), dtype=tf.int32),
+#             tf.convert_to_tensor(tf.keras.preprocessing.sequence.pad_sequences([labels[:text_len]],
+#                                                             padding='post'), dtype=tf.int32)
+#         )
+#         accuracy = accuracy + tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+#         # print(tf.reduce_mean(tf.cast(correct_prediction, tf.float32)))
+#     accuracy = accuracy / len(paths)
+#     return accuracy
+#
+# best_acc = 0
+# step = 0
+# epochs = 20
+# bs = 1000
+# for epoch in range(epochs):
+#     for (text_batch, labels_batch) in \
+#     [[train_seq2[bs*i:bs*(i+1)], train_lab2[bs*i:bs*(i+1)]]\
+#      for i in range(math.ceil(len(train_seq2)/bs))]:
+#         step = step + 1
+#         loss, logits, text_lens = train_one_step(text_batch, labels_batch)
+#         if step % 20 == 0:
+#             accuracy = get_acc_one_step(logits, text_lens, labels_batch)
+#             print('epoch %d, step %d, loss %.4f , accuracy %.4f' % (epoch, step, loss, accuracy))
+#             if accuracy > best_acc:
+#                 best_acc = accuracy
+#                 #ckpt_manager.save()
+#                 print("model saved")
 # -
 
 cfg.update({'input_dim': len(wind),
@@ -276,16 +262,16 @@ cfg.update({'input_dim': len(wind),
      'input_length': cfg['padseq']['maxlen'],
      'pos_dim': 5,
      'n_tags': 2,
-     'batch_size': 1000,
+     'batch_size': 2000,
      'lstm_units': 150,
       'adam': {'lr': 0.05, 'beta_1': 0.9, 'beta_2': 0.999}})
 
 
 def bilstm_lstm_model_w_pos(cfg_dict):
     
-    words_in = Input(shape=(cfg_dict['input_length'], ))
-    pos_in = Input(shape=(cfg_dict['input_length'], ))
-    #capitalized = Input(shape=(1,), name='capitalized')
+    words_in = Input(shape=(cfg_dict['input_length'], ), name='words-in')
+    pos_in = Input(shape=(cfg_dict['input_length'], ), name='pos-in')
+    bin_feats = Input(shape=(cfg_dict['input_length'], cfg_dict['nbin_feats']), name='bin-features-in')
     
     word_embed = Embedding(cfg_dict['input_dim'], 
                         output_dim=cfg_dict['output_dim'],
@@ -298,7 +284,7 @@ def bilstm_lstm_model_w_pos(cfg_dict):
                         input_length=cfg_dict['input_length'],
                        trainable = True,
                          name='pos-embed')(pos_in)
-    full_embed = Concatenate(axis=2)([word_embed, pos_embed])
+    full_embed = Concatenate(axis=2)([word_embed, pos_embed, bin_feats])
     
     
     out = Bidirectional(LSTM(units=cfg['lstm_units'],
@@ -319,65 +305,64 @@ def bilstm_lstm_model_w_pos(cfg_dict):
     adam = Adam(**cfg['adam'])
     # Compile model
     bce = tf.keras.losses.BinaryCrossentropy()  #(sample_weight=[0.3, 0.7])
-    model = Model([words_in, pos_in], out)
+    model = Model([words_in, pos_in, bin_feats], out)
     model.compile(loss = bce,   #'binary_crossentropy',
                   optimizer=adam, metrics=['accuracy'])
     model.summary()
     return model
 with_pos = bilstm_lstm_model_w_pos(cfg)
 
-res = with_pos.fit([train_seq, train_pos_seq], train_lab, verbose=1, epochs=70,
+res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=60,
                 batch_size=cfg['batch_size'],
-                validation_data=([test_seq, test_pos_seq], test_lab))
+                validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
 
+# + magic_args="echo skip this" language="script"
+# # DEFINE MODEL WITH biLSTM AND TRAIN FUNCTION    
+# def get_bilstm_lstm_model(cfg_dict):
+#     model = Sequential()
+#     # Add Embedding layer
+#     model.add(Embedding(cfg_dict['input_dim'], 
+#                         output_dim=cfg_dict['output_dim'],
+#                         input_length=cfg_dict['input_length'],
+#                        weights = [embed_matrix],
+#                        trainable = False))
+#     #model.add(Embedding(cfg_dict['input_dim'], 
+#     #                    output_dim=cfg_dict['output_dim'],
+#     #                    input_length=cfg_dict['input_length']))
+#     # Add bidirectional LSTM
+#     model.add(Bidirectional(LSTM(units=cfg_dict['output_dim'],
+#                                  return_sequences=True,
+#                                  dropout=0.2, 
+#                                  recurrent_dropout=0.2), merge_mode = 'concat'))
+#     # Add LSTM
+#     model.add(LSTM(units=cfg_dict['output_dim'],
+#                    return_sequences=True, dropout=0.2, recurrent_dropout=0.2,
+#                    recurrent_initializer='glorot_uniform'))
+#     # Add timeDistributed Layer
+#     model.add(TimeDistributed(Dense(1, activation="sigmoid")))
+#     #Optimiser 
+#     adam = Adam(**cfg['adam'])
+#     # Compile model
+#     #bce = tf.keras.losses.BinaryCrossentropy(sample_weight=[0.3, 0.7])
+#     model.compile(loss = 'binary_crossentropy',
+#                   optimizer=adam, metrics=['accuracy'])
+#     model.summary()
+#     return model
+#
+#
+# def train_model(X, y, model, epochs=10):
+#     # fit model for one epoch on this sequence
+#     res = model.fit(X, y, verbose=0, epochs=epochs,
+#                     batch_size=cfg['batch_size'],
+#                     validation_data=(test_seq, test_lab),
+#                    callbacks=[TqdmCallback(verbose=1)])
+#                    
+#     return res
+# model_bilstm_lstm = get_bilstm_lstm_model(cfg)
+# #plot_model(model_bilstm_lstm)
 
-# + jupyter={"outputs_hidden": true, "source_hidden": true}
-# DEFINE MODEL WITH biLSTM AND TRAIN FUNCTION    
-def get_bilstm_lstm_model(cfg_dict):
-    model = Sequential()
-    # Add Embedding layer
-    model.add(Embedding(cfg_dict['input_dim'], 
-                        output_dim=cfg_dict['output_dim'],
-                        input_length=cfg_dict['input_length'],
-                       weights = [embed_matrix],
-                       trainable = False))
-    #model.add(Embedding(cfg_dict['input_dim'], 
-    #                    output_dim=cfg_dict['output_dim'],
-    #                    input_length=cfg_dict['input_length']))
-    # Add bidirectional LSTM
-    model.add(Bidirectional(LSTM(units=cfg_dict['output_dim'],
-                                 return_sequences=True,
-                                 dropout=0.2, 
-                                 recurrent_dropout=0.2), merge_mode = 'concat'))
-    # Add LSTM
-    model.add(LSTM(units=cfg_dict['output_dim'],
-                   return_sequences=True, dropout=0.2, recurrent_dropout=0.2,
-                   recurrent_initializer='glorot_uniform'))
-    # Add timeDistributed Layer
-    model.add(TimeDistributed(Dense(1, activation="sigmoid")))
-    #Optimiser 
-    adam = Adam(**cfg['adam'])
-    # Compile model
-    #bce = tf.keras.losses.BinaryCrossentropy(sample_weight=[0.3, 0.7])
-    model.compile(loss = 'binary_crossentropy',
-                  optimizer=adam, metrics=['accuracy'])
-    model.summary()
-    return model
-
-
-def train_model(X, y, model, epochs=10):
-    # fit model for one epoch on this sequence
-    res = model.fit(X, y, verbose=0, epochs=epochs,
-                    batch_size=cfg['batch_size'],
-                    validation_data=(test_seq, test_lab),
-                   callbacks=[TqdmCallback(verbose=1)])
-                   
-    return res
-model_bilstm_lstm = get_bilstm_lstm_model(cfg)
-#plot_model(model_bilstm_lstm)
-
-# + jupyter={"source_hidden": true, "outputs_hidden": true}
-history = train_model(train_seq, train_lab, model_bilstm_lstm, epochs=20)
+# + magic_args="echo skip this" language="script"
+# history = train_model(train_seq, train_lab, model_bilstm_lstm, epochs=20)
 # -
 
 #r = history
@@ -392,27 +377,27 @@ ax2.plot(r.history['accuracy'], label='acc')
 ax2.plot(r.history['val_accuracy'], label='val_acc')
 ax2.legend()
 
-# + jupyter={"outputs_hidden": true, "source_hidden": true}
-#sample_str = 'a banach space is defined as complete vector space of some kind .'
-#sample_str = 'We define a shushu space as a complete vector space of some kind .'
-sample_str = '_display_math_ The Ursell functions of a single random variable X are obtained from these by setting _inline_math_..._inline_math_ .'
-sample_pad, _ = prep_data(sample_str, wind, cfg, 'no_tags')
-sample_pad = pad_sequences([sample_pad], **cfg['padseq'])
-pred = model_bilstm_lstm.predict(sample_pad)
-#np.argmax(pred.squeeze(), axis=1)
-for i, w in enumerate(sample_pad[0]):
-    if wind[w] == '.':
-        break
-    print(wind[w], np.round(pred)[0][i])
-    if wind[w] == '.':
-        break
+# + magic_args="echo skip this" language="script"
+# #sample_str = 'a banach space is defined as complete vector space of some kind .'
+# #sample_str = 'We define a shushu space as a complete vector space of some kind .'
+# sample_str = '_display_math_ The Ursell functions of a single random variable X are obtained from these by setting _inline_math_..._inline_math_ .'
+# sample_pad, _ = prep_data(sample_str, wind, cfg, 'no_tags')
+# sample_pad = pad_sequences([sample_pad], **cfg['padseq'])
+# pred = model_bilstm_lstm.predict(sample_pad)
+# #np.argmax(pred.squeeze(), axis=1)
+# for i, w in enumerate(sample_pad[0]):
+#     if wind[w] == '.':
+#         break
+#     print(wind[w], np.round(pred)[0][i])
+#     if wind[w] == '.':
+#         break
 # -
 
 
 #preds = model_bilstm_lstm.predict(test_seq)
-preds = with_pos.predict([test_seq, test_pos_seq])
+preds = with_pos.predict([test_seq, test_pos_seq, test_bin_seq])
 
-k = 283
+k = 23
 for i in range(len(preds[k])):
     try:
         print('{:<20} {} {:1.2f}'.format(test_def_lst[k]['ner'][i][0][0], 
@@ -540,7 +525,16 @@ bce([1.0,0.0,1.0], [1.0,0.0,1.0]).numpy()
 #         F-Measure:     61.8%%
 #     Cutoff:  0.4
 #     
-# with 
+# Two time dependent dense layers at the end: Commit: 2759216
+#
+#     ChunkParse score:
+#         IOB Accuracy:  87.5%%
+#         Precision:     59.5%%
+#         Recall:        60.4%%
+#         F-Measure:     60.0%%
+#     Cutoff:  0.4
+#     
+# ## With Binary features 
 
 cfg
 
