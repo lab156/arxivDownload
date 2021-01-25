@@ -121,7 +121,7 @@ cfg['n_tags'] = 2
 # shuffle def_lst
 random.shuffle(def_lst)
 
-cfg['train_test_split'] = 0.8
+cfg['train_test_split'] = 0.9
 
 train_def_lst = def_lst[:int(cfg['train_test_split']*len(def_lst))]
 test_def_lst = def_lst[int(cfg['train_test_split']*len(def_lst)):]
@@ -260,11 +260,12 @@ test_lab = pad_sequences(test_lab, **cfg['padseq'])
 cfg.update({'input_dim': len(wind),
       'output_dim': 200,
      'input_length': cfg['padseq']['maxlen'],
-     'pos_dim': 5,
+     'pos_dim': 3,
+            'pos_constraint': 1/200,
      'n_tags': 2,
      'batch_size': 2000,
      'lstm_units': 150,
-      'adam': {'lr': 0.05, 'beta_1': 0.9, 'beta_2': 0.999}})
+      'adam': {'lr': 0.025, 'beta_1': 0.9, 'beta_2': 0.999}})
 
 
 def bilstm_lstm_model_w_pos(cfg_dict):
@@ -282,6 +283,7 @@ def bilstm_lstm_model_w_pos(cfg_dict):
     pos_embed = Embedding(len(pos_cnt), 
                         output_dim=cfg_dict['pos_dim'],
                         input_length=cfg_dict['input_length'],
+                          embeddings_initializer=tf.keras.initializers.RandomNormal(mean=0., stddev=1.),
                        trainable = True,
                          name='pos-embed')(pos_in)
     full_embed = Concatenate(axis=2)([word_embed, pos_embed, bin_feats])
@@ -312,7 +314,7 @@ def bilstm_lstm_model_w_pos(cfg_dict):
     return model
 with_pos = bilstm_lstm_model_w_pos(cfg)
 
-res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=60,
+res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=70,
                 batch_size=cfg['batch_size'],
                 validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
 
@@ -335,9 +337,9 @@ res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose
 #                                  dropout=0.2, 
 #                                  recurrent_dropout=0.2), merge_mode = 'concat'))
 #     # Add LSTM
-#     model.add(LSTM(units=cfg_dict['output_dim'],
+#     model.add(Bidirectional(LSTM(units=cfg_dict['output_dim'],
 #                    return_sequences=True, dropout=0.2, recurrent_dropout=0.2,
-#                    recurrent_initializer='glorot_uniform'))
+#                    recurrent_initializer='glorot_uniform'), merge_mode='concat'))
 #     # Add timeDistributed Layer
 #     model.add(TimeDistributed(Dense(1, activation="sigmoid")))
 #     #Optimiser 
@@ -362,19 +364,19 @@ res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose
 # #plot_model(model_bilstm_lstm)
 
 # + magic_args="echo skip this" language="script"
-# history = train_model(train_seq, train_lab, model_bilstm_lstm, epochs=20)
+# history = train_model(train_seq, train_lab, model_bilstm_lstm, epochs=70)
 # -
 
 #r = history
 r = res
 fig = plt.figure(figsize=(12, 6))
 ax1 = plt.subplot(121)
-ax1.plot(r.history['loss'], label='loss')
-ax1.plot(r.history['val_loss'], label='val_loss')
+ax1.plot(r.history['loss'][20:], label='loss')
+ax1.plot(r.history['val_loss'][20:], label='val_loss')
 ax1.legend()
 ax2 = plt.subplot(122)
-ax2.plot(r.history['accuracy'], label='acc')
-ax2.plot(r.history['val_accuracy'], label='val_acc')
+ax2.plot(r.history['accuracy'][20:], label='acc')
+ax2.plot(r.history['val_accuracy'][20:], label='val_acc')
 ax2.legend()
 
 # + magic_args="echo skip this" language="script"
@@ -397,7 +399,7 @@ ax2.legend()
 #preds = model_bilstm_lstm.predict(test_seq)
 preds = with_pos.predict([test_seq, test_pos_seq, test_bin_seq])
 
-k = 23
+k = 299
 for i in range(len(preds[k])):
     try:
         print('{:<20} {} {:1.2f}'.format(test_def_lst[k]['ner'][i][0][0], 
@@ -534,19 +536,33 @@ bce([1.0,0.0,1.0], [1.0,0.0,1.0]).numpy()
 #         F-Measure:     60.0%%
 #     Cutoff:  0.4
 #     
-# ## With Binary features 
+# ## With Binary features: capitalize, has_dash: Commit: 09c6fcb
+# loss: 0.0408 - accuracy: 0.9840 - val_loss: 0.0547 - val_accuracy: 0.9789
+#
+#     ChunkParse score:
+#         IOB Accuracy:  87.1%%
+#         Precision:     59.2%%
+#         Recall:        57.9%%
+#         F-Measure:     58.5%%
+#     Cutoff:  0.5
+#     
+# ## Change initializer of embedding
+# TBOY  loss: 0.0299 - accuracy: 0.9884 - val_loss: 0.0539 - val_accuracy: 0.9812
+#
+#     ChunkParse score:
+#         IOB Accuracy:  87.3%%
+#         Precision:     62.5%%
+#         Recall:        64.2%%
+#         F-Measure:     63.3%%
+#     Cutoff:  0.4
+#     
+#     ChunkParse score:
+#     IOB Accuracy:  87.5%%
+#     Precision:     68.9%%
+#     Recall:        64.8%%
+#     F-Measure:     66.8%%
+# Cutoff:  0.6
+#
+#
 
 cfg
-
-
-# +
-def plot_graphs(history, string, start_at=0):
-    plt.plot(history[string][start_at:])
-    plt.plot(history['val_'+string][start_at:])
-    plt.xlabel('Epochs')
-    plt.ylabel(string[start_at:])
-    plt.legend([string, 'val_'+string])
-    plt.show()
-    
-plot_graphs(history, "accuracy", start_at=400)
-plot_graphs(history, "loss", start_at=400)
