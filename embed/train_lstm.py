@@ -28,8 +28,10 @@ from classifier_trainer.trainer import stream_arxiv_paragraphs
 
 
 
-# +
-base_dir = '/media/hd1'
+# GET the Important Paths
+base_dir = os.environ['PROJECT'] # This is permanent storage
+local_dir = os.environ['LOCAL']  # This is temporary fast storage
+
 cfg = {'batch_size': 5000,
       'glob_data_source': '/training_defs/math09/*.xml.gz',
       'TVT_split' : 0.8,    ## Train  Validation Test split
@@ -49,6 +51,7 @@ logging.basicConfig(filename=os.path.join(save_path_dir, 'log.txt'),
 logger = logging.getLogger(__name__)
 
 
+# READ THE TRAINING DATA
 stream = stream_arxiv_paragraphs(xml_lst, samples=cfg['batch_size'])
 
 all_data = []
@@ -113,6 +116,7 @@ test_seq = [text2seq(t) for t in test[0]]
 #                                        value=tkn2idx['�']) 
 
 def padding_fun(seq, cfg):
+    # Apply pad_sequence using the cfg dictionary
     return pad_sequences(seq, maxlen=cfg['max_seq_len'],
                             padding='post', 
                             truncating='post',
