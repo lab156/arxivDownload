@@ -162,4 +162,15 @@ with open('/media/hd1/PickleJar/tokenizer.pickle', 'rb') as class_f:
 # * 0.9294064163568799: Double layer LSTM with .93 f1 trained on math14 and math15 __only__
 # * 0.9270823744884535: Covolutional 1D with .92 f1 trained math14 and math15 __only__
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.info('macizo mac')
+
+logger
+
+dicti = {1: 'hola'}
+[k for k,v in dicti.items()]
+
 

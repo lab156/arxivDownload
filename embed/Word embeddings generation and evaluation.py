@@ -135,13 +135,13 @@ art_name.replace('.', '/')
 
 len(stopiterations_lst),stopiterations_lst[:10]
 
-qq('1604/07520')
-
 # The 15 most common words are
-term_cnt.most_common()[:15]
+TT = term_cnt.most_common()[:15]
+for t, c  in TT:
+    print(f"{t} & {c} \\\\")
 
 
-# + jupyter={"outputs_hidden": true}
+# +
 def baseline_dist(database=database):
     '''
     creates a Counter objects where the arXiv subject categories 
@@ -168,7 +168,31 @@ print(f'The term: {Term} appears in articles tagged:')
 term_dict_cnt[Term]
 # -
 
-term_dict_cnt['banach space']
+term_dict_cnt['banach space'].most_common()
+
+# +
+## Comparison of the term dist and baseline
+bs_tot = sum([t[1] for t in bs_dist.items()])
+term = 'banach space'
+term_dist = term_dict_cnt[term].most_common()[:10]
+labels, heights = list(zip(*term_dist))
+term_tot = sum([t[1] for t in term_dist])
+heights = [h/term_tot for h in heights]
+
+bs_heights = [bs_dist[s]/bs_tot for s in labels]
+width = 0.4
+ind = np.arange(len(labels))
+plt.figure(figsize=[6,4])
+ax = plt.subplot(111)
+plt.bar(ind, heights, width, label=term)
+plt.bar(ind + width, bs_heights, width, label='baseline')
+plt.xticks(ind+width/2, labels, rotation=45)
+plt.legend()
+#ax.get_yaxis().set_major_formatter(
+#    matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+#plot.title('Relative appearance of definitions')
+plt.savefig('/home/luis/acl_pics/barcomp.png', dpi=160, bbox_inches='tight')
+plt.show()
 
 
 # +
@@ -213,43 +237,47 @@ def common_low_entropy_terms(N1, N2):
     return sorted(term_entropy, key=lambda x: x[2])[:N2]
 
 
+# + magic_args="echo use open_w2v instead" language="script"
+# # Decode word2vec .bin file
+# with open('/media/hd1/embeddings/model14-14_12-08/vectors.bin', 'rb') as mfobj:
+#     m = mfobj.read()
+#     #print(m[0].decode('utf8'))
+#     #s = st.Struct('ii')
+#     #m_it = m.__iter__()
+#     head_dims = st.unpack('<11s', m[:11])
+#     n_vocab, n_dim = map(int,head_dims[0].strip().split())
+#     print(f"Vocabulary size: {n_vocab} and dimension of embed: {n_dim}")
+#     embed = {}
+#     #[next(m_it) for _ in range(11)]
+#     cnt = 11
+#     for line_cnt in tqdm(range(n_vocab)):
+#         word = ''
+#         while True:
+#             next_char = st.unpack('<1s', m[cnt:cnt+1])[0].decode('utf8')
+#             cnt += 1
+#             if next_char == ' ':
+#                 break
+#             else:
+#                 word += next_char
+#         #print(word)
+#         vec = np.zeros(n_dim)
+#         for k in range(n_dim):
+#             vec[k] = st.unpack('<f', m[cnt:cnt+4])[0]
+#             cnt += 4
+#         assert st.unpack('<1s', m[cnt:cnt+1])[0] == b'\n'
+#         cnt +=1
+#         embed[word] = vec
 # -
-
-# Decode word2vec .bin file
-with open('/media/hd1/embeddings/model14-14_12-08/vectors.bin', 'rb') as mfobj:
-    m = mfobj.read()
-    #print(m[0].decode('utf8'))
-    #s = st.Struct('ii')
-    #m_it = m.__iter__()
-    head_dims = st.unpack('<11s', m[:11])
-    n_vocab, n_dim = map(int,head_dims[0].strip().split())
-    print(f"Vocabulary size: {n_vocab} and dimension of embed: {n_dim}")
-    embed = {}
-    #[next(m_it) for _ in range(11)]
-    cnt = 11
-    for line_cnt in tqdm(range(n_vocab)):
-        word = ''
-        while True:
-            next_char = st.unpack('<1s', m[cnt:cnt+1])[0].decode('utf8')
-            cnt += 1
-            if next_char == ' ':
-                break
-            else:
-                word += next_char
-        #print(word)
-        vec = np.zeros(n_dim)
-        for k in range(n_dim):
-            vec[k] = st.unpack('<f', m[cnt:cnt+4])[0]
-            cnt += 4
-        assert st.unpack('<1s', m[cnt:cnt+1])[0] == b'\n'
-        cnt +=1
-        embed[word] = vec
 
 term_dict_cnt['green symbol']
 
-with open_w2v('/media/hd1/embeddings/model14-51_20-08/vectors.bin') as embed_temp:
+
+def ffff(x):
+    return x+1
+ffff.__name__
+
+with open_w2v('/media/hd1/embeddings/model14-51_20-08/vectors.bin') as embed:
     unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
-    embed = embed_temp
 
 common_term = term_cnt.most_common()[200][0].lower().replace(' ', '_')
 print(f" The term is: {common_term} and the first components of the vector are:")
@@ -327,10 +355,12 @@ plt.scatter(x[0][500:1000], y[0][500:1000], color='green', s=5)
 plt.scatter(x[0][1000:], y[0][1000:], color='red' )
 plt.show()
 
+len(cc)
+
 # +
 tsne1 = TSNE()
 umap1 = umap.UMAP()
-plt.rcParams["image.cmap"] = 'brg'
+plt.rcParams["image.cmap"] = 'Set1'
 vec_lst = []
 labels_vec = []
 term_lst = []
@@ -350,23 +380,25 @@ for t,s,e in clSt:
             term_lst.append(t)
             labels_vec.append(s)
 print('Embed coverage: {}%'.format(embed_coverage_cnt/len(clSt)))
-pick_text = set(np.random.randint(0,len(vec_lst), size=20))
+pick_text = set(np.random.randint(0,len(vec_lst), size=15))
 labels_set_list = list(set(labels_vec)) # to find the colormap
 cc = [labels_set_list.index(l) for l in labels_vec]
 tot_vec = np.stack(vec_lst, axis=0)
 tran_vec = tsne1.fit_transform(tot_vec, labels_vec)
 #tran_vec = umap1.fit_transform(tot_vec, labels_vec)
 x,y =  list(zip(tran_vec.transpose()))
-plt.figure(figsize=[12,12])
-scatter = plt.scatter(x[0],y[0], c = cc, s=12)
-leg1 = plt.legend(scatter.legend_elements()[0], labels_set_list)
+plt.figure(figsize=[10,10])
+scatter = plt.scatter(x[0],y[0],marker='o', c = cc, s=20, alpha=0.8)
+leg1 = plt.legend(scatter.legend_elements()[0], labels_set_list, prop={'size': 10})
 for i in pick_text:
-    plt.text(x[0][i], y[0][i], term_lst[i])
+    plt.text(x[0][i], y[0][i], term_lst[i], size='x-large')
+    plt.scatter([x[0][i]], [y[0][i]], s=30, c='black')
     
+plt.savefig('/home/luis/acl_pics/scatter_option.png', bbox_inches='tight')
+plt.savefig('/home/luis/acl_pics/scatter_option2.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # -
-
 
 
 html = st.produce_projection_explorer(None,
@@ -415,7 +447,6 @@ for Term_pair in tqdm(term_cnt.most_common()):
         if embed_vec is not None: 
             veryTop[Term] = embed_vec
             color_dict[Term] = float(term_dict_cnt[Term][topic])/sum(term_dict_cnt[Term].values())
-            https://pitt.zoom.us/j/95321239316
 # -
 
 # %%time

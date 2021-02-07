@@ -12,7 +12,7 @@ import os
 
 def normalize_text(text, *vargs, **kwargs):
     '''
-    a copy of the normalize_text function in the word2vec repo
+    This method was inspired by the normalize_text function in the word2vec repo
     see the `demo-train-big-model.sh` file
     run tests with python3 -m doctest -v embed_utils.py
     Options:

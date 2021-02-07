@@ -127,6 +127,7 @@ plt.grid()
 plt.title('Length in characters of the definitions in the training set')
 plt.show()
 
+# + jupyter={"outputs_hidden": true}
 # #%%script echo skipping
 cfg['conv_filters'] = 128
 cfg['kernel_size'] = 5
@@ -283,7 +284,7 @@ plt.plot(P[0], P[1])
 
 cfg
 
-# +
+# + jupyter={"outputs_hidden": true}
 # #%%script echo skipping
 cfg['mnt_path'] = '/media/hd1/promath/'
 cfg['save_path'] = '/home/luis/rm_me_glossary/test_conv/'
@@ -336,6 +337,3 @@ for k, dirname in enumerate(['math01',]):
         with gzip.open(gz_out_path, 'wb') as out_f:
             print("Writing to dfdum zipped file to: %s"%gz_out_path)
             out_f.write(etree.tostring(def_root, pretty_print=True))
-# -
-
-

@@ -67,7 +67,7 @@ def nearest(word_vec, unit_embed, n_near=10):
     NOTE that `unit_embed` needs to be unitary vectors
     '''
     dist_dict = {}
-    if isinstance(word_vec, 'str'):
+    if isinstance(word_vec, str):
         word_vec = unit_embed[word_vec]
     unit_word_vec = word_vec/np.linalg.norm(word_vec)
     for w, v in unit_embed.items():

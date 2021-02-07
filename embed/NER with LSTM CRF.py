@@ -114,6 +114,19 @@ plt.hist(sent_lengths, bins=15)
 plt.title('length of selected sentences with definiendum')
 plt.show()
 
+tvt = 0.8
+all_cata = range(105)
+I_cut = int(tvt*len(all_cata))
+entrenar = all_cata[:I_cut]
+validar = all_cata[I_cut:]
+test = validar[int(0.5*len(validar)):]
+validar = validar[:int(0.5*len(validar))]
+print(entrenar, validar, test)
+log_str = 'Ranges: \n ' + repr(entrenar)
+print(log_str)
+all_cata[:-int(0.5*(1-tvt)*I_cut):-1]
+os.
+
 # +
 cfg['padseq'] = {'maxlen': 50 , 'padding': 'post', 'truncating': 'post'}
 cfg['n_tags'] = 2
@@ -314,7 +327,8 @@ def bilstm_lstm_model_w_pos(cfg_dict):
     return model
 with_pos = bilstm_lstm_model_w_pos(cfg)
 
-res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=70,
+# + jupyter={"outputs_hidden": true}
+res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=30,
                 batch_size=cfg['batch_size'],
                 validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
 
@@ -399,7 +413,7 @@ ax2.legend()
 #preds = model_bilstm_lstm.predict(test_seq)
 preds = with_pos.predict([test_seq, test_pos_seq, test_bin_seq])
 
-k = 299
+k = 179
 for i in range(len(preds[k])):
     try:
         print('{:<20} {} {:1.2f}'.format(test_def_lst[k]['ner'][i][0][0], 
@@ -546,7 +560,8 @@ bce([1.0,0.0,1.0], [1.0,0.0,1.0]).numpy()
 #         F-Measure:     58.5%%
 #     Cutoff:  0.5
 #     
-# ## Change initializer of embedding
+# ## Change initializer of POS embedding to Normal mean 0 std 1
+#
 # TBOY  loss: 0.0299 - accuracy: 0.9884 - val_loss: 0.0539 - val_accuracy: 0.9812
 #
 #     ChunkParse score:
@@ -556,12 +571,14 @@ bce([1.0,0.0,1.0], [1.0,0.0,1.0]).numpy()
 #         F-Measure:     63.3%%
 #     Cutoff:  0.4
 #     
+# loss: 0.0201 - accuracy: 0.9922 - val_loss: 0.0531 - val_accuracy: 0.9824 Commit: b3a1c88
+#
 #     ChunkParse score:
 #     IOB Accuracy:  87.5%%
 #     Precision:     68.9%%
 #     Recall:        64.8%%
 #     F-Measure:     66.8%%
-# Cutoff:  0.6
+#     Cutoff:  0.6
 #
 #
 
