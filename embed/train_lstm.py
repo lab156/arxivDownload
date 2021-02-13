@@ -33,7 +33,7 @@ base_dir = os.environ['PROJECT'] # This is permanent storage
 local_dir = os.environ['LOCAL']  # This is temporary fast storage
 
 cfg = {'batch_size': 5000,
-      'glob_data_source': '/training_defs/math09/*.xml.gz',
+      'glob_data_source': '/training_defs/math*/*.xml.gz',
       'TVT_split' : 0.8,    ## Train  Validation Test split
       'max_seq_len': 400,   # Length of padding and input of Embedding layer
       }

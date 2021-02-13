@@ -277,10 +277,14 @@ def tokenize_and_write(in_file, out_file, phrases_list):
     in_fobj = open(in_file, 'r') 
     out_fobj = open(out_file, 'a') 
     print("Writing {} to {}".format(in_fobj.name, out_fobj.name))
-    while (line := in_fobj.readline()) != '':
+    #while (line := in_fobj.readline()) != '':
+    # Bridges still does not have Python > 3.8 on some modules
+    line = in_fobj.readline()
+    while line != '':
         line = normalize_text(line)
         line = token_phrases3(line, phrases_list)
         out_fobj.write(line)
+        line = in_fobj.readline()
     in_fobj.close()
     out_fobj.close()
 
@@ -288,9 +292,12 @@ def just_normalize_and_write(in_file, out_file, abbrev_lst):
     in_fobj = open(in_file, 'r') 
     out_fobj = open(out_file, 'a') 
     print("Writing {} to {}".format(in_fobj.name, out_fobj.name))
-    while (line := in_fobj.readline()) != '':
+    #while (line := in_fobj.readline()) != '':
+    line = in_fobj.readline()
+    while line != '':
         line = normalize_text(line, abbrev_lst=abbrev_lst)
         out_fobj.write(line)
+        line = in_fobj.readline()
     in_fobj.close()
     out_fobj.close()
     
