@@ -337,3 +337,7 @@ for k, dirname in enumerate(['math01',]):
         with gzip.open(gz_out_path, 'wb') as out_f:
             print("Writing to dfdum zipped file to: %s"%gz_out_path)
             out_f.write(etree.tostring(def_root, pretty_print=True))
+# -
+[repr(k)[2:] for k in range(1991,2020,1)]
+
+
