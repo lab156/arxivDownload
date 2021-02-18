@@ -262,8 +262,8 @@ def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
             print(f"{repr(ee)}, 'file: ', {fname}, ' is empty'")
     return root
     
-#for k, dirname in enumerate(['tests',]):
-for k, dirname in enumerate(['math' + repr(k)[2:] for k in range(1991, 1994, 1)]):
+for k, dirname in enumerate(['math96',]):
+#for k, dirname in enumerate(['math' + repr(k)[2:] for k in range(1996, 1994, 1)]):
     logger.info('Classifying the contents of {}'.format(dirname))
     try:
         full_path = os.path.join(base_dir, cfg['promath_dir'], dirname)
@@ -271,7 +271,7 @@ for k, dirname in enumerate(['math' + repr(k)[2:] for k in range(1991, 1994, 1)]
     except FileNotFoundError:
         print(' %s Not Found'%full_path)
         break
-    out_path = os.path.join(base_dir, cfg['save_path'], dirname)
+    out_path = os.path.join(local_dir, cfg['save_path'], dirname)
     os.makedirs(out_path, exist_ok=True)
    
     for tfile in tar_lst:

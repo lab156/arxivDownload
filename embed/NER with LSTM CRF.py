@@ -71,11 +71,34 @@ with gzip.open('/media/hd1/wikipedia/wiki_definitions_improved.xml.gz', 'r') as 
         data = (art.find('.//dfndum').text, '', art.find('.//stmnt').text)
         wiki.append(data)
 
+def split_fields(elem):
+    title = elem.find('.//dfndum').text 
+    section = elem.get('name')
+    defin = elem.find('.//stmnt').text
+    return (title, section, defin)
+
+plmath = []
+with gzip.open('/media/hd1/planetmath/datasets/planetmath_definitions.xml.gz', 'r') as xml_fobj:
+    def_xml = etree.parse(xml_fobj)
+    for art in def_xml.findall('article'):
+        plmath.append(split_fields(art))
+stacks = []
+with gzip.open('/media/hd1/stacks-project/datasets/stacks-definitions.xml.gz', 'r') as xml_fobj:
+    def_xml = etree.parse(xml_fobj)
+    for art in def_xml.findall('article'):
+        try:
+            stacks.append(split_fields(art))
+        except AttributeError:
+            print('The name of the problematic article is: {}'.format(art.attrib['name']))
+
+text_lst = wiki + plmath + stacks
+random.shuffle(text_lst)
+
 # Get data and train the Sentence tokenizer
 # Uses a standard algorithm (Kiss-Strunk) for unsupervised sentence boundary detection
 text = ''
 for i in range(3550):
-    text += wiki[i][2]
+    text += text_lst[i][2]
 
 trainer = PunktTrainer()
 trainer.INCLUDE_ALL_COLLOCS = True
@@ -83,7 +106,7 @@ trainer.train(text)
 sent_tok = PunktSentenceTokenizer(trainer.get_params())
 print(sent_tok._params.abbrev_types)
 
-def_lst = ner.bio_tag.put_pos_ner_tags(wiki, sent_tok)
+def_lst = ner.bio_tag.put_pos_ner_tags(text_lst, sent_tok)
 
 # Finding the POS set 
 pos_cnt = Counter()
@@ -113,19 +136,6 @@ for d in def_lst:
 plt.hist(sent_lengths, bins=15)
 plt.title('length of selected sentences with definiendum')
 plt.show()
-
-tvt = 0.8
-all_cata = range(105)
-I_cut = int(tvt*len(all_cata))
-entrenar = all_cata[:I_cut]
-validar = all_cata[I_cut:]
-test = validar[int(0.5*len(validar)):]
-validar = validar[:int(0.5*len(validar))]
-print(entrenar, validar, test)
-log_str = 'Ranges: \n ' + repr(entrenar)
-print(log_str)
-all_cata[:-int(0.5*(1-tvt)*I_cut):-1]
-os.
 
 # +
 cfg['padseq'] = {'maxlen': 50 , 'padding': 'post', 'truncating': 'post'}
@@ -327,8 +337,7 @@ def bilstm_lstm_model_w_pos(cfg_dict):
     return model
 with_pos = bilstm_lstm_model_w_pos(cfg)
 
-# + jupyter={"outputs_hidden": true}
-res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=30,
+res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=10,
                 batch_size=cfg['batch_size'],
                 validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
 
@@ -385,12 +394,12 @@ res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose
 r = res
 fig = plt.figure(figsize=(12, 6))
 ax1 = plt.subplot(121)
-ax1.plot(r.history['loss'][20:], label='loss')
-ax1.plot(r.history['val_loss'][20:], label='val_loss')
+ax1.plot(r.history['loss'], label='loss')
+ax1.plot(r.history['val_loss'], label='val_loss')
 ax1.legend()
 ax2 = plt.subplot(122)
-ax2.plot(r.history['accuracy'][20:], label='acc')
-ax2.plot(r.history['val_accuracy'][20:], label='val_acc')
+ax2.plot(r.history['accuracy'], label='acc')
+ax2.plot(r.history['val_accuracy'], label='val_acc')
 ax2.legend()
 
 # + magic_args="echo skip this" language="script"
@@ -413,7 +422,7 @@ ax2.legend()
 #preds = model_bilstm_lstm.predict(test_seq)
 preds = with_pos.predict([test_seq, test_pos_seq, test_bin_seq])
 
-k = 179
+k = 376
 for i in range(len(preds[k])):
     try:
         print('{:<20} {} {:1.2f}'.format(test_def_lst[k]['ner'][i][0][0], 
@@ -494,11 +503,6 @@ plt.show()
 
 print(get_chunkscore(BOY_f_score[0]))
 print(f"Cutoff:  {BOY_f_score[0]}")
-# -
-
-# Compute the Loss independently
-bce = tf.keras.losses.BinaryCrossentropy(label_smoothing=0)
-bce([1.0,0.0,1.0], [1.0,0.0,1.0]).numpy()
 
 # +
 #1/5404.0*(np.sum(test_lab*np.log(np.squeeze(preds))) + np.sum((1-test_lab)*np.log(np.squeeze(1-preds))))
@@ -580,6 +584,15 @@ bce([1.0,0.0,1.0], [1.0,0.0,1.0]).numpy()
 #     F-Measure:     66.8%%
 #     Cutoff:  0.6
 #
+# loss: 0.0362 - accuracy: 0.9855 - val_loss: 0.0489 - val_accuracy: 0.9812 -- 40 epochs. Commit: 
 #
+#     ChunkParse score:
+#         IOB Accuracy:  88.3%%
+#         Precision:     62.2%%
+#         Recall:        64.2%%
+#         F-Measure:     63.2%%
+#     Cutoff:  0.4
 
 cfg
+
+
