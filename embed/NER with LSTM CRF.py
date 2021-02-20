@@ -145,9 +145,19 @@ cfg['n_tags'] = 2
 random.shuffle(def_lst)
 
 cfg['train_test_split'] = 0.9
+r_def_lst = range(len(def_lst))
+TVT_len = int(cfg['train_test_split']*len(def_lst))
+r_train = r_def_lst[:TVT_len]
+r_valid = r_def_lst[TVT_len:]
+r_test = r_valid[:int(0.5*len(r_valid))]
+r_valid = r_valid[int(0.5*len(r_valid)):]
+log_str = 'Original Range: {}\n Training: {}  Validation: {}  Test: {} \n'\
+              .format(repr(r_def_lst), repr(r_train), repr(r_test), repr(r_valid)) 
+print(log_str)
 
-train_def_lst = def_lst[:int(cfg['train_test_split']*len(def_lst))]
-test_def_lst = def_lst[int(cfg['train_test_split']*len(def_lst)):]
+train_def_lst = [def_lst[k] for k in r_train]
+test_def_lst = [def_lst[k] for k in r_test]
+valid_def_lst = [def_lst[k] for k in r_valid]
 
 def prep_data(dat, wind, cfg, *args):
     '''
@@ -195,35 +205,54 @@ def binary_features(dat):
         
         out_lst.append((capitalized, contains_dash))
     return out_lst
+
+cfg['nbin_feats'] = 2 # number of binary features defined in the function above
     
+def prep_data4real(_def_lst, wind, cfg):
+    _data = [prep_data(d['ner'], wind, cfg) for d in _def_lst]
+    _seq, _lab = zip(*_data)
+    _pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in _def_lst]
+    _bin_seq = [binary_features(d['ner']) for d in _def_lst]
+    # PAD THE SEQUENCES
+    _seq = pad_sequences(_seq, **cfg['padseq'])
+    _pos_seq = pad_sequences(_pos_seq, **cfg['padseq'])
+    _bin_seq = pad_sequences(_bin_seq, **cfg['padseq'],
+                                  value = cfg['nbin_feats']*[0.0],
+                                 dtype='float32')
+    _lab = pad_sequences(_lab, **cfg['padseq'])
+    return _seq, _pos_seq, _bin_seq, _lab
 
-# Create Train data
-train_data = [prep_data(d['ner'], wind, cfg) for d in train_def_lst]
-train_seq, train_lab = zip(*train_data)
-train_pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in train_def_lst]
-train_bin_seq = [binary_features(d['ner']) for d in train_def_lst]
-cfg['nbin_feats'] = len(train_bin_seq[0][0])
-# Pad it
-train_seq = pad_sequences(train_seq, **cfg['padseq'])
-train_pos_seq = pad_sequences(train_pos_seq, **cfg['padseq'])
-train_bin_seq = pad_sequences(train_bin_seq, **cfg['padseq'],
-                              value = cfg['nbin_feats']*[0.0],
-                             dtype='float32')
-train_lab = pad_sequences(train_lab, **cfg['padseq'])
-#train_lab = np.array([to_categorical(s, num_classes=cfg['n_tags']) for s in train_lab])
+train_seq, train_pos_seq, train_bin_seq , train_lab = prep_data4real(train_def_lst, wind, cfg)
+test_seq, test_pos_seq, test_bin_seq , test_lab = prep_data4real(test_def_lst, wind, cfg)
+valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = prep_data4real(valid_def_lst, wind, cfg)
 
-# Create Test data
-test_data = [prep_data(d['ner'], wind, cfg) for d in test_def_lst]
-test_seq, test_lab = zip(*test_data)
-test_pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in test_def_lst]
-test_bin_seq = [binary_features(d['ner']) for d in test_def_lst]
-# Pad it
-test_seq = pad_sequences(test_seq, **cfg['padseq'])
-test_pos_seq = pad_sequences(test_pos_seq, **cfg['padseq'])
-test_bin_seq = pad_sequences(test_bin_seq, **cfg['padseq'],
-                             value = cfg['nbin_feats']*[0.0],
-                            dtype='float32')
-test_lab = pad_sequences(test_lab, **cfg['padseq'])
+## Create Train data
+#train_data = [prep_data(d['ner'], wind, cfg) for d in train_def_lst]
+#train_seq, train_lab = zip(*train_data)
+#train_pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in train_def_lst]
+#train_bin_seq = [binary_features(d['ner']) for d in train_def_lst]
+#cfg['nbin_feats'] = len(train_bin_seq[0][0])
+## Pad it
+#train_seq = pad_sequences(train_seq, **cfg['padseq'])
+#train_pos_seq = pad_sequences(train_pos_seq, **cfg['padseq'])
+#train_bin_seq = pad_sequences(train_bin_seq, **cfg['padseq'],
+#                              value = cfg['nbin_feats']*[0.0],
+#                             dtype='float32')
+#train_lab = pad_sequences(train_lab, **cfg['padseq'])
+##train_lab = np.array([to_categorical(s, num_classes=cfg['n_tags']) for s in train_lab])
+#
+## Create Test data
+#test_data = [prep_data(d['ner'], wind, cfg) for d in test_def_lst]
+#test_seq, test_lab = zip(*test_data)
+#test_pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in test_def_lst]
+#test_bin_seq = [binary_features(d['ner']) for d in test_def_lst]
+## Pad it
+#test_seq = pad_sequences(test_seq, **cfg['padseq'])
+#test_pos_seq = pad_sequences(test_pos_seq, **cfg['padseq'])
+#test_bin_seq = pad_sequences(test_bin_seq, **cfg['padseq'],
+#                             value = cfg['nbin_feats']*[0.0],
+#                            dtype='float32')
+#test_lab = pad_sequences(test_lab, **cfg['padseq'])
 #test_lab = np.array([to_categorical(s, num_classes=cfg['n_tags']) for s in test_lab])
 # -
 
@@ -337,9 +366,13 @@ def bilstm_lstm_model_w_pos(cfg_dict):
     return model
 with_pos = bilstm_lstm_model_w_pos(cfg)
 
-res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=10,
-                batch_size=cfg['batch_size'],
-                validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
+# +
+#res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=30,
+#                batch_size=cfg['batch_size'],
+#                validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
+
+# Load weights instead of fitting
+res = with_pos.load_weights('/home/luis/rm_me_data/with_pos')
 
 # + magic_args="echo skip this" language="script"
 # # DEFINE MODEL WITH biLSTM AND TRAIN FUNCTION    
@@ -508,6 +541,11 @@ print(f"Cutoff:  {BOY_f_score[0]}")
 #1/5404.0*(np.sum(test_lab*np.log(np.squeeze(preds))) + np.sum((1-test_lab)*np.log(np.squeeze(1-preds))))
 # -
 
+# Save and Load models weights
+with_pos.save_weights('/home/luis/rm_me_data/with_pos')
+
+with_pos2 = bilstm_lstm_model_w_pos(cfg)
+
 # # get_bilstm_lstm_model Training history
 # ## First working attempt:  commit e4c41f0
 #
@@ -584,7 +622,7 @@ print(f"Cutoff:  {BOY_f_score[0]}")
 #     F-Measure:     66.8%%
 #     Cutoff:  0.6
 #
-# loss: 0.0362 - accuracy: 0.9855 - val_loss: 0.0489 - val_accuracy: 0.9812 -- 40 epochs. Commit: 
+# loss: 0.0362 - accuracy: 0.9855 - val_loss: 0.0489 - val_accuracy: 0.9812 -- 40 epochs. Commit: 0530c59
 #
 #     ChunkParse score:
 #         IOB Accuracy:  88.3%%

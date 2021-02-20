@@ -275,6 +275,7 @@ for k, dirname in enumerate(['math96',]):
     os.makedirs(out_path, exist_ok=True)
    
     for tfile in tar_lst:
+        Now = dt.now()
         #clf = lstm_model
         vzer = Vectorizer()
         def_root = untar_clf_append(tfile, out_path, lstm_model, vzer, thresh=opt_prob)
@@ -283,7 +284,8 @@ for k, dirname in enumerate(['math96',]):
         print(gz_filename)
         gz_out_path = os.path.join(out_path, gz_filename) 
         with gzip.open(gz_out_path, 'wb') as out_f:
-            print("Writing to dfdum zipped file to: %s"%gz_out_path)
+            logger.info("Writing to dfdum zipped file to: {} CLASSIFICATION TIME: {}"\
+                             .format(gz_out_path,(dt.now() - Now)))
             out_f.write(etree.tostring(def_root, pretty_print=True))
 
 

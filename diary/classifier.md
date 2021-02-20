@@ -1,3 +1,6 @@
+### Classifier LSTM performance:
+1.64 min/Mb This is time it take to run the LSTM classifier on 1 Mb of xml.tar.gz of articles.
+
 ### Classifier Metrics 
 ####Classifier Dropdown
 Better results given with the SVC C=600
