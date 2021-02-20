@@ -1,10 +1,11 @@
 #!/bin/bash
-#SBATCH --time=0-6:00:00
+#SBATCH --time=0-15:00:00
 #SBATCH --job-name=class_task
 #SBATCH --output=class_task.txt
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
-#SBATCH --gres=gpu:1
+#SBATCH --partition=GPU-shared
+#SBATCH --gpus=1
 
 source $HOME/env1/bin/activate
 module load AI/anaconda3-tf2.2020.11

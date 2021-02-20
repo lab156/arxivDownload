@@ -37,7 +37,7 @@ base_dir = os.environ['PROJECT'] # This is permanent storage
 local_dir = os.environ['LOCAL']  # This is temporary fast storage
 
 cfg = {'batch_size': 5000,
-      'glob_data_source': '/training_defs/math16/*.xml.gz',
+      'glob_data_source': '/training_defs/math*/*.xml.gz',
       'TVT_split' : 0.8,    ## Train  Validation Test split
       'max_seq_len': 400,   # Length of padding and input of Embedding layer
       'promath_dir': 'promath', # name of dir with the processed arXiv tar files
@@ -262,8 +262,8 @@ def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
             print(f"{repr(ee)}, 'file: ', {fname}, ' is empty'")
     return root
     
-#for k, dirname in enumerate(['tests',]):
-for k, dirname in enumerate(['math' + repr(k)[2:] for k in range(1991, 1994, 1)]):
+for k, dirname in enumerate(['math04',]):
+#for k, dirname in enumerate(['math' + repr(k)[2:] for k in range(2000, 2021, 1)]):
     logger.info('Classifying the contents of {}'.format(dirname))
     try:
         full_path = os.path.join(base_dir, cfg['promath_dir'], dirname)
@@ -275,6 +275,7 @@ for k, dirname in enumerate(['math' + repr(k)[2:] for k in range(1991, 1994, 1)]
     os.makedirs(out_path, exist_ok=True)
    
     for tfile in tar_lst:
+        Now = dt.now()
         #clf = lstm_model
         vzer = Vectorizer()
         def_root = untar_clf_append(tfile, out_path, lstm_model, vzer, thresh=opt_prob)
@@ -283,7 +284,8 @@ for k, dirname in enumerate(['math' + repr(k)[2:] for k in range(1991, 1994, 1)]
         print(gz_filename)
         gz_out_path = os.path.join(out_path, gz_filename) 
         with gzip.open(gz_out_path, 'wb') as out_f:
-            print("Writing to dfdum zipped file to: %s"%gz_out_path)
+            logger.info("Writing to dfdum zipped file to: {} CLASSIFICATION TIME: {}"\
+                             .format(gz_out_path,(dt.now() - Now)))
             out_f.write(etree.tostring(def_root, pretty_print=True))
 
 
