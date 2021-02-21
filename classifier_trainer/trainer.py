@@ -90,7 +90,7 @@ def stream_arxiv_paragraphs(xml_lst, samples=1000):
         cnt['defs'] += len(def_lst)
         cnt['nondefs'] += len(nondef_lst)
 
-        if cnt['defs'] + cnt['nondefs'] > samples:
+        if cnt['defs'] + cnt['nondefs'] > samples or X == xml_lst[-1]:
             out_lst = list(zip(data_texts, data_labels))
             random.shuffle(out_lst)
             logging.debug('Definition count: defs: {defs} nondefs: {nondefs}'.format(**cnt))

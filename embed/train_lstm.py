@@ -7,6 +7,8 @@ from random import shuffle
 from datetime import datetime as dt
 import logging
 import gzip
+import json
+import pickle
 
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
@@ -37,11 +39,11 @@ base_dir = os.environ['PROJECT'] # This is permanent storage
 local_dir = os.environ['LOCAL']  # This is temporary fast storage
 
 cfg = {'batch_size': 5000,
-      'glob_data_source': '/training_defs/math16/*.xml.gz',
+      'glob_data_source': '/training_defs/math17/*.xml.gz',
       'TVT_split' : 0.8,    ## Train  Validation Test split
       'max_seq_len': 400,   # Length of padding and input of Embedding layer
       'promath_dir': 'promath', # name of dir with the processed arXiv tar files
-      'save_path': 'glossary/test_lstm', #Path to save the positive results
+      #'save_path': 'glossary/test_lstm', #Path to save the positive results
       'min_words': 15, # min number of words for paragraphs to be considered
       }
 xml_lst = glob(base_dir + cfg['glob_data_source'])
@@ -52,8 +54,9 @@ hoy = dt.now()
 timestamp = hoy.strftime("%b-%d_%H-%M")
 save_path_dir = os.path.join(base_dir, 'trained_models/lstm_classifier/lstm_' + timestamp)
 os.mkdir(save_path_dir)
+cfg['save_path'] = os.path.join(save_path_dir, 'classification_results')
 
-logging.basicConfig(filename=os.path.join(save_path_dir, 'log.txt'),
+logging.basicConfig(filename=os.path.join(save_path_dir, 'training.log'),
         level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -92,7 +95,7 @@ tknr = Counter()
 # but this is text mining not statistical ML
 for t in all_data:
     tknr.update(normalize_text(t[0]).split())
-print("Most common tokens are:", tknr.most_common()[:10])
+logger.info("Most common tokens are:".format(tknr.most_common()[:10]))
 
 idx2tkn = list(tknr.keys())
 # append a padding value
@@ -147,7 +150,8 @@ test_seq = padding_fun(test_seq, cfg)
 
 print('Starting the embedding matrix')
 coverage_cnt = 0
-with open_w2v(base_dir + '/embeddings/model14-14_12-08/vectors.bin') as embed_dict:
+cfg['wembed_path'] = base_dir + '/embeddings/model14-14_12-08/vectors.bin'
+with open_w2v(cfg['wembed_path']) as embed_dict:
     cfg['embed_dim'] = embed_dict[next(iter(embed_dict))].shape[0]
     embed_matrix = np.zeros((cfg['tot_words'], cfg['embed_dim']))
     for word, ind in tkn2idx.items():
@@ -188,6 +192,8 @@ history = lstm_model.fit(train_seq, np.array(training[1]),
                 batch_size=512,
                 verbose=1)
 
+#cfg['using_weights']='/media/hd1/trained_models/lstm_classifier/lstm_Feb-15_22-04/model_weights'
+#lstm_model.load_weights(cfg['using_weights'])
 
 # Find the best classification cutoff parameter
 def find_best_cutoff(model, val_seq):
@@ -213,6 +219,8 @@ opt_prob, f1_max = find_best_cutoff(lstm_model, validation_seq)
 logger.info('\n Optimal probabilty threshold is {} for maximum F1 score {}\n'\
         .format(opt_prob, f1_max))
 
+cfg['opt_prob'] = opt_prob
+
 pred_test = lstm_model.predict(test_seq)
 
 metrics_str = metrics.classification_report((pred_test > opt_prob).astype(int), test[1])
@@ -227,65 +235,15 @@ lstm_model.save_weights( os.path.join(save_path_dir, 'model_weights') )
 logger.info('\n'.join(["{}: {}".format(k,v) for k, v in cfg.items()]))
 logger.info(repr(cfg))
 
+
+with open(os.path.join(save_path_dir, 'cfg_dict.json'), 'w') as cfg_fobj:
+    cfg = json.dump(cfg, cfg_fobj)
+
+with open(os.path.join(save_path_dir,'idx2tkn.pickle'), 'wb') as idx2tkn_fobj:
+    pickle.dump(idx2tkn, idx2tkn_fobj, pickle.HIGHEST_PROTOCOL)
+
 ##### Parameters of Features to explore
 # length of padding (number of input tokens)
 # length of lstm cells
 # change the word embedding model, this should a list of available word embedding with a method to open them
-
-######################################################
-# START THE CLASSIFICATION OF ARTICLE PARAGRAPHS     #
-######################################################
-
-class Vectorizer():
-    def __init__(self):
-        pass
-    def transform(self, L):
-        return padding_fun([text2seq(d) for d in L], cfg)
-
-def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
-    '''
-    Arguments:
-    `tfile` tarfile with arxiv format ex. 1401_001.tar.gz
-    `out_path` directory to save the xml.tar.gz file with the same name as `tfile`
-    `clf` model with .predict() attribute
-    `vzer` funtion that take the text of a paragraph and outputs padded np.arrays for `clf`
-    '''
-    root = etree.Element('root')
-    for fname, tar_fobj in peep.tar_iter(tfile, '.xml'):
-        try:
-            DD = px.DefinitionsXML(tar_fobj) 
-            if DD.det_language() in ['en', None]:
-                art_tree = Definiendum(DD, clf, None, vzer,\
-                        None, fname=fname, thresh=opt_prob, min_words=cfg['min_words']).root
-                if art_tree is not None: root.append(art_tree)
-        except ValueError as ee:
-            print(f"{repr(ee)}, 'file: ', {fname}, ' is empty'")
-    return root
-    
-for k, dirname in enumerate(['math96',]):
-#for k, dirname in enumerate(['math' + repr(k)[2:] for k in range(1996, 1994, 1)]):
-    logger.info('Classifying the contents of {}'.format(dirname))
-    try:
-        full_path = os.path.join(base_dir, cfg['promath_dir'], dirname)
-        tar_lst = [os.path.join(full_path, p) for p in os.listdir(full_path) if '.tar.gz' in p]
-    except FileNotFoundError:
-        print(' %s Not Found'%full_path)
-        break
-    out_path = os.path.join(local_dir, cfg['save_path'], dirname)
-    os.makedirs(out_path, exist_ok=True)
-   
-    for tfile in tar_lst:
-        Now = dt.now()
-        #clf = lstm_model
-        vzer = Vectorizer()
-        def_root = untar_clf_append(tfile, out_path, lstm_model, vzer, thresh=opt_prob)
-        #print(etree.tostring(def_root, pretty_print=True).decode())
-        gz_filename = os.path.basename(tfile).split('.')[0] + '.xml.gz' 
-        print(gz_filename)
-        gz_out_path = os.path.join(out_path, gz_filename) 
-        with gzip.open(gz_out_path, 'wb') as out_f:
-            logger.info("Writing to dfdum zipped file to: {} CLASSIFICATION TIME: {}"\
-                             .format(gz_out_path,(dt.now() - Now)))
-            out_f.write(etree.tostring(def_root, pretty_print=True))
-
 

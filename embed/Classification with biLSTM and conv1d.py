@@ -33,11 +33,14 @@ import tensorflow.keras.metrics as kmetrics
 
 import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
+import json
+import pickle
 # -
 
 # %load_ext autoreload
 # %autoreload 2
-from embed_utils import open_w2v, normalize_text
+from embed_utils import open_w2v
+from clean_and_token_text import normalize_text
 import sys,inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -46,6 +49,15 @@ from classifier_trainer.trainer import stream_arxiv_paragraphs
 import peep_tar as peep
 import parsing_xml as px
 from extract import Definiendum
+
+ss
+print(f' hola )
+
+tar_tree = etree.parse('/media/hd1/training_defs/math10/1009_004.xml.gz')
+tar_tree2 = etree.parse('/media/hd1/training_defs/math10/1010_001.xml.gz')
+def_lst = tar_tree.findall('.//definition') + tar_tree2.findall('.//definition') 
+nondef_lst = tar_tree.findall('.//nondef') + tar_tree2.findall('.//nondef')
+len(def_lst) + len(nondef_lst)
 
 # +
 cfg = {'batch_size': 5000,

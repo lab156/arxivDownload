@@ -455,6 +455,8 @@ ax2.legend()
 #preds = model_bilstm_lstm.predict(test_seq)
 preds = with_pos.predict([test_seq, test_pos_seq, test_bin_seq])
 
+with_pos.evaluate([test_seq, test_pos_seq, test_bin_seq], test_lab)
+
 k = 376
 for i in range(len(preds[k])):
     try:
