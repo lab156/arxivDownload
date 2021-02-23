@@ -8,7 +8,7 @@ import nltk
 import random
 import os.path
 from collections import defaultdict, Counter
-import magic
+#import magic
 import tarfile
 import peep_tar as peep
 from langdetect import detect
@@ -426,7 +426,8 @@ if __name__ == "__main__":
     allfiles = args.file_names[:-1]
     defs_file = args.file_names[-1]
     for f in allfiles:
-        if magic.detect_from_filename(f).mime_type == 'application/gzip':
+        if True:   #magic.detect_from_filename(f).mime_type == 'application/gzip':
+            raise ValueError('This is where I need magic')
             try:
                 for fobj in peep.tar_iter(f, '.xml'):
                     print('hola')

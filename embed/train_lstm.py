@@ -15,6 +15,8 @@ from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
                       GRU, Dropout, GlobalAveragePooling1D, Conv1D
 from tensorflow.keras.models import Sequential
 
+from tensorflow.config import list_physical_devices
+
 
 import sklearn.metrics as metrics
 # -
@@ -39,7 +41,7 @@ base_dir = os.environ['PROJECT'] # This is permanent storage
 local_dir = os.environ['LOCAL']  # This is temporary fast storage
 
 cfg = {'batch_size': 5000,
-      'glob_data_source': '/training_defs/math17/*.xml.gz',
+      'glob_data_source': '/training_defs/math*/*.xml.gz',
       'TVT_split' : 0.8,    ## Train  Validation Test split
       'max_seq_len': 400,   # Length of padding and input of Embedding layer
       'promath_dir': 'promath', # name of dir with the processed arXiv tar files
@@ -60,13 +62,18 @@ logging.basicConfig(filename=os.path.join(save_path_dir, 'training.log'),
         level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+logger.info("GPU devices: {}".format(list_physical_devices('GPU')))
 
+logger.info("Length of the xml_lst is: {}".format(len(xml_lst)))
 # READ THE TRAINING DATA
 stream = stream_arxiv_paragraphs(xml_lst, samples=cfg['batch_size'])
 
 all_data = []
 for s in stream:
-    all_data += list(zip(s[0], s[1]))
+    try:
+        all_data += list(zip(s[0], s[1]))
+    except IndexError:
+        logger.warning('Index error in the data stream.')
 shuffle(all_data)
 
 
