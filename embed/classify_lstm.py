@@ -14,6 +14,7 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
                       GRU, Dropout, GlobalAveragePooling1D, Conv1D
 from tensorflow.keras.models import Sequential
+from tensorflow.config import list_physical_devices
 
 
 import sklearn.metrics as metrics
@@ -38,11 +39,13 @@ local_dir = os.environ['LOCAL']  # This is temporary fast storage
 
 main_path = os.path.join(base_dir,\
         'trained_models/lstm_classifier',\
-        'lstm_Feb-21_03-28')
+        'lstm_Feb-21_19-12')
 
 logging.basicConfig(filename=os.path.join(main_path, 'classifying.log'),
         level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+logger.info("GPU devices: {}".format(list_physical_devices('GPU')))
 
 def open_cfg_dict(path):
     with open(path, 'r') as cfg_fobj:
