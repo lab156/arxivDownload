@@ -30,7 +30,7 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 from classifier_trainer.trainer import stream_arxiv_paragraphs
 import parsing_xml as px
-#from extract import Definiendum
+from extract import Definiendum
 import peep_tar as peep
 
 # GET the Important Environment Paths
