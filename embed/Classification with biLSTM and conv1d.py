@@ -50,9 +50,6 @@ import peep_tar as peep
 import parsing_xml as px
 from extract import Definiendum
 
-ss
-print(f' hola )
-
 tar_tree = etree.parse('/media/hd1/training_defs/math10/1009_004.xml.gz')
 tar_tree2 = etree.parse('/media/hd1/training_defs/math10/1010_001.xml.gz')
 def_lst = tar_tree.findall('.//definition') + tar_tree2.findall('.//definition') 
@@ -139,29 +136,28 @@ plt.grid()
 plt.title('Length in characters of the definitions in the training set')
 plt.show()
 
-# + jupyter={"outputs_hidden": true}
-# #%%script echo skipping
-cfg['conv_filters'] = 128
-cfg['kernel_size'] = 5
-def conv_model(cfg):
-    return Sequential([
-        Embedding(cfg['tot_words'], cfg['embed_dim'],
-                  input_length=max_seq_len, weights=[embed_matrix], trainable=False),
-        Conv1D(cfg['conv_filters'], cfg['kernel_size'], activation='relu'),
-        GlobalAveragePooling1D(),
-        Dropout(0.2),
-        Dense(64, activation='relu'),
-        Dense(1, activation='sigmoid'),
-    ])
-model = conv_model(cfg)
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.summary()
-tqdm_callback = TQDMProgressBar()
-history = model.fit(train_seq, np.array(training[1]),
-                epochs=20, validation_data=(validation_seq, np.array(validation[1])),
-                batch_size=512,
-                verbose=0,
-                callbacks=[tqdm_callback])
+# + magic_args="echo skipping" language="script"
+# cfg['conv_filters'] = 128
+# cfg['kernel_size'] = 5
+# def conv_model(cfg):
+#     return Sequential([
+#         Embedding(cfg['tot_words'], cfg['embed_dim'],
+#                   input_length=max_seq_len, weights=[embed_matrix], trainable=False),
+#         Conv1D(cfg['conv_filters'], cfg['kernel_size'], activation='relu'),
+#         GlobalAveragePooling1D(),
+#         Dropout(0.2),
+#         Dense(64, activation='relu'),
+#         Dense(1, activation='sigmoid'),
+#     ])
+# model = conv_model(cfg)
+# model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# model.summary()
+# tqdm_callback = TQDMProgressBar()
+# history = model.fit(train_seq, np.array(training[1]),
+#                 epochs=20, validation_data=(validation_seq, np.array(validation[1])),
+#                 batch_size=512,
+#                 verbose=0,
+#                 callbacks=[tqdm_callback])
 
 # + magic_args="echo skipping" language="script"
 # # Conv stats results

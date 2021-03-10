@@ -8,7 +8,7 @@ from datetime import datetime as dt
 import logging
 import gzip
 import json
-import pickle
+import pickle5 as pickle
 
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
@@ -39,9 +39,9 @@ local_dir = os.environ['LOCAL']  # This is temporary fast storage
 
 main_path = os.path.join(base_dir,\
         'trained_models/lstm_classifier',\
-        'lstm_Feb-21_19-12')
+        'lstm_Feb-21_16-26')
 
-logging.basicConfig(filename=os.path.join(main_path, 'classifying.log'),
+logging.basicConfig(filename=os.path.join(local_dir, 'classifying.log'),
         level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -114,7 +114,7 @@ def mine_dirs(dir_lst, cfg):
     #for k, dirname in enumerate(['math' + repr(k)[2:] for k in range(1996, 1994, 1)]):
         logger.info('Classifying the contents of {}'.format(dirname))
         try:
-            full_path = os.path.join(base_dir, cfg['promath_dir'], dirname)
+            full_path = os.path.join(local_dir, cfg['promath_dir'], dirname)
             tar_lst = [os.path.join(full_path, p) for p in os.listdir(full_path)\
                     if '.tar.gz' in p]
         except FileNotFoundError:

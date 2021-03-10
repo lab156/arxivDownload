@@ -467,7 +467,7 @@ for i in range(len(preds[k])):
         break
 
 
-# +
+# + jupyter={"source_hidden": true}
 def tf_bio_tagger(tf_pred, tag_def='DFNDUM', tag_o = 'O'):
     '''
     Convert a T/F (binary) Sequence into a BIO tag sequence
