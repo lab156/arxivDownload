@@ -29,8 +29,8 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 from classifier_trainer.trainer import stream_arxiv_paragraphs
-import parsing_xml as px
-from extract import Definiendum
+#import parsing_xml as px
+#from extract import Definiendum
 import peep_tar as peep
 
 # GET the Important Environment Paths
@@ -41,7 +41,7 @@ main_path = os.path.join(base_dir,\
         'trained_models/lstm_classifier',\
         'lstm_Feb-21_16-26')
 
-data_path = '/media/hd1/promath'
+data_path = '/opt/promath'
 
 logging.basicConfig(filename=os.path.join(local_dir, 'classifying.log'),
         level=logging.INFO)
