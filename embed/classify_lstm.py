@@ -54,6 +54,8 @@ def open_cfg_dict(path):
         cfg = json.load(cfg_fobj)
     return cfg
 
+cfg['save_path'] = local_dir
+
 #Define these variables Globally
 idx2tkn = ()
 tkn2idx = {}
