@@ -54,7 +54,6 @@ def open_cfg_dict(path):
         cfg = json.load(cfg_fobj)
     return cfg
 
-cfg['save_path'] = local_dir
 
 #Define these variables Globally
 idx2tkn = ()
@@ -186,6 +185,7 @@ def test_model(path):
 if __name__ == '__main__':
     # GET THE PATH AND DATA SOMEHOW
     cfg = open_cfg_dict(os.path.join(main_path, 'cfg_dict.json'))
+    cfg['save_path'] = local_dir
     idx2tkn, tkn2idx = open_idx2tkn_make_tkn2idx(os.path.join(main_path,\
             'idx2tkn.pickle'))
     print(tkn2idx['commutative'])
