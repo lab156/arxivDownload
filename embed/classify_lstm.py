@@ -29,7 +29,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 from classifier_trainer.trainer import stream_arxiv_paragraphs
-#import parsing_xml as px
+import parsing_xml as px
 #from extract import Definiendum
 import peep_tar as peep
 
@@ -193,5 +193,5 @@ if __name__ == '__main__':
     test_result = test_model('/opt/training_defs/math10/1009_004.xml.gz')
     logger.info(f'TEST Loss: {test_result[0]:1.3f} and Accuracy: {test_result[1]:1.3f}')
 
-    #mine_dirs(['math03'], cfg)
+    mine_dirs(['math03'], cfg)
 

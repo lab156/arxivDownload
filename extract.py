@@ -5,8 +5,8 @@ from nltk.chunk import ChunkParserI
 from ner.chunker import NamedEntityChunker, features
 from nltk import pos_tag, word_tokenize
 import nltk
-import sqlalchemy as sa
-from sqlalchemy.orm import sessionmaker
+#import sqlalchemy as sa
+#from sqlalchemy.orm import sessionmaker
 from sampling import create_dict
 import re
 
