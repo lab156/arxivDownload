@@ -41,6 +41,8 @@ main_path = os.path.join(base_dir,\
         'trained_models/lstm_classifier',\
         'lstm_Feb-21_16-26')
 
+data_path = '/media/hd1/promath'
+
 logging.basicConfig(filename=os.path.join(local_dir, 'classifying.log'),
         level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -114,7 +116,8 @@ def mine_dirs(dir_lst, cfg):
     #for k, dirname in enumerate(['math' + repr(k)[2:] for k in range(1996, 1994, 1)]):
         logger.info('Classifying the contents of {}'.format(dirname))
         try:
-            full_path = os.path.join(local_dir, cfg['promath_dir'], dirname)
+            #full_path = os.path.join(local_dir, cfg['promath_dir'], dirname)
+            full_path = os.path.join(data_path, dirname)
             tar_lst = [os.path.join(full_path, p) for p in os.listdir(full_path)\
                     if '.tar.gz' in p]
         except FileNotFoundError:
@@ -187,8 +190,8 @@ if __name__ == '__main__':
     
     lstm_model = lstm_model_one_layer(cfg)
     lstm_model.load_weights(main_path + '/model_weights')
-    test_result = test_model(base_dir + '/training_defs/math10/1009_004.xml.gz')
+    test_result = test_model('/opt/training_defs/math10/1009_004.xml.gz')
     logger.info(f'TEST Loss: {test_result[0]:1.3f} and Accuracy: {test_result[1]:1.3f}')
 
-    mine_dirs(['math03'], cfg)
+    #mine_dirs(['math03'], cfg)
 
