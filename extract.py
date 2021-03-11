@@ -7,7 +7,7 @@ from nltk import pos_tag, word_tokenize
 import nltk
 #import sqlalchemy as sa
 #from sqlalchemy.orm import sessionmaker
-from sampling import create_dict
+#from sampling import create_dict
 import re
 
 #TODO: All the xml tasks should be done by a helper
