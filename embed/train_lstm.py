@@ -47,6 +47,7 @@ cfg = {'batch_size': 5000,
       'promath_dir': 'promath', # name of dir with the processed arXiv tar files
       #'save_path': 'glossary/test_lstm', #Path to save the positive results
       'min_words': 15, # min number of words for paragraphs to be considered
+      'model_type': 'conv',  # options are lstm or conv
       }
 xml_lst = glob(base_dir + cfg['glob_data_source'])
 #xml_lst += glob('/media/hd1/training_defs/math14/*.xml.gz')
@@ -54,7 +55,11 @@ xml_lst = glob(base_dir + cfg['glob_data_source'])
 # CREATE LOG FILE AND OBJECT
 hoy = dt.now()
 timestamp = hoy.strftime("%b-%d_%H-%M")
-save_path_dir = os.path.join(base_dir, 'trained_models/lstm_classifier/lstm_' + timestamp)
+if cfg['model_type'] == 'lstm':
+    save_path_dir = os.path.join(base_dir, 'trained_models/lstm_classifier/lstm_' + timestamp)
+else:
+    save_path_dir = os.path.join(base_dir, 'trained_models/conv_classifier/conv_' + timestamp)
+
 os.mkdir(save_path_dir)
 cfg['save_path'] = os.path.join(save_path_dir, 'classification_results')
 
@@ -170,6 +175,19 @@ with open_w2v(cfg['wembed_path']) as embed_dict:
 
 print("The coverage percentage is: {}".format(coverage_cnt/len(idx2tkn)))
 
+def conv_model_globavgpool(cfg):
+    conv_m = Sequential([
+        Embedding(cfg['tot_words'], cfg['embed_dim'],
+                  input_length=cfg['max_seq_len'], weights=[embed_matrix], trainable=False),
+        Conv1D(cfg['conv_filters'], cfg['kernel_size'], activation='relu'),
+        GlobalAveragePooling1D(),
+        Dropout(0.2),
+        Dense(64, activation='relu'),
+        Dense(1, activation='sigmoid'),
+    ])
+    conv_m.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    conv_m.summary(print_fn=logger.info) 
+    return conv_m
 
 def lstm_model_one_layer(cfg):
     lstm_model = Sequential([
@@ -188,14 +206,26 @@ def lstm_model_one_layer(cfg):
     lstm_model.summary(print_fn=logger.info) 
     return lstm_model
 
-cfg['lstm_cells'] = 128 # Required LSTM layer parameter
-lstm_model = lstm_model_one_layer(cfg)
+if cfg['model_type'] == 'lstm':
+    cfg['lstm_cells'] = 128 # Required LSTM layer parameter
+    cfg['epochs'] = 2
+    cfg['model_name'] = lstm_model_one_layer.__name__
+
+    model = lstm_model_one_layer(cfg)
+elif cfg['model_type'] == 'conv':
+    cfg['conv_filters'] = 128
+    cfg['kernel_size'] = 5
+    cfg['epochs'] = 35
+    cfg['model_name'] = conv_model_globavgpool.__name__
+
+    model = conv_model_globavgpool(cfg)
+else:
+    raise NotImplementedError(f'Model Type: {cfg["model_type"]} not defined')
 
 
-cfg['model_name'] = lstm_model_one_layer.__name__
 
-history = lstm_model.fit(train_seq, np.array(training[1]),
-                epochs=2, validation_data=(validation_seq, np.array(validation[1])),
+history = model.fit(train_seq, np.array(training[1]),
+                epochs=cfg['epochs'], validation_data=(validation_seq, np.array(validation[1])),
                 batch_size=512,
                 verbose=1)
 
@@ -209,7 +239,7 @@ def find_best_cutoff(model, val_seq):
     val_seq: has same shape and format as the training sequence
     '''
     f1_max = 0.0; opt_prob = None
-    pred_validation = lstm_model.predict(val_seq)
+    pred_validation = model.predict(val_seq)
 
     for thresh in np.arange(0.1, 0.901, 0.01):
         thresh = np.round(thresh, 2)
@@ -221,21 +251,20 @@ def find_best_cutoff(model, val_seq):
             opt_prob = thresh
     return (opt_prob, f1_max)
 
-opt_prob, f1_max = find_best_cutoff(lstm_model, validation_seq)
+opt_prob, f1_max = find_best_cutoff(model, validation_seq)
 
 logger.info('\n Optimal probabilty threshold is {} for maximum F1 score {}\n'\
         .format(opt_prob, f1_max))
 
 cfg['opt_prob'] = opt_prob
 
-pred_test = lstm_model.predict(test_seq)
+pred_test = model.predict(test_seq)
 
 metrics_str = metrics.classification_report((pred_test > opt_prob).astype(int), test[1])
 logger.info('\n' + metrics_str)
 
 
-
-lstm_model.save_weights( os.path.join(save_path_dir, 'model_weights') )
+model.save_weights( os.path.join(save_path_dir, 'model_weights') )
 
 # Log both a pretty printed and a copy-pasteable version of the the cfg
 # dictionary

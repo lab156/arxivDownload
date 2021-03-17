@@ -136,28 +136,28 @@ plt.grid()
 plt.title('Length in characters of the definitions in the training set')
 plt.show()
 
-# + magic_args="echo skipping" language="script"
-# cfg['conv_filters'] = 128
-# cfg['kernel_size'] = 5
-# def conv_model(cfg):
-#     return Sequential([
-#         Embedding(cfg['tot_words'], cfg['embed_dim'],
-#                   input_length=max_seq_len, weights=[embed_matrix], trainable=False),
-#         Conv1D(cfg['conv_filters'], cfg['kernel_size'], activation='relu'),
-#         GlobalAveragePooling1D(),
-#         Dropout(0.2),
-#         Dense(64, activation='relu'),
-#         Dense(1, activation='sigmoid'),
-#     ])
-# model = conv_model(cfg)
-# model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-# model.summary()
-# tqdm_callback = TQDMProgressBar()
-# history = model.fit(train_seq, np.array(training[1]),
-#                 epochs=20, validation_data=(validation_seq, np.array(validation[1])),
-#                 batch_size=512,
-#                 verbose=0,
-#                 callbacks=[tqdm_callback])
+# #%%script echo skipping
+cfg['conv_filters'] = 128
+cfg['kernel_size'] = 5
+def conv_model(cfg):
+    return Sequential([
+        Embedding(cfg['tot_words'], cfg['embed_dim'],
+                  input_length=max_seq_len, weights=[embed_matrix], trainable=False),
+        Conv1D(cfg['conv_filters'], cfg['kernel_size'], activation='relu'),
+        GlobalAveragePooling1D(),
+        Dropout(0.2),
+        Dense(64, activation='relu'),
+        Dense(1, activation='sigmoid'),
+    ])
+model = conv_model(cfg)
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.summary()
+tqdm_callback = TQDMProgressBar()
+history = model.fit(train_seq, np.array(training[1]),
+                epochs=20, validation_data=(validation_seq, np.array(validation[1])),
+                batch_size=512,
+                verbose=0,
+                callbacks=[tqdm_callback])
 
 # + magic_args="echo skipping" language="script"
 # # Conv stats results
@@ -346,4 +346,6 @@ for k, dirname in enumerate(['math01',]):
             print("Writing to dfdum zipped file to: %s"%gz_out_path)
             out_f.write(etree.tostring(def_root, pretty_print=True))
 # -
+227/0.69
+
 

@@ -8,7 +8,11 @@ from datetime import datetime as dt
 import logging
 import gzip
 import json
-import pickle5 as pickle
+try:
+    import pickle5 as pickle
+except ModuleNotFoundError:
+    print('Module pickle5 not found. Continuing without it')
+    import pickle
 
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
@@ -32,16 +36,24 @@ from classifier_trainer.trainer import stream_arxiv_paragraphs
 import parsing_xml as px
 from extract import Definiendum
 import peep_tar as peep
+import classifier_models as M
 
 # GET the Important Environment Paths
 base_dir = os.environ['PROJECT'] # This is permanent storage
 local_dir = os.environ['LOCAL']  # This is temporary fast storage
 
 main_path = os.path.join(base_dir,\
-        'trained_models/lstm_classifier',\
-        'lstm_Feb-21_16-26')
+        'trained_models/conv_classifier',\
+        'conv_Mar-16_01-08')
 
+# PATH OF THE PROCESSED ARTICLES (directory: promath)
 data_path = '/opt/promath'
+#data_path = os.path.join(base_dir, 'promath')
+
+# path to the 
+train_example_path = '/opt/training_defs/math10/1009_004.xml.gz'
+#train_example_path = os.path.join(base_dir,
+#        'training_defs/math10/1009_004.xml.gz')
 
 logging.basicConfig(filename=os.path.join(local_dir, 'classifying.log'),
         level=logging.INFO)
@@ -132,7 +144,7 @@ def mine_dirs(dir_lst, cfg):
             #clf = lstm_model
             vzer = Vectorizer()
             def_root = untar_clf_append(tfile, out_path,\
-                    lstm_model, vzer, thresh=opt_prob)
+                    model, vzer, thresh=opt_prob)
             #print(etree.tostring(def_root, pretty_print=True).decode())
             gz_filename = os.path.basename(tfile).split('.')[0] + '.xml.gz' 
             print(gz_filename)
@@ -164,6 +176,7 @@ def lstm_model_one_layer(cfg):
     lstm_model.summary(print_fn=logger.info) 
     return lstm_model
 
+
 def test_model(path):
     xml_lst = [path,]
     stream = stream_arxiv_paragraphs(xml_lst, samples=6000)
@@ -176,7 +189,7 @@ def test_model(path):
     test = list(zip(*( all_data )))
     test_seq = [text2seq(t) for t in test[0]]
     test_seq = padding_fun(test_seq, cfg)
-    ret = lstm_model.evaluate(test_seq, np.array(test[1]))
+    ret = model.evaluate(test_seq, np.array(test[1]))
     return ret
 
 #########################
@@ -190,9 +203,12 @@ if __name__ == '__main__':
             'idx2tkn.pickle'))
     print(tkn2idx['commutative'])
     
-    lstm_model = lstm_model_one_layer(cfg)
-    lstm_model.load_weights(main_path + '/model_weights')
-    test_result = test_model('/opt/training_defs/math10/1009_004.xml.gz')
+    if cfg['model_type'] == 'lstm':
+        model = lstm_model_one_layer(cfg)
+    elif cfg['model_type'] == 'conv':
+        model = M.conv_model_globavgpool(cfg, logger)
+    model.load_weights(main_path + '/model_weights')
+    test_result = test_model(train_example_path)
     logger.info(f'TEST Loss: {test_result[0]:1.3f} and Accuracy: {test_result[1]:1.3f}')
 
     mine_dirs(['math03'], cfg)
