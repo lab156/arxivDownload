@@ -213,9 +213,9 @@ if cfg['model_type'] == 'lstm':
 
     model = lstm_model_one_layer(cfg)
 elif cfg['model_type'] == 'conv':
-    cfg['conv_filters'] = 256
-    cfg['kernel_size'] = 10
-    cfg['epochs'] = 35
+    cfg['conv_filters'] = 1024 # 256
+    cfg['kernel_size'] = 20 # 10
+    cfg['epochs'] = 20 # 35 
     cfg['model_name'] = conv_model_globavgpool.__name__
 
     model = conv_model_globavgpool(cfg)
