@@ -44,7 +44,7 @@ local_dir = os.environ['LOCAL']  # This is temporary fast storage
 
 main_path = os.path.join(base_dir,\
         'trained_models/conv_classifier',\
-        'conv_Mar-16_01-08')
+        'conv_Apr-06_22-49')
 
 # PATH OF THE PROCESSED ARTICLES (directory: promath)
 data_path = '/opt/promath'
