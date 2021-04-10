@@ -41,7 +41,8 @@ import classifier_models as M
 # GET the Important Environment Paths
 base_dir = os.environ['BASE_DIR'] # This is where the model resides i.e. /opt or /media/hd1
 local_dir = os.environ['MINE_OUT_DIR']  # This is temporary fast storage
-data_dir = os.environ['LOCAL']  # This is where the data resides /media/hd1 or $LOCAL
+data_dir = os.environ['DATA_DIR']  
+# DATA_DIR is where the data that will be classified resides /media/hd1 or $LOCAL
 
 tf_model_dir = os.path.join(base_dir,\
         'trained_models/lstm_classifier',\
