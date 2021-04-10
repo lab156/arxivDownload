@@ -49,6 +49,7 @@ tf_model_dir = os.path.join(base_dir,\
 
 # PATH OF THE PROCESSED ARTICLES (directory: promath)
 #data_path = '/opt/promath'
+print(f'We have that data_dir is {data_dir}')
 data_path = os.path.join(data_dir, 'promath')
 
 # path to the training data
