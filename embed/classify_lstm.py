@@ -39,21 +39,21 @@ import peep_tar as peep
 import classifier_models as M
 
 # GET the Important Environment Paths
-base_dir = os.environ['PROJECT'] # This is permanent storage
-local_dir = os.environ['LOCAL']  # This is temporary fast storage
+base_dir = os.environ['BASE_DIR'] # This is where the model resides i.e. /opt or /media/hd1
+local_dir = os.environ['MINE_OUT_DIR']  # This is temporary fast storage
+data_dir = os.environ['LOCAL']  # This is where the data resides /media/hd1 or $LOCAL
 
-main_path = os.path.join(base_dir,\
-        'trained_models/conv_classifier',\
-        'conv_Apr-06_22-49')
+tf_model_dir = os.path.join(base_dir,\
+        'trained_models/lstm_classifier',\
+        'lstm_Feb-21_16-26')
 
 # PATH OF THE PROCESSED ARTICLES (directory: promath)
-data_path = '/opt/promath'
-#data_path = os.path.join(base_dir, 'promath')
+#data_path = '/opt/promath'
+data_path = os.path.join(data_dir, 'promath')
 
-# path to the 
-train_example_path = '/opt/training_defs/math10/1009_004.xml.gz'
-#train_example_path = os.path.join(base_dir,
-#        'training_defs/math10/1009_004.xml.gz')
+# path to the training data
+train_example_path = os.path.join(base_dir,
+        'training_defs/math10/1009_004.xml.gz')
 
 logging.basicConfig(filename=os.path.join(local_dir, 'classifying.log'),
         level=logging.INFO)
@@ -196,10 +196,16 @@ def test_model(path):
 #### MAIN FUNCTION ######
 #########################
 if __name__ == '__main__':
-    # GET THE PATH AND DATA SOMEHOW
-    cfg = open_cfg_dict(os.path.join(main_path, 'cfg_dict.json'))
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('mine', type=str, nargs='+',
+            help='Path to save the logs and the results of mining. ex. math03 math04')
+    args = parser.parse_args()
+
+    # GET THE PATH AND config
+    cfg = open_cfg_dict(os.path.join(tf_model_dir, 'cfg_dict.json'))
     cfg['save_path'] = local_dir
-    idx2tkn, tkn2idx = open_idx2tkn_make_tkn2idx(os.path.join(main_path,\
+    idx2tkn, tkn2idx = open_idx2tkn_make_tkn2idx(os.path.join(tf_model_dir,\
             'idx2tkn.pickle'))
     print(tkn2idx['commutative'])
     
@@ -207,9 +213,13 @@ if __name__ == '__main__':
         model = lstm_model_one_layer(cfg)
     elif cfg['model_type'] == 'conv':
         model = M.conv_model_globavgpool(cfg, logger)
-    model.load_weights(main_path + '/model_weights')
+    model.load_weights(tf_model_dir + '/model_weights')
+
+    # TEST
     test_result = test_model(train_example_path)
     logger.info(f'TEST Loss: {test_result[0]:1.3f} and Accuracy: {test_result[1]:1.3f}')
 
-    mine_dirs(['math03'], cfg)
+    if args.mine is not None:
+        logger.info('List of Mining dirs: {}'.format(args.mine))
+        mine_dirs(args.mine, cfg)
 
