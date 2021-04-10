@@ -41,7 +41,7 @@ import classifier_models as M
 # GET the Important Environment Paths
 base_dir = os.environ['BASE_DIR'] # This is where the model resides i.e. /opt or /media/hd1
 local_dir = os.environ['MINE_OUT_DIR']  # This is temporary fast storage
-data_dir = os.environ['DATA_DIR']  
+#data_dir = os.environ['DATA_DIR']  
 # DATA_DIR is where the data that will be classified resides /media/hd1 or $LOCAL
 
 tf_model_dir = os.path.join(base_dir,\
@@ -49,9 +49,10 @@ tf_model_dir = os.path.join(base_dir,\
         'lstm_Feb-21_16-26')
 
 # PATH OF THE PROCESSED ARTICLES (directory: promath)
+# singularity cannot reach env variables so have to use full paths
 #data_path = '/opt/promath'
-print(f'We have that data_dir is {data_dir}')
-data_path = os.path.join(data_dir, 'promath')
+#data_path = os.path.join(data_dir, 'promath')
+data_path = ''
 
 # path to the training data
 train_example_path = os.path.join(base_dir,
