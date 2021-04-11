@@ -127,6 +127,7 @@ def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
     return root
     
 def mine_dirs(dir_lst, cfg):
+    # dir_list has full paths
     opt_prob = float(cfg['opt_prob'])
     for k, dirname in enumerate(dir_lst):
     #for k, dirname in enumerate(['math' + repr(k)[2:] for k in range(1996, 1994, 1)]):
@@ -139,7 +140,7 @@ def mine_dirs(dir_lst, cfg):
         except FileNotFoundError:
             print(' %s Not Found'%full_path)
             break
-        out_path = os.path.join(local_dir, cfg['save_path'], dirname)
+        out_path = os.path.join(cfg['save_path'], os.path.basename(dirname))
         os.makedirs(out_path, exist_ok=True)
        
         for tfile in tar_lst:
@@ -154,6 +155,7 @@ def mine_dirs(dir_lst, cfg):
             gz_out_path = os.path.join(out_path, gz_filename) 
             class_time = (dt.now() - Now)
             Now = dt.now()
+            #import pdb; pdb.set_trace()
             with gzip.open(gz_out_path, 'wb') as out_f:
                 print("Writing to dfdum zipped file to: %s"%gz_out_path)
                 out_f.write(etree.tostring(def_root, pretty_print=True))
