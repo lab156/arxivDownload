@@ -634,5 +634,3 @@ with_pos2 = bilstm_lstm_model_w_pos(cfg)
 #     Cutoff:  0.4
 
 cfg
-
-

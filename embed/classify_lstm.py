@@ -115,6 +115,7 @@ def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
     opt_prob = float(cfg['opt_prob'])
     root = etree.Element('root')
     for fname, tar_fobj in peep.tar_iter(tfile, '.xml'):
+        #print(f"**Peeping into file {fname}  **")
         try:
             DD = px.DefinitionsXML(tar_fobj) 
             if DD.det_language() in ['en', None]:
