@@ -135,6 +135,7 @@ def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
             print(f"{repr(ee)}, 'file: ', {fname}, ' IS NOT WRITABLE.'")
 
     gz_filename = os.path.basename(tfile).split('.')[0] + '.xml.gz' 
+    gz_out_path = os.path.join(out_path, gz_filename) 
     try:
         with gzip.open(gz_out_path, 'wb') as out_f:
             print("Writing to dfdum zipped file to: %s"%gz_out_path)
