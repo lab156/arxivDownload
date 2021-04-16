@@ -139,7 +139,7 @@ def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
     try:
         with gzip.open(gz_out_path, 'wb') as out_f:
             print("Writing to dfdum zipped file to: %s"%gz_out_path)
-            out_f.write(etree.tostring(def_root, pretty_print=True))
+            out_f.write(etree.tostring(root, pretty_print=True))
     except etree.SerialisationError as ee:
         print(f"{repr(ee)}, PROBLEMS AT THE end of first function FUNCTION")
     return root
