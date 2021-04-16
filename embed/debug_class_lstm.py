@@ -165,9 +165,12 @@ def mine_dirs(dir_lst, cfg, **kwargs):
             class_time = (dt.now() - Now)
             Now = dt.now()
             #import pdb; pdb.set_trace()
-            with gzip.open(gz_out_path, 'wb') as out_f:
-                print("Writing to dfdum zipped file to: %s"%gz_out_path)
-                out_f.write(etree.tostring(def_root, pretty_print=True))
+            try:
+                with gzip.open(gz_out_path, 'wb') as out_f:
+                    print("Writing to dfdum zipped file to: %s"%gz_out_path)
+                    out_f.write(etree.tostring(def_root, pretty_print=True))
+            except etree.SerialisationError as ee:
+                print(f"{repr(ee)}, PROBLEMS AT THE mine_dirs FUNCTION")
             writing_time = (dt.now() - Now) 
             logger.info("Writing file to: {} CLASSIFICATION TIME: {} Writing Time {}"\
                              .format(gz_out_path, class_time, writing_time))
