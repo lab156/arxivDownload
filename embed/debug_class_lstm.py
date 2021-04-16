@@ -128,12 +128,13 @@ def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
             with gzip.open(os.path.join(out_path,just_the_name+'.gz'), 'wb') as out_f:
                 #print("Writing to dfdum zipped file to: %s"%gz_out_path)
                 #raise etree.SerialisationError('-- ERROR --')
-                out_f.write(etree.tostring(root, pretty_print=True))
+                try:
+                    out_f.write(etree.tostring(root, pretty_print=True))
+                except etree.SerialisationError as ee:
+                    print(f"{repr(ee)}, 'file: ', {fname}, ' IS NOT WRITABLE.'")
+                    print(etree.tostring(art_tree))
         except ValueError as ee:
             print(f"{repr(ee)}, 'file: ', {fname}, ' is empty'")
-        except etree.SerialisationError as ee:
-            print(f"{repr(ee)}, 'file: ', {fname}, ' IS NOT WRITABLE.'")
-            print(etree.tostring(root))
             break
 
     gz_filename = os.path.basename(tfile).split('.')[0] + '.xml.gz' 
