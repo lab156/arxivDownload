@@ -133,9 +133,9 @@ def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
                 except etree.SerialisationError as ee:
                     print(f"{repr(ee)}, 'file: ', {fname}, ' IS NOT WRITABLE.'")
                     print(etree.tostring(art_tree))
+                    break
         except ValueError as ee:
             print(f"{repr(ee)}, 'file: ', {fname}, ' is empty'")
-            break
 
     gz_filename = os.path.basename(tfile).split('.')[0] + '.xml.gz' 
     gz_out_path = os.path.join(out_path, gz_filename) 
