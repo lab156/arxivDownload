@@ -159,7 +159,7 @@ def mine_dirs(dir_lst, cfg):
             #import pdb; pdb.set_trace()
             with gzip.open(gz_out_path, 'wb') as out_f:
                 print("Writing to dfdum zipped file to: %s"%gz_out_path)
-                out_f.write(etree.tostring(def_root, pretty_print=True))
+                out_f.write(etree.tostring(def_root, encoding='utf8', pretty_print=True))
             writing_time = (dt.now() - Now) 
             logger.info("Writing file to: {} CLASSIFICATION TIME: {} Writing Time {}"\
                              .format(gz_out_path, class_time, writing_time))
