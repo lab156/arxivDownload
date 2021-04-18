@@ -129,7 +129,7 @@ def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
                 #print("Writing to dfdum zipped file to: %s"%gz_out_path)
                 #raise etree.SerialisationError('-- ERROR --')
                 try:
-                    out_f.write(etree.tostring(root, encoding='unicode', pretty_print=True))
+                    out_f.write(etree.tostring(root, encoding='utf8', pretty_print=True))
                 except etree.SerialisationError as ee:
                     print(f"{repr(ee)}, 'file: ', {fname}, ' IS NOT WRITABLE.'")
                     print(etree.tostring(art_tree))
