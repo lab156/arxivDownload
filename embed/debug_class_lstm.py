@@ -133,7 +133,7 @@ def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
                 except etree.SerialisationError as ee:
                     print(f"{repr(ee)}, 'file: ', {fname}, ' IS NOT WRITABLE.'")
                     print(etree.tostring(art_tree))
-                    with gzip.open(os.path.join(out_path,tuquito+'.gz'), 'wb') as out_f:
+                    with gzip.open(os.path.join(out_path,'tuquito.gz'), 'wb') as out_f:
                         out_f.write(etree.tostring(art_tree, pretty_print=True))
                     break
         except ValueError as ee:
