@@ -34,6 +34,8 @@ from nltk.chunk.util import ChunkScore
 import pickle
 import math
 import string
+import json
+import gzip
 #import collections.Iterable as Iterable
 
 import sklearn.metrics as metrics
@@ -45,6 +47,7 @@ import gzip
 from lxml import etree
 from tqdm import tqdm
 import random
+import glob
 from collections import Counter
 
 # %load_ext autoreload
@@ -96,14 +99,17 @@ random.shuffle(text_lst)
 
 # Get data and train the Sentence tokenizer
 # Uses a standard algorithm (Kiss-Strunk) for unsupervised sentence boundary detection
-text = ''
-for i in range(3550):
-    text += text_lst[i][2]
+#text = ''
+#for i in range(3550):
+#    text += text_lst[i][2]
 
-trainer = PunktTrainer()
-trainer.INCLUDE_ALL_COLLOCS = True
-trainer.train(text)
-sent_tok = PunktSentenceTokenizer(trainer.get_params())
+#trainer = PunktTrainer()
+#trainer.INCLUDE_ALL_COLLOCS = True
+#trainer.train(text)
+#sent_tok = PunktSentenceTokenizer(trainer.get_params())
+with open('/home/luis/ner_model/punkt_params.pickle', 'rb') as punk_fobj:
+    trainer_params = pickle.load(punk_fobj)
+    sent_tok = PunktSentenceTokenizer(trainer_params)
 print(sent_tok._params.abbrev_types)
 
 def_lst = ner.bio_tag.put_pos_ner_tags(text_lst, sent_tok)
@@ -116,6 +122,7 @@ print("Found {} alphanum POS tags in the data, the most common are: {}"\
       .format(len(pos_cnt), pos_cnt.most_common()[:10]))
 pos_lst = list(pos_cnt)
 pos_ind_dict = {pos: k for k, pos in enumerate(pos_lst)}
+cfg['Npos_cnt'] = len(pos_cnt)
 # -
 
 with open_w2v('/media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin') as embed_dict:
@@ -226,34 +233,6 @@ train_seq, train_pos_seq, train_bin_seq , train_lab = prep_data4real(train_def_l
 test_seq, test_pos_seq, test_bin_seq , test_lab = prep_data4real(test_def_lst, wind, cfg)
 valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = prep_data4real(valid_def_lst, wind, cfg)
 
-## Create Train data
-#train_data = [prep_data(d['ner'], wind, cfg) for d in train_def_lst]
-#train_seq, train_lab = zip(*train_data)
-#train_pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in train_def_lst]
-#train_bin_seq = [binary_features(d['ner']) for d in train_def_lst]
-#cfg['nbin_feats'] = len(train_bin_seq[0][0])
-## Pad it
-#train_seq = pad_sequences(train_seq, **cfg['padseq'])
-#train_pos_seq = pad_sequences(train_pos_seq, **cfg['padseq'])
-#train_bin_seq = pad_sequences(train_bin_seq, **cfg['padseq'],
-#                              value = cfg['nbin_feats']*[0.0],
-#                             dtype='float32')
-#train_lab = pad_sequences(train_lab, **cfg['padseq'])
-##train_lab = np.array([to_categorical(s, num_classes=cfg['n_tags']) for s in train_lab])
-#
-## Create Test data
-#test_data = [prep_data(d['ner'], wind, cfg) for d in test_def_lst]
-#test_seq, test_lab = zip(*test_data)
-#test_pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in test_def_lst]
-#test_bin_seq = [binary_features(d['ner']) for d in test_def_lst]
-## Pad it
-#test_seq = pad_sequences(test_seq, **cfg['padseq'])
-#test_pos_seq = pad_sequences(test_pos_seq, **cfg['padseq'])
-#test_bin_seq = pad_sequences(test_bin_seq, **cfg['padseq'],
-#                             value = cfg['nbin_feats']*[0.0],
-#                            dtype='float32')
-#test_lab = pad_sequences(test_lab, **cfg['padseq'])
-#test_lab = np.array([to_categorical(s, num_classes=cfg['n_tags']) for s in test_lab])
 # -
 
 # ### TODO
@@ -310,7 +289,7 @@ valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = prep_data4real(valid_def_l
 # -
 
 cfg.update({'input_dim': len(wind),
-      'output_dim': 200,
+      'output_dim': 200, #don't keep hardcoding this
      'input_length': cfg['padseq']['maxlen'],
      'pos_dim': 3,
             'pos_constraint': 1/200,
@@ -329,10 +308,10 @@ def bilstm_lstm_model_w_pos(cfg_dict):
     word_embed = Embedding(cfg_dict['input_dim'], 
                         output_dim=cfg_dict['output_dim'],
                         input_length=cfg_dict['input_length'],
-                       weights = [embed_matrix],
+                       #weights = [embed_matrix],
                        trainable = False,
                           name='word-embed')(words_in)
-    pos_embed = Embedding(len(pos_cnt), 
+    pos_embed = Embedding(cfg['Npos_cnt'], 
                         output_dim=cfg_dict['pos_dim'],
                         input_length=cfg_dict['input_length'],
                           embeddings_initializer=tf.keras.initializers.RandomNormal(mean=0., stddev=1.),
@@ -364,15 +343,20 @@ def bilstm_lstm_model_w_pos(cfg_dict):
                   optimizer=adam, metrics=['accuracy'])
     model.summary()
     return model
-with_pos = bilstm_lstm_model_w_pos(cfg)
+#with_pos = bilstm_lstm_model_w_pos(cfg)
 
 # +
 #res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=30,
 #                batch_size=cfg['batch_size'],
 #                validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
 
-# Load weights instead of fitting
-res = with_pos.load_weights('/home/luis/rm_me_data/with_pos')
+# Load weights instead of training
+save_model_dir = '/home/luis/ner_model/'
+with open(save_model_dir + 'cfg.json', 'r') as cfg_fobj:
+    cfg = json.load(cfg_fobj)
+    
+with_pos = bilstm_lstm_model_w_pos(cfg)
+res = with_pos.load_weights(save_model_dir + 'bilstm_with_pos')
 
 # + magic_args="echo skip this" language="script"
 # # DEFINE MODEL WITH biLSTM AND TRAIN FUNCTION    
@@ -419,21 +403,20 @@ res = with_pos.load_weights('/home/luis/rm_me_data/with_pos')
 # model_bilstm_lstm = get_bilstm_lstm_model(cfg)
 # #plot_model(model_bilstm_lstm)
 
-# + magic_args="echo skip this" language="script"
+# + magic_args="echo no train loading " language="script"
 # history = train_model(train_seq, train_lab, model_bilstm_lstm, epochs=70)
-# -
-
-#r = history
-r = res
-fig = plt.figure(figsize=(12, 6))
-ax1 = plt.subplot(121)
-ax1.plot(r.history['loss'], label='loss')
-ax1.plot(r.history['val_loss'], label='val_loss')
-ax1.legend()
-ax2 = plt.subplot(122)
-ax2.plot(r.history['accuracy'], label='acc')
-ax2.plot(r.history['val_accuracy'], label='val_acc')
-ax2.legend()
+#
+# #r = history
+# r = res
+# fig = plt.figure(figsize=(12, 6))
+# ax1 = plt.subplot(121)
+# ax1.plot(r.history['loss'], label='loss')
+# ax1.plot(r.history['val_loss'], label='val_loss')
+# ax1.legend()
+# ax2 = plt.subplot(122)
+# ax2.plot(r.history['accuracy'], label='acc')
+# ax2.plot(r.history['val_accuracy'], label='val_acc')
+# ax2.legend()
 
 # + magic_args="echo skip this" language="script"
 # #sample_str = 'a banach space is defined as complete vector space of some kind .'
@@ -441,7 +424,8 @@ ax2.legend()
 # sample_str = '_display_math_ The Ursell functions of a single random variable X are obtained from these by setting _inline_math_..._inline_math_ .'
 # sample_pad, _ = prep_data(sample_str, wind, cfg, 'no_tags')
 # sample_pad = pad_sequences([sample_pad], **cfg['padseq'])
-# pred = model_bilstm_lstm.predict(sample_pad)
+# print(sample_pad)
+# #pred = with_pos.predict(sample_pad)
 # #np.argmax(pred.squeeze(), axis=1)
 # for i, w in enumerate(sample_pad[0]):
 #     if wind[w] == '.':
@@ -457,7 +441,7 @@ preds = with_pos.predict([test_seq, test_pos_seq, test_bin_seq])
 
 with_pos.evaluate([test_seq, test_pos_seq, test_bin_seq], test_lab)
 
-k = 376
+k = 386
 for i in range(len(preds[k])):
     try:
         print('{:<20} {} {:1.2f}'.format(test_def_lst[k]['ner'][i][0][0], 
@@ -467,7 +451,7 @@ for i in range(len(preds[k])):
         break
 
 
-# + jupyter={"source_hidden": true}
+# +
 def tf_bio_tagger(tf_pred, tag_def='DFNDUM', tag_o = 'O'):
     '''
     Convert a T/F (binary) Sequence into a BIO tag sequence
@@ -538,15 +522,244 @@ plt.show()
 
 print(get_chunkscore(BOY_f_score[0]))
 print(f"Cutoff:  {BOY_f_score[0]}")
+cfg['tboy'] = {'cutoff': BOY_f_score[0], 
+              'f_meas': BOY_f_score[1]}
 
 # +
 #1/5404.0*(np.sum(test_lab*np.log(np.squeeze(preds))) + np.sum((1-test_lab)*np.log(np.squeeze(1-preds))))
+
+# +
+# SAVE AND LOAD MODELS WEIGHTS
+cfg['save_model_dir'] = '/home/luis/ner_model/'
+#with_pos.save_weights(cfg['save_model_dir'] + 'bilstm_with_pos')
+with open(cfg['save_model_dir'] + 'cfg.json', 'w') as cfg_fobj:
+    json.dump(cfg, cfg_fobj)
+with open(os.path.join(cfg['save_model_dir'],'wordindex.pickle'), 'wb') as wind_fobj:
+    pickle.dump(wind, wind_fobj) 
+with open(os.path.join(cfg['save_model_dir'],'posindex.pickle'), 'wb') as pos_fobj:
+    pickle.dump(pos_lst, pos_fobj)
+    
+with open('/home/luis/ner_model/punkt_params.pickle', 'wb') as punkt_fobj:
+    pickle.dump(trainer.get_params(), punkt_fobj)
 # -
 
-# Save and Load models weights
-with_pos.save_weights('/home/luis/rm_me_data/with_pos')
+tkn2idx = {tok: idx for idx, tok in enumerate(wind)}
+pos_dict = {tok: idx for idx, tok in enumerate(pos_lst)}
 
-with_pos2 = bilstm_lstm_model_w_pos(cfg)
+# +
+data_source_dir = '/media/hd1/glossary/inference_class_all/'
+#with gzip.open(data_source_dir + 'math05/0505_001.xml.gz', 'rb') as xml_fobj:
+#with gzip.open(data_source_dir + 'math15/1505_001.xml.gz', 'rb') as xml_fobj:
+#    xml_tree = etree.parse(xml_fobj + 'math05/0505_001.xml.gz')
+pars = etree.XMLParser(recover=True)
+xml_tree = etree.parse(data_source_dir + 'math05/0505_001.xml.gz', parser=pars)
+    
+def add_dfndum(D, term):
+    # Add term to definition element D in a dfndum tag
+    dfndum = etree.SubElement(D, 'dfndum')
+    dfndum.text = term
+    return D
+
+def str_tok_pos_tags(defp, tok):
+    '''
+    INPUTS
+    ------
+    defp: a string representing a Paragraph of a definition
+          with possible many sentences.
+    EX.
+    defl: A curve _inline_math_ is said to be
+    output format:
+               [ [ ('A', 'DT'),
+                ('curve', 'NN'),
+                ('_inline_math_', 'NN'),
+                ('is', 'VBZ'),
+                ('said', 'VBD'),
+                ('to', 'TO'),
+    '''
+    if not isinstance(defp, str):
+        raise ValueError('str_tok_pos_tags Only takes str as defl.')
+        
+    big_lst = []
+    for d in tok.tokenize(defp):
+        pos_tokens = pos_tag(word_tokenize(d))
+        big_lst.append(pos_tokens)
+    return big_lst
+
+def apply_wind_pos_ind(tag_str, word_dict, pos_dict):
+    '''
+    input format:
+               [ [ None or parent_def,
+               ('A', 'DT'),
+                ('curve', 'NN'),
+                ('_inline_math_', 'NN'),
+                ('is', 'VBZ'),
+                ('said', 'VBD'),
+                ('to', 'TO'), ]]
+                
+    output format:
+          [[ (12, 4, 1.0, 0.0),
+          (2159, 1, 0.0, 0.0),
+          (5, 19, 0.0, 0.0),
+          (3611, 1, 0.0, 0.0),
+          (7, 2, 0.0, 0.0),
+    '''
+        # Normalize each word and get word index or default 0
+    index_word = lambda w: word_dict.get(clean.normalize_text(w).strip(), 0)
+        # Binary data
+    capitalized = lambda w: float(w[0] in string.ascii_uppercase)
+    contains_dash = lambda word: float('-' in word)
+
+    output_lst = []
+    for sent in tag_str:
+        norm_words = [ ( index_word(d[0]), pos_dict[d[1]],
+                       capitalized(d[0]), contains_dash(d[0]))  for d in sent]
+        output_lst.append(norm_words)
+    return output_lst
+
+def pad_unpack_stack(pos_sents, cfg):
+    w_seq = []
+    p_seq = []
+    b_seq = []
+    for sent in pos_sents:
+        _seq, _pos_seq, *_bin_seq = list(zip(*sent))
+        w_seq.append(_seq)
+        p_seq.append(_pos_seq)
+        b_seq.append(_bin_seq)
+        
+    b_seq = [list(zip(*l)) for l in b_seq] # unpack b_seq to list of binary pairs
+    w_seq = pad_sequences(w_seq, **cfg['padseq'])
+    p_seq = pad_sequences(p_seq, **cfg['padseq'])
+    b_seq = pad_sequences(b_seq, **cfg['padseq'],
+                              value = cfg['nbin_feats']*[0.0],
+                             dtype='float32')
+    return w_seq, p_seq, b_seq
+
+def _prep_raw_data(text, tok, word_dict, pos_dict, cfg):
+    # just a function for other function to wrap around
+    pos_sents = str_tok_pos_tags(text, tok)
+
+    pos_sents = apply_wind_pos_ind(pos_sents, tkn2idx, pos_ind_dict)
+
+    return pad_unpack_stack(pos_sents, cfg) # returns words, pos, binary
+
+def crop_term_words(sent, P):
+    '''
+    sent has the format:
+    [('_display_math_', 'IN'),
+ ('The', 'DT'),
+ ('Ursell', 'NNP'),
+ ('functions', 'NNS'),
+ ('of', 'IN'),
+ ('a', 'DT'),
+ ('single', 'JJ'),
+     
+    '''
+    term_lst = []
+    k = 0
+    while True:
+        try:
+            assert isinstance(P[k], np.bool_), f"P={P} is not a numpy bool"
+            if P[k]:
+                term_str = sent[k][0]
+                k += 1
+                while P[k]:
+                    term_str += ' ' + sent[k][0]
+                    k += 1
+                term_lst.append(term_str)
+            else:
+                k += 1
+        except IndexError:
+            break
+    return term_lst
+            
+    
+def prep_raw_data(xml_path, tok, word_dict, pos_dict, cfg, model=None):
+    '''
+    xml_path: path to a compressed xml file of definitions
+    
+    tok: sentence tokenizer
+    
+    word_dict: dictionary word -> index
+    
+    pos_dict: dictionary pos_code -> index
+    ---------------------------
+    Returns:
+    Data ready for the model: word_seq (N,50), pos_seq (N,50), bin_seq (N,50,2)
+    def_indices: list with format [(def_tag, [0,1,2,3]), ]
+    '''
+    if isinstance(xml_path, str):
+        if not os.path.isfile(xml_path): raise ValueError(f"{xml_path} is Not a file")
+        pars = etree.XMLParser(recover=True)
+        xml_tree = etree.parse(xml_path, parser=pars)
+        root = xml_tree.getroot()
+        Defs = root.findall('.//definition')
+    
+    def_indices = []
+    prev_ind = 0
+    word_seqs = np.zeros([0, cfg['padseq']['maxlen']])
+    pos_seqs = np.zeros([0, cfg['padseq']['maxlen']])
+    bin_seqs = np.zeros([0, cfg['padseq']['maxlen'], cfg['nbin_feats']])
+    all_word_sents = []
+    for D in Defs:
+        text = D.find('stmnt').text
+        word_sents = str_tok_pos_tags(text, tok)
+        all_word_sents += word_sents
+
+        indexed_sents = apply_wind_pos_ind(word_sents, tkn2idx, pos_ind_dict)
+        wo, po, bi = pad_unpack_stack(indexed_sents, cfg) 
+        # returns words, pos, binary_prep_raw_data(text, tok, word_dict, pos_dict, cfg)
+        
+        word_seqs = np.append(word_seqs, wo, axis=0)
+        pos_seqs = np.append(pos_seqs, po, axis=0)
+        bin_seqs = np.append(bin_seqs, bi, axis=0)
+        
+        def_indices.append((D, range(prev_ind, prev_ind+len(word_sents))))
+        prev_ind += len(word_sents)
+    
+    # Invert def_indices
+    inv_indices = len(all_word_sents)*[None]
+    for e in def_indices:
+        for k in e[1]:
+            inv_indices[k] = e[0]
+    assert all([not(l == None) for l in inv_indices])
+    
+    # INFERENCE AND REGISTRATION
+    if model is not None:
+        preds = model.predict([word_seqs, pos_seqs, bin_seqs])
+        assert len(all_word_sents) == preds.shape[0]
+        for i in range(len(all_word_sents)):
+            term_lst = crop_term_words(all_word_sents[i],
+                        [p[0] for p in (preds[i]>cfg['tboy']['cutoff'])])
+            for Term in term_lst:
+                add_dfndum(inv_indices[i], Term)
+    else:
+        preds = None
+    
+    with open('/home/luis/rm_me.xml', 'w') as xml_fobj:
+        xml_fobj.write(etree.tostring(root, pretty_print=True).decode('utf8'))
+    
+    return None #word_seqs, pos_seqs, bin_seqs, def_indices
+        
+        
+#print(etree.tostring(D, pretty_print=True).decode('utf8'))
+#add_dfndum(D, 'mazo')
+#add_dfndum(D, 'tola')
+#print(etree.tostring(D, pretty_print=True).decode('utf8'))
+
+#text = D.find('stmnt').text
+text = '_display_math_ The Ursell functions of a single random variable X are obtained from these by setting _inline_math_..._inline_math_ .'
+print(text)
+ww, pp, bb = _prep_raw_data(text, sent_tok, tkn2idx, pos_dict, cfg)
+preds = with_pos.predict([ww,pp, bb])
+
+for k in range(preds.shape[0]):
+    sent_str = ' '.join(["{:1.2f}".format(r[0]) for r in preds[k]])
+    print(sent_str)
+
+# -
+
+with gzip.open('/home/luis/rm_me2.tar.gz', 'wb') as fobj:
+    fobj.write(etree.tostring(root, pretty_print=True))
 
 # # get_bilstm_lstm_model Training history
 # ## First working attempt:  commit e4c41f0
@@ -633,4 +846,4 @@ with_pos2 = bilstm_lstm_model_w_pos(cfg)
 #         F-Measure:     63.2%%
 #     Cutoff:  0.4
 
-cfg
+

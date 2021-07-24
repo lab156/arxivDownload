@@ -99,3 +99,29 @@ def put_pos_ner_tags(defl, tok):
         except ValueError:
             print('parsing error')
     return def_lst
+
+def str_tok_pos_tags(defl, tok):
+    '''
+    INPUTS
+    ------
+    defl: either a string or list of strings
+    EX.
+    defl: A curve _inline_math_ is said to be
+    output format:
+                [(('A', 'DT'), 'O'),
+                (('curve', 'NN'), 'O'),
+                (('_inline_math_', 'NN'), 'O'),
+                (('is', 'VBZ'), 'O'),
+                (('said', 'VBD'), 'O'),
+                (('to', 'TO'), 'O'),
+    '''
+    if isinstance(defl, str):
+        defl = [defl]
+    big_lst = []
+    for D in range(len(defl)):
+        def_lst = []
+        for d in tok.tokenize(D):
+            pos_tokens = pos_tag(word_tokenize(d))
+            def_lst.append(pos_tokens)
+        big_lst.append(def_lst)
+    return big_lst

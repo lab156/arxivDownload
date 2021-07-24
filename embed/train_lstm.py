@@ -273,7 +273,7 @@ logger.info(repr(cfg))
 
 
 with open(os.path.join(save_path_dir, 'cfg_dict.json'), 'w') as cfg_fobj:
-    cfg = json.dump(cfg, cfg_fobj)
+    json.dump(cfg, cfg_fobj)
 
 with open(os.path.join(save_path_dir,'idx2tkn.pickle'), 'wb') as idx2tkn_fobj:
     pickle.dump(idx2tkn, idx2tkn_fobj, pickle.HIGHEST_PROTOCOL)
