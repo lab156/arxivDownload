@@ -1,0 +1,52 @@
+This is BibTeX, Version 0.99d (TeX Live 2020/Arch Linux)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: acl2021.aux
+The style file: acl_natbib.bst
+Reallocated glb_str_ptr (elt_size=8) to 20 items from 10.
+Reallocated global_strs (elt_size=20001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=8) to 20 items from 10.
+Reallocated singl_function (elt_size=8) to 100 items from 50.
+Database file #1: anthology.bib
+Database file #2: acl2021.bib
+Reallocated wiz_functions (elt_size=8) to 6000 items from 3000.
+You've used 10 entries,
+            3571 wiz_defined-function locations,
+            771 strings with 7662 characters,
+and the built_in function-call counts, 6624 in all, are:
+= -- 604
+> -- 218
+< -- 13
++ -- 73
+- -- 57
+* -- 391
+:= -- 990
+add.period$ -- 43
+call.type$ -- 10
+change.case$ -- 75
+chr.to.int$ -- 10
+cite$ -- 10
+duplicate$ -- 452
+empty$ -- 545
+format.name$ -- 91
+if$ -- 1499
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 92
+newline$ -- 55
+num.names$ -- 40
+pop$ -- 194
+preamble$ -- 1
+purify$ -- 59
+quote$ -- 0
+skip$ -- 364
+stack$ -- 0
+substring$ -- 243
+swap$ -- 225
+text.length$ -- 5
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 81
+warning$ -- 0
+while$ -- 44
+width$ -- 0
+write$ -- 138

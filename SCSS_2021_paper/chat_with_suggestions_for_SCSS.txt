@@ -1,0 +1,15 @@
+ mathlib (part of Lean)
+ anonymized
+ p3 defined. articles,
+ used to train...
+ p3 you say 3 models, but there is only one. Itemize?
+ page 4 mathematics not caps here, but was earlier.
+ Table 4. FA is functional analysis and AP is ...
+ where P and Q are the specific and baselline distributions
+ Second, we normalize the text. (end of sentence)
+ ArGoT = ArXiv Glossary of Terms
+ Fig 3 words in a bubble?
+ page 5 add missing EXAMPLES
+ non co-occurring = disconnected
+ Table 5. Which way is up?
+

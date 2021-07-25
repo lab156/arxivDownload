@@ -1,0 +1,33 @@
+12:04:31 From Hales, Thomas Callister to Everyone : the rest of -> all
+12:07:24 From Hales, Thomas Callister to Everyone : techniques -> x
+12:08:11 From Hales, Thomas Callister to Everyone : 023 kill “techniques"
+12:14:55 From Hales, Thomas Callister to Everyone : 035 New terms are …
+12:15:40 From Hales, Thomas Callister to Everyone : 032 Mathematical writing usually adheres to strict conventions, of rigor and consistent terminology.
+12:16:36 From Hales, Thomas Callister to Everyone : 038 we have created
+12:18:43 From Hales, Thomas Callister to Everyone : 042 in abstract?
+12:19:20 From Hales, Thomas Callister to Everyone : a terms = singular + plural
+12:19:44 From Hales, Thomas Callister to Everyone : 047 a terms pertinence
+12:21:12 From Hales, Thomas Callister to Everyone : 047 like the pertinence of terms to a….
+12:23:23 From Hales, Thomas Callister to Everyone : github.com/[anonymized]
+12:23:47 From Hales, Thomas Callister to Everyone : [anonymized]
+12:26:28 From Hales, Thomas Callister to Everyone : 096 one -> method or name of method
+12:27:17 From Hales, Thomas Callister to Everyone : 110 references to PlanetMath, Stacks
+12:27:56 From Hales, Thomas Callister to Everyone : 113 “And” -> delete
+12:28:16 From Hales, Thomas Callister to Everyone : 115 each tasks -> each task
+12:30:43 From Hales, Thomas Callister to Everyone : 122 5th fifth
+12:31:15 From Hales, Thomas Callister to Everyone : 121 sample entry
+12:35:10 From Hales, Thomas Callister to Everyone : 130 kappa $\kappa$, inter-rater, reference
+12:35:57 From Hales, Thomas Callister to Everyone : agreement (which measures the agreement between two raters) ...
+12:36:51 From Hales, Thomas Callister to Everyone : 130 them. Nonetheless, ...
+12:44:53 From Hales, Thomas Callister to Everyone : t-SNE (t-distributed stochastic neighbor embedding)
+12:45:55 From Hales, Thomas Callister to Everyone : 202 4-> four
+12:47:44 From Hales, Thomas Callister to Everyone : 218 embeddings.  This includes…
+12:49:32 From Hales, Thomas Callister to Everyone : 220 double numbering.
+12:50:03 From Hales, Thomas Callister to Everyone : 220 a terms -> a term
+12:51:57 From Hales, Thomas Callister to Everyone : 220 Join words into single tokens, for instance, … banach_space.
+12:53:34 From Hales, Thomas Callister to Everyone : 231 type is singular so of embedding is known
+12:58:23 From Hales, Thomas Callister to Everyone : 238 is a sentence fragment
+13:01:28 From Hales, Thomas Callister to Everyone : 281 Two sentences?  “used later”
+13:10:26 From Hales, Thomas Callister to Everyone : 298 reflected in
+13:11:40 From Hales, Thomas Callister to Everyone : 299 potential for use
+13:13:22 From Hales, Thomas Callister to Everyone : 335 no verb

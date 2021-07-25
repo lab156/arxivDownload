@@ -1,0 +1,105 @@
+= Review #1 =
+== The core review ==
+The paper aims at describing the construction of a data set (glossary) of Mathematical terms, which are extracted from the Arxiv website. Authors create/train the corresponding vector embeddings using Word2Vec and GLOVE. And use traditional visualization techniques to show the semantic relationships among the terminology of the dataset.
+
+== Reasons to Accept ==
+Authors are generating a lexical resource of mathematical terms. According to what the authors claim, such a resource could be used in the textual entailments task.
+
+== Reasons to Reject ==
+The paper is very difficult to follow. There are many missing aspects that make it difficult to understand what was exactly done. Although the authors mention this is a work in progress, is not clear to what extent is currently developed. In the beginning, I understood that the ontology was already generated, but after several times reading the paper this is not clear anymore.
+* Overall Recommendation:	2.5
+
+== Questions for the Author(s) ==
+* Although is not explicitly mentioned, I assumed that the classification task authors are referring to is the task of classifying some passage/paragraph as either a definition or not, thus, a binary classification task. And the NER task is applied only to the passages/paragraphs that are known to be definitions. I’m assuming that the reported results in table 2 refer to this task. Is this right? If not, what are exactly the classification tasks you refer to?
+
+* Is not clear whether the referred dataset is either an ontology or a type of thesaurus. Please be more explicit.
+
+* Figure 1 should be referred to as a table. And is not clear if this is a different categorization of the data that was used to perform some TC experiments.
+
+* If Maarx represents a type of ontology, how big is it? What type of relations are found? How do you plan to evaluate the consistency of such a dataset?
+
+-----------------------------------------------------------------------
+
+= Review #2 =
+== The core review ==
+This paper proposes Maarx, a dataset consisting of definitions of mathematical terms. The dataset is constructed by running named entity recognition (NER) model on ArXiv articles, Wikipedia dumps and etc. The authors augment the mathematical terms with metadata from ArXiv. The authors also show the word embeddings and hierarchical structures they built on top of this dataset.
+
+* Strength: The authors present a new dataset. It will be beneficial for researchers who are working on math-related tasks.
+
+* Weakness: The authors did not show the uniqueness of this dataset or the advantages compared with other datasets of general use.
+
+== Reasons to Accept ==
+* The presented dataset will be useful for researchers who are working on math-related NLP tasks.
+ 
+== Reasons to Reject ==
+The authors did not show the uniqueness or superiority of their datasets. For example, how the word embeddings built on this dataset different from those of general use? Apart from word embedding and relation extraction, is there any special application that can only be run with this dataset? I understand it is ongoing work. But it will be better if the authors can show some examples in a nutshell.
+* Overall Recommendation:	2.5
+ 
+== Questions for the Author(s) ==
+In a broader picture, how this dataset will be used? Can the authors provide some example applications?
+
+----------------------------------------------------------------------
+
+
+= Review #3 =
+== The core review ==
+The paper introduced a glossary of mathematics collected from the arXiv website based on hyperbolic word embeddings obtained by PoincareGlove (Tifrea et al., 2019).
+The proposition was not evaluated properly. The authors claim that they compared the proposition against the term-definition data set collected from the PlanetMath website, but no statistics is given.
+
+* The contribution of the paper is not clear. The state-of-the-art on automatic taxonomy building was not carried out (see the list of references).
+
+* The claim "We produced both GloVe and word2vec word embeddings and noticed no significant difference in performance" is not supported by the experiments.
+
+== Reasons to Accept ==
+a new glossary of mathematics collected from the arXiv website
+
+== Reasons to Reject ==
+I do not see any novelty in the approach. The results of the evaluation are not presented
+
+Overall Recommendation:	2
+
+== Missing References ==
+* Aly, Rami, Shantanu Acharya, Alexander Ossa, Arne Köhn, Chris Biemann, and Alexander Panchenko. “Every Child Should Have Parents: A Taxonomy Refinement Algorithm Based on Hyperbolic Term Embeddings.” ArXiv:1906.02002 [Cs], June 5, 2019. http://arxiv.org/abs/1906.02002.
+ 
+* Bordea, Georgeta, Stefano Faralli, Fleur Mougin, Paul Buitelaar, and Gayo Diallo. “Evaluation Dataset and Methodology for Extracting Application-Specific Taxonomies from the Wikipedia Knowledge Graph.” In Proceedings of the 12th Language Resources and Evaluation Conference, 2341–47. Marseille, France: European Language Resources Association, 2020. https://www.aclweb.org/anthology/2020.lrec-1.285.
+
+* Dhingra, Bhuwan, Christopher Shallue, Mohammad Norouzi, Andrew Dai, and George Dahl. “Embedding Text in Hyperbolic Spaces.” In Proceedings of the Twelfth Workshop on Graph-Based Methods for Natural Language Processing (TextGraphs-12), 59–69. New Orleans, Louisiana, USA: Association for Computational Linguistics, 2018. https://doi.org/10.18653/v1/W18-1708.
+
+* Gupta, Amit, Rémi Lebret, Hamza Harkous, and Karl Aberer. “Taxonomy Induction Using Hypernym Subsequences.” In Proceedings of the 2017 ACM on Conference on Information and Knowledge Management, 1329–38. CIKM ’17. New York, NY, USA: Association for Computing Machinery, 2017. https://doi.org/10.1145/3132847.3133041.
+
+* Nikishina, Irina, Natalia Loukachevitch, Varvara Logacheva, and Alexander Panchenko. “Evaluation of Taxonomy Enrichment on Diachronic WordNet Versions.” In Proceedings of the 11th Global Wordnet Conference, 126–36. University of South Africa (UNISA): Global Wordnet Association, 2021. https://www.aclweb.org/anthology/2021.gwc-1.15.
+
+* Sarkar, Rajdeep, John P McCrae, and Paul Buitelaar. “A Supervised Approach to Taxonomy Extraction Using Word Embeddings,” n.d., 6. Yu, Yue, Yinghao Li, Jiaming Shen, Hao Feng, Jimeng Sun, and Chao Zhang. “STEAM: Self-Supervised Taxonomy Expansion with Mini-Paths.” In Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining, 1026–35. KDD ’20. New York, NY, USA: Association for Computing Machinery, 2020. https://doi.org/10.1145/3394486.3403145.
+
+
+== Responses to the reviewers ==
+Thank you for your feedback.
+
+I’m assuming that the reported results in table 2 refer to this task. Is this right?
+>> That is correct, we have added a paragraph explaining this.
+
+Is not clear whether the referred dataset is either an ontology or a type of thesaurus.
+>> At this point we do not consider it either a thesaurus or an ontology.
+
+If Maarx represents a type of ontology, how big is it?
+>> We report the sizes of total and distinct terms in lines 132 and 133.
+
+What type of relations are found? 
+>> Relations of dependency using both term counts and hyperbolic embedding.
+
+How do you plan to evaluate the consistency of such a dataset?
+>> We compare it to the results from the smaller Planetmath website data.
+
+
+--------------------------------
+
+
+Thank you for your feedback.
+
+In a broader picture, how this dataset will be used?
+>> This is briefly introduced in line 327. We want to identify NL mathematical concepts with its formalized counterparts in existing collections of formalized mathematics.
+
+-----------------------------------
+
+Thanks for the missing references.
+

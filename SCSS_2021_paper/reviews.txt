@@ -1,0 +1,179 @@
+Dear Luis Berlioz,
+
+On behalf of the SCSS 2021 program committee, I am delighted to inform you that your paper
+
+ArGoT: A Glossary of Terms extracted from the ArXiv
+
+has been accepted at SCSS 2021 as a tool/dataset description paper and will be included in the EPTCS proceedings. Congratulations! 
+
+Please prepare the final version of your paper by taking into account the reviewers' comments attached to this message. The deadline is
+ 
+  July 30, 2021.
+
+You will receive instructions for the final version preparation (including the page limit) and submission shortly.
+
+Please note that SCSS 2021 will be a virtual conference. More details about its organization and registration will be sent soon.
+
+Thank you for submitting to SCSS 2021.
+
+Best regards, 
+Temur Kutsia
+PC chair of SCSS 2021
+
+SUBMISSION: 4
+TITLE: ArGoT: A Glossary of Terms extracted from the ArXiv
+
+
+----------------------- REVIEW 1 ---------------------
+SUBMISSION: 4
+TITLE: ArGoT: A Glossary of Terms extracted from the ArXiv
+AUTHORS: Luis Berlioz
+
+----------- Overall evaluation -----------
+SCORE: 1 (weak accept)
+----- TEXT:
+The paper introduces ArGoT, a glossary of mathematical terms that was
+automatically extracted from arXiv.  Furthermore, it describes two experiments
+based on ArGoT: determining what fields a term belongs to and inferring a
+hypernym relation on mathematical terms.
+
+A glossary entry contains a definitional statement and the defined term
+(definiendum).  The extraction thus involved two subtasks: finding definitional
+statements and finding definienda.  While different approaches to each subtask
+were evaluated, there is no F-score for the combined task - presumably, due to
+the lack of a gold standard.  Next, the author describes an experiment to find
+terms that are typical to a specific subject (using arXiv's classification),
+which they then use to illustrate that clusters of word embeddings correspond
+to mathematical subjects.  In the end, the paper describes how the hypernym
+(supertype) relation of mathematical terms can be learned from the data, which
+sounds like a very useful thing to have. It is unclear to me, how successful
+this was (or how the success could be measured in the first place).
+
+The work is part of an effort to align informal mathematical text with existing
+formal libraries (specifically, it is part of the Formal Abstracts project).
+As such, it seems to fall into the scope of SCSS, though its heavy focus on
+natural language processing might make it an outlier.
+
+
+Notes/questions to the author:
+    * I cannot access the linked repository containing the data. Maybe it's
+      private?
+    * In sec. 3, the baseline is #articles_in_category/#articles. As
+      some categories may have much longer papers/use more technical terms,
+      wouldn't it make sense to use
+      #detected_terms_in_category/#total_number_of_detected_terms instead?
+    * As far as I understand, the KL-divergence only quantifies how
+      category-specific a term is. How do you then assign a category to a term
+      (as done e.g. for Fig. 3)? Intuitively, I would have assigned
+      probabilities with P(category | term) = P(term | category) * P(category)
+      / P(term).
+    * Fig. 3 is much less readable on a grayscale print-out - maybe different
+      shapes would help?
+    * In section 4 it is unclear to me, what problem the levels λ(v) solve.
+    * Somehow, it is not clear to me, how/if the paper distinguishes between
+      hypernyms and dependencies (I see both words).  E.g. I would say that in
+      "an abelian group is a group whose operation is commutative", both
+      "group" and "operation" might be dependencies but only "group" is a
+      hypernym.
+    * If I see it correctly, you currently only consider terms/nouns.  Is there
+      a reason for that?  Could your approach be extended to include e.g.
+      properties/adjectives (like "differentiable")?
+
+
+
+----------------------- REVIEW 2 ---------------------
+SUBMISSION: 4
+TITLE: ArGoT: A Glossary of Terms extracted from the ArXiv
+AUTHORS: Luis Berlioz
+
+----------- Overall evaluation -----------
+SCORE: 1 (weak accept)
+----- TEXT:
+This paper introduces a new data set of mathematical terms extracted from articles on the arXiV website. The method used to extract the term-definition data set consists of a text classification phase (for identifying the definition) and a named entity recognition phase (for identifying the term). The text classification phase takes as input a paragraph (from an article) and determines whether the given paragraph is a definition or not. Then the named entity recognition model is applied to the definition paragraph and the model returns the term in the paragraph. The authors use known text classification models and two named entity recognition systems. The training data set utilized in the training phase for building the text classification model was constructed by the authors using the latex source code of the articles. As for the named entity recognition model, the training data set was constructed by utilizing the Wikipedia English dump and websites such as PlanetMath and !
+ The Stacks Project. The author proposes two approaches, one is a neural network-based approach where an LSTM is utilized for both the classification model and named entity recognition model and the second combines stochastic gradient descent with support vector machines (for the classification model) and ChunkParser (for the named entity recognition phase). The author evaluates the degree of agreement between the two proposed approaches using cohen's kappa inter-rater agreement.
+
+Furthermore, the author utilizes word2vec and GloVe to produce word embeddings of the terms. They visualize the learned word2vec model (included in the paper) and analyze the output. The visualization shows that there is a strong association between clusters and mathematical categories. Lastly, the author uses hyperbolic and standard word embeddings to extract hypernymy relations between mathematical terms.
+
+On the whole this paper introduces a new data set which contributes to other scientific projects that aim to align mathematical concepts.
+
+*** Strengths
+
+- The project's motivation is important which is to align mathematical concepts in natural language with online repositories such as mathlib.
+
+- The extracted data set is new which is a data set of mathematical terms with definitions from articles on the arXiV website.
+
+- The author combines different approaches to extract the data set, where the most known text classification models are used to extract the definitions and two different named entity recognition systems to extract the terms.
+
+- The author describes the format of the data set and gives an example of a term-definition entry. The example clarifies how the entries are specified in the data set.
+
+- The paper not only describes the method proposed to extract the data set, but it also includes an application: the extraction of hypernymy relations between terms defined in the data set.
+
+*** Weaknesses
+
+- Related work section is missing. The author would have to include a related work section that briefly states previous work on extracting definitions from articles, for example, past work includes [1, 2]. 
+
+- Definitions section is missing. The author would have to include a definitions section with definitions (including examples) of the following words: term, hypernymy relation, article meta-data, mathematical category, and mathematical field.
+
+- The author does not elaborate on how the feature patterns "if and only if or we say a group is abelian..." are used to train the language model.
+
+- A term is a mathematical concept and a named entity is an instance of a concept. Therefore, a named entity recognizer would not be an optimal system to recognize concepts. The author should justify why this is being used.
+
+- A step-by-step description of how the mentioned methods/models were built (classification model, named entity recognition method and PoincareGlove model) is missing. In addition, the authors should include a step-by-step description of how the built models are used to extract the term-definition data set.
+
+- There is no description of the size of the training data sets.
+
+- An alternative way of evaluating a text classification/language model is running the model on a test data set different than the training data set and calculating the precision, recall, and f1 scores. The author should justify why cohen's kappa inter-rater agreement is used and not the f1 score.
+
+Organization and typographical errors include the following:
+
+- Section 2 is titled "Description of the Term-Definition data set", the title of the section should be "Method extraction of the term-definition data set" instead.
+
+- In Section 2.1, is the word definienda the same as the word term? There should be one word fixed for the whole paper, either definienda or term.
+
+- In Section 3, there is a typo in the sentence "The result is a large amount of text that is ready to be consumed by either the word2vec of GloVe algorithms.". The sentence should be "The result is a large amount of text that is ready to be consumed by either the word2vec or GloVe algorithms.".
+
+
+In conclusion, the paper introduces a new data set and therefore the paper has been accepted, but there is still space for improvement and I recommend paper revision.
+
+[1] Kang, Dongyeop, et al. "Document-Level Definition Detection in Scholarly Documents: Existing Models, Error Analyses, and Future Directions." arXiv preprint arXiv:2010.05129 (2020).
+
+[2] Head, Andrew, et al. "Augmenting scientific papers with just-in-time, position-sensitive definitions of terms and symbols." Proceedings of the 2021 CHI Conference on Human Factors in Computing Systems. 2021.
+
+
+
+----------------------- REVIEW 3 ---------------------
+SUBMISSION: 4
+TITLE: ArGoT: A Glossary of Terms extracted from the ArXiv
+AUTHORS: Luis Berlioz
+
+----------- Overall evaluation -----------
+SCORE: 0 (borderline paper)
+----- TEXT:
+This paper is about the construction of a data set, called ArGoT, of
+mathematical terms extracted from the paper published on the ArXiv
+website. The paper consists of 5 sections. Section 2 (2 pages) gives
+some hints about the latex parts used to elaborate the data set as
+well as the classification models used in this work. Section 3 (1
+page) adds some comments on the use of metadata from ArXiV such as
+categories declared by the authors. Section4 (1 page) mentions briefly
+a dependency relation between mathematical terms of the data set.  I
+am not familiar with such work which uses existing tools to construct
+a data set. I do not see clearly the open problem to solve. From my
+point of view I cannot consider the present paper as a research paper.
+
+
+
+----------------------- REVIEW 4 ---------------------
+SUBMISSION: 4
+TITLE: ArGoT: A Glossary of Terms extracted from the ArXiv
+AUTHORS: Luis Berlioz
+
+----------- Overall evaluation -----------
+SCORE: 0 (borderline paper)
+----- TEXT:
+This is a meta-review summarizing the PC consensus. Hence the null score.
+
+The reviewers think that it can not be considered as a regular research paper, but can be accepted as a tool/dataset description (and be included in the EPTCS proceedings). The topic of the submission is within the scope of the SCSS, but it is not the main focus of the symposium.
+
+
+

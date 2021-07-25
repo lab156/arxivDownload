@@ -1,0 +1,71 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{Aho and Ullman(1972)}]{Aho:72}
+Alfred~V. Aho and Jeffrey~D. Ullman. 1972.
+\newblock \emph{The Theory of Parsing, Translation and Compiling}, volume~1.
+\newblock Prentice-Hall, Englewood Cliffs, NJ.
+
+\bibitem[{{American Psychological Association}(1983)}]{APA:83}
+{American Psychological Association}. 1983.
+\newblock \emph{Publications Manual}.
+\newblock American Psychological Association, Washington, DC.
+
+\bibitem[{Ando and Zhang(2005)}]{Ando2005}
+Rie~Kubota Ando and Tong Zhang. 2005.
+\newblock A framework for learning predictive structures from multiple tasks
+  and unlabeled data.
+\newblock \emph{Journal of Machine Learning Research}, 6:1817--1853.
+
+\bibitem[{Andrew and Gao(2007)}]{andrew2007scalable}
+Galen Andrew and Jianfeng Gao. 2007.
+\newblock Scalable training of {L1}-regularized log-linear models.
+\newblock In \emph{Proceedings of the 24th International Conference on Machine
+  Learning}, pages 33--40.
+
+\bibitem[{B{\"o}rschinger and
+  Johnson(2011)}]{borschinger-johnson-2011-particle}
+Benjamin B{\"o}rschinger and Mark Johnson. 2011.
+\newblock \href {https://www.aclweb.org/anthology/U11-1004} {A particle filter
+  algorithm for {B}ayesian wordsegmentation}.
+\newblock In \emph{Proceedings of the Australasian Language Technology
+  Association Workshop 2011}, pages 10--18, Canberra, Australia.
+
+\bibitem[{Chandra et~al.(1981)Chandra, Kozen, and Stockmeyer}]{Chandra:81}
+Ashok~K. Chandra, Dexter~C. Kozen, and Larry~J. Stockmeyer. 1981.
+\newblock \href {https://doi.org/10.1145/322234.322243} {Alternation}.
+\newblock \emph{Journal of the Association for Computing Machinery},
+  28(1):114--133.
+
+\bibitem[{Goodman et~al.(2016)Goodman, Vlachos, and
+  Naradowsky}]{goodman-etal-2016-noise}
+James Goodman, Andreas Vlachos, and Jason Naradowsky. 2016.
+\newblock \href {https://doi.org/10.18653/v1/P16-1001} {Noise reduction and
+  targeted exploration in imitation learning for {A}bstract {M}eaning
+  {R}epresentation parsing}.
+\newblock In \emph{Proceedings of the 54th Annual Meeting of the Association
+  for Computational Linguistics (Volume 1: Long Papers)}, pages 1--11, Berlin,
+  Germany. Association for Computational Linguistics.
+
+\bibitem[{Gusfield(1997)}]{Gusfield:97}
+Dan Gusfield. 1997.
+\newblock \emph{Algorithms on Strings, Trees and Sequences}.
+\newblock Cambridge University Press, Cambridge, UK.
+
+\bibitem[{Harper(2014)}]{harper-2014-learning}
+Mary Harper. 2014.
+\newblock \href {https://www.aclweb.org/anthology/C14-1001} {Learning from 26
+  languages: Program management and science in the babel program}.
+\newblock In \emph{Proceedings of {COLING} 2014, the 25th International
+  Conference on Computational Linguistics: Technical Papers}, page~1, Dublin,
+  Ireland. Dublin City University and Association for Computational
+  Linguistics.
+
+\bibitem[{Rasooli and Tetreault(2015)}]{rasooli-tetrault-2015}
+Mohammad~Sadegh Rasooli and Joel~R. Tetreault. 2015.
+\newblock \href {http://arxiv.org/abs/1503.06733} {Yara parser: {A} fast and
+  accurate dependency parser}.
+\newblock \emph{Computing Research Repository}, arXiv:1503.06733.
+\newblock Version 2.
+
+\end{thebibliography}
