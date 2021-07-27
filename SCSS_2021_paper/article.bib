@@ -17,16 +17,14 @@
    Corpora",
    booktitle =  "Joint Proceedings of the FMM, LML, OpenMath Workshops,
    Doctoral Program and Work in Progress at the Conference on Intelligent
-   Computer Mathematics 2019 co-located with the 12th Conference on
-   Intelligent Computer Mathematics (CICM 2019)",
+   Computer Mathematics 2019 (CICM 2019)",
    year =  "2019",
    location =  "Prague, Czech Republic",
    url =
    "[2]http://cl-informatik.uibk.ac.at/cek/cicm-wip-tentative/WiP2.pdf"
    }
 
-@inproceedings{
-tifrea2018poincare,
+@inproceedings{tifrea2018poincare,
 title={Poincare Glove: Hyperbolic Word Embeddings},
 author={Alexandru Tifrea and Gary Becigneul and Octavian-Eugen Ganea},
 booktitle={International Conference on Learning Representations},
@@ -143,7 +141,8 @@ url={https://openreview.net/forum?id=Ske5r3AqK7},
   author={Pennington, Jeffrey and Socher, Richard and Manning, Christopher D},
   booktitle={Proceedings of the 2014 conference on empirical methods in natural language processing (EMNLP)},
   pages={1532--1543},
-  year={2014}
+  year={2014},
+  doi={10.3115/v1/D14-1162},
 }
 
 
@@ -153,6 +152,7 @@ url={https://openreview.net/forum?id=Ske5r3AqK7},
   booktitle={Theory and applications of ontology: computer applications},
   pages={231--243},
   year={2010},
+  doi={10.1093/ijl/17.2.161},
   publisher={Springer}
 }
 
@@ -327,6 +327,7 @@ series = {KDD '20}
     booktitle = "{COLING} 1992 Volume 2: The 14th {I}nternational {C}onference on {C}omputational {L}inguistics",
     year = "1992",
     url = "https://www.aclweb.org/anthology/C92-2082",
+    doi = {10.3115/992133.992154},
 }
 
 @inproceedings{ginev2016smglom,
@@ -353,3 +354,25 @@ series = {KDD '20}
     pages = "1190--1203",
     abstract = "A taxonomy is a semantic hierarchy, consisting of concepts linked by is-a relations. While a large number of taxonomies have been constructed from human-compiled resources (e.g., Wikipedia), learning taxonomies from text corpora has received a growing interest and is essential for long-tailed and domain-specific knowledge acquisition. In this paper, we overview recent advances on taxonomy construction from free texts, reorganizing relevant subtasks into a complete framework. We also overview resources for evaluation and discuss challenges for future research.",
 }
+
+
+
+@inproceedings{kang-etal-2020-document,
+    title = "Document-Level Definition Detection in Scholarly Documents: Existing Models, Error Analyses, and Future Directions",
+    author = "Kang, Dongyeop  and
+      Head, Andrew  and
+      Sidhu, Risham  and
+      Lo, Kyle  and
+      Weld, Daniel  and
+      Hearst, Marti A.",
+    booktitle = "Proceedings of the First Workshop on Scholarly Document Processing",
+    month = nov,
+    year = "2020",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2020.sdp-1.22",
+    doi = "10.18653/v1/2020.sdp-1.22",
+    pages = "196--206",
+    abstract = "The task of definition detection is important for scholarly papers, because papers often make use of technical terminology that may be unfamiliar to readers. Despite prior work on definition detection, current approaches are far from being accurate enough to use in realworld applications. In this paper, we first perform in-depth error analysis of the current best performing definition detection system and discover major causes of errors. Based on this analysis, we develop a new definition detection system, HEDDEx, that utilizes syntactic features, transformer encoders, and heuristic filters, and evaluate it on a standard sentence-level benchmark. Because current benchmarks evaluate randomly sampled sentences, we propose an alternative evaluation that assesses every sentence within a document. This allows for evaluating recall in addition to precision. HEDDEx outperforms the leading system on both the sentence-level and the document-level tasks, by 12.7 F1 points and 14.4 F1 points, respectively. We note that performance on the high-recall document-level task is much lower than in the standard evaluation approach, due to the necessity of incorporation of document structure as features. We discuss remaining challenges in document-level definition detection, ideas for improvements, and potential issues for the development of reading aid applications.",
+}
+

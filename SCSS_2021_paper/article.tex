@@ -58,8 +58,8 @@ All these properties  makes \argot  a data set that will be of
 interest to the broader NLP research community by providing abundant
 examples for automated reasoning and NLU systems. 
 Our main objective is to organize a comprehensive dependency graph of mathematical concepts that can be aligned with existing libraries of formalized mathematics like \texttt{mathlib}\footnote{https://github.com/leanprover-community/mathlib}.
-The data is downloadable from \texttt{https://gl.kwarc.info/lab156/math-argot} and the all the code that went
-into producing it is in: \texttt{https://github.com/lab156/arxivDownload}
+The data is downloadable from \url{https://gl.kwarc.info/lab156/math-argot} and the all the code that went
+into producing it is in: \url{https://github.com/lab156/arxivDownload}
 %the text with a unique predictability that enables the NLP researcher to perform
 %adventurous experimentation and simple debugging.
 
@@ -132,8 +132,8 @@ In \cite{glossary, Deyan1}, the authors describe the
 method used  to obtain the training data for a text classification
 model that identifies definitions and the Named Entity Recognition (NER) model that identifies the term being defined. 
 
-The classification task consist of training a binary classifier to determine whether a paragraph is a definition or not. We use the \verb/\begin{definition}...\end{definition}/ in the article's \LaTeX{} source to identify true examples. To gather non-examples, we randomly sample paragraphs out of the same articles.
-The source of the training data is the \LaTeX{} source code of the articles available from the arXiv website. This data was used to train three different and common classification models:
+The classification task consists of training a binary classifier to determine whether a paragraph is a definition or not. We use the \verb/\begin{definition}...\end{definition}/ in the article's \LaTeX{} source to identify true examples. To gather non-definitions, we randomly sample paragraphs out of the same articles.
+The source of the training data is the \LaTeX{} source code of the articles available from the arXiv website. A total of 1,552,268 paragraphs labeled as definitions or non-definitions were produced for training. It was split as follows: 80\% training 10\% testing and 10\% validation. This data was used to train three different and common classification models:
 \begin{itemize}
     \item The Stochastic Gradient Descent with Support Vector Machines (SGD-SVM). 
     \item The one-dimensional convolutions (Conv1D) neural network.
@@ -152,8 +152,8 @@ the NLTK library \cite{bird2009natural}. The results appear in Table \ref{metric
 
 We have compiled two different and independent glossaries by running the 
 algorithm through all of the arXiv's mathematical content. 
-The first one follows the neural network (NN) approach, it uses  LSTM for both the classification and NER tasks. 
-In contrast, the second one combines the SGD and ChunkParser method to provide a completely unconnected approach to the previous model.
+The first one  is based on neural networks (NN), it uses  LSTM for both the classification and NER tasks. 
+In contrast, the second one combines the SGD and ChunkParser method to provide a completely independent approach to the previous model.
 
 It is interesting to compare the results obtained using the two models. For the classification task, we have observed Cohen's kappa ($\kappa$) inter-rater agreement of 93\% between the results produced by the two methods.
 This corresponds to a high degree of agreement between the two classifiers \cite{cohenkappa}.
@@ -196,10 +196,11 @@ specified as an attribute of the \texttt{definition} tag.
 \end{table*}
 
 
-\begin{table}
-%\begin{figure}[h!]
-    \small
+%\begin{table}
+\begin{figure}[h!]
 \centering
+\begin{minipage}{0.4\textwidth}
+    \footnotesize
 \begin{tabular}{lc}
 \hline
 \textbf{Category:} & \textbf{Count}\\
@@ -247,16 +248,20 @@ math.NT& 131 \\
 \captionof{table}{Category profile for the term: \emph{Banach Space}. The codes
     are part of the metadata for each arXiv article.
 }\label{tab:categories}
-\end{table}
-
-
-\begin{figure}[ht]
+%\end{table}
+\end{minipage}\hfill
+\begin{minipage}{0.55\textwidth}
+%\begin{figure}[ht]
     \centering
-    \includegraphics[width=0.7\textwidth]{images/barcomp.png}
+    \includegraphics[width=0.99\textwidth]{images/barcomp.png}
     \captionof{figure}{\label{bar} Comparison between the term's category
         distribution and baseline distribution. Only categories with
         the highest values for the term are shown.}
+\end{minipage}
 \end{figure}
+
+%\subsection{Related Work}
+%There have been several recent projects related to NLP and information extraction from scholarly papers. In \cite{kang-etal-2020-document}, the 
 
 \section{Augmenting Terms with ArXiV's Metadata}
 Each mathematical article in the arXiv is classified in one or more
@@ -278,16 +283,17 @@ outlier a term is to the baseline distribution, we use the KL-divergence:
 $$D_{\text{KL}}(P \Vert Q) = \sum_{x\in X} P(x)\log(P(x)/Q(x)),$$
 where $P$ and $Q$ are the probability distributions of the term and the baseline respectively. And, $X$ is the set of all the categories.
 
+%of the math articles in the following ways: First, We remove all \LaTeX{} specific code, leaving only the natural language text. Second, we normalize the text. This includes converting all characters to lowercase, removing accents from letters, removing non-ascii characters, etc. Lastly, we 
 
-The next step is to generate Word Embeddings. To prepare for this we modify the text of the math articles in the following ways: First, We remove all \LaTeX{} specific code, leaving only the natural language text. Second, we normalize the text. This includes converting all characters to lowercase, removing accents from letters, removing non-ascii characters, etc. Lastly, we join multiword terms in the glossary to produce an individual token. The result is a large amount of text that is ready to be consumed by either the word2vec or GloVe algorithms. 
+The next step is to generate word embeddings. To prepare for this, we modify the text by joining multiword terms in \argot to produce individuals tokens. After normalizing the text, i.e. converting to lowercase and removing punctuation and special characters; the result is a large amount of text that is ready to be consumed by either the word2vec or GloVe algorithms. 
 In Figure~\ref{scatter}, we observe a t-SNE (t-distributed stochastic
 neighbor embedding) visualization of a word2vec 
-model produced this way. Notice that even though the \argot data set has no access to the arXiv categories, the vectors in the same category cluster together.
+model produced this way. In this image, each term is assigned its most frequent category. Notice that even though the \argot data set has no access to the arXiv categories, the vectors in the same category cluster together.
 We consider this as a strong indication of alignment between clusters and categories.
 
 \begin{figure*}
     \centering
-    \includegraphics[width=0.9\textwidth]{scatter_plot/scatter_option5.png}
+    \includegraphics[width=0.9\textwidth]{scatter_plot/m80p300opt135.png}
     \caption{\label{scatter} t-SNE visualization of the word vectors
         of selected terms in the data set. The terms are selected to be specific to 
         the four categories in the picture.  Points with a label are selected
@@ -350,7 +356,7 @@ different terms.  The neighbors are found using the Euclidean distance.
 The terms are 
 sorted in order of the average value of their $y$-coordinates (which in
 the upper-half plane model represents the variance of the underlying
-Gaussian distribution). This is referred to as the \isa rating.
+Gaussian distribution). This is referred to as the \isa rating. 
 
 
 \begin{table}
@@ -382,7 +388,6 @@ norm & 0.79 & & \\
     \isa rating of the term in bold font. }
 \end{table}
 
-
 \section{Conclusions and Further Work}
 We introduced \argot, an comprehensive glossary of mathematics
 automatically collected from the mathematical content on the arXiv website. 
@@ -397,7 +402,7 @@ This project is an ongoing effort to align mathematical concepts
 in natural language with  online repositories of formalized
 mathematics like
 \texttt{mathlib}\footnote{https://github.com/leanprover-community/mathlib}. 
-As described in \cite{kaliszyk2016standard}, this type of \emph{automatically found aligment}.
+As described in \cite{kaliszyk2016standard}, this type of alignment is called \emph{automatically found aligment}.
 
 In the near future we plan to further improve on the classification 
 and NER tasks by creating a data set using solely the neural version

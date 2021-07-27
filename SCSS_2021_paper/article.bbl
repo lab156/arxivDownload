@@ -33,8 +33,7 @@
   Mathematical Corpora}}.
 \newblock In: {\sl \bibinfo{booktitle}{Joint Proceedings of the FMM, LML,
   OpenMath Workshops, Doctoral Program and Work in Progress at the Conference
-  on Intelligent Computer Mathematics 2019 co-located with the 12th Conference
-  on Intelligent Computer Mathematics (CICM 2019)}}.
+  on Intelligent Computer Mathematics 2019 (CICM 2019)}}.
 \newblock
   \urlprefix\url{[2]http://cl-informatik.uibk.ac.at/cek/cicm-wip-tentative/WiP2.pdf}.
 
@@ -73,7 +72,7 @@
   (\bibinfo{year}{2010}): \emph{\bibinfo{title}{WordNet}}.
 \newblock In: {\sl \bibinfo{booktitle}{Theory and applications of ontology:
   computer applications}}, \bibinfo{publisher}{Springer}, pp.
-  \bibinfo{pages}{231--243}.
+  \bibinfo{pages}{231--243}, \doi{10.1093/ijl/17.2.161}.
 
 \bibitemdeclare{article}{graphsGasner}
 \bibitem{graphsGasner}
@@ -117,7 +116,8 @@
   (\bibinfo{year}{1992}): \emph{\bibinfo{title}{Automatic Acquisition of
   Hyponyms from Large Text Corpora}}.
 \newblock In: {\sl \bibinfo{booktitle}{{COLING} 1992 Volume 2: The 14th
-  {I}nternational {C}onference on {C}omputational {L}inguistics}}.
+  {I}nternational {C}onference on {C}omputational {L}inguistics}},
+  \doi{10.3115/992133.992154}.
 \newblock \urlprefix\url{https://www.aclweb.org/anthology/C92-2082}.
 
 \bibitemdeclare{article}{huang2015bidirectional}
@@ -201,7 +201,7 @@
   representation}}.
 \newblock In: {\sl \bibinfo{booktitle}{Proceedings of the 2014 conference on
   empirical methods in natural language processing (EMNLP)}}, pp.
-  \bibinfo{pages}{1532--1543}.
+  \bibinfo{pages}{1532--1543}, \doi{10.3115/v1/D14-1162}.
 
 \bibitemdeclare{inproceedings}{tifrea2018poincare}
 \bibitem{tifrea2018poincare}
