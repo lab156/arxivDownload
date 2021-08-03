@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d (TeX Live 2021/Arch Linux)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: article.aux
+The style file: eptcs.bst
+Database file #1: article.bib
+Warning--empty pages in DBLP:conf/mkm/Berlioz19
+Warning--empty pages in hearst-1992-automatic
+Warning--empty pages in DBLP:conf/iclr/TifreaBG19
+You've used 18 entries,
+            2701 wiz_defined-function locations,
+            721 strings with 11077 characters,
+and the built_in function-call counts, 12691 in all, are:
+= -- 841
+> -- 491
+< -- 13
++ -- 197
+- -- 174
+* -- 1670
+:= -- 1497
+add.period$ -- 44
+call.type$ -- 18
+change.case$ -- 130
+chr.to.int$ -- 0
+cite$ -- 39
+duplicate$ -- 990
+empty$ -- 937
+format.name$ -- 193
+if$ -- 2439
+int.to.chr$ -- 0
+int.to.str$ -- 18
+missing$ -- 260
+newline$ -- 110
+num.names$ -- 46
+pop$ -- 221
+preamble$ -- 1
+purify$ -- 108
+quote$ -- 0
+skip$ -- 291
+stack$ -- 0
+substring$ -- 483
+swap$ -- 1048
+text.length$ -- 13
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 88
+warning$ -- 3
+while$ -- 73
+width$ -- 20
+write$ -- 235
+(There were 3 warnings)

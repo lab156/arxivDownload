@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{n+nt}{\PYGZlt{}article} \PYG{n+na}{name=}\PYG{l+s}{\PYGZdq{}1407\PYGZus{}005/1407.2218/1407.2218.xml\PYGZdq{}} \PYG{n+na}{num=}\PYG{l+s}{\PYGZdq{}89\PYGZdq{}}\PYG{n+nt}{\PYGZgt{}}
+    \PYG{n+nt}{\PYGZlt{}definition} \PYG{n+na}{index=}\PYG{l+s}{\PYGZdq{}51\PYGZdq{}}\PYG{n+nt}{\PYGZgt{}}
+        \PYG{n+nt}{\PYGZlt{}stmnt\PYGZgt{}} Assume \PYGZus{}inline\PYGZus{}math\PYGZus{}. We define the following space\PYGZhy{}time
+        norm if \PYGZus{}inline\PYGZus{}math\PYGZus{} is a time interval \PYGZus{}display\PYGZus{}math\PYGZus{} \PYG{n+nt}{\PYGZlt{}/stmnt\PYGZgt{}}
+        \PYG{n+nt}{\PYGZlt{}dfndum\PYGZgt{}}space\PYGZhy{}time norm\PYG{n+nt}{\PYGZlt{}/dfndum\PYGZgt{}}
+    \PYG{n+nt}{\PYGZlt{}/definition\PYGZgt{}}
+    \PYG{n+nt}{\PYGZlt{}/article\PYGZgt{}}
+\end{Verbatim}
