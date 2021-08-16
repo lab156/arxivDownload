@@ -388,7 +388,7 @@ tran_vec = tsne1.fit_transform(tot_vec, labels_vec)
 #tran_vec = umap1.fit_transform(tot_vec, labels_vec)
 x,y =  list(zip(tran_vec.transpose()))
 plt.figure(figsize=[10,10])
-scatter = plt.scatter(x[0],y[0],marker='o', c = cc, s=20, alpha=0.9)
+scatter = plt.scatter(x[0],y[0],marker='+', c = cc, s=20, alpha=0.9)
 leg1 = plt.legend(scatter.legend_elements()[0], labels_set_list, prop={'size': 10})
 
 #props = dict(boxstyle='round', facecolor='white', alpha=0.5)
@@ -397,10 +397,117 @@ for i in pick_text:
     plt.text(x[0][i], y[0][i], term_lst[i], size='x-large', bbox=props,zorder=1)
     plt.scatter([x[0][i]], [y[0][i]], s=30, c='black',zorder=2)
     
-plt.savefig('/home/luis/acl_pics/scatter_option9_light.png', bbox_inches='tight')
-plt.savefig('/home/luis/acl_pics/scatter_option9.png', dpi=300, bbox_inches='tight')
+#plt.savefig('/home/luis/acl_pics/scatter_option9_light.png', bbox_inches='tight')
+#plt.savefig('/home/luis/acl_pics/scatter_option9.png', dpi=300, bbox_inches='tight')
 plt.show()
+# +
+# Same scatter plot but now with shapes as dots
+tsne1 = TSNE()
+#umap1 = umap.UMAP()
+plt.rcParams["image.cmap"] = 'Set1'
+embed_coverage_cnt = 0
+#clSt = common_low_entropy_terms(100000, 50000)
+# In order to add shapes we need different plots
+subj_lst = ['math.FA','math.DG' , 'math.OC', 'math.NT' ]
+vect_term_dict = {s: [] for s in subj_lst}
+# t, s, e : term, subject, embedding
+for t,s,e in clSt:
+    if (v := unit_embed.get(t.replace(' ', '_'))) is not None:
+        embed_coverage_cnt += 1
+        try:
+            vect_term_dict[s].append((v,t))
+        except KeyError:
+            pass
+        
+# Create the same list from before
+vec_lst = []
+labels_vec = []
+term_lst = []
+for s in vect_term_dict.keys():
+    temp_vec, temp_term = list(zip(*vect_term_dict[s]))
+    vec_lst += temp_vec
+    term_lst += temp_term
+    labels_vec += len(vect_term_dict[s])*[s]
+print('Embed coverage: {}%'.format(embed_coverage_cnt/len(clSt)))
+
+pick_text = []
+
+labels_set_list = list(set(labels_vec)) # to find the colormap
+cc = [labels_set_list.index(l) for l in labels_vec]
+tot_vec = np.stack(vec_lst, axis=0)
+tran_vec = tsne1.fit_transform(tot_vec, labels_vec)
+#tran_vec = umap1.fit_transform(tot_vec, labels_vec)
+
+x,y =  list(zip(tran_vec.transpose()))
+plt.figure(figsize=[10,10])
+rcnt = 0 # Range counter
+color_fun = plt.get_cmap()
+marker_lst = ['1', '2', '3', '4']
+for lab,s in enumerate(vect_term_dict.keys()):
+    R = range(rcnt, rcnt+ min(len(vect_term_dict[s]), 200))
+    pick_text += list(np.random.choice(R, size=4))
+    rcnt += len(vect_term_dict[s])
+    scatter = plt.scatter(x[0][R],y[0][R],
+                          marker=marker_lst[lab],
+                          color=[color_fun(lab)],
+                          s=125, alpha=0.9,
+                         label=s)
+    #leg1 = plt.legend(scatter.legend_elements()[0], labels_set_list, prop={'size': 10})
+plt.legend()
+#props = dict(boxstyle='round', facecolor='white', alpha=0.5)
+props = dict(facecolor='white', alpha=0.7)
+for i in pick_text:
+    plt.text(x[0][i], y[0][i], term_lst[i], size='x-large', bbox=props,zorder=1)
+    plt.scatter([x[0][i]], [y[0][i]], s=55, c='black',zorder=2)
+    
+plt.savefig('/home/luis/acl_pics/marker_option2_light.png', bbox_inches='tight')
+plt.savefig('/home/luis/acl_pics/marker_option2.png', dpi=300, bbox_inches='tight')
+plt.show()
+
 # + jupyter={"outputs_hidden": true}
+M = 80 #marksize
+P = 300 # number of points in each class
+
+Opt = 39
+while True:
+    pick_text = []
+
+    labels_set_list = list(set(labels_vec)) # to find the colormap
+    cc = [labels_set_list.index(l) for l in labels_vec]
+    tot_vec = np.stack(vec_lst, axis=0)
+    tran_vec = tsne1.fit_transform(tot_vec, labels_vec)
+    #tran_vec = umap1.fit_transform(tot_vec, labels_vec)
+
+    x,y =  list(zip(tran_vec.transpose()))
+    plt.figure(figsize=[10,10])
+    rcnt = 0 # Range counter
+    color_fun = plt.get_cmap()
+    marker_lst = ['*', 'x', '+', '4']
+    for lab,s in enumerate(vect_term_dict.keys()):
+        R = range(rcnt, rcnt+ min(len(vect_term_dict[s]), P))
+        pick_text += list(np.random.choice(R, size=4))
+        rcnt += len(vect_term_dict[s])
+        scatter = plt.scatter(x[0][R],y[0][R],
+                              marker=marker_lst[lab],
+                              color=[color_fun(lab)],
+                              s=M, alpha=0.9,
+                             label=s)
+        #leg1 = plt.legend(scatter.legend_elements()[0], labels_set_list, prop={'size': 10})
+    plt.legend()
+    #props = dict(boxstyle='round', facecolor='white', alpha=0.5)
+    props = dict(facecolor='white', alpha=0.7)
+    for i in pick_text:
+        plt.text(x[0][i], y[0][i], term_lst[i], size='large', bbox=props,zorder=1)
+        plt.scatter([x[0][i]], [y[0][i]], s=55, c='black',zorder=2)
+
+    print('Saving to: ', f'/home/luis/acl_pics/m{M}p{P}opt{Opt}.png')
+    #plt.savefig(f'/home/luis/acl_pics/m{M}p{P}opt{Opt}_light.png', bbox_inches='tight')
+    plt.savefig(f'/home/luis/acl_pics/m{M}p{P}opt{Opt}.png', dpi=300, bbox_inches='tight')
+    plt.clf()
+    Opt += 1
+#plt.show()
+# -
+
 html = st.produce_projection_explorer(None,
                                       word2vec_model=veryDict,
                                       projection_model=umap1,

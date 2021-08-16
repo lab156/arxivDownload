@@ -26,7 +26,8 @@ import gzip
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
-                      GRU, Dropout, GlobalAveragePooling1D, Conv1D
+                      GRU, Dropout, GlobalAveragePooling1D, Conv1D, MaxPooling1D,\
+                      GlobalMaxPooling1D
 from tensorflow.keras.models import Sequential
 from tensorflow_addons.callbacks import TQDMProgressBar
 import tensorflow.keras.metrics as kmetrics
@@ -137,6 +138,7 @@ plt.title('Length in characters of the definitions in the training set')
 plt.show()
 
 # #%%script echo skipping
+# DEFINE SIMPLE CONVOLUTIONAL MODEL
 cfg['conv_filters'] = 128
 cfg['kernel_size'] = 5
 def conv_model(cfg):
@@ -159,12 +161,51 @@ history = model.fit(train_seq, np.array(training[1]),
                 verbose=0,
                 callbacks=[tqdm_callback])
 
-# + magic_args="echo skipping" language="script"
-# # Conv stats results
-# plot_graphs(history, "accuracy")
-# plot_graphs(history, "loss")
-# predictions = conv_model.predict(validation_seq)
-# print(metrics.classification_report(np.round(predictions), validation[1]))
+
+# #%%script echo skipping
+def plot_graphs(history, string):
+    plt.plot(history.history[string])
+    plt.plot(history.history['val_'+string])
+    plt.xlabel('Epochs')
+    plt.ylabel(string)
+    plt.legend([string, 'val_'+string])
+    plt.show()
+# Conv stats results
+plot_graphs(history, "accuracy")
+plot_graphs(history, "loss")
+predictions = conv_model.predict(validation_seq)
+print(metrics.classification_report(np.round(predictions), validation[1]))
+
+
+# +
+def conv_multiple_layers(cfg):
+    return Sequential([
+        Embedding(cfg['tot_words'], cfg['embed_dim'],
+              input_length=max_seq_len, weights=[embed_matrix], trainable=False),
+        Conv1D(64, 5, activation='relu'),
+        MaxPooling1D(5),
+        Conv1D(128, 30, activation='relu'),
+        MaxPooling1D(5),
+        Conv1D(128, 5, activation='relu'),
+        GlobalMaxPooling1D(),
+        Dense(1, activation='sigmoid'),
+    ])
+
+model = conv_multiple_layers(cfg)
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.summary()
+tqdm_callback = TQDMProgressBar()
+history = model.fit(train_seq, np.array(training[1]),
+                epochs=20, validation_data=(validation_seq, np.array(validation[1])),
+                batch_size=512,
+                verbose=0,
+                callbacks=[tqdm_callback])
+# -
+
+plot_graphs(history, "accuracy")
+plot_graphs(history, "loss")
+predictions = model.predict(validation_seq)
+print(metrics.classification_report(np.round(predictions), validation[1]))
 
 # + magic_args="echo skipping" language="script"
 # tar_tree = etree.parse('/media/hd1/training_defs/math99/9902_001.xml.gz')

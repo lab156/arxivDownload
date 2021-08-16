@@ -188,14 +188,22 @@ def test_model(path):
     stream = stream_arxiv_paragraphs(xml_lst, samples=6000)
 #os.path.join(base_dir,'training_defs/math10/1008_001.xml.gz'),
     all_data =[]
+    Now1 = dt.now()
     for s in stream:
         all_data += list(zip(s[0], s[1]))
-    print('The length of all_data is {} the first element of xml_lst is: {}'\
+    logger.info('The length of the (test) all_data is {} the first element of xml_lst is: {}'\
             .format(len(all_data), xml_lst[0]))
     test = list(zip(*( all_data )))
     test_seq = [text2seq(t) for t in test[0]]
     test_seq = padding_fun(test_seq, cfg)
+    prep_data_t = (dt.now() - Now1)
+
+    Now2 = dt.now()
     ret = model.evaluate(test_seq, np.array(test[1]))
+    evaluation_t = (dt.now() - Now2)
+    logger.info('TEST TIMES: prep data: {} secs -- evaluation: {} secs.'\
+            .format(prep_data_t, evaluation_t))
+
     return ret
 
 #########################
