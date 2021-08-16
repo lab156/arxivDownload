@@ -1,5 +1,6 @@
 \documentclass[submission,copyright,creativecommons]{eptcs}
 \providecommand{\event}{SCSS 2021} % Name of the event you are submitting to
+\pdfoutput=1
 %\usepackage{breakurl}             % Not needed if you use pdflatex only.
 \usepackage{underscore}           % Only needed if you use pdflatex.
 %\usepackage[hyperref]{latex/acl2021}
@@ -9,7 +10,8 @@
 \usepackage{amsmath}
 %\renewcommand{\UrlFont}{\ttfamily\small}
 \usepackage[utf8x]{inputenc}
-\usepackage{minted} 
+%^\usepackage[finalizecache,cachedir=minted-cache]{minted}
+\usepackage[frozencache=true,cachedir=minted-cache]{minted}
 \usepackage{caption}
 \usepackage{xspace}
 \usepackage{tikz}
@@ -253,7 +255,7 @@ math.NT& 131 \\
 \begin{minipage}{0.55\textwidth}
 %\begin{figure}[ht]
     \centering
-    \includegraphics[width=0.99\textwidth]{images/barcomp.png}
+    \includegraphics[width=0.99\textwidth]{barcomp.png}
     \captionof{figure}{\label{bar} Comparison between the term's category
         distribution and baseline distribution. Only categories with
         the highest values for the term are shown.}
@@ -293,7 +295,7 @@ We consider this as a strong indication of alignment between clusters and catego
 
 \begin{figure*}
     \centering
-    \includegraphics[width=0.9\textwidth]{scatter_plot/m80p300opt135.png}
+    \includegraphics[width=0.9\textwidth]{m80p300opt135.png}
     \caption{\label{scatter} t-SNE visualization of the word vectors
         of selected terms in the data set. The terms are selected to be specific to 
         the four categories in the picture.  Points with a label are selected

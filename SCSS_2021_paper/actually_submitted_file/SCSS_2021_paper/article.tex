@@ -1,5 +1,6 @@
 \documentclass[submission,copyright,creativecommons]{eptcs}
 \providecommand{\event}{SCSS 2021} % Name of the event you are submitting to
+\pdfoutput=1
 %\usepackage{breakurl}             % Not needed if you use pdflatex only.
 \usepackage{underscore}           % Only needed if you use pdflatex.
 %\usepackage[hyperref]{latex/acl2021}
@@ -9,11 +10,13 @@
 \usepackage{amsmath}
 %\renewcommand{\UrlFont}{\ttfamily\small}
 \usepackage[utf8x]{inputenc}
-\usepackage{minted} 
+%^\usepackage[finalizecache,cachedir=minted-cache]{minted}
+\usepackage[frozencache=true,cachedir=minted-cache]{minted}
 \usepackage{caption}
 \usepackage{xspace}
 \usepackage{tikz}
 \usepackage{pgfplots}
+
 
 \newcommand{\argot}{\texttt{ArGoT}\xspace}
 \newcommand{\isa}{\texttt{IS-A}\xspace}
@@ -44,21 +47,21 @@ This feature can be used to train language models to detect if a term is defined
 %terms on which the new ones depend are seldom skipped.  
 Using this, we have created \argot (\textbf{ar}Xiv \textbf{G}lossary \textbf{o}f \textbf{T}erms), a silver standard data set of terms defined in
 the Mathematical articles of the arXiv website. 
-We showcase several interesting applications of this data. The data set includes the articles and  paragraph number in which each term appears. By using article metadata, we show that this can be an effective way of assigning an arXiv mathematical category\footnote{https://arxiv.org/archive/math} to each term.
+We showcase several interesting applications of this data. The data set includes the articles and  paragraph number in which each term appears. By using article metadata, we show that this can be an effective way of assigning an arXiv mathematical category\footnote{arXiv's categories within mathematics: \url{https://arxiv.org/archive/math}} to each term.
 %We demonstrate that hyperbolic word embedding language models  
 %can effectively capture relations of entailment in advanced
 Another application is to join the terms with more than one word into a single token.
 These phrases usually represent important mathematical concepts with a specific meaning.
 We show how standard word embedding models like word2vec
-\cite{word2vec} and GloVe \cite{pennington2014glove} capture this by embedding phrases instead of individual words.
+\cite{word2vec} and GloVe \cite{DBLP:conf/emnlp/PenningtonSM14} capture this by embedding phrases instead of individual words.
 Even more, the word-vector can be used to predict which mathematical field the term belongs to, and hypernimity relations.
 %And in the future, will provide abundant training examples for NLU and automated reasoning.
 
 All these properties  makes \argot  a data set that will be of
 interest to the broader NLP research community by providing abundant
 examples for automated reasoning and NLU systems. 
-Our main objective is to organize a comprehensive dependency graph of mathematical concepts that can be aligned with existing libraries of formalized mathematics like \texttt{mathlib}\footnote{https://github.com/leanprover-community/mathlib}.
-The data is downloadable from \url{https://gl.kwarc.info/lab156/math-argot} and the all the code that went
+Our main objective is to organize a comprehensive dependency graph of mathematical concepts that can be aligned with existing libraries of formalized mathematics like \texttt{mathlib}.\footnote{https://github.com/leanprover-community/mathlib}
+The data is downloadable from \url{https://sigmathling.kwarc.info/resources/argot-dataset-2021/} and the all the code that went
 into producing it is in: \url{https://github.com/lab156/arxivDownload}
 %the text with a unique predictability that enables the NLP researcher to perform
 %adventurous experimentation and simple debugging.
@@ -66,7 +69,7 @@ into producing it is in: \url{https://github.com/lab156/arxivDownload}
 This data set was created  as part of the Formal Abstracts project.
 Our group has benefited from a grant from the Sloan  Foundation
 (G-2018-10067) and from the computing resources startup allocation
-\#TG-DMS190028 and \#TG-DMS200030 on the Bridges-2
+\mbox{\#TG-DMS190028} and \mbox{\#TG-DMS200030} on the Bridges-2
 supercomputer at the Pittsburgh Supercomputing Center (PSC).
 \begin{table}[h]
     \centering
@@ -128,7 +131,7 @@ simplicial complex & 10943 \\
 
 
 \section{Description of the Term-Definition Extraction Method}
-In \cite{glossary, Deyan1}, the authors describe the 
+In \cite{DBLP:conf/mkm/Berlioz19, Deyan1}, the authors describe the 
 method used  to obtain the training data for a text classification
 model that identifies definitions and the Named Entity Recognition (NER) model that identifies the term being defined. 
 
@@ -139,16 +142,16 @@ The source of the training data is the \LaTeX{} source code of the articles avai
     \item The one-dimensional convolutions (Conv1D) neural network.
     \item And Bidirectional LSTM (BiLSTM). 
 \end{itemize}
-For the first method, we used the implementation distributed with scikit-learn library \cite{scikit-learn}. The last two were implemented in Tensorflow. Table \ref{metric-comp} shows the most common metrics of performance for each method. 
+For the first method, we used the implementation distributed with scikit-learn library \cite{DBLP:journals/jmlr/PedregosaVGMTGBPWDVPCBPD11}. The last two were implemented in Tensorflow. Table \ref{metric-comp} shows the most common metrics of performance for each method. 
 
 The definitions are then fed into a NER model to identify the term being defined in them.
 The data used to train the NER model comes from the Wikipedia English dump\footnote{\url{https://dumps.wikimedia.org/}} and several mathematical websites like
 PlanetMath\footnote{\url{https://planetmath.org/}} and The Stacks
-Project\footnote{\url{https://stacks.math.columbia.edu/}}.
+Project.\footnote{\url{https://stacks.math.columbia.edu/}}
 
-We tested two different implementations of the NER system, the first is the \emph{ChunkParse} algorithm available from the NLTK library \cite{bird2009natural}. The second is a time-distributed LSTM (LSTM-CRF) \cite{huang2015bidirectional}. Both architectures use a similar set of features that in addition to the words that form the text, detect if the word is capitalized, its part-of-speech (POS) and parses punctuation e.g. to tell if a period is part of an abbreviation or an end of line.
+We tested two different implementations of the NER system, the first is the \emph{ChunkParse} algorithm available from the NLTK library \cite{DBLP:books/daglib/0022921}. The second is a time-distributed LSTM (LSTM-CRF) \cite{DBLP:journals/corr/HuangXY15}. Both architectures use a similar set of features that in addition to the words that form the text, detect if the word is capitalized, its part-of-speech (POS) and parses punctuation e.g. to tell if a period is part of an abbreviation or an end of line.
 To compare the two implementations, we used the \texttt{ChunkScore} method in
-the NLTK library \cite{bird2009natural}. The results appear in Table \ref{metric-comp}. 
+the NLTK library \cite{DBLP:books/daglib/0022921}. The results appear in Table \ref{metric-comp}. 
 
 We have compiled two different and independent glossaries by running the 
 algorithm through all of the arXiv's mathematical content. 
@@ -173,7 +176,7 @@ data set.
 The \argot data set is distributed in the form of compressed
 XML
 files that follow the same naming convention the arXiv's bulk download
-distribution\footnote{arXiv Bulk Data Access: \url{https://arxiv.org/help/bulk\_data}}.
+distribution.\footnote{arXiv Bulk Data Access: \url{https://arxiv.org/help/bulk\_data}}
 For instance, Table \ref{glossary-example} shows a sample entry
 in the fifth file corresponding to July, 2014. The definition's
 statement and terms (definiendum) are specified in the \texttt{stmnt} and
@@ -253,7 +256,7 @@ math.NT& 131 \\
 \begin{minipage}{0.55\textwidth}
 %\begin{figure}[ht]
     \centering
-    \includegraphics[width=0.99\textwidth]{images/barcomp.png}
+    \includegraphics[width=0.99\textwidth]{barcomp.png}
     \captionof{figure}{\label{bar} Comparison between the term's category
         distribution and baseline distribution. Only categories with
         the highest values for the term are shown.}
@@ -263,7 +266,7 @@ math.NT& 131 \\
 %\subsection{Related Work}
 %There have been several recent projects related to NLP and information extraction from scholarly papers. In \cite{kang-etal-2020-document}, the 
 
-\section{Augmenting Terms with ArXiV's Metadata}
+\section{Augmenting Terms with arXiv's Metadata}
 Each mathematical article in the arXiv is classified in one or more
 \emph{categories}  by the author at
 the time of submission. Categories include \texttt{math.FA} and  \texttt{math.PR} which stand for Functional Analysis and Probability respectively. The full list is available at \url{https://arxiv.org/archive/math}.
@@ -293,7 +296,7 @@ We consider this as a strong indication of alignment between clusters and catego
 
 \begin{figure*}
     \centering
-    \includegraphics[width=0.9\textwidth]{scatter_plot/m80p300opt135.png}
+    \includegraphics[width=0.82\textwidth]{m80p300opt135.png}
     \caption{\label{scatter} t-SNE visualization of the word vectors
         of selected terms in the data set. The terms are selected to be specific to 
         the four categories in the picture.  Points with a label are selected
@@ -322,18 +325,18 @@ We consider this as a strong indication of alignment between clusters and catego
 It is natural to want to organize mathematical concepts into taxonomies of various sorts.
 For instance, the SMGloM project \cite{ginev2016smglom} introduced a rich standard for mathematical ontologies. Another approach aims to create a semantic hierarchy of concepts such that for a given term we can enumerate all its hypernyms \cite{wang-etal-2017-short}.
 
-This can be  achieved by counting the co-ocurrence \cite{hearst-1992-automatic} of terms in definitions. This approach has certain drawbacks, for instance, it relies on co-ocurrence examples for each pair of terms, this ends up producing an abundance of disconnected (i.e. not co-ocurring) terms \cite{aly-etal-2019-every}.
+This can be  achieved by counting the co-occurrence \cite{hearst-1992-automatic} of terms in definitions. This approach has certain drawbacks, for instance, it relies on co-occurrence examples for each pair of terms, this ends up producing an abundance of disconnected (i.e. not co-occurring) terms \cite{aly-etal-2019-every}.
 
 Another possibility, involves the use of \emph{hyperbolic word embeddings}, in this setting the hypernimity relation becomes a geometric vector in hyperbolic space. This implies that every two terms in the embedding can be compared by using the hyperbolic metric.
-This type of word embeddings is known to outperform euclidean models in the representation of hierarchical structures \cite{facebookembeds}.
+This type of word embeddings is known to outperform euclidean models in the representation of hierarchical structures \cite{DBLP:conf/nips/NickelK17}.
 
-We used PoincareGlove \cite{tifrea2018poincare} to create hyperbolic
+We used PoincareGlove \cite{DBLP:conf/iclr/TifreaBG19} to create hyperbolic
 word embeddings. This algorithm modifies the GloVe \textit{euclidean} objective function to use a hyperbolic metric instead. 
 In addition to the same text input as word2vec and GloVe, this model requires a small set of examples in order to interpret the embedding. 
 For general purpose English text, WordNet \cite{wordnet} is the standard  choice. 
 In WordNet, every entry is assigned an integer level in a hypernymy hierarchy (this is the
 \texttt{max\_depth} attribute of the NLTK's WordNet
-API\footnote{https://www.nltk.org/howto/wordnet.html}). 
+API).\footnote{\url{https://www.nltk.org/howto/wordnet.html}} 
 
 To generate something  analogous to WordNet levels for mathematical content, we opted for the PlanetMath data set. This is due to its relatively small size, broad coverage of mathematical knowledge and independence of the arXiv data. 
  Given two term-definition pairs $(t_1, D_1)$ and $(t_2, D_2)$, we say that term
@@ -343,12 +346,14 @@ simple criterion is enough to create a directed graph $(V, E)$ where
 $V$ is the set of all the terms and $E$ is the set of all the
 dependency relations. To assign a level $\lambda (v)$ to every 
 vertex $v\in V$, solve the following integer linear program:
-\begin{align*}
-    \text{min} & \quad \sum_{(v,w) \in E} \lambda(w) - \lambda(v)  \\
-    \text{s.t.} & \quad \lambda(w) - \lambda(v) \geq 1  \\
-     & \forall (v,w) \in E. 
-\end{align*}
-This linear model appears in \cite{graphsGasner} as a subtask of a directed graph drawing algorithm. There, it is used to estimate the ideal number of levels to draw a directed graph. 
+%\begin{align*}
+%    \text{min} & \quad \sum_{(v,w) \in E} \lambda(w) - \lambda(v)  \\
+%    \text{such that} & \quad \lambda(w) - \lambda(v) \geq 1  \\
+%     & \forall (v,w) \in E. 
+%\end{align*}
+$$\min  \sum_{(v,w) \in E} \lambda(w) - \lambda(v),  \quad \text{such that}  \quad \lambda(w) - \lambda(v) \geq 1\quad \forall (v,w) \in E. $$
+
+This linear model appears in \cite{DBLP:journals/tse/GansnerKNV93} as a subtask of a directed graph drawing algorithm. There, it is used to estimate the ideal number of levels to draw a directed graph. 
 
 
 Table \ref{tab:hypernyny} shows the nearest neighbors of four
@@ -401,13 +406,13 @@ algorithms, by providing a source of logically consistent data.
 This project is an ongoing effort to align mathematical concepts
 in natural language with  online repositories of formalized
 mathematics like
-\texttt{mathlib}\footnote{https://github.com/leanprover-community/mathlib}. 
-As described in \cite{kaliszyk2016standard}, this type of alignment is called \emph{automatically found aligment}.
+\texttt{mathlib}.\footnote{\url{https://github.com/leanprover-community/mathlib}} 
+As described in \cite{DBLP:conf/cikm/KaliszykKMR16}, this type of alignment is called \emph{automatically found aligment}.
 
 In the near future we plan to further improve on the classification 
 and NER tasks by creating a data set using solely the neural version
 of the classifier and NER model. Also,  by using state-of-the-art
-methods like the masked transformer language model \cite{bert} to
+methods like the masked transformer language model \cite{DBLP:conf/naacl/DevlinCLT19} to
 further improve the results. 
 We also plan to compile the complete dependency graph in one 
 large graph database. 

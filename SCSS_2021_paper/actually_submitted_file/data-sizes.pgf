@@ -1,0 +1,58 @@
+﻿
+\begin{tikzpicture}[scale=1]
+\def\mainwidth{8.5}
+\def\MW{\mainwidth}
+\pgfplotsset{width=\mainwidth cm, height=6.5cm, compat=1.3}
+
+\def\NNx{.43}
+\def\NN{\NNx*\mainwidth}
+
+\def\Intx{0.25}
+\def\Int{\Intx*\mainwidth}
+
+\def\SGDx{0.32}
+\def\SGD{\SGDx*\mainwidth}
+
+\def\boxHeighta{-0.3}
+\def\boxHeightb{-2}
+\def\boxcc{\boxHeighta/2+\boxHeightb/2}
+
+\tikzset{NN style/.style={ fill=red!70, mark=none} }
+\tikzset{Int style/.style={ fill=orange!80, mark=none} }
+\tikzset{SGD style/.style={ fill=yellow!80, mark=none} }
+
+\begin{axis}[
+xmax=1.0, xmin=0,
+ymin=0.0, 
+scale only axis,
+bar width=40,
+bar shift=0,
+ybar legend,
+xtick={ \NNx, \NNx+\Intx, \NNx+\Intx+\SGDx },
+xticklabels={ , , },
+extra y ticks={1000000.0},
+extra y tick labels={1},
+ymajorgrids,
+%scaled y ticks=manual:{$\times 10^6$}{1000000},
+scaled y ticks=real:1000000,
+ytick scale label code/.code={$\times 10^6$},
+%title=Unique terms vrs. Terms with repetitions,
+ylabel={Total appearances},
+]
+\addplot+[ybar, style=NN style, draw=black] plot coordinates { (\NNx/2,881616) };
+\addplot+[ybar, style=Int style, draw=black] plot coordinates { (\NNx +\Intx/2,10286789) };
+\addplot+[ybar, style=SGD style, draw=black] plot coordinates { (\SGDx/2+\Intx+ \NNx,1210995) };
+
+\legend{NN - SGD,NN $\cap$ SGD, SGD - NN}
+
+\end{axis}
+\draw[style=NN style, draw opacity=0.0] (0,\boxHeighta) rectangle (\NN, \boxHeightb);
+\draw[style=Int style, draw opacity=0.0] (\NN, \boxHeighta) rectangle (\NN+\Int, \boxHeightb);
+\draw[style=SGD style, draw opacity=0.0] (\NN+\Int, \boxHeighta) rectangle (\SGD+\Int+\NN, \boxHeightb);
+\draw[draw] (0, \boxHeighta) rectangle (\SGD+\Int+\NN, \boxHeightb);
+
+\node[align=center] (NNc) at (\NN/2, \boxcc) {442,391\\(32\%)};
+\node[align=center] (Intc) at (\NN+\Int/2, \boxcc) {347,505\\ (25\%)} ;
+\node[align=center] (SGDc) at (\NN+\Int+\SGD/2, \boxcc) {595,501\\ (43\%)};
+
+\end{tikzpicture}

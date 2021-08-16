@@ -53,7 +53,6 @@
 \newblock {\sl \bibinfo{journal}{Educational and Psychological Measurement}}
   \bibinfo{volume}{20}(\bibinfo{number}{1}), pp. \bibinfo{pages}{37--46},
   \doi{10.1177/001316446002000104}.
-\newblock \urlprefix\url{https://doi.org/10.1177/001316446002000104}.
 
 \bibitemdeclare{article}{bert}
 \bibitem{bert}
@@ -147,7 +146,8 @@
   \surnamestart Corrado\surnameend} \& \bibinfo{author}{Jeffrey \surnamestart
   Dean\surnameend} (\bibinfo{year}{2013}): \emph{\bibinfo{title}{Distributed
   Representations of Words and Phrases and their Compositionality}}.
-\newblock {\sl \bibinfo{journal}{CoRR}} \bibinfo{volume}{abs/1310.4546}.
+\newblock {\sl \bibinfo{journal}{CoRR}} \bibinfo{volume}{abs/1310.4546},
+  \doi{10.5555/2999792.2999959}.
 \newblock \urlprefix\url{http://arxiv.org/abs/1310.4546}.
 
 \bibitemdeclare{inproceedings}{facebookembeds}
@@ -166,8 +166,6 @@
   \bibinfo{booktitle}{Advances in Neural Information Processing Systems}},
   \bibinfo{volume}{30}, \bibinfo{publisher}{Curran Associates, Inc.}, pp.
   \bibinfo{pages}{6338--6347}.
-\newblock
-  \urlprefix\url{https://proceedings.neurips.cc/paper/2017/file/59dfa2df42d9e3d41f5b02bfc32229dd-Paper.pdf}.
 
 \bibitemdeclare{article}{scikit-learn}
 \bibitem{scikit-learn}

@@ -1,0 +1,268 @@
+\begin{thebibliography}{10}
+\providecommand{\bibitemdeclare}[2]{}
+\providecommand{\surnamestart}{}
+\providecommand{\surnameend}{}
+\providecommand{\urlprefix}{Available at }
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\href}[2]{\texttt{#2}}
+\providecommand{\urlalt}[2]{\href{#1}{#2}}
+\providecommand{\doi}[1]{doi:\urlalt{http://dx.doi.org/#1}{#1}}
+\providecommand{\bibinfo}[2]{#2}
+
+\bibitemdeclare{inproceedings}{aly-etal-2019-every}
+\bibitem{aly-etal-2019-every}
+\bibinfo{author}{Rami \surnamestart Aly\surnameend}, \bibinfo{author}{Shantanu
+  \surnamestart Acharya\surnameend}, \bibinfo{author}{Alexander \surnamestart
+  Ossa\surnameend}, \bibinfo{author}{Arne \surnamestart K{\"o}hn\surnameend},
+  \bibinfo{author}{Chris \surnamestart Biemann\surnameend} \&
+  \bibinfo{author}{Alexander \surnamestart Panchenko\surnameend}
+  (\bibinfo{year}{2019}): \emph{\bibinfo{title}{Every Child Should Have
+  Parents: A Taxonomy Refinement Algorithm Based on Hyperbolic Term
+  Embeddings}}.
+\newblock In: {\sl \bibinfo{booktitle}{Proceedings of the 57th Annual Meeting
+  of the Association for Computational Linguistics}},
+  \bibinfo{publisher}{Association for Computational Linguistics},
+  \bibinfo{address}{Florence, Italy}, pp. \bibinfo{pages}{4811--4817},
+  \doi{10.18653/v1/P19-1474}.
+
+\bibitemdeclare{inproceedings}{DBLP:conf/mkm/Berlioz19}
+\bibitem{DBLP:conf/mkm/Berlioz19}
+\bibinfo{author}{Luis \surnamestart Berlioz\surnameend} (\bibinfo{year}{2019}):
+  \emph{\bibinfo{title}{Creating a Database of Definitions From Large
+  Mathematical Corpora}}.
+\newblock In \bibinfo{editor}{Edwin~C. \surnamestart Brady\surnameend},
+  \bibinfo{editor}{James~H. \surnamestart Davenport\surnameend},
+  \bibinfo{editor}{William~M. \surnamestart Farmer\surnameend},
+  \bibinfo{editor}{Cezary \surnamestart Kaliszyk\surnameend},
+  \bibinfo{editor}{Andrea \surnamestart Kohlhase\surnameend},
+  \bibinfo{editor}{Michael \surnamestart Kohlhase\surnameend},
+  \bibinfo{editor}{Dennis \surnamestart M{\"{u}}ller\surnameend},
+  \bibinfo{editor}{Karol \surnamestart Pak\surnameend} \&
+  \bibinfo{editor}{Claudio~Sacerdoti \surnamestart Coen\surnameend}, editors:
+  {\sl \bibinfo{booktitle}{Joint Proceedings of the {FMM} and {LML} Workshops,
+  Doctoral Program and Work in Progress at the Conference on Intelligent
+  Computer Mathematics 2019 co-located with the 12th Conference on Intelligent
+  Computer Mathematics {(CICM} 2019), Prague, Czech Republic, July 8-12,
+  2019}}, {\sl \bibinfo{series}{{CEUR} Workshop Proceedings}}
+  \bibinfo{volume}{2634}, \bibinfo{publisher}{CEUR-WS.org}.
+\newblock \urlprefix\url{http://ceur-ws.org/Vol-2634/WiP2.pdf}.
+
+\bibitemdeclare{book}{DBLP:books/daglib/0022921}
+\bibitem{DBLP:books/daglib/0022921}
+\bibinfo{author}{Steven \surnamestart Bird\surnameend}, \bibinfo{author}{Ewan
+  \surnamestart Klein\surnameend} \& \bibinfo{author}{Edward \surnamestart
+  Loper\surnameend} (\bibinfo{year}{2009}): \emph{\bibinfo{title}{Natural
+  Language Processing with Python}}.
+\newblock \bibinfo{publisher}{O'Reilly}.
+\newblock
+  \urlprefix\url{http://www.oreilly.de/catalog/9780596516499/index.html}.
+
+\bibitemdeclare{article}{cohenkappa}
+\bibitem{cohenkappa}
+\bibinfo{author}{Jacob \surnamestart Cohen\surnameend} (\bibinfo{year}{1960}):
+  \emph{\bibinfo{title}{A Coefficient of Agreement for Nominal Scales}}.
+\newblock {\sl \bibinfo{journal}{Educational and Psychological Measurement}}
+  \bibinfo{volume}{20}(\bibinfo{number}{1}), pp. \bibinfo{pages}{37--46},
+  \doi{10.1177/001316446002000104}.
+
+\bibitemdeclare{inproceedings}{DBLP:conf/naacl/DevlinCLT19}
+\bibitem{DBLP:conf/naacl/DevlinCLT19}
+\bibinfo{author}{Jacob \surnamestart Devlin\surnameend},
+  \bibinfo{author}{Ming{-}Wei \surnamestart Chang\surnameend},
+  \bibinfo{author}{Kenton \surnamestart Lee\surnameend} \&
+  \bibinfo{author}{Kristina \surnamestart Toutanova\surnameend}
+  (\bibinfo{year}{2019}): \emph{\bibinfo{title}{{BERT:} Pre-training of Deep
+  Bidirectional Transformers for Language Understanding}}.
+\newblock In \bibinfo{editor}{Jill \surnamestart Burstein\surnameend},
+  \bibinfo{editor}{Christy \surnamestart Doran\surnameend} \&
+  \bibinfo{editor}{Thamar \surnamestart Solorio\surnameend}, editors: {\sl
+  \bibinfo{booktitle}{Proceedings of the 2019 Conference of the North American
+  Chapter of the Association for Computational Linguistics: Human Language
+  Technologies, {NAACL-HLT} 2019, Minneapolis, MN, USA, June 2-7, 2019, Volume
+  1 (Long and Short Papers)}}, \bibinfo{publisher}{Association for
+  Computational Linguistics}, pp. \bibinfo{pages}{4171--4186},
+  \doi{10.18653/v1/n19-1423}.
+
+\bibitemdeclare{incollection}{wordnet}
+\bibitem{wordnet}
+\bibinfo{author}{Christiane \surnamestart Fellbaum\surnameend}
+  (\bibinfo{year}{2010}): \emph{\bibinfo{title}{WordNet}}.
+\newblock In: {\sl \bibinfo{booktitle}{Theory and applications of ontology:
+  computer applications}}, \bibinfo{publisher}{Springer}, pp.
+  \bibinfo{pages}{231--243}, \doi{10.1093/ijl/17.2.161}.
+
+\bibitemdeclare{article}{DBLP:journals/tse/GansnerKNV93}
+\bibitem{DBLP:journals/tse/GansnerKNV93}
+\bibinfo{author}{Emden~R. \surnamestart Gansner\surnameend},
+  \bibinfo{author}{Eleftherios \surnamestart Koutsofios\surnameend},
+  \bibinfo{author}{Stephen~C. \surnamestart North\surnameend} \&
+  \bibinfo{author}{Kiem{-}Phong \surnamestart Vo\surnameend}
+  (\bibinfo{year}{1993}): \emph{\bibinfo{title}{A Technique for Drawing
+  Directed Graphs}}.
+\newblock {\sl \bibinfo{journal}{{IEEE} Trans. Software Eng.}}
+  \bibinfo{volume}{19}(\bibinfo{number}{3}), pp. \bibinfo{pages}{214--230},
+  \doi{10.1109/32.221135}.
+
+\bibitemdeclare{inproceedings}{ginev2016smglom}
+\bibitem{ginev2016smglom}
+\bibinfo{author}{Deyan \surnamestart Ginev\surnameend}, \bibinfo{author}{Mihnea
+  \surnamestart Iancu\surnameend}, \bibinfo{author}{Constantin \surnamestart
+  Jucovshi\surnameend}, \bibinfo{author}{Andrea \surnamestart
+  Kohlhase\surnameend}, \bibinfo{author}{Michael \surnamestart
+  Kohlhase\surnameend}, \bibinfo{author}{Akbar \surnamestart
+  Oripov\surnameend}, \bibinfo{author}{J{\"u}rgen \surnamestart
+  Schefter\surnameend}, \bibinfo{author}{Wolfram \surnamestart
+  Sperber\surnameend}, \bibinfo{author}{Olaf \surnamestart Teschke\surnameend}
+  \& \bibinfo{author}{Tom \surnamestart Wiesing\surnameend}
+  (\bibinfo{year}{2016}): \emph{\bibinfo{title}{The SMGloM project and system:
+  towards a terminology and ontology for mathematics}}.
+\newblock In: {\sl \bibinfo{booktitle}{International Congress on Mathematical
+  Software}}, \bibinfo{organization}{Springer}, pp. \bibinfo{pages}{451--457}.
+
+\bibitemdeclare{article}{Deyan1}
+\bibitem{Deyan1}
+\bibinfo{author}{Deyan \surnamestart Ginev\surnameend} \&
+  \bibinfo{author}{Bruce~R. \surnamestart Miller\surnameend}
+  (\bibinfo{year}{2019}): \emph{\bibinfo{title}{Scientific Statement
+  Classification over arXiv.org}}.
+\newblock {\sl \bibinfo{journal}{CoRR}} \bibinfo{volume}{abs/1908.10993}.
+\newblock \urlprefix\url{http://arxiv.org/abs/1908.10993}.
+
+\bibitemdeclare{inproceedings}{hearst-1992-automatic}
+\bibitem{hearst-1992-automatic}
+\bibinfo{author}{Marti~A. \surnamestart Hearst\surnameend}
+  (\bibinfo{year}{1992}): \emph{\bibinfo{title}{Automatic Acquisition of
+  Hyponyms from Large Text Corpora}}.
+\newblock In: {\sl \bibinfo{booktitle}{{COLING} 1992 Volume 2: The 14th
+  {I}nternational {C}onference on {C}omputational {L}inguistics}},
+  \doi{10.3115/992133.992154}.
+
+\bibitemdeclare{article}{DBLP:journals/corr/HuangXY15}
+\bibitem{DBLP:journals/corr/HuangXY15}
+\bibinfo{author}{Zhiheng \surnamestart Huang\surnameend}, \bibinfo{author}{Wei
+  \surnamestart Xu\surnameend} \& \bibinfo{author}{Kai \surnamestart
+  Yu\surnameend} (\bibinfo{year}{2015}): \emph{\bibinfo{title}{Bidirectional
+  {LSTM-CRF} Models for Sequence Tagging}}.
+\newblock {\sl \bibinfo{journal}{CoRR}} \bibinfo{volume}{abs/1508.01991}.
+\newblock \urlprefix\url{http://arxiv.org/abs/1508.01991}.
+
+\bibitemdeclare{inproceedings}{DBLP:conf/cikm/KaliszykKMR16}
+\bibitem{DBLP:conf/cikm/KaliszykKMR16}
+\bibinfo{author}{Cezary \surnamestart Kaliszyk\surnameend},
+  \bibinfo{author}{Michael \surnamestart Kohlhase\surnameend},
+  \bibinfo{author}{Dennis \surnamestart M{\"{u}}ller\surnameend} \&
+  \bibinfo{author}{Florian \surnamestart Rabe\surnameend}
+  (\bibinfo{year}{2016}): \emph{\bibinfo{title}{A Standard for Aligning
+  Mathematical Concepts}}.
+\newblock In \bibinfo{editor}{Andrea \surnamestart Kohlhase\surnameend},
+  \bibinfo{editor}{Paul \surnamestart Libbrecht\surnameend},
+  \bibinfo{editor}{Bruce~R. \surnamestart Miller\surnameend},
+  \bibinfo{editor}{Adam \surnamestart Naumowicz\surnameend},
+  \bibinfo{editor}{Walther \surnamestart Neuper\surnameend},
+  \bibinfo{editor}{Pedro \surnamestart Quaresma\surnameend},
+  \bibinfo{editor}{Frank~Wm. \surnamestart Tompa\surnameend} \&
+  \bibinfo{editor}{Martin \surnamestart Suda\surnameend}, editors: {\sl
+  \bibinfo{booktitle}{Joint Proceedings of the FM4M, MathUI, and ThEdu
+  Workshops, Doctoral Program, and Work in Progress at the Conference on
+  Intelligent Computer Mathematics 2016 co-located with the 9th Conference on
+  Intelligent Computer Mathematics {(CICM} 2016), Bialystok, Poland, July
+  25-29, 2016}}, {\sl \bibinfo{series}{{CEUR} Workshop Proceedings}}
+  \bibinfo{volume}{1785}, \bibinfo{publisher}{CEUR-WS.org}, pp.
+  \bibinfo{pages}{229--244}.
+\newblock \urlprefix\url{http://ceur-ws.org/Vol-1785/W24.pdf}.
+
+\bibitemdeclare{article}{word2vec}
+\bibitem{word2vec}
+\bibinfo{author}{Tom{\'{a}}s \surnamestart Mikolov\surnameend},
+  \bibinfo{author}{Ilya \surnamestart Sutskever\surnameend},
+  \bibinfo{author}{Kai \surnamestart Chen\surnameend}, \bibinfo{author}{Greg
+  \surnamestart Corrado\surnameend} \& \bibinfo{author}{Jeffrey \surnamestart
+  Dean\surnameend} (\bibinfo{year}{2013}): \emph{\bibinfo{title}{Distributed
+  Representations of Words and Phrases and their Compositionality}}.
+\newblock {\sl \bibinfo{journal}{CoRR}} \bibinfo{volume}{abs/1310.4546},
+  \doi{10.5555/2999792.2999959}.
+\newblock \urlprefix\url{http://arxiv.org/abs/1310.4546}.
+
+\bibitemdeclare{inproceedings}{DBLP:conf/nips/NickelK17}
+\bibitem{DBLP:conf/nips/NickelK17}
+\bibinfo{author}{Maximilian \surnamestart Nickel\surnameend} \&
+  \bibinfo{author}{Douwe \surnamestart Kiela\surnameend}
+  (\bibinfo{year}{2017}): \emph{\bibinfo{title}{Poincar{\'{e}} Embeddings for
+  Learning Hierarchical Representations}}.
+\newblock In \bibinfo{editor}{Isabelle \surnamestart Guyon\surnameend},
+  \bibinfo{editor}{Ulrike \surnamestart von Luxburg\surnameend},
+  \bibinfo{editor}{Samy \surnamestart Bengio\surnameend},
+  \bibinfo{editor}{Hanna~M. \surnamestart Wallach\surnameend},
+  \bibinfo{editor}{Rob \surnamestart Fergus\surnameend},
+  \bibinfo{editor}{S.~V.~N. \surnamestart Vishwanathan\surnameend} \&
+  \bibinfo{editor}{Roman \surnamestart Garnett\surnameend}, editors: {\sl
+  \bibinfo{booktitle}{Advances in Neural Information Processing Systems 30:
+  Annual Conference on Neural Information Processing Systems 2017, December
+  4-9, 2017, Long Beach, CA, {USA}}}, pp. \bibinfo{pages}{6338--6347}.
+
+\bibitemdeclare{article}{DBLP:journals/jmlr/PedregosaVGMTGBPWDVPCBPD11}
+\bibitem{DBLP:journals/jmlr/PedregosaVGMTGBPWDVPCBPD11}
+\bibinfo{author}{Fabian \surnamestart Pedregosa\surnameend},
+  \bibinfo{author}{Ga{\"{e}}l \surnamestart Varoquaux\surnameend},
+  \bibinfo{author}{Alexandre \surnamestart Gramfort\surnameend},
+  \bibinfo{author}{Vincent \surnamestart Michel\surnameend},
+  \bibinfo{author}{Bertrand \surnamestart Thirion\surnameend},
+  \bibinfo{author}{Olivier \surnamestart Grisel\surnameend},
+  \bibinfo{author}{Mathieu \surnamestart Blondel\surnameend},
+  \bibinfo{author}{Peter \surnamestart Prettenhofer\surnameend},
+  \bibinfo{author}{Ron \surnamestart Weiss\surnameend},
+  \bibinfo{author}{Vincent \surnamestart Dubourg\surnameend},
+  \bibinfo{author}{Jake \surnamestart VanderPlas\surnameend},
+  \bibinfo{author}{Alexandre \surnamestart Passos\surnameend},
+  \bibinfo{author}{David \surnamestart Cournapeau\surnameend},
+  \bibinfo{author}{Matthieu \surnamestart Brucher\surnameend},
+  \bibinfo{author}{Matthieu \surnamestart Perrot\surnameend} \&
+  \bibinfo{author}{Edouard \surnamestart Duchesnay\surnameend}
+  (\bibinfo{year}{2011}): \emph{\bibinfo{title}{Scikit-learn: Machine Learning
+  in Python}}.
+\newblock {\sl \bibinfo{journal}{J. Mach. Learn. Res.}} \bibinfo{volume}{12},
+  pp. \bibinfo{pages}{2825--2830}.
+\newblock \urlprefix\url{http://dl.acm.org/citation.cfm?id=2078195}.
+
+\bibitemdeclare{inproceedings}{DBLP:conf/emnlp/PenningtonSM14}
+\bibitem{DBLP:conf/emnlp/PenningtonSM14}
+\bibinfo{author}{Jeffrey \surnamestart Pennington\surnameend},
+  \bibinfo{author}{Richard \surnamestart Socher\surnameend} \&
+  \bibinfo{author}{Christopher~D. \surnamestart Manning\surnameend}
+  (\bibinfo{year}{2014}): \emph{\bibinfo{title}{Glove: Global Vectors for Word
+  Representation}}.
+\newblock In \bibinfo{editor}{Alessandro \surnamestart Moschitti\surnameend},
+  \bibinfo{editor}{Bo~\surnamestart Pang\surnameend} \& \bibinfo{editor}{Walter
+  \surnamestart Daelemans\surnameend}, editors: {\sl
+  \bibinfo{booktitle}{Proceedings of the 2014 Conference on Empirical Methods
+  in Natural Language Processing, {EMNLP} 2014, October 25-29, 2014, Doha,
+  Qatar, {A} meeting of SIGDAT, a Special Interest Group of the {ACL}}},
+  \bibinfo{publisher}{{ACL}}, pp. \bibinfo{pages}{1532--1543},
+  \doi{10.3115/v1/d14-1162}.
+
+\bibitemdeclare{inproceedings}{DBLP:conf/iclr/TifreaBG19}
+\bibitem{DBLP:conf/iclr/TifreaBG19}
+\bibinfo{author}{Alexandru \surnamestart Tifrea\surnameend},
+  \bibinfo{author}{Gary \surnamestart B{\'{e}}cigneul\surnameend} \&
+  \bibinfo{author}{Octavian{-}Eugen \surnamestart Ganea\surnameend}
+  (\bibinfo{year}{2019}): \emph{\bibinfo{title}{Poincare Glove: Hyperbolic Word
+  Embeddings}}.
+\newblock In: {\sl \bibinfo{booktitle}{7th International Conference on Learning
+  Representations, {ICLR} 2019, New Orleans, LA, USA, May 6-9, 2019}},
+  \bibinfo{publisher}{OpenReview.net}.
+\newblock \urlprefix\url{https://openreview.net/forum?id=Ske5r3AqK7}.
+
+\bibitemdeclare{inproceedings}{wang-etal-2017-short}
+\bibitem{wang-etal-2017-short}
+\bibinfo{author}{Chengyu \surnamestart Wang\surnameend},
+  \bibinfo{author}{Xiaofeng \surnamestart He\surnameend} \&
+  \bibinfo{author}{Aoying \surnamestart Zhou\surnameend}
+  (\bibinfo{year}{2017}): \emph{\bibinfo{title}{A Short Survey on Taxonomy
+  Learning from Text Corpora: Issues, Resources and Recent Advances}}.
+\newblock In: {\sl \bibinfo{booktitle}{Proceedings of the 2017 Conference on
+  Empirical Methods in Natural Language Processing}},
+  \bibinfo{publisher}{Association for Computational Linguistics},
+  \bibinfo{address}{Copenhagen, Denmark}, pp. \bibinfo{pages}{1190--1203},
+  \doi{10.18653/v1/D17-1123}.
+
+\end{thebibliography}
