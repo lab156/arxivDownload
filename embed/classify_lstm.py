@@ -19,7 +19,10 @@ from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
                       GRU, Dropout, GlobalAveragePooling1D, Conv1D
 from tensorflow.keras.models import Sequential
 from tensorflow.config import list_physical_devices
+from tensorflow.keras.callbacks import TensorBoard
 
+import sys
+sys.path.extend(["/home/luis/.local/lib/python3.8/site-packages"])
 
 import sklearn.metrics as metrics
 # -
@@ -40,10 +43,11 @@ import classifier_models as M
 
 # GET the Important Environment Paths
 base_dir = os.environ['BASE_DIR'] # This is where the model resides i.e. /opt or /media/hd1
-local_dir = os.environ['MINE_OUT_DIR']  # This is temporary fast storage
+mine_out_dir = os.environ['MINE_OUT_DIR']  # This is temporary fast storage
 #data_dir = os.environ['DATA_DIR']  
 # DATA_DIR is where the data that will be classified resides /media/hd1 or $LOCAL
 
+os.makedirs(mine_out_dir, exist_ok=True)
 tf_model_dir = os.path.join(base_dir,\
         'trained_models/lstm_classifier',\
         'lstm_Feb-21_16-26')
@@ -58,7 +62,7 @@ data_path = ''
 train_example_path = os.path.join(base_dir,
         'training_defs/math10/1009_004.xml.gz')
 
-logging.basicConfig(filename=os.path.join(local_dir, 'classifying.log'),
+logging.basicConfig(filename=os.path.join(mine_out_dir, 'classifying.log'),
         level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -134,7 +138,7 @@ def mine_dirs(dir_lst, cfg):
     #for k, dirname in enumerate(['math' + repr(k)[2:] for k in range(1996, 1994, 1)]):
         logger.info('Classifying the contents of {}'.format(dirname))
         try:
-            #full_path = os.path.join(local_dir, cfg['promath_dir'], dirname)
+            #full_path = os.path.join(mine_out_dir, cfg['promath_dir'], dirname)
             full_path = os.path.join(data_path, dirname)
             tar_lst = [os.path.join(full_path, p) for p in os.listdir(full_path)\
                     if '.tar.gz' in p]
@@ -182,6 +186,14 @@ def lstm_model_one_layer(cfg):
     lstm_model.summary(print_fn=logger.info) 
     return lstm_model
 
+def model_callback(cfg):
+    '''
+    Return a Tensorboard Callback
+    '''
+    return TensorBoard(log_dir=cfg['tboard_path'],
+                            histogram_freq=1,
+                            profile_batch="2,22")
+
 
 def test_model(path):
     xml_lst = [path,]
@@ -199,7 +211,10 @@ def test_model(path):
     prep_data_t = (dt.now() - Now1)
 
     Now2 = dt.now()
-    ret = model.evaluate(test_seq, np.array(test[1]))
+
+    tboard_call = model_callback(cfg)
+    ret = model.evaluate(test_seq, np.array(test[1]),
+            callbacks=[tboard_call,])
     evaluation_t = (dt.now() - Now2)
     logger.info('TEST TIMES: prep data: {} secs -- evaluation: {} secs.'\
             .format(prep_data_t, evaluation_t))
@@ -218,7 +233,8 @@ if __name__ == '__main__':
 
     # GET THE PATH AND config
     cfg = open_cfg_dict(os.path.join(tf_model_dir, 'cfg_dict.json'))
-    cfg['save_path'] = local_dir
+    cfg['save_path'] = mine_out_dir
+    cfg['tboard_path'] = os.path.join(mine_out_dir, 'tboard_logs') 
     idx2tkn, tkn2idx = open_idx2tkn_make_tkn2idx(os.path.join(tf_model_dir,\
             'idx2tkn.pickle'))
     print(tkn2idx['commutative'])
@@ -228,6 +244,7 @@ if __name__ == '__main__':
     elif cfg['model_type'] == 'conv':
         model = M.conv_model_globavgpool(cfg, logger)
     model.load_weights(tf_model_dir + '/model_weights')
+    logger.info("CONFIG cfg = {}".format(cfg))
 
     # TEST
     test_result = test_model(train_example_path)
