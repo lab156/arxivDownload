@@ -50,7 +50,7 @@ mine_out_dir = os.environ['MINE_OUT_DIR']  # This is temporary fast storage
 os.makedirs(mine_out_dir, exist_ok=True)
 tf_model_dir = os.path.join(base_dir,\
         'trained_models/lstm_classifier',\
-        'lstm_Feb-21_16-26')
+        'lstm_Aug-19_04-15')
 
 # PATH OF THE PROCESSED ARTICLES (directory: promath)
 # singularity cannot reach env variables so have to use full paths
