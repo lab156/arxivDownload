@@ -70,7 +70,7 @@ def gen_cfg(*args, **kwargs):
     else:
         save_path_dir = os.path.join(cfg['local_dir'], 'trained_models/conv_classifier/conv_' + timestamp)
 
-    os.mkdir(save_path_dir)
+    os.makedirs(save_path_dir)
     cfg['save_path'] = os.path.join(save_path_dir, 'classification_results')
 
 
