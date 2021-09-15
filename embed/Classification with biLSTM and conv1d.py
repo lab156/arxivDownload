@@ -15,27 +15,93 @@
 # ---
 
 # +
-from glob import glob
+#from glob import glob
 import os
 import numpy as np
-from lxml import etree
-from collections import Counter
-from random import shuffle
-import gzip
+#from lxml import etree
+#from collections import Counter
+#from random import shuffle
+#import gzip
 
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
-                      GRU, Dropout, GlobalAveragePooling1D, Conv1D, MaxPooling1D,\
-                      GlobalMaxPooling1D
-from tensorflow.keras.models import Sequential
-from tensorflow_addons.callbacks import TQDMProgressBar
-import tensorflow.keras.metrics as kmetrics
-
-import sklearn.metrics as metrics
+#from tensorflow.keras.preprocessing.text import Tokenizer
+#from tensorflow.keras.preprocessing.sequence import pad_sequences
+#from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
+#                      GRU, Dropout, GlobalAveragePooling1D, Conv1D, MaxPooling1D,\
+#                      GlobalMaxPooling1D
+#from tensorflow.keras.models import Sequential
+#from tensorflow_addons.callbacks import TQDMProgressBar
+#import tensorflow.keras.metrics as kmetrics
+import tensorflow as tf
+from joblib import Parallel, delayed
+#
+#import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
-import json
+#import json
 import pickle
+import sys, inspect
+from datetime import datetime as dt
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir) 
+from classifier_trainer.trainer import stream_arxiv_paragraphs
+# -
+
+from train_lstm import *
+args = []
+cfg = gen_cfg()
+
+train_seq, validation_seq, test_seq, idx2tkn,\
+tkn2idx, training, validation, test, cfg = read_train_data(cfg)
+
+embed_matrix, cfg = TL.gen_embed_matrix(tkn2idx, cfg)
+
+cfg['lstm_cells'] = 128 # Required LSTM layer parameter
+cfg['epochs'] = 2
+cfg['model_name'] = lstm_model_one_layer.__name__
+### FIT THE MODEL ###
+model = lstm_model_one_layer(embed_matrix, cfg)
+history = model.fit(train_seq, np.array(training[1]),
+                epochs=cfg['epochs'], validation_data=(validation_seq, np.array(validation[1])),
+                batch_size=512,
+                verbose=1,
+                callbacks=TL.model_callbacks(cfg))
+
+import classify_lstm as CL
+idx2tkn, tkn2idx = CL.open_idx2tkn_make_tkn2idx('/home/luis/rm_me_complete_models/cmodel1/idx2tkn.pickle')
+
+model = tf.keras.models.load_model('/home/luis/rm_me_complete_models/cmodel1')
+#model.evaluate(validation_seq, np.array(validation[1]))
+
+test_model('/media/hd1/training_defs/math10/1004_001.xml.gz', tkn2idx, idx2tkn, cfg, model)
+
+hist
+
+
+# +
+def plot_graphs(history, string):
+    plt.plot(history[string])
+    plt.plot(history['val_'+string])
+    plt.xlabel('Epochs')
+    plt.ylabel(string)
+    plt.legend([string, 'val_'+string])
+    plt.show()
+
+hist = pickle.load(
+open('/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-14_19-14/exp_005/history.pickle','rb'))
+plot_graphs(hist, "accuracy")
+plot_graphs(hist, "loss")
+# -
+
+for num in range(10):
+    print('exp_{0:0>2}'.format(num))
+
+
+# + magic_args="echo skipping" language="script"
+# # SAVE A COMPLETE MODEL (NOT WEIGHTS)
+# model.save('/home/luis/rm_me_complete_models/cmodel1')
+#
+# with open(os.path.join('/home/luis/rm_me_complete_models/cmodel1','idx2tkn.pickle'), 'wb') as idx2tkn_fobj:
+#     pickle.dump(idx2tkn, idx2tkn_fobj, pickle.HIGHEST_PROTOCOL)
 # -
 
 # %load_ext autoreload
@@ -171,8 +237,8 @@ def plot_graphs(history, string):
     plt.legend([string, 'val_'+string])
     plt.show()
 # Conv stats results
-plot_graphs(history, "accuracy")
-plot_graphs(history, "loss")
+plot_graphs(model.history, "accuracy")
+plot_graphs(model.history, "loss")
 predictions = conv_model.predict(validation_seq)
 print(metrics.classification_report(np.round(predictions), validation[1]))
 
@@ -386,7 +452,3 @@ for k, dirname in enumerate(['math01',]):
         with gzip.open(gz_out_path, 'wb') as out_f:
             print("Writing to dfdum zipped file to: %s"%gz_out_path)
             out_f.write(etree.tostring(def_root, pretty_print=True))
-# -
-227/0.69
-
-

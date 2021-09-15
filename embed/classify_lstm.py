@@ -42,8 +42,8 @@ import peep_tar as peep
 import classifier_models as M
 
 # GET the Important Environment Paths
-base_dir = os.environ['BASE_DIR'] # This is where the model resides i.e. /opt or /media/hd1
-mine_out_dir = os.environ['MINE_OUT_DIR']  # This is temporary fast storage
+base_dir = os.environ.get('BASE_DIR', '/media/hd1') # This is where the model resides i.e. /opt or /media/hd1
+mine_out_dir = os.environ.get('MINE_OUT_DIR', '/tmp/rm_me_dir')  # This is temporary fast storage
 #data_dir = os.environ['DATA_DIR']  
 # DATA_DIR is where the data that will be classified resides /media/hd1 or $LOCAL
 
@@ -212,9 +212,10 @@ def test_model(path):
 
     Now2 = dt.now()
 
-    tboard_call = model_callback(cfg)
+    #tboard_call = model_callback(cfg)
     ret = model.evaluate(test_seq, np.array(test[1]),
-            callbacks=[tboard_call,])
+            )
+            #callbacks=[tboard_call,])
     evaluation_t = (dt.now() - Now2)
     logger.info('TEST TIMES: prep data: {} secs -- evaluation: {} secs.'\
             .format(prep_data_t, evaluation_t))
@@ -227,9 +228,19 @@ def test_model(path):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('mine', type=str, nargs='+',
-            help='Path to save the logs and the results of mining. ex. math03 math04')
+    parser.add_argument('--model', type=str, default='',
+        help="Path to the trained model ex. '/media/hd1/trained_models/lstm_classifier/lstm_Aug-19_04-15")
+    parser.add_argument('--out', type=str, default='',
+        help="Path to dir 'mine_out_dir' to output mining results.")
+    parser.add_argument('--mine', type=str, nargs='+',
+            help='Path to data to mine, ex. /media/hd1/promath/math96')
     args = parser.parse_args()
+
+    if args.model != '' :
+        tf_model_dir = args.model
+
+    if args.out != '' :
+        mine_out_dir = args.out
 
     # GET THE PATH AND config
     cfg = open_cfg_dict(os.path.join(tf_model_dir, 'cfg_dict.json'))
@@ -253,4 +264,7 @@ if __name__ == '__main__':
     if args.mine is not None:
         logger.info('List of Mining dirs: {}'.format(args.mine))
         mine_dirs(args.mine, cfg)
+    else:
+        logger.info('--mine is empty there will be no mining.')
+
 
