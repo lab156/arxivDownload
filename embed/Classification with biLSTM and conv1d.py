@@ -34,9 +34,9 @@ import numpy as np
 import tensorflow as tf
 from joblib import Parallel, delayed
 #
-#import sklearn.metrics as metrics
+import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
-#import json
+import json
 import pickle
 import sys, inspect
 from datetime import datetime as dt
@@ -44,57 +44,124 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 from classifier_trainer.trainer import stream_arxiv_paragraphs
+from math import sqrt
+
+# %load_ext autoreload
+# %autoreload 2
+from train_utils import TimeHistory, def_scheduler
 # -
 
 from train_lstm import *
 args = []
-cfg = gen_cfg()
+xml_lst, cfg = gen_cfg()
+
+cfg
 
 train_seq, validation_seq, test_seq, idx2tkn,\
-tkn2idx, training, validation, test, cfg = read_train_data(cfg)
+tkn2idx, training, validation, test, cfg = read_train_data(xml_lst, cfg)
 
-embed_matrix, cfg = TL.gen_embed_matrix(tkn2idx, cfg)
+embed_matrix, cfg = gen_embed_matrix(tkn2idx, cfg)
 
+# +
 cfg['lstm_cells'] = 128 # Required LSTM layer parameter
-cfg['epochs'] = 2
+cfg['epochs'] = 1
 cfg['model_name'] = lstm_model_one_layer.__name__
+
+ep_time = TimeHistory()
+lr_sched = tf.keras.callbacks.LearningRateScheduler(def_scheduler(0.7))
+save_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+    os.path.join(cfg['save_path_dir'], 'model_weights'), \
+                             monitor='val_accuracy', verbose=1, \
+                             save_best_only=True, save_weights_only=False, \
+                             mode='max', save_freq='epoch')
+
+
 ### FIT THE MODEL ###
 model = lstm_model_one_layer(embed_matrix, cfg)
 history = model.fit(train_seq, np.array(training[1]),
                 epochs=cfg['epochs'], validation_data=(validation_seq, np.array(validation[1])),
                 batch_size=512,
                 verbose=1,
-                callbacks=TL.model_callbacks(cfg))
+                callbacks=[ep_time, lr_sched, save_checkpoint])
+history.history['epoch_times'] = [t.seconds for t in ep_time.times]
+# -
+
+opt_prob, f1_max = find_best_cutoff(model, validation_seq, validation)
+
+pred_test = model.predict(test_seq)
+metric_str = metrics.classification_report((pred_test > opt_prob).astype(int), test[1])
+print(metric_str)
+
+cfg['opt_prob'] = opt_prob
+history.history['epoch_times'] = [t.seconds for t in ep_time.times]
+history.history['lr'] = [float(l) for l in history.history['lr']]
+save_weights_tokens(model, idx2tkn, history, cfg)
+#json.dumps(eval(str(history.history)))
+#json.dumps(history.history)
 
 import classify_lstm as CL
-idx2tkn, tkn2idx = CL.open_idx2tkn_make_tkn2idx('/home/luis/rm_me_complete_models/cmodel1/idx2tkn.pickle')
+#idx2tkn, tkn2idx = CL.open_idx2tkn_make_tkn2idx('/home/luis/rm_me_complete_models/cmodel1/idx2tkn.pickle')
+#idx2tkn, tkn2idx = CL.open_idx2tkn_make_tkn2idx('/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-19_20-29/idx2tkn.pickle')
+tf_model_dir = '/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-19_20-29/'
+cfg = CL.open_cfg_dict(os.path.join(tf_model_dir, 'cfg_dict.json'))
+idx2tkn, tkn2idx = CL.open_idx2tkn_make_tkn2idx(os.path.join(tf_model_dir, 'idx2tkn.pickle'))
+#model = CL.lstm_model_one_layer(cfg)
+#model.load_weights(tf_model_dir + 'model_weights')
+model = tf.keras.models.load_model(os.path.join(tf_model_dir, 'model_weights'))
+#CL.test_model('/media/hd1/training_defs/math10/1004_001.xml.gz', cfg)
+test_model('/media/hd1/training_defs/math10/1004_001.xml.gz', tkn2idx, idx2tkn, cfg, model)
 
 model = tf.keras.models.load_model('/home/luis/rm_me_complete_models/cmodel1')
 #model.evaluate(validation_seq, np.array(validation[1]))
 
 test_model('/media/hd1/training_defs/math10/1004_001.xml.gz', tkn2idx, idx2tkn, cfg, model)
 
-hist
-
-
 # +
-def plot_graphs(history, string):
-    plt.plot(history[string])
-    plt.plot(history['val_'+string])
-    plt.xlabel('Epochs')
-    plt.ylabel(string)
-    plt.legend([string, 'val_'+string])
+#loss_d = []
+#acc_d = []
+#val_loss_d = []
+#val_acc_d = []
+
+with open('/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-19_20-29/history.json', 'r') as js_fobj:
+    hist = json.load(js_fobj)
+    
+
+def plot_side_by_side(history, tit_str):
+    plt.figure(figsize=[12,5])
+    plt.suptitle(tit_str)
+    ax = plt.subplot('121')
+    string = 'loss'
+    ax.plot(history[string])
+    ax.plot(history['val_'+string])
+    #ax.xlabel('Epochs')
+    #ax.ylabel(string)
+    ax.legend([string, 'val_'+string])
+    ax.grid()
+    
+    ax = plt.subplot('122')
+    string = 'accuracy'
+    ax.plot(history[string])
+    ax.plot(history['val_'+string])
+    #ax.xlabel('Epochs')
+    #ax.ylabel(string)
+    ax.legend([string, 'val_'+string])
+    ax.grid()
     plt.show()
-
-hist = pickle.load(
-open('/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-14_19-14/exp_005/history.pickle','rb'))
-plot_graphs(hist, "accuracy")
-plot_graphs(hist, "loss")
-# -
-
-for num in range(10):
-    print('exp_{0:0>2}'.format(num))
-
+    
+plot_side_by_side(hist, 'hola')
+#for k in range(10):
+#    with open('../data/lr_results/lstm_Sep-16_01-22/exp_00{}/history.json'.format(k), 'r') as json_fobj:
+#        js_d = json.load(json_fobj)
+#        js_np = {k:np.array(js_d[k]) for k in js_d}
+#    loss_d.append(js_d['loss'])
+#    val_loss_d.append(js_d['val_loss'])
+#    val_acc_d.append(js_d['val_accuracy'])
+#    with open('../data/lr_results/lstm_Sep-15_16-11/exp_00{}/history.json'.format(k), 'r') as json_fobj:
+#        js_d = json.load(json_fobj)
+#        r_d = {} # The average results dictionary
+#        for j,a in js_np.items():
+#            r_d[j] = 0.5*(js_np[j] + np.array(js_d[j]))
+#    plot_side_by_side(r_d, 'experiment: {}'.format(k))
 
 # + magic_args="echo skipping" language="script"
 # # SAVE A COMPLETE MODEL (NOT WEIGHTS)

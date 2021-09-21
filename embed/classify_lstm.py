@@ -195,7 +195,7 @@ def model_callback(cfg):
                             profile_batch="2,22")
 
 
-def test_model(path):
+def test_model(path, cfg):
     xml_lst = [path,]
     stream = stream_arxiv_paragraphs(xml_lst, samples=6000)
 #os.path.join(base_dir,'training_defs/math10/1008_001.xml.gz'),

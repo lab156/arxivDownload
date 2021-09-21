@@ -17,13 +17,16 @@ from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
 from tensorflow.keras.models import Sequential
 
 from tensorflow.config import list_physical_devices
-from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint, \
+        LearningRateScheduler, EarlyStopping
 from tensorflow.keras.optimizers import Adam
 
 
 import sklearn.metrics as metrics
 
 import sys
+import train_utils as Tut
+
 # THIS IS NEEDED TO RUN AS ROOT 
 sys.path.extend(["/home/luis/.local/lib/python3.8/site-packages"])
 # -
@@ -58,8 +61,13 @@ def gen_cfg(**kwargs):
     cfg['base_dir'] = os.environ.get('PERMSTORAGE', '/media/hd1') # This is permanent storage
     cfg['local_dir'] = os.environ.get('TEMPFASTSTORAGE',
             '/tmp/rm_me_experiments')  # This is temporary fast storage
-    #xml_lst += glob('/media/hd1/training_defs/math14/*.xml.gz')
 
+    if 'parsed_args' in kwargs:
+        args = kwargs['parsed_args']
+        cfg['profiling'] = args.profiling
+        cfg['epochs'] = args.epochs
+        if args.mini:
+            cfg['glob_data_source'] = '/training_defs/math10/*.xml.gz'
 
     # CREATE LOG FILE AND OBJECT
     hoy = dt.now()
@@ -73,6 +81,7 @@ def gen_cfg(**kwargs):
 
     os.makedirs(cfg['save_path_dir'], exist_ok=True)
 
+    # this might be useful for the classification downstream
     #cfg['save_path'] = os.path.join(cfg['save_path_dir'], 'classification_results')
 
 
@@ -99,10 +108,6 @@ def gen_cfg(**kwargs):
     else:
         raise NotImplementedError(f'Model Type: {cfg["model_type"]} not defined')
         
-    if 'parsed_args' in kwargs:
-        args = kwargs['parsed_args']
-        cfg['profiling'] = args.profiling
-        cfg['epochs'] = args.epochs
     
     return xml_lst, cfg
 
@@ -110,12 +115,36 @@ def model_callbacks(cfg):
     '''
     Return a Tensorboard Callback
     '''
+    cb = [] #
     if cfg['profiling'] == True:
-        return [TensorBoard(log_dir=cfg['prof_dir'],
+        cb.append(TensorBoard(log_dir=cfg['prof_dir'],
                                 histogram_freq=1,
-                                profile_batch="2,22")]
+                                profile_batch="2,22"))
+
+    if 'mon_val_loss' in cfg['callbacks']:
+        save_checkpoint = ModelCheckpoint(
+                 os.path.join(cfg['save_path_dir'], 'model_saved'), \
+		 monitor='val_accuracy', verbose=1, \
+		 save_best_only=True, save_weights_only=False, \
+		 mode='max', save_freq='epoch')
+        cb.append(save_checkpoint)
+
+    if 'epoch_times' in cfg['callbacks']:
+        ep_times = Tut.TimeHistory()
+        cb.append(ep_times)
     else:
-        return []
+        ep_times = []
+
+    if 'ls_schedule' in cfg['callbacks']:
+        lr_sched = LearningRateScheduler(
+                Tut.def_scheduler(cfg['AdamCfg']['lr_decay']))
+        cb.append(lr_sched)
+
+    if 'early_stop' in cfg['callbacks']:
+        early = EarlyStopping(patience=2, restore_best_weights=True)
+        cb.append(early)
+
+    return cb, ep_times
 
 # ++++++++++ Accesory Functions +++++++++++++++++++
 def text2seq(text,tkn2idx):
@@ -299,26 +328,44 @@ def test_model(path, tkn2idx, idx2tkn, cfg, model):
     logger.info('TEST TIMES: prep data: {} secs -- evaluation: {} secs.'\
             .format(prep_data_t, evaluation_t))
     
+    pred_test = model.predict(test_seq)
+    metrics_str = metrics.classification_report((pred_test > cfg['opt_prob']).astype(int), test[1])
+    print(metrics_str)
     return ret
+
+def cutoff_predict_metrics(model, validation_seq, validation, test_seq, test, cfg):
+    """
+    Find the optimal cutoff (using function), predicts and pretty prints metrics
+    """
+    opt_prob, f1_max = find_best_cutoff(model, validation_seq, validation)
+
+    logger.info('\n Optimal probabilty threshold is {} for maximum F1 score {}\n'\
+	    .format(opt_prob, f1_max))
+
+    cfg['opt_prob'] = opt_prob
+
+    pred_test = model.predict(test_seq)
+
+    metrics_str = metrics.classification_report((pred_test > opt_prob).astype(int), test[1])
+    logger.info('\n' + metrics_str)
+    return cfg
 
 def save_weights_tokens(model, idx2tkn, history, cfg, **kwargs):
     '''
     Runs save_weights and saves the idx2tkn array to cfg['save_path_dir']
-
     '''
 
     # the Save Path Dir including extra elements
     subdir_path = kwargs.get('subdir', '')
     spd = os.path.join(cfg['save_path_dir'], subdir_path)
-    os.makedirs(spd, exist_ok=True)
+    #os.makedirs(spd, exist_ok=True)
 
-    model.save_weights( os.path.join(spd, 'model_weights') )
+    #model.save_weights( os.path.join(spd, 'model_weights') )
 
     # Log both a pretty printed and a copy-pasteable version of the the cfg
     # dictionary
     logger.info('\n'.join(["{}: {}".format(k,v) for k, v in cfg.items()]))
     logger.info(repr(cfg))
-
 
     with open(os.path.join(spd, 'cfg_dict.json'), 'w') as cfg_fobj:
         json.dump(cfg, cfg_fobj)
@@ -327,9 +374,7 @@ def save_weights_tokens(model, idx2tkn, history, cfg, **kwargs):
         pickle.dump(idx2tkn, idx2tkn_fobj, pickle.HIGHEST_PROTOCOL)
 
     with open(os.path.join(spd, 'history.json'), 'w') as hist_fobj:
-        json.dump(history.history, hist_fobj)
-
-
+        json.dump(eval(str(history.history)), hist_fobj)
 
 def argParse():
     '''
@@ -343,6 +388,8 @@ def argParse():
             help="Number of experiment loops to do.")
     parser.add_argument('-p', '--profiling', action='store_true',
             help="Set the profiling mode to True (default False)")
+    parser.add_argument('-m', '--mini', action='store_true',
+            help="Set a small version of the training data set.")
     args = parser.parse_args()
     return args
 
@@ -372,29 +419,29 @@ def main():
 #        model = conv_model_globavgpool(embed_matrix, cfg)
 
     #### FIT LOOP ####
-    for num, lr in enumerate(np.linspace(0.0001, 0.01, args.experiments)):
-        cfg['AdamCfg'] = { 'lr': lr, }
-        model = lstm_model_one_layer(embed_matrix, cfg)
+    lr = 0.001
+    #for num, lr in enumerate(np.linspace(0.0001, 0.01, args.experiments)):
+    cfg['AdamCfg'] = { 'lr': lr, 'lr_decay': 0.6,}
+    model = lstm_model_one_layer(embed_matrix, cfg)
 
-        ### FIT THE MODEL ###
-        history = model.fit(train_seq, np.array(training[1]),
-                        epochs=cfg['epochs'], validation_data=(validation_seq, np.array(validation[1])),
-                        batch_size=512,
-                        verbose=1,
-                        callbacks=model_callbacks(cfg))
-        opt_prob, f1_max = find_best_cutoff(model, validation_seq, validation)
+    #calls, ep_times = model_callbacks(cfg, 'epoch_times', 'ls_schedule',
+    #        'early_stop', 'mon_val_loss',)
+    calls, ep_times = model_callbacks(cfg)
+    ### FIT THE MODEL ###
+    history = model.fit(train_seq, np.array(training[1]),
+                    epochs=cfg['epochs'], validation_data=(validation_seq, np.array(validation[1])),
+                    batch_size=512,
+                    verbose=1,
+                    callbacks=calls)
+    ## add epoch training times to the history dict
+    history.history['epoch_times'] = [t.seconds for t in ep_times.times]
+    ## change from np.float32 to float for JSON conversion
+    history.history['lr'] = [float(l) for l in history.history['lr']]
 
-        logger.info('\n Optimal probabilty threshold is {} for maximum F1 score {}\n'\
-                .format(opt_prob, f1_max))
+    cfg = cutoff_predict_metrics(model, validation_seq, validation, test_seq, test, cfg)
 
-        cfg['opt_prob'] = opt_prob
-
-        pred_test = model.predict(test_seq)
-
-        metrics_str = metrics.classification_report((pred_test > opt_prob).astype(int), test[1])
-        logger.info('\n' + metrics_str)
-
-        save_weights_tokens(model, idx2tkn, history, cfg, subdir='exp_{0:0>3}'.format(num))
+    #save_weights_tokens(model, idx2tkn, history, cfg, subdir='exp_{0:0>3}'.format(num))
+    save_weights_tokens(model, idx2tkn, history, cfg)
 
 
 if __name__ == '__main__':
