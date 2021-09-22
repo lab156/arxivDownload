@@ -60,7 +60,8 @@ tkn2idx, training, validation, test, cfg = read_train_data(xml_lst, cfg)
 
 embed_matrix, cfg = gen_embed_matrix(tkn2idx, cfg)
 
-# +
+# + jupyter={"outputs_hidden": true}
+# Train a model
 cfg['lstm_cells'] = 256 # Required LSTM layer parameter
 cfg['epochs'] = 10
 cfg['model_name'] = lstm_model_one_layer.__name__
@@ -82,33 +83,25 @@ history = model.fit(train_seq, np.array(training[1]),
                 verbose=1,
                 callbacks=[ep_time, lr_sched, save_checkpoint])
 history.history['epoch_times'] = [t.seconds for t in ep_time.times]
-# -
 
+# +
+# With a defined model
 opt_prob, f1_max = find_best_cutoff(model, validation_seq, validation)
 
 pred_test = model.predict(test_seq)
 metric_str = metrics.classification_report((pred_test > opt_prob).astype(int), test[1])
 print(metric_str)
+# -
 
-cfg['opt_prob'] = opt_prob
-history.history['epoch_times'] = [t.seconds for t in ep_time.times]
-history.history['lr'] = [float(l) for l in history.history['lr']]
-save_weights_tokens(model, idx2tkn, history, cfg)
-#json.dumps(eval(str(history.history)))
-#json.dumps(history.history)
-
+# Open a saved model with model.save
 import classify_lstm as CL
-#idx2tkn, tkn2idx = CL.open_idx2tkn_make_tkn2idx('/home/luis/rm_me_complete_models/cmodel1/idx2tkn.pickle')
-#idx2tkn, tkn2idx = CL.open_idx2tkn_make_tkn2idx('/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-19_20-29/idx2tkn.pickle')
-tf_model_dir = '/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-22_00-31/exp_000/'
+#tf_model_dir = '/tmp/trainer/trained_models/lstm_classifier/lstm_Sep-22_01-13/exp_000/'
+tf_model_dir = '/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-22_11-47/exp_004/'
 cfg = CL.open_cfg_dict(os.path.join(tf_model_dir, 'cfg_dict.json'))
 idx2tkn, tkn2idx = CL.open_idx2tkn_make_tkn2idx(os.path.join(tf_model_dir, 'idx2tkn.pickle'))
 #model = CL.lstm_model_one_layer(cfg)
-#model.load_weights(tf_model_dir + 'model_weights')
 model = tf.keras.models.load_model(os.path.join(tf_model_dir, 'tf_model'))
 #CL.test_model('/media/hd1/training_defs/math10/1004_001.xml.gz', cfg)
-test_model('/media/hd1/training_defs/math10/1004_001.xml.gz', tkn2idx, idx2tkn, cfg, model)
-
 test_model('/media/hd1/training_defs/math10/1004_001.xml.gz', tkn2idx, idx2tkn, cfg, model)
 
 # +

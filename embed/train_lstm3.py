@@ -1,6 +1,14 @@
 from train_lstm import *
 
 def main():
+    '''
+    Increase the size of the neural network by changing the number of LSTM
+    Cells
+
+    Options:
+    --experiments: Number of sizes in steps of 64 to try.
+    -m: minified version of the data set.
+    '''
     args = argParse()
     xml_lst, cfg = gen_cfg(parsed_args = args)
 
@@ -16,14 +24,17 @@ def main():
     embed_matrix, cfg = gen_embed_matrix(tkn2idx, cfg)
 
     #### FIT LOOP ####
-    lr = 0.001
     cfg['callbacks'] = ['epoch_times', 'ls_schedule', 'early_stop',]
+    cfg['AdamCfg'] = { 'lr': 0.001, 'lr_decay': 0.5,}
 
     og_save_path_dir = cfg['save_path_dir']
 #    for num, decay in enumerate(np.linspace(0.4, 0.8, args.experiments)):
     for num in range(1, args.experiments):
         cells = 64*num
-        cfg['AdamCfg'] = { 'lr': lr, 'lr_decay': decay,}
+        cfg['lstm_cells'] = cells
+        logger.info("\n Starting Experiment {} -- training with Number of Cells: {} \n"\
+                        .format(num, cells))
+
         cfg['save_path_dir'] = os.path.join(og_save_path_dir , 'exp_{0:0>3}'.format(num))
         os.makedirs(cfg['save_path_dir'], exist_ok=True)
 

@@ -1,0 +1,33 @@
+bootstrap: localimage
+From: /home/luis/singul/tensorflow:20.06-tf2-py3_v2.sif
+
+%files
+    #/media/hd1/trained_models/conv_classifier/conv_Apr-06_22-49 /opt/trained_models/conv_classifier/conv_Apr-06_22-49
+    /media/hd1/trained_models/lstm_classifier/lstm_Feb-21_16-26 /opt/trained_models/lstm_classifier/lstm_Feb-21_16-26
+    #/media/hd1/promath/math03 /opt/promath/math03
+    /media/hd1/training_defs/math10 /opt/training_defs/math10
+
+%environment
+    export MINE_OUT_DIR='/tmp/rm_me_data'
+    export BASE_DIR='/opt'
+    mkdir $MINE_OUT_DIR
+    mkdir /opt/data_dir  # path to bind $LOCAL
+
+%post
+    #apt-get update && apt-get install -y sqlite3
+    pip3 install lxml
+    pip3 install chardet
+    pip3 install sklearn
+    pip3 install langdetect
+    pip3 install Unidecode
+    pip3 install pandas
+    pip3 install SQLAlchemy
+    pip3 install pickle5
+    cd /opt
+    git clone https://github.com/lab156/arxivDownload.git
+
+    echo "export DATA_DIR=$LOCAL" >> $SINGULARITY_ENVIRONMENT
+
+%runscript
+    python3 /opt/arxivDownload/embed/classify_lstm.py $*
+
