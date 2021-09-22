@@ -17,7 +17,7 @@ def main():
 
     #### FIT LOOP ####
     lr = 0.001
-    cfg['callbacks'] = ['epoch_times', 'ls_schedule', 'early_stop', 'mon_val_loss']
+    cfg['callbacks'] = ['epoch_times', 'ls_schedule', 'early_stop',]
 
     og_save_path_dir = cfg['save_path_dir']
     for num, decay in enumerate(np.linspace(0.4, 0.8, args.experiments)):
@@ -42,7 +42,7 @@ def main():
         cfg = cutoff_predict_metrics(model, validation_seq, validation, test_seq, test, cfg)
 
         #save_weights_tokens(model, idx2tkn, history, cfg, subdir='exp_{0:0>3}'.format(num))
-        save_weights_tokens(model, idx2tkn, history, cfg)
+        save_tokens_model(model, idx2tkn, history, cfg)
 
 
 if __name__ == '__main__':

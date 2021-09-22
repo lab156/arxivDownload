@@ -144,7 +144,9 @@ def model_callbacks(cfg):
         cb.append(lr_sched)
 
     if 'early_stop' in cfg['callbacks']:
-        early = EarlyStopping(patience=2, restore_best_weights=True)
+        early = EarlyStopping(monitor='val_accuracy',
+                patience=2,
+                restore_best_weights=True)
         cb.append(early)
 
     return cb, ep_times
@@ -364,6 +366,33 @@ def save_weights_tokens(model, idx2tkn, history, cfg, **kwargs):
     #os.makedirs(spd, exist_ok=True)
 
     #model.save_weights( os.path.join(spd, 'model_weights') )
+
+    # Log both a pretty printed and a copy-pasteable version of the the cfg
+    # dictionary
+    logger.info('\n'.join(["{}: {}".format(k,v) for k, v in cfg.items()]))
+    logger.info(repr(cfg))
+
+    with open(os.path.join(spd, 'cfg_dict.json'), 'w') as cfg_fobj:
+        json.dump(cfg, cfg_fobj)
+
+    with open(os.path.join(spd, 'idx2tkn.pickle'), 'wb') as idx2tkn_fobj:
+        pickle.dump(idx2tkn, idx2tkn_fobj, pickle.HIGHEST_PROTOCOL)
+
+    with open(os.path.join(spd, 'history.json'), 'w') as hist_fobj:
+        json.dump(eval(str(history.history)), hist_fobj)
+
+def save_tokens_model(model, idx2tkn, history, cfg, **kwargs):
+    '''
+    Runs save_weights and saves the idx2tkn array to cfg['save_path_dir']
+    '''
+
+    # the Save Path Dir including extra elements
+    subdir_path = kwargs.get('subdir', '')
+    spd = os.path.join(cfg['save_path_dir'], subdir_path)
+    os.makedirs(spd, exist_ok=True)
+
+    model.save( os.path.join(spd, 'tf_model') )
+    logger.info("\n SAVING MODEL AT: {}\n".format(os.path.join(spd, 'tf_model')))
 
     # Log both a pretty printed and a copy-pasteable version of the the cfg
     # dictionary

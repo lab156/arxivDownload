@@ -66,7 +66,7 @@ cfg['epochs'] = 10
 cfg['model_name'] = lstm_model_one_layer.__name__
 
 ep_time = TimeHistory()
-lr_sched = tf.keras.callbacks.LearningRateScheduler(def_scheduler(0.7))
+lr_sched = tf.keras.callbacks.LearningRateScheduler(def_scheduler(0.5))
 save_checkpoint = tf.keras.callbacks.ModelCheckpoint(
     os.path.join(cfg['save_path_dir'], 'model_weights'), \
                              monitor='val_accuracy', verbose=1, \
@@ -100,17 +100,14 @@ save_weights_tokens(model, idx2tkn, history, cfg)
 import classify_lstm as CL
 #idx2tkn, tkn2idx = CL.open_idx2tkn_make_tkn2idx('/home/luis/rm_me_complete_models/cmodel1/idx2tkn.pickle')
 #idx2tkn, tkn2idx = CL.open_idx2tkn_make_tkn2idx('/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-19_20-29/idx2tkn.pickle')
-tf_model_dir = '/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-19_20-29/'
+tf_model_dir = '/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-22_00-31/exp_000/'
 cfg = CL.open_cfg_dict(os.path.join(tf_model_dir, 'cfg_dict.json'))
 idx2tkn, tkn2idx = CL.open_idx2tkn_make_tkn2idx(os.path.join(tf_model_dir, 'idx2tkn.pickle'))
 #model = CL.lstm_model_one_layer(cfg)
 #model.load_weights(tf_model_dir + 'model_weights')
-model = tf.keras.models.load_model(os.path.join(tf_model_dir, 'model_weights'))
+model = tf.keras.models.load_model(os.path.join(tf_model_dir, 'tf_model'))
 #CL.test_model('/media/hd1/training_defs/math10/1004_001.xml.gz', cfg)
 test_model('/media/hd1/training_defs/math10/1004_001.xml.gz', tkn2idx, idx2tkn, cfg, model)
-
-model = tf.keras.models.load_model('/home/luis/rm_me_complete_models/cmodel1')
-#model.evaluate(validation_seq, np.array(validation[1]))
 
 test_model('/media/hd1/training_defs/math10/1004_001.xml.gz', tkn2idx, idx2tkn, cfg, model)
 
