@@ -62,12 +62,27 @@ def gen_cfg(**kwargs):
     cfg['local_dir'] = os.environ.get('TEMPFASTSTORAGE',
             '/tmp/rm_me_experiments')  # This is temporary fast storage
 
+    if cfg['model_type'] == 'lstm':
+        cfg['lstm_cells'] = 128 # Required LSTM layer parameter
+        cfg['epochs'] = 2
+        cfg['model_name'] = lstm_model_one_layer.__name__
+
+    elif cfg['model_type'] == 'conv':
+        cfg['conv_filters'] = 1024 # 256
+        cfg['kernel_size'] = 20 # 10
+        cfg['epochs'] = 20 # 35 
+        cfg['model_name'] = conv_model_globavgpool.__name__
+    else:
+        raise NotImplementedError(f'Model Type: {cfg["model_type"]} not defined')
+
     if 'parsed_args' in kwargs:
         args = kwargs['parsed_args']
         cfg['profiling'] = args.profiling
         cfg['epochs'] = args.epochs
         if args.mini:
             cfg['glob_data_source'] = '/training_defs/math10/*.xml.gz'
+        if args.cells > 0:
+            cfg['lstm_cells'] = args.cells
 
     # CREATE LOG FILE AND OBJECT
     hoy = dt.now()
@@ -94,19 +109,7 @@ def gen_cfg(**kwargs):
     xml_lst = glob(cfg['base_dir'] + cfg['glob_data_source'])
     
     # SET THE MODEL ARCHITECTURE
-    if cfg['model_type'] == 'lstm':
-        cfg['lstm_cells'] = 128 # Required LSTM layer parameter
-        cfg['epochs'] = 2
-        cfg['model_name'] = lstm_model_one_layer.__name__
 
-    elif cfg['model_type'] == 'conv':
-        cfg['conv_filters'] = 1024 # 256
-        cfg['kernel_size'] = 20 # 10
-        cfg['epochs'] = 20 # 35 
-        cfg['model_name'] = conv_model_globavgpool.__name__
-
-    else:
-        raise NotImplementedError(f'Model Type: {cfg["model_type"]} not defined')
         
     
     return xml_lst, cfg
@@ -386,6 +389,8 @@ def argParse():
             help="Number of epochs to train. Overrides default value")
     parser.add_argument('--experiments', type=int, default=2,
             help="Number of experiment loops to do.")
+    parser.add_argument('--cells', type=int, default=0,
+            help="Number of first layer LSTM cells.")
     parser.add_argument('-p', '--profiling', action='store_true',
             help="Set the profiling mode to True (default False)")
     parser.add_argument('-m', '--mini', action='store_true',

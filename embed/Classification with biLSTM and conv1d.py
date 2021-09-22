@@ -55,16 +55,14 @@ from train_lstm import *
 args = []
 xml_lst, cfg = gen_cfg()
 
-cfg
-
 train_seq, validation_seq, test_seq, idx2tkn,\
 tkn2idx, training, validation, test, cfg = read_train_data(xml_lst, cfg)
 
 embed_matrix, cfg = gen_embed_matrix(tkn2idx, cfg)
 
 # +
-cfg['lstm_cells'] = 128 # Required LSTM layer parameter
-cfg['epochs'] = 1
+cfg['lstm_cells'] = 256 # Required LSTM layer parameter
+cfg['epochs'] = 10
 cfg['model_name'] = lstm_model_one_layer.__name__
 
 ep_time = TimeHistory()
@@ -117,10 +115,10 @@ model = tf.keras.models.load_model('/home/luis/rm_me_complete_models/cmodel1')
 test_model('/media/hd1/training_defs/math10/1004_001.xml.gz', tkn2idx, idx2tkn, cfg, model)
 
 # +
-#loss_d = []
-#acc_d = []
-#val_loss_d = []
-#val_acc_d = []
+loss_d = []
+acc_d = []
+val_loss_d = []
+val_acc_d = []
 
 with open('/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-19_20-29/history.json', 'r') as js_fobj:
     hist = json.load(js_fobj)
@@ -148,20 +146,20 @@ def plot_side_by_side(history, tit_str):
     ax.grid()
     plt.show()
     
-plot_side_by_side(hist, 'hola')
-#for k in range(10):
-#    with open('../data/lr_results/lstm_Sep-16_01-22/exp_00{}/history.json'.format(k), 'r') as json_fobj:
-#        js_d = json.load(json_fobj)
-#        js_np = {k:np.array(js_d[k]) for k in js_d}
-#    loss_d.append(js_d['loss'])
-#    val_loss_d.append(js_d['val_loss'])
-#    val_acc_d.append(js_d['val_accuracy'])
-#    with open('../data/lr_results/lstm_Sep-15_16-11/exp_00{}/history.json'.format(k), 'r') as json_fobj:
-#        js_d = json.load(json_fobj)
-#        r_d = {} # The average results dictionary
-#        for j,a in js_np.items():
-#            r_d[j] = 0.5*(js_np[j] + np.array(js_d[j]))
-#    plot_side_by_side(r_d, 'experiment: {}'.format(k))
+#plot_side_by_side(history.history, 'hola')
+for k in range(10):
+    with open('../data/decay_results/exp_00{}/history.json'.format(k), 'r') as json_fobj:
+        js_d = json.load(json_fobj)
+        js_np = {k:np.array(js_d[k]) for k in js_d}
+    loss_d.append(js_d['loss'])
+    val_loss_d.append(js_d['val_loss'])
+    val_acc_d.append(js_d['val_accuracy'])
+    with open('../data/decay_results/exp_00{}/history.json'.format(k), 'r') as json_fobj:
+        js_d = json.load(json_fobj)
+        r_d = {} # The average results dictionary
+        for j,a in js_np.items():
+            r_d[j] = 0.5*(js_np[j] + np.array(js_d[j]))
+    plot_side_by_side(r_d, 'experiment: {}'.format(k))
 
 # + magic_args="echo skipping" language="script"
 # # SAVE A COMPLETE MODEL (NOT WEIGHTS)
