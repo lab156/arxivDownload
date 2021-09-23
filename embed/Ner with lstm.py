@@ -61,7 +61,7 @@ import ner
 from embed_utils import open_w2v
 import clean_and_token_text as clean
 
-# +
+# + jupyter={"outputs_hidden": true}
 #with open('/media/hd1/wikipedia/wiki_definitions_improved.txt', 'r') as wiki_f:
 #    wiki = wiki_f.readlines()
 
@@ -124,6 +124,8 @@ pos_lst = list(pos_cnt)
 pos_ind_dict = {pos: k for k, pos in enumerate(pos_lst)}
 cfg['Npos_cnt'] = len(pos_cnt)
 # -
+
+trainer_params
 
 with open_w2v('/media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin') as embed_dict:
     wind = ['<UNK>',] + list(embed_dict.keys())
@@ -441,7 +443,7 @@ preds = with_pos.predict([test_seq, test_pos_seq, test_bin_seq])
 
 with_pos.evaluate([test_seq, test_pos_seq, test_bin_seq], test_lab)
 
-k = 386
+k = 387
 for i in range(len(preds[k])):
     try:
         print('{:<20} {} {:1.2f}'.format(test_def_lst[k]['ner'][i][0][0], 

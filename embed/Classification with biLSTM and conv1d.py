@@ -110,8 +110,8 @@ acc_d = []
 val_loss_d = []
 val_acc_d = []
 
-with open('/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-19_20-29/history.json', 'r') as js_fobj:
-    hist = json.load(js_fobj)
+#with open('/tmp/rm_me_experiments/trained_models/lstm_classifier/lstm_Sep-19_20-29/history.json', 'r') as js_fobj:
+#    hist = json.load(js_fobj)
     
 
 def plot_side_by_side(history, tit_str):
@@ -137,14 +137,14 @@ def plot_side_by_side(history, tit_str):
     plt.show()
     
 #plot_side_by_side(history.history, 'hola')
-for k in range(10):
-    with open('../data/decay_results/exp_00{}/history.json'.format(k), 'r') as json_fobj:
+for k in range(1,10):
+    with open('../data/cells_results/exp_00{}/history.json'.format(k), 'r') as json_fobj:
         js_d = json.load(json_fobj)
         js_np = {k:np.array(js_d[k]) for k in js_d}
     loss_d.append(js_d['loss'])
     val_loss_d.append(js_d['val_loss'])
     val_acc_d.append(js_d['val_accuracy'])
-    with open('../data/decay_results/exp_00{}/history.json'.format(k), 'r') as json_fobj:
+    with open('../data/cells_results/exp_00{}/history.json'.format(k), 'r') as json_fobj:
         js_d = json.load(json_fobj)
         r_d = {} # The average results dictionary
         for j,a in js_np.items():
@@ -159,96 +159,6 @@ for k in range(10):
 #     pickle.dump(idx2tkn, idx2tkn_fobj, pickle.HIGHEST_PROTOCOL)
 # -
 
-# %load_ext autoreload
-# %autoreload 2
-from embed_utils import open_w2v
-from clean_and_token_text import normalize_text
-import sys,inspect
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir) 
-from classifier_trainer.trainer import stream_arxiv_paragraphs
-import peep_tar as peep
-import parsing_xml as px
-from extract import Definiendum
-
-tar_tree = etree.parse('/media/hd1/training_defs/math10/1009_004.xml.gz')
-tar_tree2 = etree.parse('/media/hd1/training_defs/math10/1010_001.xml.gz')
-def_lst = tar_tree.findall('.//definition') + tar_tree2.findall('.//definition') 
-nondef_lst = tar_tree.findall('.//nondef') + tar_tree2.findall('.//nondef')
-len(def_lst) + len(nondef_lst)
-
-# +
-cfg = {'batch_size': 5000,
-      'testing_size': 15000,
-      'embed_dim': 200}
-xml_lst = glob('/media/hd1/training_defs/math15/*.xml.gz')
-xml_lst += glob('/media/hd1/training_defs/math14/*.xml.gz')
-#xml_lst += glob('/media/hd1/training_defs/math01/*.xml.gz')
-stream = stream_arxiv_paragraphs(xml_lst, samples=cfg['batch_size'])
-
-all_data = []
-for s in stream:
-    all_data += list(zip(s[0], s[1]))
-shuffle(all_data)
-
-
-S = cfg['testing_size'] ## size of the test and validation sets
-#Split the data and convert into test[0]: tuple of texts
-#                                test[1]: tuple of labels
-training = list(zip(*(all_data[2*S:])))
-validation = list(zip(*(all_data[:S])))
-test = list(zip(*(all_data[S:2*S])))
-
-tknr = Counter()
-# Normally test data is not in the tokenization
-# but this is text mining not statistical ML
-for t in all_data:
-    tknr.update(normalize_text(t[0]).split())
-print("Most common tokens are:", tknr.most_common()[:10])
-
-idx2tkn = list(tknr.keys())
-# append a padding value
-idx2tkn.append('�')
-tkn2idx = {tok: idx for idx, tok in enumerate(idx2tkn)}
-word_example = 'commutative'
-idx_example = tkn2idx[word_example]
-cfg['tot_words'] = len(idx2tkn)
-print('Index of "{0}" is: {1}'.format(word_example, idx_example ))
-print(f"idx2tkn[{idx_example}] = {idx2tkn[idx_example]}")
-print('index of padding value is:', tkn2idx['�'])
-
-
-# +
-def text2seq(text):
-    if type(text) == str:
-        text = normalize_text(text).split()
-    return [tkn2idx.get(s, 0) for s in text]
-train_seq = [text2seq(t) for t in training[0]]
-validation_seq = [text2seq(t) for t in validation[0]]
-test_seq = [text2seq(t) for t in test[0]]
-
-max_seq_len = 400
-padding_fun = lambda seq: pad_sequences(seq, maxlen=max_seq_len,
-                                        padding='post', 
-                                        truncating='post',
-                                        value=tkn2idx['�']) 
-train_seq = padding_fun(train_seq)
-validation_seq = padding_fun(validation_seq)
-test_seq = padding_fun(test_seq)
-# -
-
-embed_matrix = np.zeros((cfg['tot_words'], cfg['embed_dim']))
-coverage_cnt = 0
-with open_w2v('/media/hd1/embeddings/model14-14_12-08/vectors.bin') as embed_dict:
-    for word, ind in tkn2idx.items():
-        vect = embed_dict.get(word)
-        if vect is not None:
-            #vect = vect/np.linalg.norm(vect)
-            embed_matrix[ind] = vect
-            coverage_cnt += 1
-print("The coverage percetage is: {}".format(coverage_cnt/len(idx2tkn)))
-
 # #%%script echo skipping
 # Lengths of the definitions to get the max_seq_len parameter
 plt.figure(figsize=[9,6])
@@ -257,30 +167,6 @@ plt.hist([min(len(s),2500) for s in training[0]], 100)
 plt.grid()
 plt.title('Length in characters of the definitions in the training set')
 plt.show()
-
-# #%%script echo skipping
-# DEFINE SIMPLE CONVOLUTIONAL MODEL
-cfg['conv_filters'] = 128
-cfg['kernel_size'] = 5
-def conv_model(cfg):
-    return Sequential([
-        Embedding(cfg['tot_words'], cfg['embed_dim'],
-                  input_length=max_seq_len, weights=[embed_matrix], trainable=False),
-        Conv1D(cfg['conv_filters'], cfg['kernel_size'], activation='relu'),
-        GlobalAveragePooling1D(),
-        Dropout(0.2),
-        Dense(64, activation='relu'),
-        Dense(1, activation='sigmoid'),
-    ])
-model = conv_model(cfg)
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.summary()
-tqdm_callback = TQDMProgressBar()
-history = model.fit(train_seq, np.array(training[1]),
-                epochs=20, validation_data=(validation_seq, np.array(validation[1])),
-                batch_size=512,
-                verbose=0,
-                callbacks=[tqdm_callback])
 
 
 # #%%script echo skipping
@@ -298,7 +184,7 @@ predictions = conv_model.predict(validation_seq)
 print(metrics.classification_report(np.round(predictions), validation[1]))
 
 
-# +
+# + jupyter={"outputs_hidden": true}
 def conv_multiple_layers(cfg):
     return Sequential([
         Embedding(cfg['tot_words'], cfg['embed_dim'],
@@ -441,18 +327,6 @@ def plot_graphs(history, string):
 # LSTM stats results
 plot_graphs(history, "accuracy")
 plot_graphs(history, "loss")
-
-# +
-#from datetime import datetime as dt
-#hoy = dt.now()
-#timestamp = hoy.strftime("%H-%M_%b-%d")
-#lstm_model.save_weights('/media/hd1/trained_models/lstm_classifier/one_layer_'+timestamp)
-# -
-
-P = list(zip(*plot_points))
-plt.plot(P[0], P[1])
-
-cfg
 
 # + jupyter={"outputs_hidden": true}
 # #%%script echo skipping
