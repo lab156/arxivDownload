@@ -87,8 +87,7 @@ valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = prep_data4real(
         valid_def_lst, wind, pos_ind_dict, cfg)
 
 
-# -
-
+# +
 cfg.update({'input_dim': len(wind),
       'output_dim': 200, #don't keep hardcoding this
      'input_length': cfg['padseq']['maxlen'],
@@ -97,8 +96,15 @@ cfg.update({'input_dim': len(wind),
      'n_tags': 2,
      'batch_size': 2000,
      'lstm_units': 150,
-      'adam': {'lr': 0.025, 'beta_1': 0.9, 'beta_2': 0.999},
-      'epochs': 70,})
+      'adam': {'lr': 0.005, 'beta_1': 0.9, 'beta_2': 0.999},
+      'epochs': 10,})
+
+model_bilstm = bilstm_model_w_pos(embed_matrix, cfg)
+    #history = train_model(train_seq, train_lab, test_seq, test_lab, model_bilstm_lstm, cfg )
+history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, epochs=cfg['epochs'],
+                    batch_size=cfg['batch_size'],
+                    validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
+
 
 # +
 #with open('/media/hd1/wikipedia/wiki_definitions_improved.txt', 'r') as wiki_f:
@@ -337,7 +343,7 @@ cfg.update({'input_dim': len(wind),
      'n_tags': 2,
      'batch_size': 2000,
      'lstm_units': 150,
-      'adam': {'lr': 0.001, 'beta_1': 0.9, 'beta_2': 0.999}})
+      'adam': {'lr': 0.0005, 'beta_1': 0.9, 'beta_2': 0.999}})
 
 model_bilstm = bilstm_model_w_pos(embed_matrix, cfg)
     #history = train_model(train_seq, train_lab, test_seq, test_lab, model_bilstm_lstm, cfg )
@@ -392,13 +398,14 @@ ax2.legend()
 #     print(wind[w], np.round(pred)[0][i])
 #     if wind[w] == '.':
 #         break
-# -
 
 
+# +
 #preds = model_bilstm_lstm.predict(test_seq)
 preds = model_bilstm.predict([test_seq, test_pos_seq, test_bin_seq])
 
 model_bilstm.evaluate([test_seq, test_pos_seq, test_bin_seq], test_lab)
+# -
 
 k = 90
 for i in range(len(preds[k])):

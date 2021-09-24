@@ -296,7 +296,8 @@ def bilstm_model_w_pos(embed_matrix, cfg_dict):
     out = Bidirectional(LSTM(units=cfg_dict['lstm_units'],
                                  return_sequences=True,
                                  dropout=0.2, 
-                                 recurrent_dropout=0.2),
+                                 recurrent_dropout=0.2,
+                                 recurrent_initializer='glorot_uniform'),
                         merge_mode = 'concat')(full_embed)
     #out = GlobalMaxPooling1D(out) 
     # Add LSTM
@@ -366,7 +367,7 @@ def main():
 
     model_bilstm = bilstm_model_w_pos(embed_matrix, cfg)
     #history = train_model(train_seq, train_lab, test_seq, test_lab, model_bilstm_lstm, cfg )
-    history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, epochs=30,
+    history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, epochs=cfg['epochs'],
                     batch_size=cfg['batch_size'],
                     validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
 
