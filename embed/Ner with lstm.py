@@ -61,7 +61,7 @@ import ner
 from embed_utils import open_w2v
 import clean_and_token_text as clean
 
-# + jupyter={"outputs_hidden": true}
+# +
 #with open('/media/hd1/wikipedia/wiki_definitions_improved.txt', 'r') as wiki_f:
 #    wiki = wiki_f.readlines()
 
@@ -99,17 +99,17 @@ random.shuffle(text_lst)
 
 # Get data and train the Sentence tokenizer
 # Uses a standard algorithm (Kiss-Strunk) for unsupervised sentence boundary detection
-#text = ''
-#for i in range(3550):
-#    text += text_lst[i][2]
+text = ''
+for i in range(3550):
+    text += text_lst[i][2]
 
-#trainer = PunktTrainer()
-#trainer.INCLUDE_ALL_COLLOCS = True
-#trainer.train(text)
-#sent_tok = PunktSentenceTokenizer(trainer.get_params())
-with open('/home/luis/ner_model/punkt_params.pickle', 'rb') as punk_fobj:
-    trainer_params = pickle.load(punk_fobj)
-    sent_tok = PunktSentenceTokenizer(trainer_params)
+trainer = PunktTrainer()
+trainer.INCLUDE_ALL_COLLOCS = True
+trainer.train(text)
+sent_tok = PunktSentenceTokenizer(trainer.get_params())
+#with open('/home/luis/ner_model/punkt_params.pickle', 'rb') as punk_fobj:
+#    trainer_params = pickle.load(punk_fobj)
+#    sent_tok = PunktSentenceTokenizer(trainer_params)
 print(sent_tok._params.abbrev_types)
 
 def_lst = ner.bio_tag.put_pos_ner_tags(text_lst, sent_tok)
