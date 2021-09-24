@@ -60,6 +60,45 @@ from unwiki import unwiki
 import ner
 from embed_utils import open_w2v
 import clean_and_token_text as clean
+from train_ner import *
+
+# +
+# GET READY TO TRAIN
+cfg = gen_cfg()
+
+text_lst = get_wiki_pm_stacks_data(cfg)
+sent_tok = gen_sent_tokzer(text_lst, cfg)
+logger.info(sent_tok._params.abbrev_types)
+
+def_lst = ner.bio_tag.put_pos_ner_tags(text_lst, sent_tok)
+logger.info("Length of the def_lst is: {}".format(len(def_lst)))
+
+pos_ind_dict, cfg = get_pos_ind_dict(def_lst, cfg)
+
+wind, embed_matrix, cfg = open_word_embedding(cfg)
+
+train_def_lst, test_def_lst, valid_def_lst = get_ranges_lst(def_lst, cfg)
+
+train_seq, train_pos_seq, train_bin_seq , train_lab = prep_data4real(
+        train_def_lst, wind, pos_ind_dict, cfg)
+test_seq, test_pos_seq, test_bin_seq , test_lab = prep_data4real(
+        test_def_lst, wind, pos_ind_dict, cfg)
+valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = prep_data4real(
+        valid_def_lst, wind, pos_ind_dict, cfg)
+
+
+# -
+
+cfg.update({'input_dim': len(wind),
+      'output_dim': 200, #don't keep hardcoding this
+     'input_length': cfg['padseq']['maxlen'],
+     'pos_dim': 3,
+            'pos_constraint': 1/200,
+     'n_tags': 2,
+     'batch_size': 2000,
+     'lstm_units': 150,
+      'adam': {'lr': 0.025, 'beta_1': 0.9, 'beta_2': 0.999},
+      'epochs': 70,})
 
 # +
 #with open('/media/hd1/wikipedia/wiki_definitions_improved.txt', 'r') as wiki_f:
@@ -288,8 +327,8 @@ valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = prep_data4real(valid_def_l
 #                 best_acc = accuracy
 #                 #ckpt_manager.save()
 #                 print("model saved")
-# -
 
+# +
 cfg.update({'input_dim': len(wind),
       'output_dim': 200, #don't keep hardcoding this
      'input_length': cfg['padseq']['maxlen'],
@@ -298,127 +337,45 @@ cfg.update({'input_dim': len(wind),
      'n_tags': 2,
      'batch_size': 2000,
      'lstm_units': 150,
-      'adam': {'lr': 0.025, 'beta_1': 0.9, 'beta_2': 0.999}})
+      'adam': {'lr': 0.001, 'beta_1': 0.9, 'beta_2': 0.999}})
 
+model_bilstm = bilstm_model_w_pos(embed_matrix, cfg)
+    #history = train_model(train_seq, train_lab, test_seq, test_lab, model_bilstm_lstm, cfg )
+history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq],
+       train_lab, epochs=40,
+       batch_size=cfg['batch_size'],
+       validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
 
-def bilstm_lstm_model_w_pos(cfg_dict):
-    
-    words_in = Input(shape=(cfg_dict['input_length'], ), name='words-in')
-    pos_in = Input(shape=(cfg_dict['input_length'], ), name='pos-in')
-    bin_feats = Input(shape=(cfg_dict['input_length'], cfg_dict['nbin_feats']), name='bin-features-in')
-    
-    word_embed = Embedding(cfg_dict['input_dim'], 
-                        output_dim=cfg_dict['output_dim'],
-                        input_length=cfg_dict['input_length'],
-                       #weights = [embed_matrix],
-                       trainable = False,
-                          name='word-embed')(words_in)
-    pos_embed = Embedding(cfg['Npos_cnt'], 
-                        output_dim=cfg_dict['pos_dim'],
-                        input_length=cfg_dict['input_length'],
-                          embeddings_initializer=tf.keras.initializers.RandomNormal(mean=0., stddev=1.),
-                       trainable = True,
-                         name='pos-embed')(pos_in)
-    full_embed = Concatenate(axis=2)([word_embed, pos_embed, bin_feats])
-    
-    
-    out = Bidirectional(LSTM(units=cfg['lstm_units'],
-                                 return_sequences=True,
-                                 dropout=0.2, 
-                                 recurrent_dropout=0.2),
-                        merge_mode = 'concat')(full_embed)
-    #out = GlobalMaxPooling1D(out) 
-    # Add LSTM
-    out = Bidirectional(LSTM(units=cfg['lstm_units'],
-                   return_sequences=True, dropout=0.2, recurrent_dropout=0.2,
-                   recurrent_initializer='glorot_uniform'),
-                        merge_mode = 'concat')(out)
-    # Add timeDistributed Layer
-    out = TimeDistributed(Dense(10, activation="relu"))(out)
-    out = TimeDistributed(Dense(1, activation="sigmoid"))(out)
-    #Optimiser 
-    adam = Adam(**cfg['adam'])
-    # Compile model
-    bce = tf.keras.losses.BinaryCrossentropy()  #(sample_weight=[0.3, 0.7])
-    model = Model([words_in, pos_in, bin_feats], out)
-    model.compile(loss = bce,   #'binary_crossentropy',
-                  optimizer=adam, metrics=['accuracy'])
-    model.summary()
-    return model
-#with_pos = bilstm_lstm_model_w_pos(cfg)
+# + magic_args="echo no need for loading right now" language="script"
+# #res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=30,
+# #                batch_size=cfg['batch_size'],
+# #                validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
+#
+# # Load weights instead of training
+# save_model_dir = '/home/luis/ner_model/'
+# with open(save_model_dir + 'cfg.json', 'r') as cfg_fobj:
+#     cfg = json.load(cfg_fobj)
+#     
+# with_pos = bilstm_lstm_model_w_pos(cfg)
+# res = with_pos.load_weights(save_model_dir + 'bilstm_with_pos')
 
 # +
-#res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=30,
-#                batch_size=cfg['batch_size'],
-#                validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
+# #%%script echo no train loading 
+#history = train_model(train_seq, train_lab, model_bilstm_lstm, epochs=70)
 
-# Load weights instead of training
-save_model_dir = '/home/luis/ner_model/'
-with open(save_model_dir + 'cfg.json', 'r') as cfg_fobj:
-    cfg = json.load(cfg_fobj)
-    
-with_pos = bilstm_lstm_model_w_pos(cfg)
-res = with_pos.load_weights(save_model_dir + 'bilstm_with_pos')
-
-# + magic_args="echo skip this" language="script"
-# # DEFINE MODEL WITH biLSTM AND TRAIN FUNCTION    
-# def get_bilstm_lstm_model(cfg_dict):
-#     model = Sequential()
-#     # Add Embedding layer
-#     model.add(Embedding(cfg_dict['input_dim'], 
-#                         output_dim=cfg_dict['output_dim'],
-#                         input_length=cfg_dict['input_length'],
-#                        weights = [embed_matrix],
-#                        trainable = False))
-#     #model.add(Embedding(cfg_dict['input_dim'], 
-#     #                    output_dim=cfg_dict['output_dim'],
-#     #                    input_length=cfg_dict['input_length']))
-#     # Add bidirectional LSTM
-#     model.add(Bidirectional(LSTM(units=cfg_dict['output_dim'],
-#                                  return_sequences=True,
-#                                  dropout=0.2, 
-#                                  recurrent_dropout=0.2), merge_mode = 'concat'))
-#     # Add LSTM
-#     model.add(Bidirectional(LSTM(units=cfg_dict['output_dim'],
-#                    return_sequences=True, dropout=0.2, recurrent_dropout=0.2,
-#                    recurrent_initializer='glorot_uniform'), merge_mode='concat'))
-#     # Add timeDistributed Layer
-#     model.add(TimeDistributed(Dense(1, activation="sigmoid")))
-#     #Optimiser 
-#     adam = Adam(**cfg['adam'])
-#     # Compile model
-#     #bce = tf.keras.losses.BinaryCrossentropy(sample_weight=[0.3, 0.7])
-#     model.compile(loss = 'binary_crossentropy',
-#                   optimizer=adam, metrics=['accuracy'])
-#     model.summary()
-#     return model
-#
-#
-# def train_model(X, y, model, epochs=10):
-#     # fit model for one epoch on this sequence
-#     res = model.fit(X, y, verbose=0, epochs=epochs,
-#                     batch_size=cfg['batch_size'],
-#                     validation_data=(test_seq, test_lab),
-#                    callbacks=[TqdmCallback(verbose=1)])
-#                    
-#     return res
-# model_bilstm_lstm = get_bilstm_lstm_model(cfg)
-# #plot_model(model_bilstm_lstm)
-
-# + magic_args="echo no train loading " language="script"
-# history = train_model(train_seq, train_lab, model_bilstm_lstm, epochs=70)
-#
-# #r = history
-# r = res
-# fig = plt.figure(figsize=(12, 6))
-# ax1 = plt.subplot(121)
-# ax1.plot(r.history['loss'], label='loss')
-# ax1.plot(r.history['val_loss'], label='val_loss')
-# ax1.legend()
-# ax2 = plt.subplot(122)
-# ax2.plot(r.history['accuracy'], label='acc')
-# ax2.plot(r.history['val_accuracy'], label='val_acc')
-# ax2.legend()
+#r = history
+r = history
+fig = plt.figure(figsize=(12, 6))
+ax1 = plt.subplot(121)
+ax1.plot(r.history['loss'], label='loss')
+ax1.plot(r.history['val_loss'], label='val_loss')
+ax1.grid()
+ax1.legend()
+ax2 = plt.subplot(122)
+ax2.plot(r.history['accuracy'], label='acc')
+ax2.plot(r.history['val_accuracy'], label='val_acc')
+ax2.grid()
+ax2.legend()
 
 # + magic_args="echo skip this" language="script"
 # #sample_str = 'a banach space is defined as complete vector space of some kind .'
@@ -427,8 +384,8 @@ res = with_pos.load_weights(save_model_dir + 'bilstm_with_pos')
 # sample_pad, _ = prep_data(sample_str, wind, cfg, 'no_tags')
 # sample_pad = pad_sequences([sample_pad], **cfg['padseq'])
 # print(sample_pad)
-# #pred = with_pos.predict(sample_pad)
-# #np.argmax(pred.squeeze(), axis=1)
+# pred = model_bilstm.predict(sample_pad)
+# np.argmax(pred.squeeze(), axis=1)
 # for i, w in enumerate(sample_pad[0]):
 #     if wind[w] == '.':
 #         break
@@ -439,11 +396,11 @@ res = with_pos.load_weights(save_model_dir + 'bilstm_with_pos')
 
 
 #preds = model_bilstm_lstm.predict(test_seq)
-preds = with_pos.predict([test_seq, test_pos_seq, test_bin_seq])
+preds = model_bilstm.predict([test_seq, test_pos_seq, test_bin_seq])
 
-with_pos.evaluate([test_seq, test_pos_seq, test_bin_seq], test_lab)
+model_bilstm.evaluate([test_seq, test_pos_seq, test_bin_seq], test_lab)
 
-k = 387
+k = 90
 for i in range(len(preds[k])):
     try:
         print('{:<20} {} {:1.2f}'.format(test_def_lst[k]['ner'][i][0][0], 
@@ -546,7 +503,8 @@ with open('/home/luis/ner_model/punkt_params.pickle', 'wb') as punkt_fobj:
 # -
 
 tkn2idx = {tok: idx for idx, tok in enumerate(wind)}
-pos_dict = {tok: idx for idx, tok in enumerate(pos_lst)}
+#pos_dict = {tok: idx for idx, tok in enumerate(pos_lst)}
+pos_dict = pos_ind_dict
 
 # +
 data_source_dir = '/media/hd1/glossary/inference_class_all/'
@@ -749,10 +707,10 @@ def prep_raw_data(xml_path, tok, word_dict, pos_dict, cfg, model=None):
 #print(etree.tostring(D, pretty_print=True).decode('utf8'))
 
 #text = D.find('stmnt').text
-text = '_display_math_ The Ursell functions of a single random variable X are obtained from these by setting _inline_math_..._inline_math_ .'
+text = '_display_math_ The Toledo functions of a single random variable X are obtained from these by setting _inline_math_..._inline_math_ .'
 print(text)
 ww, pp, bb = _prep_raw_data(text, sent_tok, tkn2idx, pos_dict, cfg)
-preds = with_pos.predict([ww,pp, bb])
+preds = model_bilstm.predict([ww,pp, bb])
 
 for k in range(preds.shape[0]):
     sent_str = ' '.join(["{:1.2f}".format(r[0]) for r in preds[k]])
