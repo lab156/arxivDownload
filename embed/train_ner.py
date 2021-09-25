@@ -103,10 +103,11 @@ def get_wiki_pm_stacks_data(cfg):
         def_xml = etree.parse(xml_fobj)
         for art in def_xml.findall('article'):
             plmath.append(split_fields(art))
+
     stacks = []
     with gzip.open(os.path.join(cfg['base_dir'], cfg['stacks_src']), 'r') as xml_fobj:
         def_xml = etree.parse(xml_fobj)
-        for art in def_xml.findall(cfg['base_dir']):
+        for art in def_xml.findall('article'):
             try:
                 stacks.append(split_fields(art))
             except AttributeError:
@@ -157,7 +158,8 @@ def open_word_embedding(cfg):
     with open_w2v(os.path.join(cfg['base_dir'], cfg['embed_data_src'])) as embed_dict:
         wind = ['<UNK>',] + list(embed_dict.keys())
         cfg['emb_nvocab'] = len(wind) 
-        embed_matrix = np.zeros((cfg['emb_nvocab'], 200))
+        cfg['emb_dim'] = embed_dict['a'].shape[0] #choose a common word
+        embed_matrix = np.zeros((cfg['emb_nvocab'], cfg['emb_dim']))
         for word, vec in embed_dict.items():
             #vect = embed_dict.get(word)
             ind = wind.index(word)
@@ -253,7 +255,7 @@ def get_bilstm_lstm_model(embed_matrix, cfg_dict):
     #                    output_dim=cfg_dict['output_dim'],
     #                    input_length=cfg_dict['input_length']))
     # Add bidirectional LSTM
-    model.add(Bidirectional(LSTM(units=cfg_dict['output_dim'],
+    model.add(Bidirectional(LSTM(units=cfg_dict['output_dim'], # this looks weird
                                  return_sequences=True,
                                  dropout=0.2, 
                                  recurrent_dropout=0.2), merge_mode = 'concat'))
@@ -296,8 +298,7 @@ def bilstm_model_w_pos(embed_matrix, cfg_dict):
     out = Bidirectional(LSTM(units=cfg_dict['lstm_units'],
                                  return_sequences=True,
                                  dropout=0.2, 
-                                 recurrent_dropout=0.2,
-                                 recurrent_initializer='glorot_uniform'),
+                                 recurrent_dropout=0.2,),
                         merge_mode = 'concat')(full_embed)
     #out = GlobalMaxPooling1D(out) 
     # Add LSTM
@@ -339,6 +340,7 @@ def main():
     logger.info(sent_tok._params.abbrev_types)
 
     def_lst = ner.bio_tag.put_pos_ner_tags(text_lst, sent_tok)
+    random.shuffle(def_lst)
     logger.info("Length of the def_lst is: {}".format(len(def_lst)))
 
     pos_ind_dict, cfg = get_pos_ind_dict(def_lst, cfg)
@@ -363,13 +365,13 @@ def main():
          'batch_size': 2000,
          'lstm_units': 150,
           'adam': {'lr': 0.025, 'beta_1': 0.9, 'beta_2': 0.999},
-          'epochs': 70,})
+          'epochs': 35,})
 
     model_bilstm = bilstm_model_w_pos(embed_matrix, cfg)
     #history = train_model(train_seq, train_lab, test_seq, test_lab, model_bilstm_lstm, cfg )
     history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, epochs=cfg['epochs'],
                     batch_size=cfg['batch_size'],
-                    validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
+                    validation_data=([valid_seq, valid_pos_seq, valid_bin_seq], valid_lab))
 
 
 if __name__ == '__main__':

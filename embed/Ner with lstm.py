@@ -36,6 +36,7 @@ import math
 import string
 import json
 import gzip
+import random
 #import collections.Iterable as Iterable
 
 import sklearn.metrics as metrics
@@ -71,6 +72,7 @@ sent_tok = gen_sent_tokzer(text_lst, cfg)
 logger.info(sent_tok._params.abbrev_types)
 
 def_lst = ner.bio_tag.put_pos_ner_tags(text_lst, sent_tok)
+random.shuffle(def_lst)
 logger.info("Length of the def_lst is: {}".format(len(def_lst)))
 
 pos_ind_dict, cfg = get_pos_ind_dict(def_lst, cfg)
@@ -87,6 +89,21 @@ valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = prep_data4real(
         valid_def_lst, wind, pos_ind_dict, cfg)
 
 
+# -
+
+print(train_seq.shape)
+print(test_seq.shape)
+print(valid_seq.shape)
+testq_seq = np.concatenate((test_seq, valid_seq), axis=0)
+testq_lab = np.concatenate((test_lab, valid_lab), axis=0)
+testq_pos_seq = np.concatenate((test_pos_seq, valid_pos_seq), axis=0)
+testq_bin_seq = np.concatenate((test_bin_seq, valid_bin_seq), axis=0)
+testq_bin_seq.shape
+
+len(def_lst)
+
+testq_lab[10]
+
 # +
 cfg.update({'input_dim': len(wind),
       'output_dim': 200, #don't keep hardcoding this
@@ -96,17 +113,32 @@ cfg.update({'input_dim': len(wind),
      'n_tags': 2,
      'batch_size': 2000,
      'lstm_units': 150,
-      'adam': {'lr': 0.005, 'beta_1': 0.9, 'beta_2': 0.999},
-      'epochs': 10,})
+      'adam': {'lr': 0.025, 'beta_1': 0.9, 'beta_2': 0.999},
+      'epochs': 30,})
 
 model_bilstm = bilstm_model_w_pos(embed_matrix, cfg)
     #history = train_model(train_seq, train_lab, test_seq, test_lab, model_bilstm_lstm, cfg )
-history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, epochs=cfg['epochs'],
-                    batch_size=cfg['batch_size'],
-                    validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
+history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq], 
+            train_lab, epochs=cfg['epochs'], batch_size=cfg['batch_size'],
+            validation_data=([testq_seq, testq_pos_seq, testq_bin_seq], testq_lab))
 
 
 # +
+#del model_bilstm
+#tf.keras.backend.clear_session()
+#model_bilstm = None
+
+from numba import cuda
+#dev = cuda.get_current_device()
+#print(dev)
+#dev.reset()
+cuda.select_device(0)
+cuda.close()
+# -
+
+cfg
+
+# + jupyter={"outputs_hidden": true, "source_hidden": true}
 #with open('/media/hd1/wikipedia/wiki_definitions_improved.txt', 'r') as wiki_f:
 #    wiki = wiki_f.readlines()
 
@@ -172,6 +204,7 @@ cfg['Npos_cnt'] = len(pos_cnt)
 
 trainer_params
 
+# + jupyter={"source_hidden": true}
 with open_w2v('/media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin') as embed_dict:
     wind = ['<UNK>',] + list(embed_dict.keys())
     cfg['emb_nvocab'] = len(wind) 
@@ -182,6 +215,7 @@ with open_w2v('/media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin') as embe
             #vect = vect/np.linalg.norm(vect)
         embed_matrix[ind] = vec
 #print("Coverage of embed is: {}".format(coverage_cnt/len(embed_dict)))
+# -
 
 sent_lengths = []
 for d in def_lst:
@@ -191,7 +225,7 @@ plt.hist(sent_lengths, bins=15)
 plt.title('length of selected sentences with definiendum')
 plt.show()
 
-# +
+# + jupyter={"source_hidden": true}
 cfg['padseq'] = {'maxlen': 50 , 'padding': 'post', 'truncating': 'post'}
 cfg['n_tags'] = 2
 
@@ -334,7 +368,7 @@ valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = prep_data4real(valid_def_l
 #                 #ckpt_manager.save()
 #                 print("model saved")
 
-# +
+# + jupyter={"outputs_hidden": true}
 cfg.update({'input_dim': len(wind),
       'output_dim': 200, #don't keep hardcoding this
      'input_length': cfg['padseq']['maxlen'],
