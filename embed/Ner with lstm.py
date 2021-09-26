@@ -438,8 +438,10 @@ ax2.legend()
 #preds = model_bilstm_lstm.predict(test_seq)
 preds = model_bilstm.predict([test_seq, test_pos_seq, test_bin_seq])
 
-model_bilstm.evaluate([test_seq, test_pos_seq, test_bin_seq], test_lab)
+l,a = model_bilstm.evaluate([test_seq, test_pos_seq, test_bin_seq], test_lab)
 # -
+
+a
 
 k = 90
 for i in range(len(preds[k])):
@@ -509,7 +511,7 @@ def get_chunkscore(CutOFF):
 
 data_points = []
 BOY_f_score = (0, 0) # (CutOff, score)
-for co in np.arange(0.1, 1, 0.1):
+for co in np.arange(0.1, 1, 0.05):
     cs = get_chunkscore(co)
     data_points.append((cs.accuracy(), cs.f_measure()))
     if cs.f_measure() > BOY_f_score[1]:
@@ -524,6 +526,11 @@ print(get_chunkscore(BOY_f_score[0]))
 print(f"Cutoff:  {BOY_f_score[0]}")
 cfg['tboy'] = {'cutoff': BOY_f_score[0], 
               'f_meas': BOY_f_score[1]}
+# -
+
+tboy_finder(model_bilstm, test_seq, 
+            test_pos_seq, test_bin_seq, 
+            test_lab,test_def_lst,cfg)
 
 # +
 #1/5404.0*(np.sum(test_lab*np.log(np.squeeze(preds))) + np.sum((1-test_lab)*np.log(np.squeeze(1-preds))))
