@@ -39,6 +39,7 @@ from unwiki import unwiki
 import ner
 from embed_utils import open_w2v
 import clean_and_token_text as clean
+import train_utils as Tut
 
 
 import logging
@@ -74,7 +75,8 @@ def gen_cfg(args=None):
                 'pos_constraint': 1/200,
          'n_tags': 2,
          'batch_size': 2000,
-         'lstm_units': 150,
+         'lstm_units1': 150,
+         'lstm_units2': 150,
           'adam': {'lr': 0.025, 'beta_1': 0.9, 'beta_2': 0.999},
           'epochs': 35,})
 
@@ -86,9 +88,9 @@ def argParse():
     '''
     import argparse
     parser = argparse.ArgumentParser(description="Train LSTM model")
-    parser.add_argument('--epochs', type=int, default=2,
+    parser.add_argument('--epochs', type=int, default=10,
             help="Number of epochs to train. Overrides default value")
-    parser.add_argument('--experiments', type=int, default=2,
+    parser.add_argument('--experiments', type=int, default=1,
             help="Number of experiment loops to do.")
     parser.add_argument('-p', '--profiling', action='store_true',
             help="Set the profiling mode to True (default False)")
@@ -311,14 +313,14 @@ def bilstm_model_w_pos(embed_matrix, cfg_dict):
     full_embed = Concatenate(axis=2)([word_embed, pos_embed, bin_feats])
     
     
-    out = Bidirectional(LSTM(units=cfg_dict['lstm_units'],
+    out = Bidirectional(LSTM(units=cfg_dict['lstm_units1'],
                                  return_sequences=True,
                                  dropout=0.2, 
                                  recurrent_dropout=0.2,),
                         merge_mode = 'concat')(full_embed)
     #out = GlobalMaxPooling1D(out) 
     # Add LSTM
-    out = Bidirectional(LSTM(units=cfg_dict['lstm_units'],
+    out = Bidirectional(LSTM(units=cfg_dict['lstm_units2'],
                    return_sequences=True, dropout=0.2, recurrent_dropout=0.2,
                    recurrent_initializer='glorot_uniform'),
                         merge_mode = 'concat')(out)
@@ -334,6 +336,43 @@ def bilstm_model_w_pos(embed_matrix, cfg_dict):
                   optimizer=adam, metrics=['accuracy'])
     model.summary()
     return model
+
+def model_callbacks(cfg):
+    '''
+    Return a Tensorboard Callback
+    '''
+    cb = [] #
+    if cfg['profiling'] == True:
+        cb.append(TensorBoard(log_dir=cfg['prof_dir'],
+                                histogram_freq=1,
+                                profile_batch="2,22"))
+
+    if 'mon_val_loss' in cfg['callbacks']:
+        save_checkpoint = ModelCheckpoint(
+                 os.path.join(cfg['save_path_dir'], 'model_saved'), \
+		 monitor='val_accuracy', verbose=1, \
+		 save_best_only=True, save_weights_only=False, \
+		 mode='max', save_freq='epoch')
+        cb.append(save_checkpoint)
+
+    if 'epoch_times' in cfg['callbacks']:
+        ep_times = Tut.TimeHistory()
+        cb.append(ep_times)
+    else:
+        ep_times = []
+
+    if 'ls_schedule' in cfg['callbacks']:
+        lr_sched = LearningRateScheduler(
+                Tut.def_scheduler(cfg['AdamCfg']['lr_decay']))
+        cb.append(lr_sched)
+
+    if 'early_stop' in cfg['callbacks']:
+        early = EarlyStopping(monitor='val_accuracy',
+                patience=2,
+                restore_best_weights=True)
+        cb.append(early)
+
+    return cb, ep_times
 
 def train_model(X, y, t_seq, t_lab, model, cfg):
     # fit model for one epoch on this sequence
@@ -424,8 +463,8 @@ def save_cfg_data(model, cfg, wind, pos_lst, trainer_params):
         pickle.dump(wind, wind_fobj) 
     with open(os.path.join(cfg['save_path_dir'],'posindex.pickle'), 'wb') as pos_fobj:
         pickle.dump(pos_lst, pos_fobj)
-    #with open('/home/luis/ner_model/punkt_params.pickle', 'wb') as punkt_fobj:
-    #    pickle.dump(trainer.get_params(), punkt_fobj)
+    with open(os.path.join(cfg['save_path_dir'], 'punkt_params.pickle'), 'wb') as punkt_fobj:
+        pickle.dump(trainer_params, punkt_fobj)
 
 def main():
     args = argParse()

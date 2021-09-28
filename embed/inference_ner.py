@@ -68,16 +68,17 @@ def bilstm_lstm_model_w_pos(cfg_dict):
     full_embed = Concatenate(axis=2)([word_embed, pos_embed, bin_feats])
     
     
-    out = Bidirectional(LSTM(units=cfg['lstm_units'],
+    out = Bidirectional(LSTM(units=330, 
                                  return_sequences=True,
                                  dropout=0.2, 
-                                 recurrent_dropout=0.2),
+                                 recurrent_dropout=0.2,
+                                 recurrent_initializer='orthogonal'),
                         merge_mode = 'concat')(full_embed)
     #out = GlobalMaxPooling1D(out) 
     # Add LSTM
     out = Bidirectional(LSTM(units=cfg['lstm_units'],
                    return_sequences=True, dropout=0.2, recurrent_dropout=0.2,
-                   recurrent_initializer='glorot_uniform'),
+                   recurrent_initializer='orthogonal'),
                         merge_mode = 'concat')(out)
     # Add timeDistributed Layer
     out = TimeDistributed(Dense(10, activation="relu"))(out)

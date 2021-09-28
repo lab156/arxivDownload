@@ -47,6 +47,5 @@ def main():
         #save_weights_tokens(model, idx2tkn, history, cfg, subdir='exp_{0:0>3}'.format(num))
         save_tokens_model(model, idx2tkn, history, cfg)
 
-
 if __name__ == '__main__':
     main()
