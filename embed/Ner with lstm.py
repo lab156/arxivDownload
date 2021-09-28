@@ -89,8 +89,8 @@ valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = TN.prep_data4real(
         valid_def_lst, wind, pos_ind_dict, cfg)
 
 
-# + magic_args="echo dont want to join test and validation" language="script"
-# # JOIN TEST AND VALIDATION
+# + magic_args="echo dont want to join test and validation data" language="script"
+# # JOIN TEST AND VALIDATION 
 # print(train_seq.shape)
 # print(test_seq.shape)
 # print(valid_seq.shape)
@@ -99,6 +99,9 @@ valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = TN.prep_data4real(
 # testq_pos_seq = np.concatenate((test_pos_seq, valid_pos_seq), axis=0)
 # testq_bin_seq = np.concatenate((test_bin_seq, valid_bin_seq), axis=0)
 # testq_bin_seq.shape
+# -
+
+cfg['save_path_dir']
 
 # +
 cfg.update({'input_dim': len(wind),
@@ -108,164 +111,22 @@ cfg.update({'input_dim': len(wind),
             'pos_constraint': 1/200,
      'n_tags': 2,
      'batch_size': 2000,
-     'lstm_units1': 200,
+     'lstm_units1': 150,
      'lstm_units2': 150,
      'adam': {'lr': 0.025, 'beta_1': 0.9, 'beta_2': 0.999},
-     'epochs': 35,
-           'train_test_split': 0.7})
+     'epochs': 150,
+           'train_test_split': 0.7,
+           'callbacks': ['early_stop'],
+           'profiling': False,})
 
 model_bilstm = TN.bilstm_model_w_pos(embed_matrix, cfg)
 #history = train_model(train_seq, train_lab, test_seq, test_lab, model_bilstm_lstm, cfg )
+calls, times = TN.model_callbacks(cfg)
 history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq], 
             train_lab, epochs=cfg['epochs'], batch_size=cfg['batch_size'],
-            validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
-# -
+            validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab),
+                          callbacks=calls)
 
-
-with open_w2v('/media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin') as embed_dict:
-    wind = ['<UNK>',] + list(embed_dict.keys())
-    cfg['emb_nvocab'] = len(wind) 
-    embed_matrix = np.zeros((cfg['emb_nvocab'], 200))
-    for word, vec in embed_dict.items():
-        #vect = embed_dict.get(word)
-        ind = wind.index(word)
-            #vect = vect/np.linalg.norm(vect)
-        embed_matrix[ind] = vec
-#print("Coverage of embed is: {}".format(coverage_cnt/len(embed_dict)))
-
-sent_lengths = []
-for d in def_lst:
-    slen = min(len(d['ner']), 150)
-    sent_lengths.append(slen)
-plt.hist(sent_lengths, bins=15)
-plt.title('length of selected sentences with definiendum')
-plt.show()
-
-# + jupyter={"source_hidden": true}
-cfg['padseq'] = {'maxlen': 50 , 'padding': 'post', 'truncating': 'post'}
-cfg['n_tags'] = 2
-
-# shuffle def_lst
-random.shuffle(def_lst)
-
-cfg['train_test_split'] = 0.9
-r_def_lst = range(len(def_lst))
-TVT_len = int(cfg['train_test_split']*len(def_lst))
-r_train = r_def_lst[:TVT_len]
-r_valid = r_def_lst[TVT_len:]
-r_test = r_valid[:int(0.5*len(r_valid))]
-r_valid = r_valid[int(0.5*len(r_valid)):]
-log_str = 'Original Range: {}\n Training: {}  Validation: {}  Test: {} \n'\
-              .format(repr(r_def_lst), repr(r_train), repr(r_test), repr(r_valid)) 
-print(log_str)
-
-train_def_lst = [def_lst[k] for k in r_train]
-test_def_lst = [def_lst[k] for k in r_test]
-valid_def_lst = [def_lst[k] for k in r_valid]
-
-def prep_data(dat, wind, cfg, *args):
-    '''
-   dat should be in the "ner" format
-    '''
-    if isinstance(dat, str):
-        dat_tok = word_tokenize(dat)
-        norm_words = [clean.normalize_text(d).strip() for d in dat_tok]
-        labels = [False for d in dat]
-    else:
-        norm_words = [clean.normalize_text(d[0][0]).strip() for d in dat]
-        labels = [d[1] != 'O' for d in dat]
-    ind_words = []
-    for w in norm_words:
-        try:
-            ind_words.append(wind.index(w))
-        except ValueError:
-            ind_words.append(0)
-    return ind_words, labels
-
-def prep_pos(dat, pos_ind_dict):
-    '''
-    dat is in the format:
-    [(('In', 'IN'), 'O'),
-     (('Southern', 'NNP'), 'O'),
-     (('Africa', 'NNP'), 'O'),
-     ((',', ','), 'O'),
-     (('the', 'DT'), 'O'),
-     (('word', 'NN'), 'O')]
-    '''
-    out_lst = []
-    for d in dat:
-        out_lst.append(pos_ind_dict[d[0][1]])
-    return out_lst
-
-#binary_fun_lst = [
-#    lambda w: word[0] in string.ascii_uppercase,  # Capitalized
-#]
-def binary_features(dat):
-    out_lst = []
-    for d in dat:
-        word =d[0][0]
-        capitalized = float(word[0] in string.ascii_uppercase)
-        contains_dash = float('-' in word)
-        
-        out_lst.append((capitalized, contains_dash))
-    return out_lst
-
-cfg['nbin_feats'] = 2 # number of binary features defined in the function above
-    
-def prep_data4real(_def_lst, wind, cfg):
-    _data = [prep_data(d['ner'], wind, cfg) for d in _def_lst]
-    _seq, _lab = zip(*_data)
-    _pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in _def_lst]
-    _bin_seq = [binary_features(d['ner']) for d in _def_lst]
-    # PAD THE SEQUENCES
-    _seq = pad_sequences(_seq, **cfg['padseq'])
-    _pos_seq = pad_sequences(_pos_seq, **cfg['padseq'])
-    _bin_seq = pad_sequences(_bin_seq, **cfg['padseq'],
-                                  value = cfg['nbin_feats']*[0.0],
-                                 dtype='float32')
-    _lab = pad_sequences(_lab, **cfg['padseq'])
-    return _seq, _pos_seq, _bin_seq, _lab
-
-train_seq, train_pos_seq, train_bin_seq , train_lab = prep_data4real(train_def_lst, wind, cfg)
-test_seq, test_pos_seq, test_bin_seq , test_lab = prep_data4real(test_def_lst, wind, cfg)
-valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = prep_data4real(valid_def_lst, wind, cfg)
-
-# -
-
-# ### TODO
-# * Right the different concatenated pieces are in different orders of magnitude. Normalization might help
-# * Search for a minimal stemmer that strips plural or adverbial suffices for example zero-sum games in zero-sum game or absolute continuity and absolute continuous
-
-# + jupyter={"outputs_hidden": true}
-cfg.update({'input_dim': len(wind),
-      'output_dim': 200, #don't keep hardcoding this
-     'input_length': cfg['padseq']['maxlen'],
-     'pos_dim': 3,
-            'pos_constraint': 1/200,
-     'n_tags': 2,
-     'batch_size': 2000,
-     'lstm_units': 150,
-      'adam': {'lr': 0.0005, 'beta_1': 0.9, 'beta_2': 0.999}})
-
-model_bilstm = bilstm_model_w_pos(embed_matrix, cfg)
-    #history = train_model(train_seq, train_lab, test_seq, test_lab, model_bilstm_lstm, cfg )
-history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq],
-       train_lab, epochs=40,
-       batch_size=cfg['batch_size'],
-       validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
-
-# + magic_args="echo no need for loading right now" language="script"
-# #res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=30,
-# #                batch_size=cfg['batch_size'],
-# #                validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
-#
-# # Load weights instead of training
-# save_model_dir = '/home/luis/ner_model/'
-# with open(save_model_dir + 'cfg.json', 'r') as cfg_fobj:
-#     cfg = json.load(cfg_fobj)
-#     
-# with_pos = bilstm_lstm_model_w_pos(cfg)
-# res = with_pos.load_weights(save_model_dir + 'bilstm_with_pos')
 
 # +
 # #%%script echo no train loading 
@@ -285,6 +146,78 @@ ax2.plot(r.history['val_accuracy'], label='val_acc')
 ax2.grid()
 ax2.legend()
 
+# +
+#preds = model_bilstm_lstm.predict(test_seq)
+preds = model_bilstm.predict([test_seq, test_pos_seq, test_bin_seq])
+
+l,a = model_bilstm.evaluate([test_seq, test_pos_seq, test_bin_seq], test_lab)
+# -
+
+k = 99
+for i in range(len(preds[k])):
+    try:
+        print('{:<20} {} {:1.2f}'.format(test_def_lst[k]['ner'][i][0][0], 
+                                         test_def_lst[k]['ner'][i][1],
+                                         round(preds[k][i][0],2)))
+    except IndexError:
+        break
+
+# +
+# use the TN.get_chunkscore function
+data_points = []
+BOY_f_score = (0, 0) # (CutOff, score)
+for co in np.arange(0.1, 1, 0.05):
+    cs = TN.get_chunkscore(co, test_def_lst, preds)
+    data_points.append((cs.accuracy(), cs.f_measure()))
+    if cs.f_measure() > BOY_f_score[1]:
+        BOY_f_score = (co, cs.f_measure())
+
+plt.plot(list(zip(*data_points))[0], label='acc')
+plt.plot(list(zip(*data_points))[1], label='F1')
+plt.legend()
+plt.show()
+
+print(TN.get_chunkscore(BOY_f_score[0], test_def_lst, preds))
+print(f"Cutoff:  {BOY_f_score[0]}")
+cfg['tboy'] = {'cutoff': BOY_f_score[0], 
+              'f_meas': BOY_f_score[1]}
+# -
+
+# ### TODO
+# * Right the different concatenated pieces are in different orders of magnitude. Normalization might help
+# * Search for a minimal stemmer that strips plural or adverbial suffices for example zero-sum games in zero-sum game or absolute continuity and absolute continuous
+
+# + magic_args="echo secondary training cell" language="script"
+# cfg.update({'input_dim': len(wind),
+#       'output_dim': 200, #don't keep hardcoding this
+#      'input_length': cfg['padseq']['maxlen'],
+#      'pos_dim': 3,
+#             'pos_constraint': 1/200,
+#      'n_tags': 2,
+#      'batch_size': 2000,
+#      'lstm_units': 150,
+#       'adam': {'lr': 0.0005, 'beta_1': 0.9, 'beta_2': 0.999}})
+#
+# model_bilstm = bilstm_model_w_pos(embed_matrix, cfg)
+#     #history = train_model(train_seq, train_lab, test_seq, test_lab, model_bilstm_lstm, cfg )
+# history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq],
+#        train_lab, epochs=40,
+#        batch_size=cfg['batch_size'],
+#        validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
+
+# + magic_args="echo no need for loading right now" language="script"
+# #res = with_pos.fit([train_seq, train_pos_seq, train_bin_seq], train_lab, verbose=1, epochs=30,
+# #                batch_size=cfg['batch_size'],
+# #                validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab))
+#
+# # Load weights instead of training
+# save_model_dir = '/home/luis/ner_model/'
+# with open(save_model_dir + 'cfg.json', 'r') as cfg_fobj:
+#     cfg = json.load(cfg_fobj)
+#     
+# with_pos = bilstm_lstm_model_w_pos(cfg)
+# res = with_pos.load_weights(save_model_dir + 'bilstm_with_pos')
+
 # + magic_args="echo skip this" language="script"
 # #sample_str = 'a banach space is defined as complete vector space of some kind .'
 # #sample_str = 'We define a shushu space as a complete vector space of some kind .'
@@ -300,50 +233,20 @@ ax2.legend()
 #     print(wind[w], np.round(pred)[0][i])
 #     if wind[w] == '.':
 #         break
-
-
-# +
-#preds = model_bilstm_lstm.predict(test_seq)
-preds = model_bilstm.predict([test_seq, test_pos_seq, test_bin_seq])
-
-l,a = model_bilstm.evaluate([test_seq, test_pos_seq, test_bin_seq], test_lab)
 # -
 
-a
-
-k = 90
-for i in range(len(preds[k])):
-    try:
-        print('{:<20} {} {:1.2f}'.format(test_def_lst[k]['ner'][i][0][0], 
-                                         test_def_lst[k]['ner'][i][1],
-                                         round(preds[k][i][0],2)))
-    except IndexError:
-        break
-
-# +
-# use the TN.get_chunkscore function
-data_points = []
-BOY_f_score = (0, 0) # (CutOff, score)
-for co in np.arange(0.1, 1, 0.05):
-    cs = get_chunkscore(co)
-    data_points.append((cs.accuracy(), cs.f_measure()))
-    if cs.f_measure() > BOY_f_score[1]:
-        BOY_f_score = (co, cs.f_measure())
-
-plt.plot(list(zip(*data_points))[0], label='acc')
-plt.plot(list(zip(*data_points))[1], label='F1')
-plt.legend()
-plt.show()
-
-print(get_chunkscore(BOY_f_score[0]))
-print(f"Cutoff:  {BOY_f_score[0]}")
-cfg['tboy'] = {'cutoff': BOY_f_score[0], 
-              'f_meas': BOY_f_score[1]}
-# -
 
 tboy_finder(model_bilstm, test_seq, 
             test_pos_seq, test_bin_seq, 
             test_lab,test_def_lst,cfg)
+
+sent_lengths = []
+for d in def_lst:
+    slen = min(len(d['ner']), 150)
+    sent_lengths.append(slen)
+plt.hist(sent_lengths, bins=15)
+plt.title('length of selected sentences with definiendum')
+plt.show()
 
 # +
 #1/5404.0*(np.sum(test_lab*np.log(np.squeeze(preds))) + np.sum((1-test_lab)*np.log(np.squeeze(1-preds))))

@@ -55,7 +55,7 @@ def main():
             cfg['save_path_dir'] = os.path.join(og_save_path_dir , 'exp_{0:0>3}'.format(num))
             os.makedirs(cfg['save_path_dir'], exist_ok=True)
 
-            cfg['callbacks'] = ['epoch_times',]
+            cfg['callbacks'] = ['epoch_times', 'early_stop']
             calls, ep_times = model_callbacks(cfg)
             ### FIT THE MODEL ###
             # TRAIN AND DEFINE MODEL ---------------------------------------------

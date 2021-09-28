@@ -6,6 +6,7 @@ from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
 from tensorflow.keras import Sequential, Model, Input
 from tensorflow.keras.utils import plot_model, to_categorical
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.config import list_physical_devices
 import tensorflow as tf
 import numpy as np
@@ -368,7 +369,7 @@ def model_callbacks(cfg):
 
     if 'early_stop' in cfg['callbacks']:
         early = EarlyStopping(monitor='val_accuracy',
-                patience=2,
+                patience=6,
                 restore_best_weights=True)
         cb.append(early)
 
