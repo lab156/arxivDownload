@@ -63,6 +63,12 @@ from embed_utils import open_w2v
 import clean_and_token_text as clean
 import train_ner as TN
 import inference_ner as IN
+# -
+
+# # This Notebook does NER with LSTM both Training and Inference
+# 1) Training functions are in the `train_ner.py` 
+# 2) Inference, in the `inference_ner.py` module
+#
 
 # +
 # PREPARE THE DATA  
@@ -126,7 +132,11 @@ history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq],
             train_lab, epochs=cfg['epochs'], batch_size=cfg['batch_size'],
             validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab),
                           callbacks=calls)
+# -
 
+
+for i in range(0):
+    print('hola')
 
 # +
 # #%%script echo no train loading 

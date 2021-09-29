@@ -48,9 +48,9 @@ def main():
 
     og_save_path_dir = cfg['save_path_dir']
     for i in range(cfg['n_experiments']):
-        for j in range(cfg['n_experiments']):
-            cfg['lstm_units1'] = 150*(i + 1)
-            cfg['lstm_units2'] = 150*(j + 1)
+        for j in range(i + 1):
+            cfg['lstm_units1'] = 50*(i + 3) # Start from 150,150
+            cfg['lstm_units2'] = 50*(j + 3)
             num = cfg['n_experiments']*i + j
             cfg['save_path_dir'] = os.path.join(og_save_path_dir , 'exp_{0:0>3}'.format(num))
             os.makedirs(cfg['save_path_dir'], exist_ok=True)
