@@ -105,9 +105,6 @@ valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = TN.prep_data4real(
 # testq_pos_seq = np.concatenate((test_pos_seq, valid_pos_seq), axis=0)
 # testq_bin_seq = np.concatenate((test_bin_seq, valid_bin_seq), axis=0)
 # testq_bin_seq.shape
-# -
-
-cfg['save_path_dir']
 
 # +
 cfg.update({'input_dim': len(wind),
@@ -132,11 +129,7 @@ history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq],
             train_lab, epochs=cfg['epochs'], batch_size=cfg['batch_size'],
             validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab),
                           callbacks=calls)
-# -
 
-
-for i in range(0):
-    print('hola')
 
 # +
 # #%%script echo no train loading 
@@ -155,6 +148,12 @@ ax2.plot(r.history['accuracy'], label='acc')
 ax2.plot(r.history['val_accuracy'], label='val_acc')
 ax2.grid()
 ax2.legend()
+
+# +
+# plot_model?
+# -
+
+plot_model(model_bilstm, show_layer_names=False, to_file='/home/luis/ner_model.png')
 
 # +
 #preds = model_bilstm_lstm.predict(test_seq)
@@ -256,6 +255,8 @@ for d in def_lst:
     sent_lengths.append(slen)
 plt.hist(sent_lengths, bins=15)
 plt.title('length of selected sentences with definiendum')
+plt.grid()
+plt.savefig('/home/luis/ims/lengths.png')
 plt.show()
 
 # +

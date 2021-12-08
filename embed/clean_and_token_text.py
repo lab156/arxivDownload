@@ -178,6 +178,18 @@ def normalize_text(text, *vargs, **kwargs):
 
     return text.lower()
 
+def normalize_phrase(text):
+    '''
+    Use normalize text in a phrase and then add underscores 
+    in place of spaces.
+    
+    >>> normalize_phrase('Málaga-Kähler .   française,  problème')
+    'malaga_kahler_francaise_probleme'
+    '''
+    text = normalize_text(text, 'rm_punct')
+    text = re.sub(r' +', '_', text.strip())
+    return text
+    
 
 def token_phrases3(text, phrase_lst, join_str='_'):
     '''
@@ -379,9 +391,6 @@ if __name__ == "__main__":
             out_file = os.path.join(args.out_dir, fname)
             arg_lst.append((infile, out_file, abbrev_lst)) 
 
-    with mp.Pool(processes=30, maxtasksperchild=1) as pool:
+    with mp.Pool(processes=1, maxtasksperchild=1) as pool:
         pool.starmap(tokenize_fun, arg_lst)
-
-
-
 

@@ -13,6 +13,11 @@
 #     name: python3
 # ---
 
+# # TOC
+# * [Connect to the metadata database](#first-bullet)
+# * [tSNE visualization of word embeddings](#tsne)
+# * [Radar graphs of term's categories](#radar)
+
 # +
 import numpy as np
 import sys
@@ -48,6 +53,7 @@ from matplotlib.projections.polar import PolarAxes
 from matplotlib.projections import register_projection
 from matplotlib.spines import Spine
 from matplotlib.transforms import Affine2D
+from sklearn.decomposition import PCA
 
 import umap
 import scattertext as st
@@ -57,6 +63,9 @@ from ripser import ripser
 from ripser import Rips
 from persim import plot_diagrams
 import multiprocessing as mp
+
+import plotly.graph_objs as go
+from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 
 # %load_ext autoreload
 # %autoreload 2
@@ -80,10 +89,13 @@ from clean_and_token_text import normalize_text, token_phrases3
 #             with open('../data/clean_text/{}'.format(math_year),'a') as art_fobj:
 #                 print(art_str, file=art_fobj)
 #             #print(f"Saved art {name} from {art_path}")
+# -
+
+# #### Connect to the metadata database <a class="anchor" id="first-bullet"></a>
 
 # +
 # %%time
-# Connect to the database
+# Connect to the database <a class="anchor" id="first-bullet"></a>
 database = 'sqlite:////media/hd1/databases/arxiv3.db'
 eng = sa.create_engine(database, echo=False)
 eng.connect().execute('pragma case_sensitive_like=OFF;')
@@ -105,7 +117,6 @@ def qq(art_str, database = database):
     return res_dict[0]['term']
 qq('1703.01352')    
 # -
-
 ## Grab the Glossary data
 dfndum_set = set()
 new_dfndum_lst = [0]
@@ -115,7 +126,8 @@ term_cnt = Counter()
 term_dict_cnt = defaultdict(Counter)
 perc_array = np.array([])
 stopiterations_lst = []
-for xml_path in tqdm(glob.glob('/media/hd1/glossary/v3/math*/*.xml.gz')):
+#for xml_path in tqdm(glob.glob('/media/hd1/glossary/v3/math*/*.xml.gz')):
+for xml_path in tqdm(glob.glob('/media/hd1/glossary/NN.v1/math*/*.xml.gz')):
     gtree = etree.parse(xml_path).getroot()
     for art in gtree.iter(tag='article'):
         d_lst = [d.text.lower() for d in art.findall('.//dfndum')]
@@ -136,11 +148,6 @@ for xml_path in tqdm(glob.glob('/media/hd1/glossary/v3/math*/*.xml.gz')):
                 stopiterations_lst.append(art.attrib['name'])
         for D in d_lst:
             term_dict_cnt[D].update([arxiv_class])
-
-art_name = art.attrib['name'].split('/')[1]
-art_name.replace('.', '/')
-
-len(stopiterations_lst),stopiterations_lst[:10]
 
 # The 15 most common words are
 TT = term_cnt.most_common()[:15]
@@ -171,11 +178,8 @@ bs_dist = baseline_dist()
 print(bs_dist.most_common())
 s = 1
 Term = term_cnt.most_common()[s][0]
-print(f'The term: {Term} appears in articles tagged:')
-term_dict_cnt[Term]
-# -
-
-term_dict_cnt['banach space'].most_common()
+#print(f'The term: {Term} appears in articles tagged:')
+#term_dict_cnt[Term]
 
 # +
 ## Comparison of the term dist and baseline
@@ -227,9 +231,15 @@ def term_bias(term, term_dict=term_dict_cnt, bs_dist=bs_dist):
 
 entropy = lambda t: sum(term_bias(t).values())
 
-#b_ = term_bias('finsler metric')
-#print(sorted(b_.items(), key=lambda x: -x[1])[:10])
-#sum(b_.values())
+def bias_from_avg(term, categ, term_dict=term_dict_cnt, bs_dist=bs_dist):
+    tot_art = float(sum(bs_dist.values())) #total number of articles
+    #norm_dict = {k: v/tot_art for k,v in bs_dist.items()} #normalized to add up to 1
+    this_term_dict = term_dict[term]
+    tot_term = float(sum(this_term_dict.values()))
+    if tot_term <= 0:
+        return 0
+    else:
+        return (this_term_dict[categ]/tot_term)/(bs_dist[categ]/tot_art)
 
 def common_low_entropy_terms(N1, N2):
     '''
@@ -244,42 +254,34 @@ def common_low_entropy_terms(N1, N2):
     return sorted(term_entropy, key=lambda x: x[2])[:N2]
 
 
-# + magic_args="echo use open_w2v instead" language="script"
-# # Decode word2vec .bin file
-# with open('/media/hd1/embeddings/model14-14_12-08/vectors.bin', 'rb') as mfobj:
-#     m = mfobj.read()
-#     #print(m[0].decode('utf8'))
-#     #s = st.Struct('ii')
-#     #m_it = m.__iter__()
-#     head_dims = st.unpack('<11s', m[:11])
-#     n_vocab, n_dim = map(int,head_dims[0].strip().split())
-#     print(f"Vocabulary size: {n_vocab} and dimension of embed: {n_dim}")
-#     embed = {}
-#     #[next(m_it) for _ in range(11)]
-#     cnt = 11
-#     for line_cnt in tqdm(range(n_vocab)):
-#         word = ''
-#         while True:
-#             next_char = st.unpack('<1s', m[cnt:cnt+1])[0].decode('utf8')
-#             cnt += 1
-#             if next_char == ' ':
-#                 break
-#             else:
-#                 word += next_char
-#         #print(word)
-#         vec = np.zeros(n_dim)
-#         for k in range(n_dim):
-#             vec[k] = st.unpack('<f', m[cnt:cnt+4])[0]
-#             cnt += 4
-#         assert st.unpack('<1s', m[cnt:cnt+1])[0] == b'\n'
-#         cnt +=1
-#         embed[word] = vec
+# +
+# Glove vector files
+# vectors.txt file has one more line for the <unk> token
+glove_dir_path = '/home/luis/rm_me/model13-34_08-11/'
+with open(glove_dir_path + 'vocab.txt', 'r') as f: 
+    words = [x.rstrip().split(' ')[0] for x in f.readlines()] 
+with open(glove_dir_path + 'vectors.txt', 'r') as f:
+    vectors = {}
+    embed = {}
+    for k,line in tqdm(enumerate(f)):
+        vals = line.rstrip().split(' ')
+        vectors[vals[0]] = [float(x) for x in vals[1:]]
+        try:
+            embed[words[k]] = np.array([float(x) for x in vals[1:]])
+        except IndexError:
+            print('<unk> was referenced and defined')
+            embed['<unk>'] = np.array([float(x) for x in vals[1:]]) 
+        
+
+vocab_size = len(words)
+unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
+
+
+# + magic_args="echo not with glove" language="script"
+# with open_w2v('/media/hd1/embeddings/model14-51_20-08/vectors.bin') as embed:
+# #with open_w2v('/media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin') as embed:
+#     unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
 # -
-
-term_dict_cnt['green symbol']
-
-with open_w2v('/media/hd1/embeddings/model14-51_20-08/vectors.bin') as embed:
-    unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
 
 common_term = term_cnt.most_common()[200][0].lower().replace(' ', '_')
 print(f" The term is: {common_term} and the first components of the vector are:")
@@ -314,17 +316,25 @@ for Term_pair in tqdm(term_cnt.most_common()):
         except TypeError:
             pass
 
-# Show some typical elements
-print(list(veryAG.keys())[:15])
-print(list(veryDG.keys())[:15])
+# ### t-SNE visualizations of the word embeddings <a class="anchor" id="tsne"></a>
 
 ag_lst = [v[0] for v in veryAG.values()][:500]
 dg_lst = [v[0] for v in veryDG.values()][:500]
 tot_vec = np.stack(ag_lst + dg_lst, axis=0)
 labels_vec = len(ag_lst)*['math.AG'] + len(dg_lst)*['math.DG']
-tsne2 = TSNEVisualizer(labels=['math.AG','math.DG'])
+tsne2 = TSNEVisualizer()   #labels=['math.AG','math.DG'])
 tsne2.fit(tot_vec, labels_vec)
 tsne2.show(figsize=100)
+
+for l in nearest(unit_embed.get('riccati_equation'), unit_embed, n_near=16):
+    print(l[0], "&" ,"{0:0.2f}".format(l[1]), "\\\\")
+
+nearest(unit_embed['abelian'], unit_embed, n_near=5)
+
+v1 = unit_embed['finite']
+v2 = unit_embed['infinite']
+v3 = (v2 - v1) + unit_embed['abelian']
+nearest(v3, unit_embed, n_near=5)
 
 tsne1 = TSNE()
 tot_vec = np.stack(ag_lst + dg_lst, axis=0)
@@ -365,7 +375,7 @@ vec_lst = []
 labels_vec = []
 term_lst = []
 embed_coverage_cnt = 0
-#clSt = common_low_entropy_terms(100000, 50000)
+clSt = common_low_entropy_terms(100000, 50000)
 for t,s,e in clSt:
     if (v := unit_embed.get(t.replace(' ', '_'))) is not None:
         embed_coverage_cnt += 1
@@ -506,6 +516,50 @@ while True:
     plt.clf()
     Opt += 1
 #plt.show()
+
+# +
+# PLOT THE CENTERS OF EACH MATH CATEGORY
+factor = 5
+bias_term_dict = defaultdict(list)
+bias_vect_dict = defaultdict(list)
+not_in_embed_cnt = 0
+for cat in tqdm(bs_dist.keys()):
+    if cat.startswith('math'):
+        for term in term_dict_cnt.keys():
+            if bias_from_avg(term, cat) > factor:
+                bias_term_dict[cat].append(term)
+                if term in embed.keys():
+                    bias_vect_dict[cat].append(embed[term])
+                else:
+                    not_in_embed_cnt += 1 # too much repetitions
+
+bias_centers = np.zeros([len(bias_vect_dict.keys()), 50])
+cat_lst = []
+for k,cat in enumerate(bias_vect_dict.keys()):
+    # find the averages
+    cat_lst.append((cat, len(bias_term_dict[cat])))
+    bias_centers[k] = sum(bias_vect_dict[cat])/float(len(bias_vect_dict[cat]))
+
+# +
+pca = PCA(n_components=2)
+pca.fit(bias_centers.T)
+
+plt.figure(figsize=[12,12])
+plt.scatter(pca.components_[0], pca.components_[1], alpha=0.5, s=[c[1]/20 for c in cat_lst])
+for k in range(len(cat_lst)):
+    plt.text(pca.components_[0][k], pca.components_[1][k], cat_lst[k][0])
+
+# +
+trace = go.Scatter(
+    x=pca.components_[0],
+    y=pca.components_[1],
+    text=[cat_lst[0] for _ in cat_lst],
+    textposition='top right',
+    mode="markers+text")
+    #marker=dict(color="rgb"+str(colors[label])))
+
+
+iplot(trace)
 # -
 
 html = st.produce_projection_explorer(None,
@@ -639,6 +693,10 @@ plot_wordcloud(art_str, title='arXiv:1703.01352')
 # data = np.asarray(ag_lst)
 # diagrams = rips.fit_transform(data)
 # rips.plot(diagrams)
+# -
+
+# #### Radar graphs  <a class="anchor" id="radar"></a>
+# Visualize the arXiv categories on which a _term_ focuses.
 
 # +
 def radar_factory(num_vars, frame='circle'):

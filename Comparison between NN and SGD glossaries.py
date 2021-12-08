@@ -44,6 +44,7 @@ File_lst_SGD = glob.glob(SGD_path + 'math*/*')
 xml_root = etree.parse(File_lst_NN[0]).getroot()
 print(etree.tostring(xml_root[0], pretty_print=True).decode('utf-8'))
 
+# #%%script echo run with function below instead
 dfndum_set = set()
 new_dfndum_lst = [0]
 tot_dfndum_lst = [0]
@@ -94,19 +95,20 @@ def read_all_files(Path):
             #perc_array = np.append(perc_array, percs)
     return norm_term_cnt, term_cnt
     
-sgd_ntc, sgd_tc = read_all_files('/media/hd1/glossary/v3/')
+sgd_ntc, sgd_tc = read_all_files(SGD_path)
+nn_ntc, nn_tc = read_all_files(NN_path)
 
 # +
 sgd_set = set(sgd_ntc.keys())
-nn_set = set(norm_term_cnt.keys())
+nn_set = set(nn_ntc.keys())
 In= sgd_set.intersection(nn_set)
 Un = sgd_set.union(nn_set)
 nn_sgd_diff = nn_set.difference(sgd_set)
 sgd_nn_diff = sgd_set.difference(nn_set)
 
-In_tot_cnt = sum([sgd_ntc[t] + norm_term_cnt[t] for t in In])
-nn_sgd_tot_cnt = sum([sgd_ntc[t] + norm_term_cnt[t] for t in nn_sgd_diff])
-sgd_nn_tot_cnt = sum([sgd_ntc[t] + norm_term_cnt[t] for t in sgd_nn_diff])
+In_tot_cnt = sum([sgd_ntc[t] + nn_ntc[t] for t in In])
+nn_sgd_tot_cnt = sum([sgd_ntc[t] + nn_ntc[t] for t in nn_sgd_diff])
+sgd_nn_tot_cnt = sum([sgd_ntc[t] + nn_ntc[t] for t in sgd_nn_diff])
 print('The Intersection has {:,} -- {:1.2f}% has total cnt: {:,}'.format(len(In),
                                                                        len(In)/len(Un),
                                                                       In_tot_cnt))
@@ -117,7 +119,7 @@ print('NN - SGD has         {:,} -- {:1.2f}% has total cnt: {:,}'.format(len(nn_
 print('SGD - NN has         {:,} -- {:1.2f}% has total cnt: {:,}'.format(len(sgd_nn_diff),
                                                      len(sgd_nn_diff)/len(Un),
                                                                         sgd_nn_tot_cnt))
-In_cnt = Counter({t:sgd_ntc[t] + norm_term_cnt[t] for t in In })
+In_cnt = Counter({t:sgd_ntc[t] + nn_ntc[t] for t in In })
 print("The most common terms in the intersection are:")
 In_cnt.most_common()[:25]
 # -
@@ -146,15 +148,13 @@ print('\n'.join([w for w in In_cnt if len(w.split()) > 6]))
 print('Search for a term')
 next((ind,ph) for ind, ph in enumerate(In_cnt.most_common()) if ph[0] == 'well known method')
 print('Search for a word')
-[T for T in In_cnt.keys() if 'tonelli' in T]
+[T for T in In_cnt.keys() if 'injectivity' in T]
 
-len(tot_dfndum_lst)
-
-print("Total # of term after normalized text: {:,d}".format(len(norm_term_cnt)))
+print("Total # of term after normalized text: {:,d}".format(len(nn_ntc)))
 print(f"# of distinct terms: {new_dfndum_lst[-1]:,d}")
 s = 0
-norm_term_cnt.most_common()[s:s+15]
-phrases_cnt = [ph for ph in norm_term_cnt.most_common() if len(ph[0].split()) > 1]
+nn_ntc.most_common()[s:s+15]
+phrases_cnt = [ph for ph in nn_ntc.most_common() if len(ph[0].split()) > 1]
 phrases_cnt[s:s+15]
 #term_cnt['local stability properties']
 
@@ -216,6 +216,7 @@ plt.grid(True)
 ax2.get_xaxis().set_major_formatter(
     matplotlib.ticker.FuncFormatter(lambda x, p: '{:,d}K'.format(int(x/1000))))
 plt.title('Ratio Total/New Terms')
+plt.savefig('/home/luis/overview_pics/new_repeat_terms.png')
 plt.show()
 
 # -
@@ -235,6 +236,7 @@ plt.xlabel('Count of Terms with this Length')
 plt.title('Length of Definienda')
 ax.get_xaxis().set_major_formatter(
     matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+plt.savefig('/home/luis/overview_pics/len_of_terms.png')
 plt.show()
 #[w for w in dfndum_set if len(w.split()) > 10][:5]
 print("The number of terms with more than 6 words is: {}".format(
@@ -247,6 +249,7 @@ plt.hist([p for p in perc_array if p<=1.0],100)
 ax.get_yaxis().set_major_formatter(
     matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 plt.title('Relative appearance of definitions')
+plt.savefig('/home/luis/overview_pics/cum_defs.png')
 plt.show()
 print('Number of indices greater than article number {}'.format(
 sum([1 for p in perc_array if p>=1.0])))
@@ -258,20 +261,3 @@ for xml_path in tqdm(glob.glob(NN_path + 'math*/*.xml.gz')):
         for d in art.findall('.//definition'):
             if int(d.attrib['index']) > N:
                 print("Name: {} -- index: {} -- num: {}".format(art.attrib['name'], d.attrib['index'], N))
-
-# %%time
-term_cnt = 0
-for f in tqdm(File_lst_NN):
-    with gzip.open(f, 'rb') as fobj:
-        root = etree.parse(fobj, parser=pars)
-        terms = root.findall('.//definition')
-        term_cnt += len(terms)
-term_cnt
-
-# %%time
-term_cnt = 0
-for f in tqdm(File_lst_NN):
-    root = etree.parse(f, parser=pars)
-    terms = root.findall('.//definition')
-    term_cnt += len(terms)
-term_cnt

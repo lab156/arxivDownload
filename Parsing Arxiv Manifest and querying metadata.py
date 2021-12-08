@@ -6,17 +6,42 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.5.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
 #     name: python3
 # ---
 
-import xml.etree.ElementTree as ET
+# +
 import pandas as pd
-with open('../manifest_jan_2019.xml', 'r') as f:
-    mani = ET.parse(f)
+from glob import glob
+import os
+
+# %load_ext autoreload
+# %autoreload 2
+import dload 
+# -
+
+mani = dload.parse_manifest('/home/luis/arXiv_src_manifest.xml')
+
+hd1_path = '/media/hd1/arXiv_src/'
+rm_path = '/home/luis/rm_me_dload/'
+dl = dload.DownloadMan(rm_path, mani, hd1_path + 'downloaded_log.csv', rm_path + 'errors.log')
+
+dl.next_file()
+
+down_set = set([os.path.basename(g) for g in  glob(hd1_path + 'src/*.tar')])
+all_set = set([os.path.basename(f) for f in mani.filename])
+down_list = ['src/'+os.path.basename(g) for g in  glob(hd1_path + 'src/*.tar')]
+#sorted(list(all_set.difference(down_set)))[:10]
+down_df = pd.DataFrame({'filename': down_list})
+down_df
+
+idx = dl.downloaded_df.filename.isin(down_df.filename)
+dl.downloaded_df[~idx]
+
+dl.downloaded_df.iloc[1220]
 
 # +
 root = mani.getroot()
@@ -111,10 +136,8 @@ new_all = parse_manifest('../arXiv_src_manifest_Oct_2019.xml')
 
 new_all.to_csv('../arXiv_src_manifest_Oct_2019.csv')
 
-# + jupyter={"outputs_hidden": true}
 for el in res.getchildren():
     print(el.tag)
-# -
 
 import sys
 sys.path.insert(0,'arxiv.py/')
@@ -126,19 +149,15 @@ len(D)
 #for d in D[0].keys():
 #    print(d,D[0][d])
 
-# + jupyter={"outputs_hidden": true}
 for k in D[0].keys():
     print(k , ' :: ' , D[0][k])
-# -
 
 len(repr(D[0]['tags']))
 
-# + jupyter={"outputs_hidden": true}
 # arxiv API usage
 D = arxiv.query(id_list=['1601.00105'])
 for k in D[0].keys():
     print(k,D[0][k])
-# -
 
 arxiv.query(id_list=['1805.02773'])[0].links
 

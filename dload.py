@@ -5,13 +5,14 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 import sys
 import logging
-
+from datetime import datetime as dt
 
 def parse_element(elem):
     return_dict = {}
     for e in elem:
         return_dict[e.tag] = e.text # loop element and extract info
     return return_dict
+
 def parse_root(root):
         return [parse_element(child) for child in iter(root) \
                 if child.tag != 'timestamp']
@@ -46,12 +47,14 @@ class DownloadMan(object):
         downloaded_log is a csv file list of previously downloaded files 
         error_log: text files with the error message
         '''
-        self.allfiles_path = os.path.join(mountpoint, allfiles)
-        self.allfiles_df = pd.read_csv(os.path.join(mountpoint, allfiles), 
-                index_col=0)
-        self.downloaded_path = os.path.join(mountpoint, downloaded_log)
+        if isinstance(allfiles, pd.DataFrame):
+            self.allfiles_df = allfiles
+        else:
+            self.allfiles_path =  allfiles
+            self.allfiles_df = pd.read_csv(allfiles, index_col=0)
+        self.downloaded_path =  downloaded_log
         self.downloaded_df = pd.read_csv(self.downloaded_path, index_col=0)
-        self.error_log_path = os.path.join(mountpoint, error_log)
+        self.error_log_path =  error_log
         self.mountpoint = mountpoint
         self.s3_url = s3_url
 
@@ -128,18 +131,26 @@ if __name__ == '__main__':
     Usage python3 dload.py
     '''
     ## Default values
-    mountpoint = '/mnt/arXiv_src/'
-    allfiles = 'allfiles3.csv'
+    mountpoint = '/media/hd1/arXiv_src/'
+    #allfiles = 'allfiles3.csv'
     doun = 'downloaded_log.csv'
     error_log = 'error_dload.log'
     logging.basicConfig(filename='../error_log_dload.log', 
             filemode='w',
             level=logging.DEBUG,
             format='%(asctime)s - %(message)s')
-    D = DownloadMan(mountpoint, allfiles, doun, error_log)
+
+    # make allfiles dataframe
+    allfiles = parse_manifest('/home/luis/arXiv_src_manifest.xml')
+
+    D = DownloadMan(mountpoint, allfiles, 
+            mountpoint+doun,
+            mountpoint+error_log)
     while True:
         try:
+            Now = dt.now()
             D.get_next()
+            print('Took {0:.2f} mins'.format((dt.now() - Now).seconds/60))
         except IndexError:
             print('No more files to download')
             break

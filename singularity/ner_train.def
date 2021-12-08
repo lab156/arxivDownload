@@ -1,0 +1,54 @@
+bootstrap: localimage
+From: /home/luis/singul/tensorflow:20.06-tf2-py3_v2.sif
+
+# Build with: sudo singularity build lstm_train.sif lstm_train.def
+
+%files
+    #/media/hd1/promath/math03 /opt/promath/math03
+    #/media/hd1/training_defs /opt/training_defs
+    /media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin /opt/embeddings/model4ner_19-33_02-01/vectors.bin 
+ /media/hd1/wikipedia/wiki_definitions_improved.xml.gz /opt/wikipedia/wiki_definitions_improved.xml.gz
+ /media/hd1/planetmath/datasets/planetmath_definitions.xml.gz /opt/planetmath/datasets/planetmath_definitions.xml.gz 
+ /media/hd1/stacks-project/datasets/stacks-definitions.xml.gz /opt/stacks-project/datasets/stacks-definitions.xml.gz
+
+%environment
+    export TEMPFASTSTORAGE='/tmp/trainer'
+    export PERMSTORAGE='/opt'
+    mkdir $TEMPFASTSTORAGE
+    #mkdir /opt/data_dir  # path to bind $LOCAL
+
+%post
+    #apt-get update && apt-get install -y sqlite3
+    pip3 install lxml
+    pip3 install chardet
+    pip3 install sklearn
+    pip3 install langdetect
+    pip3 install Unidecode
+    pip3 install pandas
+    pip3 install SQLAlchemy
+    pip3 install pickle5
+    pip3 install nltk
+    python3 -m nltk.downloader -d /usr/nltk_data punkt
+    python3 -m nltk.downloader -d /usr/nltk_data averaged_perceptron_tagger
+    cd /opt
+    git clone https://github.com/lab156/arxivDownload.git
+    cd arxivDownload
+    git submodule init
+    git submodule update
+
+    echo "export DATA_DIR=$LOCAL" >> $SINGULARITY_ENVIRONMENT
+
+%runscript
+    python3 /opt/arxivDownload/embed/train_ner_cells_exp.py $*
+
+%help
+    Experiment what is the best combination of 
+    This container runs:
+      python3 /opt/arxivDownload/embed/train_ner_cells_exp.py $*
+    
+    Flags:
+   --experiments: number of rows and columns to run the experiment on (number squared)
+
+   --epochs: the max number of epochs to run. Monitor val_accuracy with
+     patience 2
+   -m: Train with a Minified version of the dataset

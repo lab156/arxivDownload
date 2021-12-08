@@ -31,6 +31,7 @@ import numpy as np
 #from tensorflow.keras.models import Sequential
 #from tensorflow_addons.callbacks import TQDMProgressBar
 #import tensorflow.keras.metrics as kmetrics
+from tensorflow.keras.utils import plot_model
 import tensorflow as tf
 from joblib import Parallel, delayed
 #
@@ -60,10 +61,10 @@ tkn2idx, training, validation, test, cfg = read_train_data(xml_lst, cfg)
 
 embed_matrix, cfg = gen_embed_matrix(tkn2idx, cfg)
 
-# + jupyter={"outputs_hidden": true}
+# +
 # Train a model
 cfg['lstm_cells'] = 256 # Required LSTM layer parameter
-cfg['epochs'] = 10
+cfg['epochs'] = 3
 cfg['model_name'] = lstm_model_one_layer.__name__
 
 ep_time = TimeHistory()
@@ -83,6 +84,9 @@ history = model.fit(train_seq, np.array(training[1]),
                 verbose=1,
                 callbacks=[ep_time, lr_sched, save_checkpoint])
 history.history['epoch_times'] = [t.seconds for t in ep_time.times]
+# -
+
+plot_model(model, show_layer_names=False, to_file='/home/luis/class_model.png')
 
 # +
 # With a defined model

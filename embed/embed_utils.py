@@ -7,6 +7,7 @@ from contextlib import contextmanager
 import struct as st
 import functools
 import re
+from tqdm import tqdm
 
 @contextmanager
 def open_w2v(filename):
@@ -42,6 +43,29 @@ def open_w2v(filename):
         yield embed
     finally:
         mfobj.close()
+
+def open_glove(filepath):
+    '''
+    Input: the path to the *directory* of a GloVe trained data
+
+    Output: embed dictionary with the format: {word: vector}
+    '''
+    glove_dir_path = filepath
+    with open(glove_dir_path + 'vocab.txt', 'r') as f: 
+        words = [x.rstrip().split(' ')[0] for x in f.readlines()] 
+    with open(glove_dir_path + 'vectors.txt', 'r') as f:
+        #vectors = {}
+        embed = {}
+        for k,line in tqdm(enumerate(f)):
+            vals = line.rstrip().split(' ')
+            #vectors[vals[0]] = [float(x) for x in vals[1:]]
+            try:
+                embed[words[k]] = np.array([float(x) for x in vals[1:]])
+            except IndexError:
+                 print('<unk> was referenced and defined')
+                 embed['<unk>'] = np.array([float(x) for x in vals[1:]]) 
+    return embed
+
 
 
 def generate(vect_dict):
@@ -95,7 +119,5 @@ if __name__ == "__main__":
     with open(args.out_file, 'a') as out_f:
         for o in sorted_dict:
             out_f.write("{:<15} {}\n".format(o, sorted_dict[o]))
-
-
 
 

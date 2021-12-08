@@ -22,7 +22,7 @@ cd $SCRATCH
 #DATA="/pylon5/ms5pi8p/lab232/miniclean"
 #MODEL="/pylon5/ms5pi8p/lab232/model"`date '+%H-%M_%d-%m'`
 #DATA="/media/hd1/clean_text"
-DATA="/home/luis/Documents/arxivDownload/embed/joined_math"
+DATA="/media/hd1/processed_text/joined_math20-02_24-01"
 MODEL="/home/luis/rm_me/model"`date '+%H-%M_%d-%m'`
 
 mkdir -p $MODEL
@@ -42,8 +42,8 @@ SAVE_FILE=$MODEL/vectors
 VERBOSE=2
 MEMORY=4.0
 VOCAB_MIN_COUNT=5
-VECTOR_SIZE=50
-MAX_ITER=15
+VECTOR_SIZE=64
+MAX_ITER=20
 WINDOW_SIZE=15
 BINARY=2
 NUM_THREADS=8

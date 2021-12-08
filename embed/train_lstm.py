@@ -56,6 +56,7 @@ def gen_cfg(**kwargs):
           'min_words': 15, # min number of words for paragraphs to be considered
           'model_type': 'lstm',  # options are lstm or conv
           'profiling': False,     # T/F whether to add the callback for profiling
+          'callbacks': ['epoch_times',],
           }
 
     cfg['base_dir'] = os.environ.get('PERMSTORAGE', '/media/hd1') # This is permanent storage
@@ -470,7 +471,8 @@ def main():
     ## add epoch training times to the history dict
     history.history['epoch_times'] = [t.seconds for t in ep_times.times]
     ## change from np.float32 to float for JSON conversion
-    history.history['lr'] = [float(l) for l in history.history['lr']]
+    if 'lr' in history.history.keys():
+        history.history['lr'] = [float(l) for l in history.history['lr']]
 
     cfg = cutoff_predict_metrics(model, validation_seq, validation, test_seq, test, cfg)
 

@@ -26,7 +26,8 @@ import parsing_xml as px
 
 from gensim.models.callbacks import 
 
-planetmath = etree.parse('/media/hd1/planetmath/datasets/planetmath_definitions.xml.gz').getroot()
+#planetmath = etree.parse('/media/hd1/planetmath/datasets/planetmath_definitions.xml.gz').getroot()
+planetmath = etree.parse('/media/hd1/planetmath/datasets/number_theory_defs.xml').getroot()
 
 mathag = etree.parse('data/mathAG_2015.xml').getroot()
 
@@ -69,7 +70,6 @@ for k,d_raw in enumerate(def_dict.keys()):
 
 list(dgraph.nodes())[:10]
 
-# + jupyter={"outputs_hidden": true}
 nx.shortest_path_length(dgraph,'integer', 'digamma')
 
 
@@ -98,7 +98,6 @@ for k in range(1000):
     delta_list.append(delta)
 print('Approx delta-hyperbolicity: {}'.format(sum(delta_list)/float(len(delta_list))))
 
-# + jupyter={"outputs_hidden": true}
 opts = {
     'node_size': 10,
     'width': 0.1,
@@ -108,8 +107,7 @@ opts = {
 plt.figure(1, figsize=(15,10))
 pos = graphviz_layout(dgraph, prog='dot')
 nx.draw_networkx(dgraph, pos, **opts)
-#plt.savefig('data/starts_with_p_spectral.png')
-# -
+plt.savefig('data/number_theory_dgraph.png')
 
 nx.find_cycle(dgraph)
 
