@@ -2,6 +2,7 @@ import unittest
 import shutil
 import parsing_xml as px
 import nltk
+from lxml import etree
 
 #To run from the command line:
 # in the arxivDownload directory (one dir above)
@@ -205,5 +206,15 @@ class TestDefinitionsXML(unittest.TestCase):
         self.assertEqual(len(sample_dict['real']), 2)
         self.assertEqual(len(sample_dict['nondef']), 1)
         self.assertTrue('This is an example document.' in sample_dict['nondef'][0])
+
+    def test_run_recutext_onall_para(self):
+        res_str = '''<parag index="3"> there exist positive integers _inline_math_ such that, for all _inline_math_ and all _inline_math_, _inline_math_ is the multiplicity of _inline_math_ as a root of _inline_math_. </parag>'''
+        out_xml = self.xml2.run_recutext_onall_para()
+        check = etree.tostring(out_xml[3]).decode('utf8')
+        self.assertEqual(check, res_str)
+
+    def test_index_run_recutext_onall_para(self):
+        out_xml = self.xml1.run_recutext_onall_para()
+        self.assertEqual(out_xml[34].attrib['index'] , repr(34))
 
 

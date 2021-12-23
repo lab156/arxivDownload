@@ -68,4 +68,3 @@ if __name__ == "__main__":
     os.makedirs(args.out_path, exist_ok=True)
     untar_clf_append(args.mine, args.out_path, fake_clf, Vectorizer())
 
-

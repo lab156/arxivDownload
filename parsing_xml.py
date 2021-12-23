@@ -133,7 +133,7 @@ class DefinitionsXML(object):
             self.filetype = self.file_path.split('.')[-1]
         elif hasattr(file_path, 'read'):
             # FileObj: assume that it is xml
-            if fname:
+            if fname is not None:
                 self.file_path = fname
             else:
                 # In extracted file object the name of the tar file is the best
@@ -295,6 +295,34 @@ class DefinitionsXML(object):
             return self.exml.findall('.//latexml:para', self.ns)
         elif self.filetype == 'html':
             return self.exml.xpath(".//div[contains(@class, 'ltx_para')]")
+
+    def run_recutext_onall_para(self, cleaner_fun=None, joiner_fun=None):
+        '''
+        run recutext on all para tags in self.
+        Outputs xml with format:
+        <article name=...>
+            <parag ind=INT>
+            text text
+            </parag>
+        </article>
+        If cleaner_fun is given, this function is run on the text.
+        '''
+        article_elem = etree.Element('article')
+        article_elem.attrib['name'] = os.path.basename(self.file_path)
+
+        for ind, par in enumerate(self.para_list()):
+            text = self.recutext(par)
+            if cleaner_fun is not None:
+                text = cleaner_fun(text)
+            if joiner_fun is not None:
+                text = joiner_fun(text)
+
+            parag = etree.Element("parag")
+            parag.attrib['index'] = repr(ind) 
+            parag.text = text
+            article_elem.append(parag)
+        return article_elem
+
 
 
 # Inherit from DefinitionsXML

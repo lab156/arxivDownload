@@ -6,8 +6,16 @@ from lxml import etree
 import glob
 from tqdm import tqdm
 import multiprocessing as mp
-import os
+import os, sys, inspect
+import gzip
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, os.path.join(parentdir, 'embed'))
+sys.path.insert(0, parentdir)
+import peep_tar as peep
+import parsing_xml as px
 #from concurrent.futures import ProcessPoolExecutor
+import pdb
 
 
 def normalize_text(text, *vargs, **kwargs):
@@ -193,8 +201,8 @@ def normalize_phrase(text):
 
 def token_phrases3(text, phrase_lst, join_str='_'):
     '''
-    >>> token_phrases3('hi rr how is your rr ii uu today rr ii oo uu \\n ', ['ii oo uu', 'ii uu'])
-    'hi rr how is your rr ii_uu today rr ii_oo_uu \\n '
+    #>>> token_phrases3('hi rr how is your rr ii uu today rr ii oo uu \\n ', ['ii oo uu', 'ii uu'])
+    #'hi rr how is your rr ii_uu today rr ii_oo_uu \\n '
 
     >>> token_phrases3('hi rr how is your rr ii uu today rr ii oo uu ', ['ii oo uu', 'ii uu'])
     'hi rr how is your rr ii_uu today rr ii_oo_uu '
@@ -210,6 +218,9 @@ def token_phrases3(text, phrase_lst, join_str='_'):
 
     >>> token_phrases3('rr ii _inline_ _rr_ii_', ['rr ii', 'how is'])
     'rr_ii _inline_ _rr_ii_ '
+
+    >>> token_phrases3('rr ii _inline_ _rr_ii_', ['of the', 'how is'])
+    'of_the general and the background of the problem .'
     '''
     phrase_default = defaultdict(set)
     for ph in phrase_lst:
@@ -226,9 +237,11 @@ def token_phrases3(text, phrase_lst, join_str='_'):
         phrase_dict[k] = sorted(v, key=len)
     del phrase_default # clean up the defaultdict
 
-    text_iter = (x.group(0) for x in re.finditer(r"[a-z\n_]+", text))
+    #text_iter = (x.group(0) for x in re.finditer(r"[a-z\n_]+", text))
+    text_iter = (x for x in text.split())
     mod_text = ''
     words = []
+    pdb.set_trace()
     while True:
         try:
             if words == []:
@@ -331,8 +344,75 @@ abbrev_set = {'eq.', 'eqs.', 'i.e.', 'e.g.', 'f.g.', 'w.r.t.', 'cf.', 'dr.', 're
         'etc.', 'no.', 'a.e.', 'ph.d.', 'i.i.d.', 'fig.', 'vol.', 'thm.'}
 abbrev_lst = list(abbrev_set)
 
-if __name__ == "__main__":
+class ReadGlossary():
+    def __init__(self, *args, **kwargs):
+        '''
+        Convenience class object to read the Glossary files
+        examples:
+        ReadGlossary(glob_created_list1, lst2)
+        '''
+        self.paths = []
+        for ind, ar in enumerate(args):
+            if isinstance(ar, list):
+                for path in ar:
+                    assert os.path.exists(path), f"file {path} does not exists"
+                self.paths.append(ar)
+            elif isinstance(ar, str):
+                if os.path.exists(ar):
+                    # individual file
+                    self.paths.append([ar])
+                else:
+                    # glob list
+                    self.paths.append(glob.glob(ar))
+
+        print("found {} files".format([len(p) for p in self.paths]))
+
+    def common_phrases_lst(self, max_phrases=0):
+        '''
+        return a list of the most common MULTIWORD phrases
+
+        Keywords:
+        max_phrases: the number of phrases to return sorted by frequency
+
+        '''
+        phrases_cnt = Counter()
+        for xml_path in tqdm(self.paths[0]):
+            root = etree.parse(xml_path)
+            phrases_list_temp = [normalize_text(r.text)\
+                    for r in root.findall('//dfndum') ]
+            phrases_cnt.update([r for r in phrases_list_temp if len(r.split()) > 1])
+        
+        mp = max_phrases if max_phrases > 0 else None
+        return [pair[0] for pair in phrases_cnt.most_common(mp)] 
+
+    def first_word_dict(self, **kwargs):
+        '''
+        return a dict with first word as keys and the rest as a list
+        { first_word: [(w2,w3), (v2,)], another_word: [...] }
+        '''
+        phrase_default = defaultdict(set)
+        for ph in self.common_phrases_lst(**kwargs):
+            ph_lst = ph.strip().split()
+            if len(ph_lst) > 1:
+                phrase_default[ph_lst[0]].add(tuple(ph_lst[1:]))
+            else:
+                raise ValueError('A phrase with only too few words was given. Phrase: {}'.format(ph))
+
+        phrase_dict = {}
+        for k, v in phrase_default.items():
+            # phrase_dict values are lists of phrases sorted by their length (shorter first)
+            phrase_dict[k] = sorted(v, key=len)
+        del phrase_default # clean up the defaultdict
+
+        return phrase_dict
+
+def main_text2text():
     '''
+    Input: 
+       clean text (no longer xml files)
+    Output:
+       clean text (not xml)
+
     Examples:
     time python3 clean_and_token_text.py /media/hd1/clean_text/math* joined_math --phrases_file /media/hd1/glossary/v3/math*/*.xml.gz  --num_phrases 2500
 
@@ -394,3 +474,43 @@ if __name__ == "__main__":
     with mp.Pool(processes=1, maxtasksperchild=1) as pool:
         pool.starmap(tokenize_fun, arg_lst)
 
+
+def main_xml2xml():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('in_files', type=str, nargs='+',
+            help='one or more xml.gz files of Latexmled file (from promath)')
+    parser.add_argument('out_dir', type=str,
+            help='replicate the in_files dir struct in this directory with the clean files')
+    parser.add_argument('--phrases_file', default=None, type=str, nargs='+',
+            help='XML file with the phrases to be joined (from the glossary dir)')
+    parser.add_argument('--norm_args', nargs='?', default=['rm_punct'],
+            help='arguments for the tokenization function')
+    parser.add_argument('--num_phrases', type=int, default=0,
+            help='Max number of phrases to use')
+    #parser.add_argument('--skip_n', default=1, type=int)
+    args = parser.parse_args()
+
+    phrase_lst = ReadGlossary(args.phrases_file).common_phrases_lst(args.num_phrases)
+    join_fun = lambda s: token_phrases3(s, phrase_lst=phrase_lst)
+    for gz_file in args.in_files:
+        root = etree.Element('root')
+        for t in peep.tar_iter(gz_file, '.xml'):
+            try:
+                txml = px.DefinitionsXML(t[1], fname = t[0])\
+                    .run_recutext_onall_para(cleaner_fun=normalize_text, joiner_fun=join_fun)
+                root.append(txml)
+            except ValueError as ee:
+                print(ee, f"-- On the {t[0]}")
+
+        # filename in t[0] has the format: 1401_003/1401.1545/1401.1545.xml 
+        out_file_name = t[0].split('/')[0]
+        out_name = os.path.join(args.out_dir, out_file_name + '.xml.gz')
+
+        with gzip.open(out_name, 'wb') as gfobj:
+            gfobj.write(etree.tostring(root))            
+
+if __name__ == "__main__":
+    #main_xml2xml()
+    text = 'aa bb cc dd aa bb'
+    token_phrases3(text, phrase_lst=['aa bb', 'dd kk qq'])
