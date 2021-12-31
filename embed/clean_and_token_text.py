@@ -30,16 +30,16 @@ def normalize_text(text, *vargs, **kwargs):
     abb_lst TESTS
 
     >>> normalize_text('hi, there.', abbrev_lst=['i.e.', 'Dr.'])
-    'hi , there . '
+    'hi , there .'
 
     >>> normalize_text('en 1492, Colón, i.e. Cristóbal llegó a Ámerica', abbrev_lst=['i.e.', 'Dr.'])
-    'en , colon , i.e. cristobal llego a america '
+    'en , colon , i.e. cristobal llego a america'
 
     >>> normalize_text('Please, call me Dr., i.e. Dr. Asimov', abbrev_lst=['i.e.', 'Dr.'])
-    'please , call me dr. , i.e. dr. asimov '
+    'please , call me dr. , i.e. dr. asimov'
 
     >>> normalize_text('Please, call me Dr., (i.e. Dr.) Asimov', abbrev_lst=['i.e.', 'Dr.'])
-    'please , call me dr. , ( i.e. dr. ) asimov '
+    'please , call me dr. , ( i.e. dr. ) asimov'
 
     >>> normalize_text('This |is\t \twork=ing')
     'this is work ing'
@@ -48,13 +48,13 @@ def normalize_text(text, *vargs, **kwargs):
     'remove the and not the <'
 
     >>> normalize_text('en 1492, Colon llegó a ?')
-    'en , colon llego a ? '
+    'en , colon llego a ?'
 
     >>> normalize_text('I rem/ember káhler painlevé in § 74', 'rm_special_chars')
-    'i rem / ember khler painlev in '
+    'i rem / ember khler painlev in'
 
     >>> normalize_text('Kähler manifolds are, fun, and interesting.')
-    'kahler manifolds are , fun , and interesting . '
+    'kahler manifolds are , fun , and interesting .'
 
     >>> normalize_text('Málaga Kähler  Étale française problème')
     'malaga kahler etale francaise probleme'
@@ -62,13 +62,13 @@ def normalize_text(text, *vargs, **kwargs):
     TESTS WITH rm_punct
 
     >>> normalize_text('en 1492, Colón llegó a ?', 'rm_punct')
-    'en colon llego a '
+    'en colon llego a'
 
     >>> normalize_text('remove the <br> <br /> <br     /> and the <', 'rm_punct')
-    'remove the and the '
+    'remove the and the'
 
     >>> normalize_text('en el siglo XV, Colón llego a ?', 'rm_punct')
-    'en el siglo xv colon llego a '
+    'en el siglo xv colon llego a'
 
     >>> normalize_text('restricts to a ”weak” symplectic', 'rm_punct')
     'restricts to a weak symplectic'
@@ -77,11 +77,13 @@ def normalize_text(text, *vargs, **kwargs):
     'a hamiltonian action ie a lie algebra'
 
     >>> normalize_text('¡al sonoro rugir del cañón!\\n', 'rm_punct')
-    'al sonoro rugir del canon \\n '
+    'al sonoro rugir del canon'
 
     >>> normalize_text(' Well-defined and Z-module [?] have  dashes [?]', 'rm_punct')
-    ' well defined and z module have dashes '
+    'well defined and z module have dashes'
 
+    >>> normalize_text('remove ~~ \\ `` R^n test', 'rm_punct')
+    'remove rn test'
     '''
 
     # Intended purpose: NER
@@ -110,8 +112,11 @@ def normalize_text(text, *vargs, **kwargs):
             ('*',' ') , 
             ('|',' ') ,
             ('/',' / ') ,
+            ('\\', ''),
+            ('~', ' '),
             ('«',' ') ,
             ('»', ' '),
+            ('^', ''),
             ('\n', ' \n ')]
 
     # Intended purpose: general embedding of phrases
@@ -119,6 +124,7 @@ def normalize_text(text, *vargs, **kwargs):
             ("'", ''),
             ("′", ''),
             ("''", ''),
+           ("``", ""),
             ("'", ''),
             ("“", ''),
             ('"', ''),
@@ -128,12 +134,15 @@ def normalize_text(text, *vargs, **kwargs):
             (')', ''),  
             ('!', ''),
             ('?', ''),
+            ('^', ''),
             (';', ''),
             (':', ''),
             ('=', ''),
             ('*', ''),
             ('|', ''),
             ('/', ''),
+            ('\\', ''),
+            ('~', ''),
             ('«', ''),
             ('»', ''),
             ('<', ''),
@@ -184,7 +193,7 @@ def normalize_text(text, *vargs, **kwargs):
 
     text = re.sub(r'[ \t]+', ' ', text) # Normalize all spaces (\s) to one blank space
 
-    return text.lower()
+    return text.lower().strip()
 
 def normalize_phrase(text):
     '''
@@ -198,11 +207,71 @@ def normalize_phrase(text):
     text = re.sub(r' +', '_', text.strip())
     return text
     
+def join_phrases(text, phrase_dict, join_str='_'):
+    '''
+    Join the phrases in `phrase_dict` 
+    `phrase_dict` needs to be in the format that ReadGlossary.first_word_dict()
+    outputs
+
+    >>> join_phrases('hi rr how is your rr ii uu today rr ii oo uu \\n ', {'ii': [('uu',) , ('oo', 'uu')]} )
+    'hi rr how is your rr ii_uu today rr ii_oo_uu '
+
+    >>> join_phrases('hi rr how is your rr ii uu today rr ii oo uu ', {'ii': [('uu',) , ('oo', 'uu')]} )
+    'hi rr how is your rr ii_uu today rr ii_oo_uu '
+
+    >>> join_phrases('hi rr how is your rr ii ii today rr ii vv oo', {"rr": [('ii',),]} )
+    'hi rr how is your rr_ii ii today rr_ii vv oo '
+
+    >>> join_phrases('hi rr how is your rr ii uu today rr ii vv rr', {'rr': [('ii', 'uu')]})
+    'hi rr how is your rr_ii_uu today rr ii vv rr '
+
+    >>> join_phrases('hi rr how is your rr ii ii today rr ii vv oo', {'rr': [('ii',)], 'how': [('is',),]})
+    'hi rr how_is your rr_ii ii today rr_ii vv oo '
+
+    >>> join_phrases('rr ii _inline_ _rr_ii_', {'rr': [('ii',),], 'how': [('is',),]} )
+    'rr_ii _inline_ _rr_ii_ '
+
+    >>> join_phrases('aa bb cc dd aa bb', {'aa': [('bb',)], 'dd': [('kk', 'qq')]})
+    'aa_bb cc dd aa_bb '
+
+    >>> join_phrases( 'with a rough', {'a': [('bb bb bt df aa bb bb b v h w df sa k p'),]})
+    'with a rough '
+    '''
+    text_iter = (x for x in text.split())
+    mod_text = ''
+    words = []
+    #pdb.set_trace()
+    while True:
+        try:
+            if words == []:
+                words.append(next(text_iter))
+            w_lst = phrase_dict[words[0]]
+            #if len(words) <= len(phrase_lst[0]):
+            #    words += [next(text_iter) for _ in phrase_lst[0]]
+            advance_just_one_word = True
+            for ph in w_lst:
+                ph_len = len(ph)
+                if len(words) <= ph_len:
+                    words += [next(text_iter, '') for _ in range(ph_len - len(words) + 1)] 
+                if tuple(words[1: (ph_len+1) ]) == ph:
+                    mod_text +=  join_str.join([words.pop(0) for _ in range(ph_len+1)]) + ' '
+                    advance_just_one_word = False
+                    break
+            if advance_just_one_word:
+                mod_text += words.pop(0) + ' '
+        except KeyError:
+            popped_word = words.pop(0)
+            if popped_word != '':
+                mod_text += popped_word + ' '
+            continue
+        except StopIteration:
+            break
+    return mod_text + (( ' '.join(words)) if words != [] else '')
 
 def token_phrases3(text, phrase_lst, join_str='_'):
     '''
-    #>>> token_phrases3('hi rr how is your rr ii uu today rr ii oo uu \\n ', ['ii oo uu', 'ii uu'])
-    #'hi rr how is your rr ii_uu today rr ii_oo_uu \\n '
+    >>> token_phrases3('hi rr how is your rr ii uu today rr ii oo uu \\n ', ['ii oo uu', 'ii uu'])
+    'hi rr how is your rr ii_uu today rr ii_oo_uu '
 
     >>> token_phrases3('hi rr how is your rr ii uu today rr ii oo uu ', ['ii oo uu', 'ii uu'])
     'hi rr how is your rr ii_uu today rr ii_oo_uu '
@@ -211,7 +280,7 @@ def token_phrases3(text, phrase_lst, join_str='_'):
     'hi rr how is your rr_ii ii today rr_ii vv oo '
 
     >>> token_phrases3('hi rr how is your rr ii uu today rr ii vv rr', ['rr ii uu'])
-    'hi rr how is your rr_ii_uu today rr ii vv rr'
+    'hi rr how is your rr_ii_uu today rr ii vv rr '
 
     >>> token_phrases3('hi rr how is your rr ii ii today rr ii vv oo', ['rr ii', 'how is'])
     'hi rr how_is your rr_ii ii today rr_ii vv oo '
@@ -219,8 +288,11 @@ def token_phrases3(text, phrase_lst, join_str='_'):
     >>> token_phrases3('rr ii _inline_ _rr_ii_', ['rr ii', 'how is'])
     'rr_ii _inline_ _rr_ii_ '
 
-    >>> token_phrases3('rr ii _inline_ _rr_ii_', ['of the', 'how is'])
-    'of_the general and the background of the problem .'
+    >>> token_phrases3('aa bb cc dd aa bb', phrase_lst=['aa bb', 'dd kk qq'])
+    'aa_bb cc dd aa_bb '
+
+    >>> token_phrases3( 'with a rough', phrase_lst=['a bb bb bt df aa bb bb b v h w df sa k p',])
+    'with a rough '
     '''
     phrase_default = defaultdict(set)
     for ph in phrase_lst:
@@ -241,19 +313,19 @@ def token_phrases3(text, phrase_lst, join_str='_'):
     text_iter = (x for x in text.split())
     mod_text = ''
     words = []
-    pdb.set_trace()
+    #pdb.set_trace()
     while True:
         try:
             if words == []:
                 words.append(next(text_iter))
-            phrase_lst = phrase_dict[words[0]]
-            words += [next(text_iter) for _ in phrase_lst[0]]
+            w_lst = phrase_dict[words[0]]
+            #if len(words) <= len(phrase_lst[0]):
+            #    words += [next(text_iter) for _ in phrase_lst[0]]
             advance_just_one_word = True
-            for ph in phrase_lst:
+            for ph in w_lst:
                 ph_len = len(ph)
                 if len(words) <= ph_len:
-                    words += [next(text_iter) for _ in range(ph_len - len(words) + 1)] 
-                #import pdb; pdb.set_trace()
+                    words += [next(text_iter, '') for _ in range(ph_len - len(words) + 1)] 
                 if tuple(words[1: (ph_len+1) ]) == ph:
                     mod_text +=  join_str.join([words.pop(0) for _ in range(ph_len+1)]) + ' '
                     advance_just_one_word = False
@@ -261,7 +333,9 @@ def token_phrases3(text, phrase_lst, join_str='_'):
             if advance_just_one_word:
                 mod_text += words.pop(0) + ' '
         except KeyError:
-            mod_text += words.pop(0) + ' '
+            popped_word = words.pop(0)
+            if popped_word != '':
+                mod_text += popped_word + ' '
             continue
         except StopIteration:
             break
@@ -325,6 +399,29 @@ def just_normalize_and_write(in_file, out_file, abbrev_lst):
         line = in_fobj.readline()
     in_fobj.close()
     out_fobj.close()
+
+def join_xml_para_and_write(gz_file, out_dir, join_fun):
+    # gz_file format: /media/hd1/promath/math02/0210_001.tar.gz
+    sp_path = gz_file.split('/')
+    dir_name = sp_path[-2]
+    file_name = (sp_path[-1].split('.'))[0]
+    full_dir_path = os.path.join(out_dir, dir_name)
+    full_file_path = os.path.join(full_dir_path, file_name + '.xml.gz')
+    os.makedirs(full_dir_path, exist_ok=True)
+
+    normalizer_fun = lambda s: normalize_text(s, 'rm_punct')
+
+    root = etree.Element('root')
+    for t in peep.tar_iter(gz_file, '.xml'):
+        try:
+            txml = px.DefinitionsXML(t[1], fname = t[0])\
+                .run_recutext_onall_para(cleaner_fun=normalizer_fun, joiner_fun=join_fun)
+            root.append(txml)
+        except ValueError as ee:
+            print(ee, f"-- On the {t[0]}")
+
+    with gzip.open(full_file_path, 'wb') as gfobj:
+        gfobj.write(etree.tostring(root))            
     
 
 phrase_blacklist = ['_inline_math_ and',
@@ -338,7 +435,25 @@ phrase_blacklist = ['_inline_math_ and',
         'condition for',
         '_inline_math_ on',
         '_inline_math_ a',
-        'family of',]
+        '_inline_math_ as',
+        '_inline_math_ in',
+        '_inline_math_ up',
+        '_inline_math_ by',
+        '_inline_math_ which',
+        '_inline_math_ that',
+        '_inline_math_ the',
+        '_inline_math_ or',
+        'family of',
+        'of the',
+        'all _inline_math_',
+        'a _inline_math_',
+        'well known',
+        'group of',
+        'r and',
+        'a point',
+        'a linear',
+        ' ',
+        '',]
 
 abbrev_set = {'eq.', 'eqs.', 'i.e.', 'e.g.', 'f.g.', 'w.r.t.', 'cf.', 'dr.', 'resp.',
         'etc.', 'no.', 'a.e.', 'ph.d.', 'i.i.d.', 'fig.', 'vol.', 'thm.'}
@@ -364,6 +479,11 @@ class ReadGlossary():
                 else:
                     # glob list
                     self.paths.append(glob.glob(ar))
+        self.blacklist = phrase_blacklist
+
+        self.all_paths = []
+        for path_lst in self.paths:
+            self.all_paths += path_lst
 
         print("found {} files".format([len(p) for p in self.paths]))
 
@@ -376,12 +496,14 @@ class ReadGlossary():
 
         '''
         phrases_cnt = Counter()
-        for xml_path in tqdm(self.paths[0]):
+        for xml_path in tqdm(self.all_paths):
             root = etree.parse(xml_path)
-            phrases_list_temp = [normalize_text(r.text)\
+            phrases_list_temp = [normalize_text(r.text, 'rm_punct')\
                     for r in root.findall('//dfndum') ]
             phrases_cnt.update([r for r in phrases_list_temp if len(r.split()) > 1])
         
+        for black_ph in self.blacklist:
+            phrases_cnt.pop(black_ph)
         mp = max_phrases if max_phrases > 0 else None
         return [pair[0] for pair in phrases_cnt.most_common(mp)] 
 
@@ -389,22 +511,99 @@ class ReadGlossary():
         '''
         return a dict with first word as keys and the rest as a list
         { first_word: [(w2,w3), (v2,)], another_word: [...] }
+
+        - the list for each word is sorted by length of the tuples
+
+        The argument key argument:
+            default is to use common_phrases
+            `intersect = relative, count` uses ntc_intersect
+
+            `max_phrases = INT`
         '''
+
+        intersect_cmd = kwargs.get('intersect', None)
+        if  intersect_cmd is not None:
+            phrases_ = self.ntc_intersect(intersect_cmd)
+
+            max_ph = kwargs.get('max_phrases', 0)
+            if max_ph > 0:
+                phrases_lst = sorted(phrases_.items(),
+                        key = (lambda kv: kv[1]), reverse=True)[:max_ph]
+            else:
+                phrases_lst = sorted(phrases_.items(),
+                        key = (lambda kv: kv[1]), reverse=True)
+
+            phrases_lst = [ph[0] for ph in phrases_lst if len(ph[0].split()) > 1]
+        else:
+            phrases_lst = self.common_phrases_lst(**kwargs)
+
         phrase_default = defaultdict(set)
-        for ph in self.common_phrases_lst(**kwargs):
+        for ph in phrases_lst:
             ph_lst = ph.strip().split()
-            if len(ph_lst) > 1:
+            if len(ph_lst) > 1 and ph not in self.blacklist:
                 phrase_default[ph_lst[0]].add(tuple(ph_lst[1:]))
             else:
-                raise ValueError('A phrase with only too few words was given. Phrase: {}'.format(ph))
+                raise ValueError('A phrase with too few words was given. Phrase: {}'.format(ph))
 
         phrase_dict = {}
         for k, v in phrase_default.items():
             # phrase_dict values are lists of phrases sorted by their length (shorter first)
-            phrase_dict[k] = sorted(v, key=len)
+            phrase_dict[k] = sorted(v, key=len, reverse=True)
         del phrase_default # clean up the defaultdict
 
         return phrase_dict
+
+    def ntc(self, path_ind='all'):
+        '''
+        returns the Normalized (text) Term Counter of the path list
+        Input:
+           `path_ind`: use the index of self.paths
+        '''
+        norm_term_cnt = Counter()
+
+        if path_ind == 'all':
+            use_path = self.all_paths
+        else:
+            use_path = self.paths[path_ind]
+
+        for xml_path in tqdm(use_path):
+            gtree = etree.parse(xml_path).getroot()
+            for art in gtree.iter(tag='article'):
+                d_lst = [d.text for d in art.findall('.//dfndum')]
+                norm_term_cnt.update([normalize_text(d, 'rm_punct') for d in d_lst])
+
+        for black_ph in self.blacklist:
+            norm_term_cnt.pop(black_ph, None)
+        return norm_term_cnt
+
+    def ntc_intersect(self, score='count'):
+        '''
+        returns a set of ordered pairs (Term, Score)
+        Where score is some of the following:
+          - count: simple individual count of repeated apearances
+          - relative: normalize the count by the total number of words in the
+            set
+          - tdidf: sum the tdidf in each doc? not sure yet
+            '''
+        assert len(self.paths) >= 2, f"You want to intersect but there's only {len(self.paths)} paths."
+        ntc0 = self.ntc(0)
+        ntc1 = self.ntc(1)
+        set0 = set(ntc0.keys())
+        set1 = set(ntc1.keys())
+        set0.intersection_update(set1)
+
+        if score == 'relative':
+            # total should be of words in intersection bc 
+            # there is no reason to include the errors count
+            tot0 = sum([ntc0[w] for w in set0])
+            tot1 = sum([ntc1[w] for w in set0])
+            out_dict = { w: (ntc0[w]/tot0 + ntc1[w]/tot1) for w in set0 }
+        elif score == 'tdidf':
+            raise NotImplementedError('tdidf is still on the TODO list')
+        else:
+            out_dict = { w: (ntc0[w] + ntc1[w]) for w in set0 }
+
+        return out_dict
 
 def main_text2text():
     '''
@@ -482,8 +681,8 @@ def main_xml2xml():
             help='one or more xml.gz files of Latexmled file (from promath)')
     parser.add_argument('out_dir', type=str,
             help='replicate the in_files dir struct in this directory with the clean files')
-    parser.add_argument('--phrases_file', default=None, type=str, nargs='+',
-            help='XML file with the phrases to be joined (from the glossary dir)')
+    #parser.add_argument('--phrases_file', default=None, type=str, nargs='+',
+    #        help='XML file with the phrases to be joined (from the glossary dir)')
     parser.add_argument('--norm_args', nargs='?', default=['rm_punct'],
             help='arguments for the tokenization function')
     parser.add_argument('--num_phrases', type=int, default=0,
@@ -491,26 +690,48 @@ def main_xml2xml():
     #parser.add_argument('--skip_n', default=1, type=int)
     args = parser.parse_args()
 
-    phrase_lst = ReadGlossary(args.phrases_file).common_phrases_lst(args.num_phrases)
-    join_fun = lambda s: token_phrases3(s, phrase_lst=phrase_lst)
+    #phrase_lst = ReadGlossary(args.phrases_file).common_phrases_lst(args.num_phrases)
+    #join_fun = lambda s: token_phrases3(s, phrase_lst=phrase_lst)
+
+    RG = ReadGlossary('/media/hd1/glossary/v3/math*/*.xml.gz',
+            '/media/hd1/glossary/NN.v1/math*/*.xml.gz')
+    ph_dict = RG.first_word_dict(intersect = 'relative', max_phrases=args.num_phrases)
+    print(f'Using {len(ph_dict)} phrases')
+    #ph_dict = ReadGlossary(args.phrases_file).first_word_dict(args.num_phrases)
+    join_fun = lambda s: join_phrases(s, ph_dict)
+    join_fun = functools.partial(join_phrases, phrase_dict=ph_dict)
+
+
+    task_lst = []
     for gz_file in args.in_files:
-        root = etree.Element('root')
-        for t in peep.tar_iter(gz_file, '.xml'):
-            try:
-                txml = px.DefinitionsXML(t[1], fname = t[0])\
-                    .run_recutext_onall_para(cleaner_fun=normalize_text, joiner_fun=join_fun)
-                root.append(txml)
-            except ValueError as ee:
-                print(ee, f"-- On the {t[0]}")
+        task_lst.append((gz_file, args.out_dir, join_fun))
 
-        # filename in t[0] has the format: 1401_003/1401.1545/1401.1545.xml 
-        out_file_name = t[0].split('/')[0]
-        out_name = os.path.join(args.out_dir, out_file_name + '.xml.gz')
+    #with mp.Pool(processes=2, maxtasksperchild=1, initializer=worker_init, initargs=(join_fun,)) as pool:
+    #    pool.starmap(join_xml_para_and_write, [(f, args.out_dir, _func) for f in args.in_files])
 
-        with gzip.open(out_name, 'wb') as gfobj:
-            gfobj.write(etree.tostring(root))            
+    with mp.Pool(processes=3, maxtasksperchild=1) as pool:
+        pool.starmap(join_xml_para_and_write, task_lst)
+
+
+        ## gz_file format: /media/hd1/promath/math02/0210_001.tar.gz
+        #sp_path = gz_file.split('/')
+        #dir_name = sp_path[-2]
+        #file_name = (sp_path[-1].split('.'))[0]
+        #full_dir_path = os.path.join(args.out_dir, dir_name)
+        #full_file_path = os.path.join(full_dir_path, file_name + '.xml.gz')
+        #os.makedirs(full_dir_path, exist_ok=True)
+
+        #root = etree.Element('root')
+        #for t in peep.tar_iter(gz_file, '.xml'):
+        #    try:
+        #        txml = px.DefinitionsXML(t[1], fname = t[0])\
+        #            .run_recutext_onall_para(cleaner_fun=normalize_text, joiner_fun=join_fun)
+        #        root.append(txml)
+        #    except ValueError as ee:
+        #        print(ee, f"-- On the {t[0]}")
+
+        #with gzip.open(full_file_path, 'wb') as gfobj:
+        #    gfobj.write(etree.tostring(root))            
 
 if __name__ == "__main__":
-    #main_xml2xml()
-    text = 'aa bb cc dd aa bb'
-    token_phrases3(text, phrase_lst=['aa bb', 'dd kk qq'])
+    main_xml2xml()

@@ -44,31 +44,6 @@ File_lst_SGD = glob.glob(SGD_path + 'math*/*')
 xml_root = etree.parse(File_lst_NN[0]).getroot()
 print(etree.tostring(xml_root[0], pretty_print=True).decode('utf-8'))
 
-# #%%script echo run with function below instead
-dfndum_set = set()
-new_dfndum_lst = [0]
-tot_dfndum_lst = [0]
-rep_ratio = []
-term_cnt = Counter()
-norm_term_cnt = Counter()
-perc_array = np.array([])
-for xml_path in tqdm(glob.glob(NN_path + 'math*/*.xml.gz')):
-    gtree = etree.parse(xml_path).getroot()
-    for art in gtree.iter(tag='article'):
-        d_lst = [d.text for d in art.findall('.//dfndum')]
-        dfndum_set.update(d_lst)
-        term_cnt.update(d_lst)
-        norm_term_cnt.update([normalize_text(d, 'rm_punct') for d in d_lst])
-        new_dfndum_lst.append(len(dfndum_set))
-        tot_dfndum_lst.append(tot_dfndum_lst[-1] + len(d_lst))
-        rep_ratio.append(tot_dfndum_lst[-1]/len(dfndum_set))
-        
-        N = float(art.attrib['num'])
-        percs = np.array(list(float(a.attrib['index']) for a in art.findall('.//definition')))/N
-        perc_array = np.append(perc_array, percs)
-        #if len(dfndum_set)%100000 == 0:
-        #    print(len(dfndum_set))
-
 
 # +
 def read_all_files(Path):
