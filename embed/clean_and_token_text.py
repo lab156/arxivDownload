@@ -694,7 +694,7 @@ def main_xml2xml():
     #phrase_lst = ReadGlossary(args.phrases_file).common_phrases_lst(args.num_phrases)
     #join_fun = lambda s: token_phrases3(s, phrase_lst=phrase_lst)
 
-    RG = ctt.ReadGlossary(os.path.join(config['paths']['data'], 'glossary/v3/math*/*.xml.gz'),
+    RG = ReadGlossary(os.path.join(config['paths']['data'], 'glossary/v3/math*/*.xml.gz'),
             os.path.join(config['paths']['data'], 'glossary/NN.v1/math*/*.xml.gz'))
     ph_dict = RG.first_word_dict(intersect = 'relative', max_phrases=args.num_phrases)
     print(f'Using {len(ph_dict)} phrases')
