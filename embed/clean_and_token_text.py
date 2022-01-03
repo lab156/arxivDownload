@@ -8,6 +8,9 @@ from tqdm import tqdm
 import multiprocessing as mp
 import gzip
 import os, sys, inspect
+import toml
+config = toml.load('../config.toml')
+
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, os.path.join(parentdir, 'embed'))
