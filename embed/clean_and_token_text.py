@@ -6,8 +6,8 @@ from lxml import etree
 import glob
 from tqdm import tqdm
 import multiprocessing as mp
-import os, sys, inspect
 import gzip
+import os, sys, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, os.path.join(parentdir, 'embed'))
