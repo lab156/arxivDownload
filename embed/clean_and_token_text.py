@@ -452,6 +452,7 @@ phrase_blacklist = ['_inline_math_ and',
         'r and',
         'a point',
         'a linear',
+        'a line',
         ' ',
         '',]
 
@@ -503,7 +504,7 @@ class ReadGlossary():
             phrases_cnt.update([r for r in phrases_list_temp if len(r.split()) > 1])
         
         for black_ph in self.blacklist:
-            phrases_cnt.pop(black_ph)
+            phrases_cnt.pop(black_ph, None)
         mp = max_phrases if max_phrases > 0 else None
         return [pair[0] for pair in phrases_cnt.most_common(mp)] 
 
@@ -693,8 +694,8 @@ def main_xml2xml():
     #phrase_lst = ReadGlossary(args.phrases_file).common_phrases_lst(args.num_phrases)
     #join_fun = lambda s: token_phrases3(s, phrase_lst=phrase_lst)
 
-    RG = ReadGlossary('/media/hd1/glossary/v3/math*/*.xml.gz',
-            '/media/hd1/glossary/NN.v1/math*/*.xml.gz')
+    RG = ctt.ReadGlossary(os.path.join(config['paths']['data'], 'glossary/v3/math*/*.xml.gz'),
+            os.path.join(config['paths']['data'], 'glossary/NN.v1/math*/*.xml.gz'))
     ph_dict = RG.first_word_dict(intersect = 'relative', max_phrases=args.num_phrases)
     print(f'Using {len(ph_dict)} phrases')
     #ph_dict = ReadGlossary(args.phrases_file).first_word_dict(args.num_phrases)
