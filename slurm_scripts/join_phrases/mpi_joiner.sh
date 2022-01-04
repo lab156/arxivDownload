@@ -17,7 +17,8 @@ MPILOOP="/jet/home/lab232/arxivDownload/MP_scripts/mpi_only_loop.py"
 cd $HOME/arxivDownload/MP_scripts
 mkdir -p $LOCAL/$OUTDATADIR
 
-time mpirun python3 $MPILOOP $PROJECT/promath/math*/*.tar.gz \
+time mpirun --mca mpi_warn_on_fork 0 \
+    python3 $MPILOOP $PROJECT/promath/math*/*.tar.gz \
     $LOCAL/$OUTDATADIR 2>&1
 
 cp -r $LOCAL/$OUTDATADIR $PROJECT/$OUTDATADIR
