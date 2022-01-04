@@ -18,7 +18,7 @@ cd $HOME/arxivDownload/MP_scripts
 mkdir -p $LOCAL/$OUTDATADIR
 
 time mpirun --mca mpi_warn_on_fork 0 \
-    python3 $MPILOOP $PROJECT/promath/math*/*.tar.gz \
+    python3 $MPILOOP $PROJECT"/promath/math*/*.tar.gz" \
     $LOCAL/$OUTDATADIR 2>&1
 
 cp -r $LOCAL/$OUTDATADIR $PROJECT/$OUTDATADIR

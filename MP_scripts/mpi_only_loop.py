@@ -3,6 +3,7 @@ from mpi4py import MPI
 #import multiprocessing as mp
 import datetime as dt
 import functools
+from glob import glob
 import toml
 config = toml.load('../config.toml')
 
@@ -44,7 +45,7 @@ def main_xml2xml():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('in_files', type=str, nargs='+',
-            help='one or more xml.gz files of Latexmled file (from promath)')
+            help='one or more tar.gz files of Latexmled file (from promath)')
     parser.add_argument('out_dir', type=str,
             help='replicate the in_files dir struct in this directory with the clean files')
     #parser.add_argument('--phrases_file', default=None, type=str, nargs='+',
@@ -71,7 +72,8 @@ def main_xml2xml():
         
 
 
-    for j,gz_file in enumerate(args.in_files):
+    #for j,gz_file in enumerate(args.in_files):
+    for j,gz_file in enumerate(glob(args.in_files[0])):
         if j%size == rank:
             N = dt.datetime.now()
             print("At {}, jobnum = {} machine {} started"\
