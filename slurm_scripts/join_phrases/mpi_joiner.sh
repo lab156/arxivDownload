@@ -14,6 +14,7 @@ source $HOME/env1/bin/activate
 OUTDATADIR="joined_math"`date '+%H-%M_%d-%m'`
 MPILOOP="/jet/home/lab232/arxivDownload/MP_scripts/mpi_only_loop.py"
 
+cd $HOME/arxivDownload/MP_scripts
 mkdir -p $LOCAL/OUTDATADIR
 
 time mpirun python3 $MPILOOP $PROJECT/promath/math9{5,6,7}/*.tar.gz \
