@@ -430,7 +430,6 @@ def join_xml_para_and_write(gz_file, out_dir, join_fun):
 phrase_blacklist = ['_inline_math_ and',
         '_inline_math_ _inline_math_',
         'recent years',
-        '_inline_math_ of',
         'for _inline_math_',
         '_inline_math_ if',
         '_inline_math_ also',
@@ -446,6 +445,7 @@ phrase_blacklist = ['_inline_math_ and',
         '_inline_math_ that',
         '_inline_math_ the',
         '_inline_math_ or',
+        '_inline_math_ of',
         'family of',
         'of the',
         'all _inline_math_',
@@ -456,6 +456,9 @@ phrase_blacklist = ['_inline_math_ and',
         'a point',
         'a linear',
         'a line',
+        'choice of',
+        'set of',
+        'the measure',
         ' ',
         '',]
 
@@ -582,7 +585,7 @@ class ReadGlossary():
 
     def ntc_intersect(self, score='count'):
         '''
-        returns a set of ordered pairs (Term, Score)
+        returns a dict with keys a term and value count
         Where score is some of the following:
           - count: simple individual count of repeated apearances
           - relative: normalize the count by the total number of words in the
