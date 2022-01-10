@@ -22,8 +22,9 @@ def article_name_dict(tar_obj):
 
 def tar_iter(tarpath, patt):
     """
-    returns and iterator to the file objects of a tar zip that have a certain
-    pattern in their names
+    returns an iterator to the file objects of a tar zip that have a certain
+    pattern in their names in Pair (fname, tar_fobj)
+    
     """
     retries = 0
     while retries < 10:
@@ -40,6 +41,11 @@ def tar_iter(tarpath, patt):
 
 def tar(tarpath, *args):
     """
+    A processed article and its logs look like:
+     '2003_003/2003.00782/MJD_Q8Cp_arxiv.xml',
+     '2003_003/2003.00782/latexml_commentary.txt',
+     '2003_003/2003.00782/latexml_errors_mess.txt',
+     
     tarpath: Is the address of a processed by LaTeXML .tar.gz file
     args may be: 
           int: return the i-th file
@@ -52,22 +58,28 @@ def tar(tarpath, *args):
                 xmlname = list(filter(partial(contains, '.xml'), tar_file.getnames()))[args[0]]
                 logname = list(filter(partial(contains, '.txt'), tar_file.getnames()))[args[0]]
             elif isinstance(args[0], str): 
+                # args[0] is something like  '2003_003/2003.00782/MJD_Q8Cp_arxiv.xml',
+                # middle_uid should be 2003.00782
+                middle_uid = args[0].split('/')[1]
                 def contains(ftype,fname): 
                     return (args[0] in fname and ftype in fname)
+                def contains_uid(ftype, fname):
+                    return (middle_uid in fname and ftype in fname)
                 try:
                     xmlname = next(filter(partial(contains, '.xml'), tar_file.getnames()))
-                    xml_xtract = px.DefinitionsXML(tar_file.extractfile(xmlname))
                 except StopIteration:
                     print(f"No xml results for {args[0]} in {tarpath}")
                     xmlname = None
                 try:
-                    logname = next(filter(partial(contains, '.txt'), tar_file.getnames()))
-                    log_xtract = tar_file.extractfile(logname).read().decode('utf8')
+                    logname = next(filter(partial(contains_uid, '.txt'), tar_file.getnames()))
                 except StopIteration:
                     print(f"No txt results for {args[0]} in {tarpath}")
                     logname = None
         else:
             xmlname = tar_file.getnames()[0]
+        log_xtract = None if logname is None else \
+                 tar_file.extractfile(logname).read().decode('utf8')
+        xml_xtract = px.DefinitionsXML(tar_file.extractfile(xmlname))
         
     return (log_xtract, xml_xtract)
 

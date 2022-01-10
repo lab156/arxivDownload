@@ -413,6 +413,8 @@ def join_xml_para_and_write(gz_file, out_dir, join_fun):
     os.makedirs(full_dir_path, exist_ok=True)
 
     normalizer_fun = lambda s: normalize_text(s, 'rm_punct')
+    
+    counter_dict = {'good': 0, 'empty': 0, 'bad': 0}
 
     root = etree.Element('root')
     for t in peep.tar_iter(gz_file, '.xml'):
@@ -420,11 +422,18 @@ def join_xml_para_and_write(gz_file, out_dir, join_fun):
             txml = px.DefinitionsXML(t[1], fname = t[0])\
                 .run_recutext_onall_para(cleaner_fun=normalizer_fun, joiner_fun=join_fun)
             root.append(txml)
+            counter_dict['good'] += 1
+        except px.EmptyXMLError as ee:
+            # append empty file 
+            print(ee)
+            counter_dict['empty'] += 1
         except ValueError as ee:
             print(ee, f"-- On the {t[0]}")
+            counter_dict['bad'] += 1
 
     with gzip.open(full_file_path, 'wb') as gfobj:
         gfobj.write(etree.tostring(root))            
+    print(counter_dict)
     
 
 phrase_blacklist = ['_inline_math_ and',
@@ -455,6 +464,7 @@ phrase_blacklist = ['_inline_math_ and',
         'r and',
         'a point',
         'a linear',
+        'a field',
         'a line',
         'choice of',
         'set of',

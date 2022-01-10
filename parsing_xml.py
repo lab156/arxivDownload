@@ -123,6 +123,16 @@ def recutext_html(root, nsstr=''):
             ret_str += empty_if_none(el.tail)
     return re.sub('\s+', ' ', ret_str.replace('\n', ' '))
 
+class EmptyXMLError(Exception):
+    def __init__(self, fname=None):
+        if fname is not None:
+            self.fname = fname
+        else:
+            self.fname = '<Unknown File Name>'
+        self.message = '{} is empty.'.format(self.fname)
+        super().__init__(self.message)
+        
+
 class DefinitionsXML(object):
     def __init__(self, file_path, fname=None):
         '''
@@ -155,10 +165,12 @@ class DefinitionsXML(object):
                         self.filetype)
         except etree.ParseError as e:
             #print('The file ', file_path, ' produced an error: ', e)
-            raise ValueError('XML Syntax error')
+            if 'Document is empty' in e.args[0]:
+                raise EmptyXMLError(self.file_path)
+            else:
+                raise ValueError('XML ParseError -- {}'.format(file_path), e,)
         except etree.XMLSyntaxError as e:
-            #print('The file ', file_path, ' produced an error: ', e)
-            pass
+            print('The file ', file_path, ' produced an error: ', e)
 
         self.ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
         self.def_lst = []
