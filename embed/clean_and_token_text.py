@@ -423,13 +423,10 @@ def join_xml_para_and_write(gz_file, out_dir, join_fun):
                 .run_recutext_onall_para(cleaner_fun=normalizer_fun, joiner_fun=join_fun)
             root.append(txml)
             counter_dict['good'] += 1
-        except px.EmptyXMLError as ee:
+        except etree.XMLSyntaxError as ee:
             # append empty file 
             print(ee)
             counter_dict['empty'] += 1
-        except ValueError as ee:
-            print(ee, f"-- On the {t[0]}")
-            counter_dict['bad'] += 1
 
     with gzip.open(full_file_path, 'wb') as gfobj:
         gfobj.write(etree.tostring(root))            

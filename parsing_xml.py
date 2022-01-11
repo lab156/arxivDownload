@@ -13,6 +13,9 @@ import tarfile
 import peep_tar as peep
 from langdetect import detect
 from langdetect.lang_detect_exception import LangDetectException
+from enum import Flag, auto
+from io import StringIO
+import gzip
 
 
 #Shortcut to set default to empty string instead Nonetype
@@ -131,13 +134,18 @@ class EmptyXMLError(Exception):
             self.fname = '<Unknown File Name>'
         self.message = '{} is empty.'.format(self.fname)
         super().__init__(self.message)
-        
 
+class ParsingResult(Flag):
+    SUCC = auto()
+    EMPTY = auto()
+    FAIL = auto()
+        
 class DefinitionsXML(object):
     def __init__(self, file_path, fname=None):
         '''
         Read an xml file and parse it
         '''
+        self.BAD_BASESTRING_CHARS = None
         if isinstance(file_path, str):
             self.file_path = file_path
             self.filetype = self.file_path.split('.')[-1]
@@ -157,23 +165,57 @@ class DefinitionsXML(object):
             if self.filetype == 'xml':
                 self.exml = etree.parse(file_path, etree.XMLParser(remove_comments=True))
                 self.recutext = recutext_xml
+                self.parse = ParsingResult.SUCC
             elif self.filetype == 'html': 
                 self.exml = etree.parse(file_path, etree.HTMLParser(remove_comments=True))
                 self.recutext = recutext_html
+                self.parse = ParsingResult.SUCC
             else:
                 raise NotImplementedError("Filetype: %s not implemented yet"%\
                         self.filetype)
-        except etree.ParseError as e:
-            #print('The file ', file_path, ' produced an error: ', e)
-            if 'Document is empty' in e.args[0]:
-                raise EmptyXMLError(self.file_path)
-            else:
-                raise ValueError('XML ParseError -- {}'.format(file_path), e,)
         except etree.XMLSyntaxError as e:
-            print('The file ', file_path, ' produced an error: ', e)
+            if 'Document is empty' in e.args[0]:
+                #raise EmptyXMLError(self.file_path)
+                print('The file ', file_path, ' is empty.')
+                self.exml = etree.fromstring('<document> Empty file </document>')
+                self.parse = ParsingResult.EMPTY
+            elif  'invalid character in attribute value' in e.args[0]:
+                if self.filetype == 'xml': 
+                    self.fix_bad_chars(file_path)
+                    self.recutext = recutext_xml
+                    self.parse = ParsingResult.SUCC
+                    print('The file ', file_path, ' recovered from an error: ', e)
+                else:
+                    raise NotImplementedError('recover not implemented for html')
+            else:
+                raise ValueError('XML ParseError -- {} -- {}'.format(file_path, e))
 
         self.ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
         self.def_lst = []
+
+    def fix_bad_chars(self, file_path):
+        BAD = []
+        for i in range(0, 10000):
+            try:
+                x = etree.parse(StringIO('<p>%s</p>' % chr(i)))
+            except etree.XMLSyntaxError:
+                BAD.append(i)
+        # 38 and 60 are start tag and & 
+        self.BAD_BASESTRING_CHARS = [chr(b) for b in BAD if b not in [38, 60]]
+
+        #with open(file_path, 'rb') as fobj:
+        file_path.seek(0,0)
+        file_str = file_path.read().decode('utf8')
+        print(file_str[:100])
+        #with open("/home/luis/rm_me_work_on_px/out.xml", 'w') as outfobj:
+        #    outfobj.write(file_str)
+        for b in self.BAD_BASESTRING_CHARS:
+            file_str = file_str.replace(b, '')
+
+        if self.filetype == 'xml':
+            self.exml = etree.XML(file_str.encode('utf8'))
+        else:
+            raise NotImplementedError('no HTML implementation at fix_bad_chars')
 
     def find_definitions(self):
         '''
@@ -320,21 +362,23 @@ class DefinitionsXML(object):
         If cleaner_fun is given, this function is run on the text.
         '''
         article_elem = etree.Element('article')
-        article_elem.attrib['name'] = os.path.basename(self.file_path)
+        article_elem.attrib['name'] = self.file_path
 
-        for ind, par in enumerate(self.para_list()):
-            text = self.recutext(par)
-            if cleaner_fun is not None:
-                text = cleaner_fun(text)
-            if joiner_fun is not None:
-                text = joiner_fun(text)
+        if self.parse == ParsingResult.SUCC:
+            for ind, par in enumerate(self.para_list()):
+                text = self.recutext(par)
+                if cleaner_fun is not None:
+                    text = cleaner_fun(text)
+                if joiner_fun is not None:
+                    text = joiner_fun(text)
 
-            parag = etree.Element("parag")
-            parag.attrib['index'] = repr(ind) 
-            parag.text = text
-            article_elem.append(parag)
+                parag = etree.Element("parag")
+                parag.attrib['index'] = repr(ind) 
+                parag.text = text
+                article_elem.append(parag)
+        elif self.parse == ParsingResult.EMPTY:
+            article_elem.attrib['empty'] = 'true'
         return article_elem
-
 
 
 # Inherit from DefinitionsXML
