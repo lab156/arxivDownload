@@ -1,3 +1,14 @@
+## Data Pipeline
+### Downloading from arXiv
+### Processing with LaTeXML
+### More Processing
+#### Getting Labeled Definitions
+### Classifying Definitions
+### NER
+#### Joining Phrases
+* `MP_scripts/mpi_only_loop.py`
+* `slurm_scripts/mpi_joiner.sh`
+
 ## Jupyter Notebooks
 * Populating and examples SQLAlchemy databases
     * Filling the arxiv metadata database using `databases/create_db_define_models.py`

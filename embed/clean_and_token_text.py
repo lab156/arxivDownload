@@ -419,13 +419,20 @@ def join_xml_para_and_write(gz_file, out_dir, join_fun):
     root = etree.Element('root')
     for t in peep.tar_iter(gz_file, '.xml'):
         try:
-            txml = px.DefinitionsXML(t[1], fname = t[0])\
-                .run_recutext_onall_para(cleaner_fun=normalizer_fun, joiner_fun=join_fun)
+            PX = px.DefinitionsXML(t[1], fname = t[0])
+            txml = PX.run_recutext_onall_para(cleaner_fun=normalizer_fun, joiner_fun=join_fun)
             root.append(txml)
-            counter_dict['good'] += 1
+
+            if PX.parse == px.ParsingResult.SUCC:
+                counter_dict['good'] += 1
+            elif PX.parse == px.ParsingResult.EMPTY: 
+                counter_dict['empty'] += 1
+            else:
+                counter_dict['bad'] += 1
+
         except etree.XMLSyntaxError as ee:
             # append empty file 
-            print(ee)
+            print("Syntax error at join_xml_para_and_write  file: {} -- ".format(t[0]), repr(ee))
             counter_dict['empty'] += 1
 
     with gzip.open(full_file_path, 'wb') as gfobj:

@@ -146,6 +146,7 @@ class DefinitionsXML(object):
         Read an xml file and parse it
         '''
         self.BAD_BASESTRING_CHARS = None
+        empty_xml = etree.fromstring('<document> Empty file </document>')
         if isinstance(file_path, str):
             self.file_path = file_path
             self.filetype = self.file_path.split('.')[-1]
@@ -176,19 +177,21 @@ class DefinitionsXML(object):
         except etree.XMLSyntaxError as e:
             if 'Document is empty' in e.args[0]:
                 #raise EmptyXMLError(self.file_path)
-                print('The file ', file_path, ' is empty.')
-                self.exml = etree.fromstring('<document> Empty file </document>')
+                print('The file ', self.file_path, ' is empty.')
+                self.exml = empty_xml 
                 self.parse = ParsingResult.EMPTY
             elif  'invalid character in attribute value' in e.args[0]:
                 if self.filetype == 'xml': 
                     self.fix_bad_chars(file_path)
                     self.recutext = recutext_xml
                     self.parse = ParsingResult.SUCC
-                    print('The file ', file_path, ' recovered from an error: ', e)
+                    print('The file ', self.file_path, ' recovered from an error: ', e)
                 else:
                     raise NotImplementedError('recover not implemented for html')
             else:
-                raise ValueError('XML ParseError -- {} -- {}'.format(file_path, e))
+                print('XML ParseError -- {} -- {}'.format(self.file_path, e))
+                self.exml = empty_xml 
+                self.parse = ParsingResult.FAIL
 
         self.ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
         self.def_lst = []

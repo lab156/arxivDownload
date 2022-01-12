@@ -70,14 +70,14 @@ def main_xml2xml():
     ph_dict = comm.bcast(ph_dict, root=0)
     join_fun = functools.partial(ctt.join_phrases, phrase_dict=ph_dict)
         
-
+    N = dt.datetime.now()
 
     #for j,gz_file in enumerate(args.in_files):
     for j,gz_file in enumerate(glob(args.in_files[0])):
         if j%size == rank:
-            N = dt.datetime.now()
+            tdelta = dt.datetime.now() - N
             print("At {}, jobnum = {} machine {} started"\
-                    .format((N.hour,N.minute,N.second), j, rank))
+                    .format((tdelta.seconds//60, tdelta.seconds%60), j, rank))
             ctt.join_xml_para_and_write(gz_file, args.out_dir, join_fun)
 
     #with mp.Pool(processes=2, maxtasksperchild=1, initializer=worker_init, initargs=(join_fun,)) as pool:
