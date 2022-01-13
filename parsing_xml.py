@@ -208,6 +208,17 @@ class DefinitionsXML(object):
                             print("File {} has double-hyphen in comments, using recover (permisive) parser STILL DID NOT WORK!".format(self.file_path))
                 else:
                     raise NotImplementedError('recover not implemented for html')
+            elif 'Huge input lookup' in e.args[0]:
+                if self.filetype == 'xml':
+                    print("File {} has Huge input lookup. Tried recovering".format(self.file_path))
+                    parsero = etree.XMLParser(huge_tree=True, remove_comments=True)
+                    file_path.seek(0,0)
+                    self.exml = etree.parse(file_path, parsero) 
+                    self.recutext = recutext_xml
+                    self.parse = ParsingResult.SUCC
+                else:
+                    raise NotImplementedError('huge_tree not implemented for html')
+
             else:
                 print('XML ParseError -- {} -- {}'.format(self.file_path, e))
                 self.exml = empty_xml 
@@ -236,7 +247,8 @@ class DefinitionsXML(object):
             file_str = file_str.replace(b, '')
 
         if self.filetype == 'xml':
-            self.exml = etree.XML(file_str.encode('utf8'))
+            parsero = etree.XMLParser(huge_tree=True, remove_comments=True)
+            self.exml = etree.XML(file_str.encode('utf8'), parser=parsero)
         else:
             raise NotImplementedError('no HTML implementation at fix_bad_chars')
 
