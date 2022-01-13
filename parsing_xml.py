@@ -175,17 +175,37 @@ class DefinitionsXML(object):
                 raise NotImplementedError("Filetype: %s not implemented yet"%\
                         self.filetype)
         except etree.XMLSyntaxError as e:
-            if 'Document is empty' in e.args[0]:
+            if 'Document is empty' in e.args[0] or 'Start tag expected' in e.args[0]:
                 #raise EmptyXMLError(self.file_path)
                 print('The file ', self.file_path, ' is empty.')
                 self.exml = empty_xml 
                 self.parse = ParsingResult.EMPTY
-            elif  'invalid character in attribute value' in e.args[0]:
+            elif  'invalid character in attribute value' in e.args[0] or 'PCDATA invalid Char' in e.args[0]:
                 if self.filetype == 'xml': 
                     self.fix_bad_chars(file_path)
                     self.recutext = recutext_xml
                     self.parse = ParsingResult.SUCC
                     print('The file ', self.file_path, ' recovered from an error: ', e)
+                else:
+                    raise NotImplementedError('recover not implemented for html')
+            elif '(double-hyphen)' in e.args[0] or 'Double hyphen within comment' in e.args[0]:
+                if self.filetype == 'xml': 
+                    # The file may still be empty
+                    try:
+                        parsero = etree.XMLParser(recover=True, remove_comments=True)
+                        file_path.seek(0,0)
+                        self.exml = etree.parse(file_path, parsero) 
+                        self.recutext = recutext_xml
+                        self.parse = ParsingResult.SUCC
+                        print("File {} has double-hyphen in comments, using recover (permisive) parser".format(self.file_path))
+                    except etree.XMLSyntaxError as e_:
+                        if 'Document is empty' in e_.args[0]:
+                            #raise EmptyXMLError(self.file_path)
+                            print('The file' , self.file_path, ' has double-hyphen in comments and is empty. -- ', repr(e_))
+                            self.exml = empty_xml 
+                            self.parse = ParsingResult.EMPTY
+                        else:
+                            print("File {} has double-hyphen in comments, using recover (permisive) parser STILL DID NOT WORK!".format(self.file_path))
                 else:
                     raise NotImplementedError('recover not implemented for html')
             else:

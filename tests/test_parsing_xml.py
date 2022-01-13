@@ -23,6 +23,7 @@ class TestDefinitionsXML(unittest.TestCase):
         cls.html2 = px.DefinitionsXML('tests/latexmled_files/1501.06563_shortened.html')
         cls.html_lst1 = cls.html1.exml.findall('.//p', namespaces=cls.ns)
         cls.problem_articles = 'tests/latexmled_files/three_problem_articles.tar.gz'
+        cls.problem_articles2 = 'tests/latexmled_files/more_problematic_article.tar.gz'
 
     def test_recovery_from_weird_chars(self):
         with tarfile.open(self.problem_articles) as tar_file:
@@ -35,6 +36,12 @@ class TestDefinitionsXML(unittest.TestCase):
             exfobj = tar_file.extractfile('0511_002/math.0511061/fixed.xml')
             res = px.DefinitionsXML(exfobj)
         self.assertEqual(len(res.para_list()), 399)
+
+    def test_recovery_from_weird_chars2(self):
+        with tarfile.open(self.problem_articles2) as tar_file:
+            exfobj = tar_file.extractfile('two_problem_articles/math.9805119/math.9805119.xml')
+            res = px.DefinitionsXML(exfobj)
+        self.assertEqual(len(res.para_list()), 814)
 
     def test_run_recutext_onall_para_on_empty_files(self):
         with tarfile.open(self.problem_articles) as tar_file:
@@ -49,6 +56,17 @@ class TestDefinitionsXML(unittest.TestCase):
         xml_res = res.run_recutext_onall_para()
         self.assertEqual(xml_res.attrib['empty'], 'true')
 
+        with tarfile.open(self.problem_articles2) as tar_file:
+            exfobj = tar_file.extractfile('two_problem_articles/physics.9710002/physics.9710002.xml')
+            res = px.DefinitionsXML(exfobj)
+        xml_res = res.run_recutext_onall_para()
+        self.assertEqual(xml_res.attrib['empty'], 'true')
+
+        with tarfile.open(self.problem_articles2) as tar_file:
+            exfobj = tar_file.extractfile('two_problem_articles/math.9905174/math.9905174.xml')
+            res = px.DefinitionsXML(exfobj)
+        xml_res = res.run_recutext_onall_para()
+        self.assertEqual(xml_res.attrib['empty'], 'true')
 
     def test_recutext_xml(self):
         expect1 = 'For the remaining properties we state we shall assume that _inline_math_ or _inline_math_.'
