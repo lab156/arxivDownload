@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --time=0-16:00:00
 #SBATCH --job-name=joining_phrases
-#SBATCH --output=log_phrases.txt
+#SBATCH --output=log_phrases2.txt
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 #SBATCH --nodes=1
