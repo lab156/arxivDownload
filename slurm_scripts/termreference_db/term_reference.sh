@@ -17,7 +17,7 @@ OUTDATADIR="termreference_db"`date '+%H-%M_%d-%m'`
 cd $HOME/arxivDownload/slurm_scripts/termreference_db
 mkdir -p $LOCAL/$OUTDATADIR
 
-time python3 make_db.py $PROJECT"/glossary/NN.v1/math9*/*.xml.gz" \
+time python3 make_db.py $PROJECT"/glossary/NN.v1/math*/*.xml.gz" \
     $LOCAL/$OUTDATADIR 2>&1
 
 cp -r $LOCAL/$OUTDATADIR $PROJECT/$OUTDATADIR
