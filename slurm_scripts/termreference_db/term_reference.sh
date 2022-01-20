@@ -12,7 +12,7 @@ module load python/3.8.6
 #module load openmpi/3.1.6-gcc8.3.1
 source $HOME/env1/bin/activate
 
-OUTDATADIR="joined_math"`date '+%H-%M_%d-%m'`
+OUTDATADIR="termreference_db"`date '+%H-%M_%d-%m'`
 
 cd $HOME/arxivDownload/slurm_scripts/termreference_db
 mkdir -p $LOCAL/$OUTDATADIR
