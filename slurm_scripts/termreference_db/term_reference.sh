@@ -5,7 +5,7 @@
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 #SBATCH --nodes=1
-#SBATCH --partition=RM-shared
+#SBATCH --partition=RM
 #SBATCH --account=mth220001p
 
 module load python/3.8.6
