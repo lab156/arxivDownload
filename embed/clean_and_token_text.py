@@ -9,7 +9,6 @@ import multiprocessing as mp
 import gzip
 import os, sys, inspect
 import toml
-config = toml.load('../config.toml')
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -715,6 +714,7 @@ def main_xml2xml():
 
     #phrase_lst = ReadGlossary(args.phrases_file).common_phrases_lst(args.num_phrases)
     #join_fun = lambda s: token_phrases3(s, phrase_lst=phrase_lst)
+    config = toml.load('../config.toml')
 
     RG = ReadGlossary(os.path.join(config['paths']['data'], 'glossary/v3/math*/*.xml.gz'),
             os.path.join(config['paths']['data'], 'glossary/NN.v1/math*/*.xml.gz'))
