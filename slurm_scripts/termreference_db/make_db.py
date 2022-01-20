@@ -10,8 +10,6 @@ from marshmallow import Schema, fields, pprint
 from random import random
 from dataclasses import dataclass, field
 from sklearn.feature_extraction.text import TfidfVectorizer
-import boto3 as b3
-import botocore as bcore
 import json
 import datetime as dt
 import toml
