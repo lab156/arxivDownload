@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --time=0-1:00:00
 #SBATCH --job-name=term_reference
-#SBATCH --output=termref-%x.%j.out
+#SBATCH --output=J-%x.%j.log
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 #SBATCH --nodes=1
