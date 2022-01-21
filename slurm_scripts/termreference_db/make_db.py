@@ -31,8 +31,8 @@ def gen_termreferences(glossary_file_lst, data_path=config['paths']['data']):
     #glossary_file_lst = glob.glob('/media/hd1/glossary/NN.v1/math9*/*.xml.gz')
     #glossary_file_lst = glob.glob('/media/hd1/glossary/NN.v1/math0*/*.xml.gz')
 
-    RG = ReadGlossary(os.path.join(config['paths']['data'], 'glossary/v3/math*/*.xml.gz'),
-            os.path.join(config['paths']['data'], 'glossary/NN.v1/math*/*.xml.gz'))
+    RG = ReadGlossary(os.path.join(data_path, 'glossary/v3/math*/*.xml.gz'),
+            os.path.join(data_path, 'glossary/NN.v1/math*/*.xml.gz'))
     vocab = RG.ntc_intersect('relative')
 
     corpus = []
