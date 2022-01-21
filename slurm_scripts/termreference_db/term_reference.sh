@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=0-1:00:00
+#SBATCH --time=0-15:00:00
 #SBATCH --job-name=term_reference
 #SBATCH --output=J-%x.%j.log
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
@@ -27,7 +27,7 @@ mkdir -p $LOCAL/$OUTDATADIR
 
 
 
-time python3 make_db.py $PROJECT"/glossary/NN.v1/math9*/*.xml.gz" \
+time python3 make_db.py $PROJECT"/glossary/NN.v1/math*/*.xml.gz" \
     $LOCAL/$OUTDATADIR \
     --data_path $LOCAL 2>&1
 
