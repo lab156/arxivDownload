@@ -17,9 +17,9 @@ OUTDATADIR="termreference_db"`date '+%H-%M_%d-%m'`
 # COPY TO fast memory
 cd $PROJECT
 echo "STARTED COPYING DATA TO LOCAL"
-cp -r --parents glossary/NN.v1 /LOCAL
-cp -r --parents promath /LOCAL
-cp -r --parents cleaned_text/joined_math19-35_13-01 /LOCAL
+cp -r --parents glossary/NN.v1 $LOCAL/
+cp -r --parents promath $LOCAL/
+cp -r --parents cleaned_text/joined_math19-35_13-01 $LOCAL/
 echo "FINISHED COPYING DATA TO LOCAL"
 
 cd $HOME/arxivDownload/slurm_scripts/termreference_db
