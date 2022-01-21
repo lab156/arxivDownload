@@ -27,7 +27,7 @@ import parsing_xml as px
 import peep_tar as peep
 from enum import Enum
 
-def gen_termreferences(glossary_file_lst):
+def gen_termreferences(glossary_file_lst, data_path=config['paths']['data']):
     #glossary_file_lst = glob.glob('/media/hd1/glossary/NN.v1/math9*/*.xml.gz')
     #glossary_file_lst = glob.glob('/media/hd1/glossary/NN.v1/math0*/*.xml.gz')
 
@@ -41,8 +41,8 @@ def gen_termreferences(glossary_file_lst):
         # argot_file format: /media/hd1/glossary/NN.v1/math95/9506_001.xml.gz
         math_year = glossary_file.split('/')[-2]
         subfilename = glossary_file.split('/')[-1].split('.')[0] # should be 9506_001
-        promath_file = os.path.join(config['paths']['data'], 'promath', math_year, subfilename + '.tar.gz')
-        joined_file = os.path.join(config['paths']['data'], 'cleaned_text/joined_math19-35_13-01/',
+        promath_file = os.path.join(data_path, 'promath', math_year, subfilename + '.tar.gz')
+        joined_file = os.path.join(data_path, 'cleaned_text/joined_math19-35_13-01/',
                                    math_year, subfilename + '.xml.gz')
         
         glossary_xml = etree.parse(glossary_file)
@@ -128,7 +128,7 @@ class TermRefSchema(Schema):
 
 def write_json(term_ref_lst, vocab_, out_file_path, ttrans):
     TR_lst=[]
-    for k, tr in enumerate(term_ref_lst[:5000]):
+    for k, tr in enumerate(term_ref_lst):
         # check the length of p_tag
         if len(tr[3]) < 250_000:
             TR_lst.append(TermReference(
@@ -158,8 +158,9 @@ def main():
     parser.add_argument('in_files', type=str, 
             help='glob expression from the files in glossary ex. $PROJ"/glossary/NN.v1/math9*/*.xml.gz"')
     parser.add_argument('out_dir', type=str,
-            help='')
-    #parser.add_argument('--skip_n', default=1, type=int)
+            help='Directory to write out the json file')
+    parser.add_argument('--data_path', default=None,
+            help='Path to the data files in case there is something faster ex. $LOCAL/')
     args = parser.parse_args()
 
     glossary_file_lst = glob.glob(args.in_files)
