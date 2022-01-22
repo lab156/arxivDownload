@@ -27,7 +27,7 @@ import parsing_xml as px
 import peep_tar as peep
 from enum import Enum
 
-def gen_termreferences(glossary_file_lst, data_path=config['paths']['data']):
+def gen_termreferences(glossary_file_lst, data_path):
     #glossary_file_lst = glob.glob('/media/hd1/glossary/NN.v1/math9*/*.xml.gz')
     #glossary_file_lst = glob.glob('/media/hd1/glossary/NN.v1/math0*/*.xml.gz')
 
@@ -171,10 +171,15 @@ def main():
             help='Path to the data files in case there is something faster ex. $LOCAL/')
     args = parser.parse_args()
 
+    if args.data_path is not None:
+        data_path = args.data_path
+    else:
+        data_path = config['paths']['data']
+
     glossary_file_lst = glob.glob(args.in_files)
     print(f"{len(glossary_file_lst)} glossary files have been selected for processing")
 
-    corpus, term_ref_lst, vocab = gen_termreferences(glossary_file_lst)
+    corpus, term_ref_lst, vocab = gen_termreferences(glossary_file_lst, data_path)
 
     #ttrans, vocab_ = gen_tfidf(vocab, corpus)
 
