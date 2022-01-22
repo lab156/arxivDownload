@@ -126,7 +126,7 @@ class TermRefSchema(Schema):
     p_tag = fields.String()
     tfidf = fields.Int()
 
-def write_data(term_ref_lst, vocab, out_dir):
+def write_data(term_ref_lst, vocab, corpus, out_dir):
     print('saving term_ref_lst ')
     with open(os.path.join(out_dir, 'term_ref_lst.pickle'), 'wb') as fobj:
         pickle.dump(term_ref_lst, fobj)
