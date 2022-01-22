@@ -133,6 +133,9 @@ def write_data(term_ref_lst, vocab, out_dir):
     print('saving vocab ')
     with open(os.path.join(out_dir, 'vocab.pickle'), 'wb') as fobj:
         pickle.dump(vocab, fobj)
+    print('saving corpus ')
+    with open(os.path.join(out_dir, 'corpus.pickle'), 'wb') as fobj:
+        pickle.dump(corpus, fobj)
     
 def write_json(term_ref_lst, vocab_, out_file_path, ttrans):
     TR_lst=[]
@@ -185,7 +188,7 @@ def main():
 
     os.makedirs(args.out_dir, exist_ok=True)
     out_file_path = os.path.join(args.out_dir, 'termrefs.json')
-    write_data(term_ref_lst, vocab, args.out_dir)
+    write_data(term_ref_lst, vocab, corpus, args.out_dir)
     #write_json(term_ref_lst, vocab_, out_file_path, ttrans)
 
 
