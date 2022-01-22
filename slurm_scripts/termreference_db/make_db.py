@@ -126,6 +126,14 @@ class TermRefSchema(Schema):
     p_tag = fields.String()
     tfidf = fields.Int()
 
+def write_data(term_ref_lst, vocab, out_dir):
+    print('saving term_ref_lst ')
+    with open(os.path.join(out_dir, 'term_ref_lst.pickle'), 'wb') as fobj:
+        pickle.dump(term_ref_lst, fobj)
+    print('saving vocab ')
+    with open(os.path.join(out_dir, 'vocab.pickle'), 'wb') as fobj:
+        pickle.dump(vocab, fobj)
+    
 def write_json(term_ref_lst, vocab_, out_file_path, ttrans):
     TR_lst=[]
     for k, tr in enumerate(term_ref_lst):
@@ -168,11 +176,12 @@ def main():
 
     corpus, term_ref_lst, vocab = gen_termreferences(glossary_file_lst)
 
-    ttrans, vocab_ = gen_tfidf(vocab, corpus)
+    #ttrans, vocab_ = gen_tfidf(vocab, corpus)
 
     os.makedirs(args.out_dir, exist_ok=True)
     out_file_path = os.path.join(args.out_dir, 'termrefs.json')
-    write_json(term_ref_lst, vocab_, out_file_path, ttrans)
+    write_data(term_ref_lst, vocab, args.out_dir)
+    #write_json(term_ref_lst, vocab_, out_file_path, ttrans)
 
 
 if __name__ == "__main__":
