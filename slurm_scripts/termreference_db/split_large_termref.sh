@@ -6,7 +6,7 @@
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 #SBATCH --partition=RM-shared
 #SBATCH --ntasks-per-node=1
-#SBATCH --mem=130
+#SBATCH --mem=256
 
 module load python/3.8.6
 #module load openmpi/3.1.6-gcc8.3.1
