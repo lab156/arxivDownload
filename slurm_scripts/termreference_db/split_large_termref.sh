@@ -4,9 +4,9 @@
 #SBATCH --output=S-%x.%j.log
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
-#SBATCH --partition=RM-shared
+#SBATCH --partition=RM-512
 #SBATCH --ntasks-per-node=1
-#SBATCH --mem=356
+#SBATCH --mem=150
 
 module load python/3.8.6
 #module load openmpi/3.1.6-gcc8.3.1
