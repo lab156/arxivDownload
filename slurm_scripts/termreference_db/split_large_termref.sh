@@ -14,8 +14,8 @@ source $HOME/env1/bin/activate
 
 OUTDATADIR=/ocean/projects/mth220001p/lab232/termreference_db17-33_22-01
 
-
 cd $HOME/arxivDownload/slurm_scripts/termreference_db
-time python3 $OUTDATADIR  split_pickles --termref term_ref_lst.pickle \
-   -P 100 --prefix ter 2>&1
+time python3 split_large_termref.py $OUTDATADIR  split_pickles \
+    --termref term_ref_lst.pickle \
+    -P 100 --prefix ter 2>&1
 
