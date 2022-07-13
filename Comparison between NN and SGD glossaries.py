@@ -49,29 +49,34 @@ print(etree.tostring(xml_root[0], pretty_print=True).decode('utf-8'))
 def read_all_files(Path):
     dfndum_set = set()
     new_dfndum_lst = [0]
-    tot_dfndum_lst = [0]
+    tot_dfndum_lst_cumcnt = [0]
     rep_ratio = []
     term_cnt = Counter()
     norm_term_cnt = Counter()
+    definition_cnt = 0
+    article_cnt = 0
     #perc_array = np.array([])
     for xml_path in tqdm(glob.glob(Path + 'math*/*.xml.gz')):
         gtree = etree.parse(xml_path).getroot()
         for art in gtree.iter(tag='article'):
+            article_cnt += 1
+            definition_cnt += len(art.findall('.//definition'))
             d_lst = [d.text for d in art.findall('.//dfndum')]
             dfndum_set.update(d_lst)
             term_cnt.update(d_lst)
             norm_term_cnt.update([normalize_text(d, 'rm_punct') for d in d_lst])
             new_dfndum_lst.append(len(dfndum_set))
-            tot_dfndum_lst.append(tot_dfndum_lst[-1] + len(d_lst))
-            rep_ratio.append(tot_dfndum_lst[-1]/len(dfndum_set))
+            tot_dfndum_lst_cumcnt.append(tot_dfndum_lst_cumcnt[-1] + len(d_lst))
+            rep_ratio.append(tot_dfndum_lst_cumcnt[-1]/len(dfndum_set))
 
             N = float(art.attrib['num'])
             #percs = np.array(list(float(a.attrib['index']) for a in art.findall('.//definition')))/N
             #perc_array = np.append(perc_array, percs)
-    return norm_term_cnt, term_cnt
+    return norm_term_cnt, term_cnt, tot_dfndum_lst_cumcnt, definition_cnt, article_cnt
+
     
-sgd_ntc, sgd_tc = read_all_files(SGD_path)
-nn_ntc, nn_tc = read_all_files(NN_path)
+sgd_ntc, sgd_tc, sgd_all, sgd_deftion_cnt, sdg_art_cnt = read_all_files(SGD_path)
+nn_ntc, nn_tc, nn_all, nn_deftion_cnt, nn_art_cnt = read_all_files(NN_path)
 
 # +
 sgd_set = set(sgd_ntc.keys())
@@ -84,6 +89,8 @@ sgd_nn_diff = sgd_set.difference(nn_set)
 In_tot_cnt = sum([sgd_ntc[t] + nn_ntc[t] for t in In])
 nn_sgd_tot_cnt = sum([sgd_ntc[t] + nn_ntc[t] for t in nn_sgd_diff])
 sgd_nn_tot_cnt = sum([sgd_ntc[t] + nn_ntc[t] for t in sgd_nn_diff])
+print(f"Length of {len(sgd_set) = }")
+print(f"Length of {len(nn_set) = }")
 print('The Intersection has {:,} -- {:1.2f}% has total cnt: {:,}'.format(len(In),
                                                                        len(In)/len(Un),
                                                                       In_tot_cnt))
@@ -95,6 +102,14 @@ print('SGD - NN has         {:,} -- {:1.2f}% has total cnt: {:,}'.format(len(sgd
                                                      len(sgd_nn_diff)/len(Un),
                                                                         sgd_nn_tot_cnt))
 In_cnt = Counter({t:sgd_ntc[t] + nn_ntc[t] for t in In })
+print(f"{sgd_deftion_cnt = }")
+print(f"{nn_deftion_cnt = }")
+print(f"{sgd_deftion_cnt/sdg_art_cnt = }")
+print(f"{nn_deftion_cnt/nn_art_cnt = }")
+print(f"Total count for SGD: {sgd_all[-1]}")
+print(f"Total count for NN: {nn_all[-1]}")
+print(f"AVG term per definition SGD: {sgd_all[-1]/sgd_deftion_cnt}")
+print(f"AVG term per definition NN: {nn_all[-1]/nn_deftion_cnt}")
 print("The most common terms in the intersection are:")
 In_cnt.most_common()[:25]
 # -
