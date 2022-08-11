@@ -19,6 +19,9 @@ tags
 #Undesirable image files
 tmp.ps
 
+# configs that start with gitignore
+gitignore_*
+
 #databases 
 #Gotta keep all databases with this extension
 #*.db need to include a test database

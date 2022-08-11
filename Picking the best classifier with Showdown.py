@@ -101,7 +101,7 @@ all_data_texts = []
 all_data_labels = []
 def_cnt = 0
 nondef_cnt = 0
-for X in xml_lst[:20]:
+for X in xml_lst:
     tar_tree = etree.parse(X)
     def_lst = tar_tree.findall('.//definition')
     nondef_lst = tar_tree.findall('.//nondef')
@@ -114,6 +114,14 @@ for X in xml_lst[:20]:
 stats['parsing_time'] = time.time() - time1
 print("Definition count: {0:,d}.   NonDefinitions count: {1:,d}. Total: {2:,d}".format(def_cnt, nondef_cnt, (def_cnt+nondef_cnt)))
 print('took {0:1.1f} secs'.format(stats['parsing_time']))
+
+parags_lengths = [min(len(p.split()),400) for p in all_data_texts]
+ex = plt.hist(parags_lengths, bins=100)
+plt.xlabel('Word Count in Training Sample')
+plt.ylabel('Number of Samples')
+plt.title("Number of Words in Training Samples")
+plt.grid()
+plt.savefig('/home/luis/ims/train_length.png')
 
 xml_lst = glob.glob("/mnt/training_defs/math9*/*.xml.gz")
 def stream_arxiv_paragraphs(samples=1000):

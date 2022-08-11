@@ -1,0 +1,5 @@
+# set the following variables
+EMBEDBINFILES="/pathto/Paquetes"
+ARXIVDOWNDIR="/pathto/arxivDownload"
+CLEANDATADIR="/pathto/cleaned_text/clean_text"
+MODELDIR="/pathto/rm_me"

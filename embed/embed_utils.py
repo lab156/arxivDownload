@@ -12,12 +12,20 @@ from tqdm import tqdm
 @contextmanager
 def open_w2v(filename):
     mfobj = open(filename, 'rb') 
+    
     try:
         m = mfobj.read()
+        # get length of first line
+        length1st = 0
+        while m[length1st] != ord('\n') and length1st < 100:
+            length1st += 1
+        if length1st == 100:
+            raise ValueError('First line lenght could no be found')
+        
         #print(m[0].decode('utf8'))
         #s = st.Struct('ii')
         #m_it = m.__iter__()
-        head_dims = st.unpack('<11s', m[:11])
+        head_dims = st.unpack(f'<{length1st}s', m[:length1st])
         n_vocab, n_dim = map(int,head_dims[0].strip().split())
         print(f"Vocabulary size: {n_vocab} and dimension of embed: {n_dim}")
         embed = {}

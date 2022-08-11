@@ -45,6 +45,8 @@ from yellowbrick.text import TSNEVisualizer
 from scipy.cluster.vq import kmeans
 from sklearn.manifold import TSNE
 from wordcloud import WordCloud, STOPWORDS
+# #%matplotlib notebook
+# %matplotlib inline
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.patches import Circle, RegularPolygon
@@ -54,10 +56,12 @@ from matplotlib.projections import register_projection
 from matplotlib.spines import Spine
 from matplotlib.transforms import Affine2D
 from sklearn.decomposition import PCA
+import mplcursors
 
 import umap
 import scattertext as st
 import random
+import json
 
 from ripser import ripser
 from ripser import Rips
@@ -253,35 +257,35 @@ def common_low_entropy_terms(N1, N2):
         term_entropy.append((t, max_subject, sum(tb.values())))
     return sorted(term_entropy, key=lambda x: x[2])[:N2]
 
-
-# +
-# Glove vector files
-# vectors.txt file has one more line for the <unk> token
-glove_dir_path = '/home/luis/rm_me/model13-34_08-11/'
-with open(glove_dir_path + 'vocab.txt', 'r') as f: 
-    words = [x.rstrip().split(' ')[0] for x in f.readlines()] 
-with open(glove_dir_path + 'vectors.txt', 'r') as f:
-    vectors = {}
-    embed = {}
-    for k,line in tqdm(enumerate(f)):
-        vals = line.rstrip().split(' ')
-        vectors[vals[0]] = [float(x) for x in vals[1:]]
-        try:
-            embed[words[k]] = np.array([float(x) for x in vals[1:]])
-        except IndexError:
-            print('<unk> was referenced and defined')
-            embed['<unk>'] = np.array([float(x) for x in vals[1:]]) 
-        
-
-vocab_size = len(words)
-unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
-
-
-# + magic_args="echo not with glove" language="script"
-# with open_w2v('/media/hd1/embeddings/model14-51_20-08/vectors.bin') as embed:
-# #with open_w2v('/media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin') as embed:
-#     unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
+# + magic_args="echo this opens glove embedding" language="script"
+# # Glove vector files
+# # vectors.txt file has one more line for the <unk> token
+# glove_dir_path = '/home/luis/rm_me/model13-34_08-11/'
+# with open(glove_dir_path + 'vocab.txt', 'r') as f: 
+#     words = [x.rstrip().split(' ')[0] for x in f.readlines()] 
+# with open(glove_dir_path + 'vectors.txt', 'r') as f:
+#     vectors = {}
+#     embed = {}
+#     for k,line in tqdm(enumerate(f)):
+#         vals = line.rstrip().split(' ')
+#         vectors[vals[0]] = [float(x) for x in vals[1:]]
+#         try:
+#             embed[words[k]] = np.array([float(x) for x in vals[1:]])
+#         except IndexError:
+#             print('<unk> was referenced and defined')
+#             embed['<unk>'] = np.array([float(x) for x in vals[1:]]) 
+#         
+#
+# vocab_size = len(words)
+# unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
 # -
+
+
+# #%%script echo not with glove
+#with open_w2v('/media/hd1/embeddings/model14-51_20-08/vectors.bin') as embed:
+#with open_w2v('/media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin') as embed:
+with open_w2v('/home/luis/rm_me/model_17-54_10-08/vectors.bin') as embed:
+    unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
 
 common_term = term_cnt.most_common()[200][0].lower().replace(' ', '_')
 print(f" The term is: {common_term} and the first components of the vector are:")
@@ -326,8 +330,8 @@ tsne2 = TSNEVisualizer()   #labels=['math.AG','math.DG'])
 tsne2.fit(tot_vec, labels_vec)
 tsne2.show(figsize=100)
 
-for l in nearest(unit_embed.get('riccati_equation'), unit_embed, n_near=16):
-    print(l[0], "&" ,"{0:0.2f}".format(l[1]), "\\\\")
+for l in nearest(unit_embed.get('banach_space'), unit_embed, n_near=16):
+    print(l[0], "&" ,"{0:0.2f}".format(1-l[1]), "\\\\")
 
 nearest(unit_embed['abelian'], unit_embed, n_near=5)
 
@@ -336,6 +340,9 @@ v2 = unit_embed['infinite']
 v3 = (v2 - v1) + unit_embed['abelian']
 nearest(v3, unit_embed, n_near=5)
 
+centers[0]
+
+# +
 tsne1 = TSNE()
 tot_vec = np.stack(ag_lst + dg_lst, axis=0)
 means = kmeans(tot_vec, 10)
@@ -343,16 +350,36 @@ tot_vec = np.concatenate([tot_vec, means[0]], axis=0)
 labels_vec = len(ag_lst)*['math.AG'] + len(dg_lst)*['math.DG'] + 2*['center']
 tran_vec = tsne1.fit_transform(tot_vec, labels_vec)
 x,y =  list(zip(tran_vec.transpose()))
-plt.figure(figsize=[7,7])
+plt.figure(figsize=[8,8])
 plt.scatter(x[0][:500],y[0][:500])
 plt.scatter(x[0][500:1000], y[0][500:1000], color='green')
-plt.scatter(x[0][1000:], y[0][1000:], color='red')
+#plt.scatter(x[0][1000:], y[0][1000:], color='red')
+
+centers = zip(x[0][1000:], y[0][1000:])
+for k,c in enumerate(centers):
+    plt.text( c[0], c[1], str(k), color='red')
+
 plt.savefig('/home/luis/tsne_ag_dg.png')
 plt.show()
+centers = []
 for k,center in enumerate(means[0]):
     print(f"----------- Center {k} nearest neighbors ------------")
-    for word,dist in nearest(center, unit_embed, n_near=7):
+    NNeig = nearest(center, unit_embed, n_near=6)
+    centers.append([t[0] for t in NNeig])
+    for word,dist in NNeig:
         print(word, "{0:3.2f}".format(dist))
+
+np.save('/home/luis/ims/tsne_array.nparr', tran_vec)
+with open('/home/luis/ims/centerterms.json', 'w') as fobj:
+    print(json.dumps(centers), file=fobj)
+# -
+
+plt.figure(figsize=[8,8])
+plt.scatter(x[0][:500],y[0][:500], label='math.AG')
+plt.scatter(x[0][500:1000], y[0][500:1000], color='green', label='math.DG')
+plt.scatter(x[0][1000:], y[0][1000:], color='red')
+plt.legend()
+plt.savefig("/home/luis/ims/clustercenters.png", dpi=300, bbox_inches='tight')
 
 umap1 = umap.UMAP()
 tot_vec = np.stack(ag_lst + dg_lst, axis=0)
@@ -366,6 +393,9 @@ plt.scatter(x[0][:500],y[0][:500], s=5)
 plt.scatter(x[0][500:1000], y[0][500:1000], color='green', s=5)
 plt.scatter(x[0][1000:], y[0][1000:], color='red' )
 plt.show()
+
+for s in clSt[-10:]:
+    print(f"{s[0]} & {s[1]} & {s[2]:2.2f} \\\\")
 
 # +
 tsne1 = TSNE()
@@ -398,7 +428,7 @@ tran_vec = tsne1.fit_transform(tot_vec, labels_vec)
 #tran_vec = umap1.fit_transform(tot_vec, labels_vec)
 x,y =  list(zip(tran_vec.transpose()))
 plt.figure(figsize=[10,10])
-scatter = plt.scatter(x[0],y[0],marker='+', c = cc, s=20, alpha=0.9)
+scatter = plt.scatter(x[0],y[0],marker='.', c = cc, s=20, alpha=0.9)
 leg1 = plt.legend(scatter.legend_elements()[0], labels_set_list, prop={'size': 10})
 
 #props = dict(boxstyle='round', facecolor='white', alpha=0.5)
@@ -416,7 +446,12 @@ tsne1 = TSNE()
 #umap1 = umap.UMAP()
 plt.rcParams["image.cmap"] = 'Set1'
 embed_coverage_cnt = 0
-#clSt = common_low_entropy_terms(100000, 50000)
+
+if 'clSt' in locals().keys():
+    pass
+else:
+    clSt = common_low_entropy_terms(100000, 50000)
+    
 # In order to add shapes we need different plots
 subj_lst = ['math.FA','math.DG' , 'math.OC', 'math.NT' ]
 vect_term_dict = {s: [] for s in subj_lst}
@@ -458,7 +493,8 @@ for lab,s in enumerate(vect_term_dict.keys()):
     pick_text += list(np.random.choice(R, size=4))
     rcnt += len(vect_term_dict[s])
     scatter = plt.scatter(x[0][R],y[0][R],
-                          marker=marker_lst[lab],
+                          #marker=marker_lst[lab],
+                          marker='.',
                           color=[color_fun(lab)],
                           s=125, alpha=0.9,
                          label=s)
@@ -474,48 +510,48 @@ plt.savefig('/home/luis/acl_pics/marker_option2_light.png', bbox_inches='tight')
 plt.savefig('/home/luis/acl_pics/marker_option2.png', dpi=300, bbox_inches='tight')
 plt.show()
 
-# + jupyter={"outputs_hidden": true}
-M = 80 #marksize
-P = 300 # number of points in each class
-
-Opt = 39
-while True:
-    pick_text = []
-
-    labels_set_list = list(set(labels_vec)) # to find the colormap
-    cc = [labels_set_list.index(l) for l in labels_vec]
-    tot_vec = np.stack(vec_lst, axis=0)
-    tran_vec = tsne1.fit_transform(tot_vec, labels_vec)
-    #tran_vec = umap1.fit_transform(tot_vec, labels_vec)
-
-    x,y =  list(zip(tran_vec.transpose()))
-    plt.figure(figsize=[10,10])
-    rcnt = 0 # Range counter
-    color_fun = plt.get_cmap()
-    marker_lst = ['*', 'x', '+', '4']
-    for lab,s in enumerate(vect_term_dict.keys()):
-        R = range(rcnt, rcnt+ min(len(vect_term_dict[s]), P))
-        pick_text += list(np.random.choice(R, size=4))
-        rcnt += len(vect_term_dict[s])
-        scatter = plt.scatter(x[0][R],y[0][R],
-                              marker=marker_lst[lab],
-                              color=[color_fun(lab)],
-                              s=M, alpha=0.9,
-                             label=s)
-        #leg1 = plt.legend(scatter.legend_elements()[0], labels_set_list, prop={'size': 10})
-    plt.legend()
-    #props = dict(boxstyle='round', facecolor='white', alpha=0.5)
-    props = dict(facecolor='white', alpha=0.7)
-    for i in pick_text:
-        plt.text(x[0][i], y[0][i], term_lst[i], size='large', bbox=props,zorder=1)
-        plt.scatter([x[0][i]], [y[0][i]], s=55, c='black',zorder=2)
-
-    print('Saving to: ', f'/home/luis/acl_pics/m{M}p{P}opt{Opt}.png')
-    #plt.savefig(f'/home/luis/acl_pics/m{M}p{P}opt{Opt}_light.png', bbox_inches='tight')
-    plt.savefig(f'/home/luis/acl_pics/m{M}p{P}opt{Opt}.png', dpi=300, bbox_inches='tight')
-    plt.clf()
-    Opt += 1
-#plt.show()
+# + magic_args="echo this saves a lot of files and takes a long time" language="script"
+# M = 80 #marksize
+# P = 300 # number of points in each class
+#
+# Opt = 39
+# while True:
+#     pick_text = []
+#
+#     labels_set_list = list(set(labels_vec)) # to find the colormap
+#     cc = [labels_set_list.index(l) for l in labels_vec]
+#     tot_vec = np.stack(vec_lst, axis=0)
+#     tran_vec = tsne1.fit_transform(tot_vec, labels_vec)
+#     #tran_vec = umap1.fit_transform(tot_vec, labels_vec)
+#
+#     x,y =  list(zip(tran_vec.transpose()))
+#     plt.figure(figsize=[10,10])
+#     rcnt = 0 # Range counter
+#     color_fun = plt.get_cmap()
+#     marker_lst = ['*', 'x', '+', '4']
+#     for lab,s in enumerate(vect_term_dict.keys()):
+#         R = range(rcnt, rcnt+ min(len(vect_term_dict[s]), P))
+#         pick_text += list(np.random.choice(R, size=4))
+#         rcnt += len(vect_term_dict[s])
+#         scatter = plt.scatter(x[0][R],y[0][R],
+#                               marker=marker_lst[lab],
+#                               color=[color_fun(lab)],
+#                               s=M, alpha=0.9,
+#                              label=s)
+#         #leg1 = plt.legend(scatter.legend_elements()[0], labels_set_list, prop={'size': 10})
+#     plt.legend()
+#     #props = dict(boxstyle='round', facecolor='white', alpha=0.5)
+#     props = dict(facecolor='white', alpha=0.7)
+#     for i in pick_text:
+#         plt.text(x[0][i], y[0][i], term_lst[i], size='large', bbox=props,zorder=1)
+#         plt.scatter([x[0][i]], [y[0][i]], s=55, c='black',zorder=2)
+#
+#     print('Saving to: ', f'/home/luis/acl_pics/m{M}p{P}opt{Opt}.png')
+#     #plt.savefig(f'/home/luis/acl_pics/m{M}p{P}opt{Opt}_light.png', bbox_inches='tight')
+#     plt.savefig(f'/home/luis/acl_pics/m{M}p{P}opt{Opt}.png', dpi=300, bbox_inches='tight')
+#     plt.clf()
+#     Opt += 1
+# #plt.show()
 
 # +
 # PLOT THE CENTERS OF EACH MATH CATEGORY
@@ -533,7 +569,7 @@ for cat in tqdm(bs_dist.keys()):
                 else:
                     not_in_embed_cnt += 1 # too much repetitions
 
-bias_centers = np.zeros([len(bias_vect_dict.keys()), 50])
+bias_centers = np.zeros([len(bias_vect_dict.keys()), 500])
 cat_lst = []
 for k,cat in enumerate(bias_vect_dict.keys()):
     # find the averages
@@ -544,10 +580,12 @@ for k,cat in enumerate(bias_vect_dict.keys()):
 pca = PCA(n_components=2)
 pca.fit(bias_centers.T)
 
-plt.figure(figsize=[12,12])
+plt.figure(figsize=[8,8])
 plt.scatter(pca.components_[0], pca.components_[1], alpha=0.5, s=[c[1]/20 for c in cat_lst])
+plt.title("The Map Of Math")
 for k in range(len(cat_lst)):
     plt.text(pca.components_[0][k], pca.components_[1][k], cat_lst[k][0])
+plt.savefig('/home/luis/ims/mapofmath.png', bbox_inches='tight')
 
 # +
 trace = go.Scatter(
@@ -680,11 +718,15 @@ def plot_wordcloud(text, mask=None, max_words=200, max_font_size=100, figure_siz
 plot_wordcloud(df[df.target==1]['value vector'], title='Similar words')
 # -
 
+article_name = '1703.01772'
 for name, fobj in  peep.tar_iter('/media/hd1/promath/math17/1703_004.tar.gz', '.xml'):
-    if '1703.01352' in name:
+    if article_name in name:
         article = px.DefinitionsXML(fobj)
         art_str = " ".join([article.recutext(a) for a in article.para_list()])
-plot_wordcloud(art_str, title='arXiv:1703.01352')
+    else:
+        pass
+        #print(name)
+plot_wordcloud(art_str, title=article_name)
 
 
 # + magic_args="echo skipping" language="script"
@@ -837,6 +879,16 @@ if __name__ == '__main__':
              size='large')
 
     plt.show()
-# -
+# +
+data = np.outer(range(10), range(1, 5))
+
+fig, ax = plt.subplots()
+lines = ax.plot(data)
+ax.set_title("Click somewhere on a line.\nRight-click to deselect.\n"
+             "Annotations can be dragged.")
+
+mplcursors.cursor(lines)  # or just mplcursors.cursor()
+
+plt.show()
 
 

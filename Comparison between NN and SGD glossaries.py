@@ -72,11 +72,14 @@ def read_all_files(Path):
             N = float(art.attrib['num'])
             #percs = np.array(list(float(a.attrib['index']) for a in art.findall('.//definition')))/N
             #perc_array = np.append(perc_array, percs)
-    return norm_term_cnt, term_cnt, tot_dfndum_lst_cumcnt, definition_cnt, article_cnt
+    return norm_term_cnt, term_cnt, tot_dfndum_lst_cumcnt,\
+           definition_cnt, article_cnt, new_dfndum_lst, term_cnt, rep_ratio
 
     
-sgd_ntc, sgd_tc, sgd_all, sgd_deftion_cnt, sdg_art_cnt = read_all_files(SGD_path)
-nn_ntc, nn_tc, nn_all, nn_deftion_cnt, nn_art_cnt = read_all_files(NN_path)
+sgd_ntc, sgd_tc, sgd_all, sgd_deftion_cnt,\
+sdg_art_cnt, new_dfndum_lst, term_cnt, rep_ratio = read_all_files(SGD_path)
+nn_ntc, nn_tc, nn_all, nn_deftion_cnt,\
+nn_art_cnt, new_dfndum_lst, term_cnt, rep_ratio = read_all_files(NN_path)
 
 # +
 sgd_set = set(sgd_ntc.keys())
@@ -111,29 +114,44 @@ print(f"Total count for NN: {nn_all[-1]}")
 print(f"AVG term per definition SGD: {sgd_all[-1]/sgd_deftion_cnt}")
 print(f"AVG term per definition NN: {nn_all[-1]/nn_deftion_cnt}")
 print("The most common terms in the intersection are:")
-In_cnt.most_common()[:25]
+for p in In_cnt.most_common()[:25]:
+    print(f"{p[0]} & {p[1]} \\\\")
 # -
 
+# print the most common 25 multiword
+stop_cnt = 0
+for p in In_cnt.most_common():
+    if len(p[0].split())>1:
+        print(f"{p[0]} & {p[1]:,d} \\\\")
+        stop_cnt += 1
+        if stop_cnt > 25:
+            break
+
+# +
 # number of terms in a Defdum
-fig=plt.figure(figsize=(6, 5))
+fig=plt.figure(figsize=(4, 8))
 n_words = [len(w.split()) for w in In_cnt.keys()]
 len_cnt = Counter(n_words)
 plt.style.use('ggplot')
-reversed_range = list(range(1,11))
-reversed_range.reverse()
+
+range_len = 6
+reversed_range = list(range(1, range_len))
+#reversed_range.reverse()
 ax = plt.subplot(111)
-plt.barh([k for k,_ in enumerate(reversed_range)], [len_cnt[l] for l in reversed_range],color='orange')
-plt.yticks(range(10), reversed_range)
+plt.bar([k for k,_ in enumerate(reversed_range)], [len_cnt[l] for l in reversed_range],color='orange')
+plt.xticks(range(range_len-1), reversed_range)
 plt.ylabel('Number of Words in Phrase')
 plt.xlabel('Count of Terms with this Length')
 plt.title('Length of Definienda')
-ax.get_xaxis().set_major_formatter(
+ax.get_yaxis().set_major_formatter(
     matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+plt.savefig('/home/luis/ims/term_word_len.eps', format='eps', bbox_inches='tight')
 plt.show()
 #[w for w in dfndum_set if len(w.split()) > 10][:5]
 print("The number of terms with more than 6 words is: {}".format(
 sum([1 for n in n_words if n > 6])))
 print('\n'.join([w for w in In_cnt if len(w.split()) > 6]))
+# -
 
 print('Search for a term')
 next((ind,ph) for ind, ph in enumerate(In_cnt.most_common()) if ph[0] == 'well known method')
@@ -149,6 +167,7 @@ phrases_cnt[s:s+15]
 #term_cnt['local stability properties']
 
 
+tot_dfndum_lst = nn_all
 print(f"Total # of term: {tot_dfndum_lst[-1]:,d}")
 print(f"# of distinct terms: {new_dfndum_lst[-1]:,d}")
 s = 0
@@ -186,7 +205,7 @@ plt.show()
 
 
 # +
-plt.figure(figsize=(12,6))
+plt.figure(figsize=(11,5))
 ax1 = plt.subplot(121)
 plt.plot(new_dfndum_lst, label='new')
 plt.plot(tot_dfndum_lst, label='total')
