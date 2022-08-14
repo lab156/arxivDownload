@@ -11,13 +11,6 @@
 # copy and modify set_local_var.sh file
 source gitignore_set_local_var
 
-normalize_text() {
-  awk '{print tolower($0);}' | tr -cd '[:print:]' | sed -e "s/’/'/g" -e "s/′/'/g" -e "s/''/ /g" -e "s/'/ ' /g" -e "s/“/\"/g" -e "s/”/\"/g" \
-  -e 's/"/ " /g' -e 's/\./ \. /g' -e 's/<br \/>/ /g' -e 's/, / , /g' -e 's/(/ ( /g' -e 's/)/ ) /g' -e 's/\!/ \! /g' \
-  -e 's/\?/ \? /g' -e 's/\;/ /g' -e 's/\:/ /g' -e 's/-/ - /g' -e 's/=/ /g' -e 's/=/ /g' -e 's/*/ /g' -e 's/|/ /g' \
-  -e 's/«/ /g' | tr 0-9 " "
-}
-
 
 cd $EMBEDBINFILES/word2vec
 #DATA="/pylon5/ms5pi8p/lab232/miniclean"
@@ -29,18 +22,34 @@ MODEL=$MODELDIR/"model_"`date '+%H-%M_%d-%m'`
 
 
 mkdir $MODEL
+echo "Using the parameters" > $MODEL/log.txt
+cat gitignore_set_local_var > $MODEL/log.txt
+
 cd $ARXIVDOWNDIR/embed
-for file in $CLEANDATADIR/math*;
-do
-    echo "Concatenating file $file"
-    cat $file | python3 run_normalize.py embed4classif >> $MODEL/data.txt
-done
+#for file in $CLEANDATADIR/math*;
+#do
+#    echo "Concatenating file $file"
+#    cat $file | python3 run_normalize.py embed4classif >> $MODEL/data.txt
+#done
+# USE A CLEAN FILE DIRECTLY INSTEAD OF SPENDING TIME CLEANING math*
+echo "Using file $CLEANDATADIR/data.txt" | tee $MODEL/log.txt
+cp $CLEANDATADIR/data.txt $MODEL/data.txt
 
 
 cd $EMBEDBINFILES/word2vec
 
 #./word2phrase -train data.txt -output data-phrase.txt -threshold 200 -debug 2
 #./word2phrase -train data-phrase.txt -output data-phrase2.txt -threshold 100 -debug 2
-./word2vec -train $MODEL/data.txt -output $MODEL/vectors.bin -cbow 1 -size 200 -window 10 -negative 25 -hs 0 -sample 1e-5 -threads 10 -binary 1 -iter 2 -min-count 10000
+./word2vec -train $MODEL/data.txt -output $MODEL/vectors.bin \
+    -cbow $W2V_cbow \
+    -size $W2V_size \ 
+    -window $W2V_window \ 
+    -negative $W2V_negative \
+    -hs $W2V_hs  \
+    -sample $W2V_sample \
+    -threads $W2V_threads \
+    -binary $W2V_binary \
+    -iter $W2V_iter \
+    -min-count $W2V_min_count
 
 

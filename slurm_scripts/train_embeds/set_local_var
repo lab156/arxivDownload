@@ -3,3 +3,15 @@ EMBEDBINFILES="/pathto/Paquetes"
 ARXIVDOWNDIR="/pathto/arxivDownload"
 CLEANDATADIR="/pathto/cleaned_text/clean_text"
 MODELDIR="/pathto/rm_me"
+
+
+W2V_cbow=1
+W2V_size=200
+W2V_window=10
+W2V_negative=25 
+W2V_hs=0 
+W2V_sample=1e-5 
+W2V_threads=10 
+W2V_binary=1 
+W2V_iter=2 
+W2V_min_count=10000
