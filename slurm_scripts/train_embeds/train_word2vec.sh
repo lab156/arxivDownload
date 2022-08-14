@@ -23,8 +23,8 @@ MODEL=$MODELDIR/"model_"`date '+%H-%M_%d-%m'`
 
 
 mkdir $MODEL
-echo "Using the parameters" > $MODEL/log.txt
-cat $SOURCE_DIR/gitignore_set_local_var > $MODEL/log.txt
+echo "Using the parameters:" | tee -a $MODEL/log.txt
+cat $SOURCE_DIR/gitignore_set_local_var | tee -a $MODEL/log.txt
 
 cd $ARXIVDOWNDIR/embed
 #for file in $CLEANDATADIR/math*;
@@ -33,10 +33,10 @@ cd $ARXIVDOWNDIR/embed
 #    cat $file | python3 run_normalize.py embed4classif >> $MODEL/data.txt
 #done
 # USE A CLEAN FILE DIRECTLY INSTEAD OF SPENDING TIME CLEANING math*
-echo "Using file $CLEANDATADIR/data.txt" | tee $MODEL/log.txt
+echo "Using file $CLEANDATADIR/data.txt" | tee -a $MODEL/log.txt
 cp $CLEANDATADIR/data.txt $MODEL/data.txt
 
-echo "I ran on: $SLURM_NODELIST" | tee >> $MODEL/log.txt
+echo "I ran on: $SLURM_NODELIST" | tee -a $MODEL/log.txt
 
 cd $EMBEDBINFILES/word2vec
 
