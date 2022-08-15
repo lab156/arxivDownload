@@ -5,6 +5,7 @@ CLEANDATADIR="/pathto/cleaned_text/clean_text"
 MODELDIR="/pathto/rm_me"
 
 
+#WORD2VEC PARAMETERS
 W2V_cbow=1
 W2V_size=200
 W2V_window=10
@@ -15,3 +16,15 @@ W2V_threads=10
 W2V_binary=1 
 W2V_iter=2 
 W2V_min_count=5
+
+
+BUILDDIR=$EMBEDBINFILES/GloVe/build
+VERBOSE=2
+MEMORY=4.0
+VOCAB_MIN_COUNT=100000
+VECTOR_SIZE=64
+MAX_ITER=20
+WINDOW_SIZE=15
+BINARY=2
+NUM_THREADS=8
+X_MAX=10
