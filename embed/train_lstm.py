@@ -63,6 +63,9 @@ def gen_cfg(**kwargs):
     cfg['local_dir'] = os.environ.get('TEMPFASTSTORAGE',
             '/tmp/rm_me_experiments')  # This is temporary fast storage
 
+    cfg['wembed_path'] = os.path.join(cfg['base_dir'],
+                        #'embeddings/glove_model_18-31_15-08')
+                        'embeddings/model_16-05_15-08')
     if cfg['model_type'] == 'lstm':
         cfg['lstm_cells'] = 128 # Required LSTM layer parameter
         cfg['epochs'] = 2
@@ -233,19 +236,21 @@ def read_train_data(xml_lst, cfg):
 def gen_embed_matrix(tkn2idx, cfg):
     coverage_cnt = 0
     #cfg['wembed_path'] = os.path.join(cfg['base_dir'], 'embeddings/model14-14_12-08/vectors.bin')
-    cfg['wembed_path'] = os.path.join(cfg['base_dir'], 'embeddings/glove_model_18-31_15-08')
+    #cfg['wembed_path'] = os.path.join(cfg['base_dir'],
+    #                    'embeddings/glove_model_18-31_15-08')
     
-    #with open_w2v(cfg['wembed_path']) as embed_dict:
-    if True:
+    try:
         embed_dict = open_glove(cfg['wembed_path'])
-        cfg['embed_dim'] = embed_dict[next(iter(embed_dict))].shape[0]
-        embed_matrix = np.zeros((cfg['tot_words'], cfg['embed_dim']))
-        for word, ind in tkn2idx.items():
-            vect = embed_dict.get(word)
-            if vect is not None:
-                #vect = vect/np.linalg.norm(vect)
-                embed_matrix[ind] = vect
-                coverage_cnt += 1
+    except ValueError:
+        embed_dict = open_w2v(cfg['wembed_path'])
+    cfg['embed_dim'] = embed_dict[next(iter(embed_dict))].shape[0]
+    embed_matrix = np.zeros((cfg['tot_words'], cfg['embed_dim']))
+    for word, ind in tkn2idx.items():
+        vect = embed_dict.get(word)
+        if vect is not None:
+            #vect = vect/np.linalg.norm(vect)
+            embed_matrix[ind] = vect
+            coverage_cnt += 1
 
     logger.info("The coverage ratio is: {0:2.1f}".format(coverage_cnt/len(tkn2idx)))
     print("The coverage ratio is: {0:2.1f}".format(coverage_cnt/len(tkn2idx)))

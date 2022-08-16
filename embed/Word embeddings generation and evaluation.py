@@ -73,7 +73,7 @@ from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 
 # %load_ext autoreload
 # %autoreload 2
-from embed_utils import generate, nearest, open_w2v 
+from embed_utils import generate, nearest, open_w2v, open_glove
 from clean_and_token_text import normalize_text, token_phrases3
 
 # + magic_args="echo skipping" language="script"
@@ -278,7 +278,7 @@ with open(glove_dir_path + 'vectors.txt', 'r') as f:
             print('<unk> was referenced and defined')
             embed['<unk>'] = np.array([float(x) for x in vals[1:]]) 
         
-
+embed = open_glove(glove_dir_path)
 vocab_size = len(words)
 unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
 # -
@@ -287,8 +287,8 @@ unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
 # #%%script echo not with glove
 #with open_w2v('/media/hd1/embeddings/model14-51_20-08/vectors.bin') as embed:
 #with open_w2v('/media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin') as embed:
-with open_w2v('/home/luis/rm_me/model_17-54_10-08/vectors.bin') as embed:
-    unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
+embed = open_w2v('/media/hd1/embeddings/model_16-05_15-08/') 
+unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
 
 common_term = term_cnt.most_common()[200][0].lower().replace(' ', '_')
 print(f" The term is: {common_term} and the first components of the vector are:")
@@ -893,6 +893,7 @@ ax.set_title("Click somewhere on a line.\nRight-click to deselect.\n"
 mplcursors.cursor(lines)  # or just mplcursors.cursor()
 
 plt.show()
+
 
 
 
