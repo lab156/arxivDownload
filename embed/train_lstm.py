@@ -33,7 +33,7 @@ sys.path.extend(["/home/luis/.local/lib/python3.8/site-packages"])
 
 # %load_ext autoreload
 # %autoreload 2
-from embed_utils import open_w2v
+from embed_utils import open_w2v, open_glove
 from clean_and_token_text import normalize_text
 import sys,inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -71,7 +71,7 @@ def gen_cfg(**kwargs):
     elif cfg['model_type'] == 'conv':
         cfg['conv_filters'] = 1024 # 256
         cfg['kernel_size'] = 20 # 10
-        cfg['epochs'] = 20 # 35 
+        cfg['epochs'] = 0 #20 # 35 
         cfg['model_name'] = conv_model_globavgpool.__name__
     else:
         raise NotImplementedError(f'Model Type: {cfg["model_type"]} not defined')
@@ -232,8 +232,12 @@ def read_train_data(xml_lst, cfg):
 
 def gen_embed_matrix(tkn2idx, cfg):
     coverage_cnt = 0
-    cfg['wembed_path'] = os.path.join(cfg['base_dir'], 'embeddings/model14-14_12-08/vectors.bin')
-    with open_w2v(cfg['wembed_path']) as embed_dict:
+    #cfg['wembed_path'] = os.path.join(cfg['base_dir'], 'embeddings/model14-14_12-08/vectors.bin')
+    cfg['wembed_path'] = os.path.join(cfg['base_dir'], 'embeddings/glove_model_18-31_15-08')
+    
+    #with open_w2v(cfg['wembed_path']) as embed_dict:
+    if True:
+        embed_dict = open_glove(cfg['wembed_path'])
         cfg['embed_dim'] = embed_dict[next(iter(embed_dict))].shape[0]
         embed_matrix = np.zeros((cfg['tot_words'], cfg['embed_dim']))
         for word, ind in tkn2idx.items():
@@ -243,7 +247,8 @@ def gen_embed_matrix(tkn2idx, cfg):
                 embed_matrix[ind] = vect
                 coverage_cnt += 1
 
-    logger.info("The coverage percentage is: {0:2.1f}".format(coverage_cnt/len(tkn2idx)))
+    logger.info("The coverage ratio is: {0:2.1f}".format(coverage_cnt/len(tkn2idx)))
+    print("The coverage ratio is: {0:2.1f}".format(coverage_cnt/len(tkn2idx)))
 
     return embed_matrix, cfg
 

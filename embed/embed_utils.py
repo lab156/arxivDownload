@@ -1,6 +1,6 @@
 import argparse
 import numpy as np
-import sys
+import sys, os
 from math import floor
 from collections import OrderedDict as odict
 from contextlib import contextmanager
@@ -59,9 +59,9 @@ def open_glove(filepath):
     Output: embed dictionary with the format: {word: vector}
     '''
     glove_dir_path = filepath
-    with open(glove_dir_path + 'vocab.txt', 'r') as f: 
+    with open(os.path.join(glove_dir_path, 'vocab.txt'), 'r') as f: 
         words = [x.rstrip().split(' ')[0] for x in f.readlines()] 
-    with open(glove_dir_path + 'vectors.txt', 'r') as f:
+    with open(os.path.join(glove_dir_path, 'vectors.txt'), 'r') as f:
         #vectors = {}
         embed = {}
         for k,line in tqdm(enumerate(f)):

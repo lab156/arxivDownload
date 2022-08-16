@@ -257,27 +257,30 @@ def common_low_entropy_terms(N1, N2):
         term_entropy.append((t, max_subject, sum(tb.values())))
     return sorted(term_entropy, key=lambda x: x[2])[:N2]
 
-# + magic_args="echo this opens glove embedding" language="script"
-# # Glove vector files
-# # vectors.txt file has one more line for the <unk> token
-# glove_dir_path = '/home/luis/rm_me/model13-34_08-11/'
-# with open(glove_dir_path + 'vocab.txt', 'r') as f: 
-#     words = [x.rstrip().split(' ')[0] for x in f.readlines()] 
-# with open(glove_dir_path + 'vectors.txt', 'r') as f:
-#     vectors = {}
-#     embed = {}
-#     for k,line in tqdm(enumerate(f)):
-#         vals = line.rstrip().split(' ')
-#         vectors[vals[0]] = [float(x) for x in vals[1:]]
-#         try:
-#             embed[words[k]] = np.array([float(x) for x in vals[1:]])
-#         except IndexError:
-#             print('<unk> was referenced and defined')
-#             embed['<unk>'] = np.array([float(x) for x in vals[1:]]) 
-#         
-#
-# vocab_size = len(words)
-# unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
+
+# +
+# #%%script echo this opens glove embedding
+# Glove vector files
+# vectors.txt file has one more line for the <unk> token
+glove_dir_path = '/home/luis/rm_me/model13-34_08-11/'
+glove_dir_path = '/media/hd1/embeddings/glove_model_18-31_15-08/'
+with open(glove_dir_path + 'vocab.txt', 'r') as f: 
+    words = [x.rstrip().split(' ')[0] for x in f.readlines()] 
+with open(glove_dir_path + 'vectors.txt', 'r') as f:
+    vectors = {}
+    embed = {}
+    for k,line in tqdm(enumerate(f)):
+        vals = line.rstrip().split(' ')
+        vectors[vals[0]] = [float(x) for x in vals[1:]]
+        try:
+            embed[words[k]] = np.array([float(x) for x in vals[1:]])
+        except IndexError:
+            print('<unk> was referenced and defined')
+            embed['<unk>'] = np.array([float(x) for x in vals[1:]]) 
+        
+
+vocab_size = len(words)
+unit_embed = {w: v/np.linalg.norm(v) for w,v in embed.items()}
 # -
 
 
@@ -890,5 +893,6 @@ ax.set_title("Click somewhere on a line.\nRight-click to deselect.\n"
 mplcursors.cursor(lines)  # or just mplcursors.cursor()
 
 plt.show()
+
 
 
