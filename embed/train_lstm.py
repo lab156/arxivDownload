@@ -241,7 +241,7 @@ def gen_embed_matrix(tkn2idx, cfg):
     
     try:
         embed_dict = open_glove(cfg['wembed_path'])
-    except ValueError:
+    except FileNotFoundError:
         embed_dict = open_w2v(cfg['wembed_path'])
     cfg['embed_dim'] = embed_dict[next(iter(embed_dict))].shape[0]
     embed_matrix = np.zeros((cfg['tot_words'], cfg['embed_dim']))
