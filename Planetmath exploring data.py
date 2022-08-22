@@ -126,4 +126,6 @@ for filenm in glob.glob('/media/hd1/planetmath/91_Game_theory_economics_social_a
 
 random_article.find('.//stmnt').text
 
+2+2
+
 

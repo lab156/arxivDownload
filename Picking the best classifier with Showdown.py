@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.0
+#       jupytext_version: 1.5.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -94,13 +94,14 @@ import parsing_xml as px
 
 stats = {}
 time1 = time.time()
-xml_lst = glob.glob("/mnt/training_defs/math1*/*.xml.gz")
+#xml_lst = glob.glob("/mnt/training_defs/math1*/*.xml.gz")
+xml_lst = glob.glob("/media/hd1/training_defs/math17/*.xml.gz")
 #allData = pd.DataFrame()
 all_data_texts = []
 all_data_labels = []
 def_cnt = 0
 nondef_cnt = 0
-for X in xml_lst[:20]:
+for X in xml_lst:
     tar_tree = etree.parse(X)
     def_lst = tar_tree.findall('.//definition')
     nondef_lst = tar_tree.findall('.//nondef')
@@ -113,6 +114,14 @@ for X in xml_lst[:20]:
 stats['parsing_time'] = time.time() - time1
 print("Definition count: {0:,d}.   NonDefinitions count: {1:,d}. Total: {2:,d}".format(def_cnt, nondef_cnt, (def_cnt+nondef_cnt)))
 print('took {0:1.1f} secs'.format(stats['parsing_time']))
+
+parags_lengths = [min(len(p.split()),400) for p in all_data_texts]
+ex = plt.hist(parags_lengths, bins=100)
+plt.xlabel('Word Count in Training Sample')
+plt.ylabel('Number of Samples')
+plt.title("Number of Words in Training Samples")
+plt.grid()
+plt.savefig('/home/luis/ims/train_length.png')
 
 xml_lst = glob.glob("/mnt/training_defs/math9*/*.xml.gz")
 def stream_arxiv_paragraphs(samples=1000):
@@ -184,9 +193,9 @@ print(f"Train size: {len(train_x):,d}. Test size {len(test_x)}. Total {len(test_
 print(f"Vocab len: {len(count_vect.vocabulary_):,d}")
 # -
 
-with open('/mnt/PickleJar/count_vectorizer49.pickle', 'rb') as pickle_obj:
+with open('/media/hd1/PickleJar/count_vectorizer49.pickle', 'rb') as pickle_obj:
     count_vect = pickle.load(pickle_obj)
-with open('/mnt/PickleJar/classifier49.pickle', 'rb') as pickle_obj:
+with open('/media/hd1/PickleJar/classifier49.pickle', 'rb') as pickle_obj:
     clf = pickle.load(pickle_obj)
 
 #param_lst = [1550, 1650, 1750]
@@ -222,7 +231,7 @@ print("="*30)
 # -
 
 # %%time
-stream = stream_arxiv_paragraphs(samples=2500)
+stream = stream_arxiv_paragraphs(samples=25)
 test_x, test_y = next(stream)
 predictions = clf.predict(count_vect.transform(test_x))
 print(metrics.classification_report(predictions,test_y))
@@ -238,7 +247,7 @@ Def = ['a banach space is defined as a complete vector space.',
 vdef = count_vect.transform(Def)
 clf.predict(vdef)
 
-tar_tree = etree.parse('/mnt/training_defs/math19/1902_001.xml.gz')
+tar_tree = etree.parse('/media/hd1/training_defs/math19/1902_001.xml.gz')
 def_lst = tar_tree.findall('.//definition')
 nondef_lst = tar_tree.findall('.//nondef')
 ex_def = [D.text for D in def_lst[:15]]
@@ -260,3 +269,5 @@ fpr, tpr, thresholds = metrics.roc_curve(test_y, pred_prob[:,1])
 plt.plot(fpr, tpr, lw=3)
 
 pred_prob[:,1].shape
+
+
