@@ -5,8 +5,6 @@ rootkey.*
 #vim editing files 
 *~
 *.swp
-#local settings
-config.toml
 
 #python cache
 __pycache__
