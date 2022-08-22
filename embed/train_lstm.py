@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 import gzip
 import json
 import pickle
+import toml
 
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
@@ -47,25 +48,15 @@ import peep_tar as peep
 
 def gen_cfg(**kwargs):
     # GET the default values
-    cfg = {'batch_size': 5000,
-          'glob_data_source': '/training_defs/math*/*.xml.gz',
-          'TVT_split' : 0.8,    ## Train  Validation Test split
-          'max_seq_len': 400,   # Length of padding and input of Embedding layer
-          'promath_dir': 'promath', # name of dir with the processed arXiv tar files
-          #'save_path': 'glossary/test_lstm', #Path to save the positive results
-          'min_words': 15, # min number of words for paragraphs to be considered
-          'model_type': 'lstm',  # options are lstm or conv
-          'profiling': False,     # T/F whether to add the callback for profiling
-          'callbacks': ['epoch_times',],
-          }
+    cfg = toml.load('config.toml')['classif-lstm']
 
-    cfg['base_dir'] = os.environ.get('PERMSTORAGE', '/media/hd1') # This is permanent storage
+    # This is permanent storage
+    cfg['base_dir'] = os.environ.get('PERMSTORAGE', '/media/hd1') 
+    # This is temporary fast storage
     cfg['local_dir'] = os.environ.get('TEMPFASTSTORAGE',
-            '/tmp/rm_me_experiments')  # This is temporary fast storage
+            '/tmp/rm_me_experiments')  
 
     if cfg['model_type'] == 'lstm':
-        cfg['lstm_cells'] = 128 # Required LSTM layer parameter
-        cfg['epochs'] = 2
         cfg['model_name'] = lstm_model_one_layer.__name__
 
     elif cfg['model_type'] == 'conv':
@@ -97,9 +88,6 @@ def gen_cfg(**kwargs):
 
     os.makedirs(cfg['save_path_dir'], exist_ok=True)
 
-    # this might be useful for the classification downstream
-    #cfg['save_path'] = os.path.join(cfg['save_path_dir'], 'classification_results')
-
 
     # CREATE PROFILING LOGS DIRECTORY
     if cfg['profiling'] == True:
@@ -110,8 +98,6 @@ def gen_cfg(**kwargs):
     xml_lst = glob(cfg['base_dir'] + cfg['glob_data_source'])
     
     # SET THE MODEL ARCHITECTURE
-
-        
     
     return xml_lst, cfg
 
@@ -187,7 +173,7 @@ def read_train_data(xml_lst, cfg):
     r_test = r_validation[:int(0.5*len(r_validation))]
     r_validation = r_validation[int(0.5*len(r_validation)):]
     log_str = 'Original Range: {}\n Training: {}  Validation: {}  Test: {} \n'\
-                  .format(repr(r_all_data), repr(r_training), repr(r_test), repr(r_validation))  
+          .format(repr(r_all_data), repr(r_training), repr(r_test), repr(r_validation))  
 
     logger.info(log_str)
 
@@ -366,7 +352,7 @@ def save_weights_tokens(model, idx2tkn, history, cfg, **kwargs):
     spd = os.path.join(cfg['save_path_dir'], subdir_path)
     #os.makedirs(spd, exist_ok=True)
 
-    #model.save_weights( os.path.join(spd, 'model_weights') )
+    model.save_weights( os.path.join(spd, 'model_weights') )
 
     # Log both a pretty printed and a copy-pasteable version of the the cfg
     # dictionary
