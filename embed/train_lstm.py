@@ -48,7 +48,7 @@ import peep_tar as peep
 
 def gen_cfg(**kwargs):
     # GET the default values
-    config_path = kwargs.get('config_path', 'config.path')
+    config_path = kwargs.get('config_path', 'config.toml')
     cfg = toml.load(config_path)['classif-lstm']
 
     # This is permanent storage
