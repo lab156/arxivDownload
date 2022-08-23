@@ -14,6 +14,8 @@
 #     name: python3
 # ---
 
+# # Classification with LSTM and CONV1d
+
 # +
 #from glob import glob
 import os
@@ -54,7 +56,7 @@ from train_utils import TimeHistory, def_scheduler
 
 from train_lstm import *
 args = []
-xml_lst, cfg = gen_cfg()
+xml_lst, cfg = gen_cfg(config_path='../config.toml')
 
 train_seq, validation_seq, test_seq, idx2tkn,\
 tkn2idx, training, validation, test, cfg = read_train_data(xml_lst, cfg)
@@ -385,3 +387,26 @@ for k, dirname in enumerate(['math01',]):
         with gzip.open(gz_out_path, 'wb') as out_f:
             print("Writing to dfdum zipped file to: %s"%gz_out_path)
             out_f.write(etree.tostring(def_root, pretty_print=True))
+# +
+# loading a model saved with model.save
+nmodel = tf.keras.models.load_model(
+    '/tmp/trainer/trained_models/lstm_classifier/lstm_Aug-23_15-50/exp_002/tf_model')
+
+with open(
+    '/tmp/trainer/trained_models/lstm_classifier/lstm_Aug-23_15-50/exp_002/idx2tkn.pickle',
+    'rb') as fobj:
+    wd_lst = pickle.load(fobj)
+
+with open('/tmp/trainer/trained_models/lstm_classifier/lstm_Aug-23_15-50/exp_002/cfg_dict.json') as fobj:
+    cfg = json.load(fobj)
+    
+test_model('/media/hd1/training_defs/math10/1001_001.xml.gz',
+          None,
+          wd_lst,
+          cfg,
+          nmodel)
+# -
+
+print(toml.dumps(cfg))
+
+

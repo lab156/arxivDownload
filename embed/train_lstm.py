@@ -48,7 +48,8 @@ import peep_tar as peep
 
 def gen_cfg(**kwargs):
     # GET the default values
-    cfg = toml.load('config.toml')['classif-lstm']
+    config_path = kwargs.get('config_path', 'config.path')
+    cfg = toml.load(config_path)['classif-lstm']
 
     # This is permanent storage
     cfg['base_dir'] = os.environ.get('PERMSTORAGE', '/media/hd1') 
@@ -305,7 +306,12 @@ def find_best_cutoff(model, val_seq, validation):
 def test_model(path, tkn2idx, idx2tkn, cfg, model):
     '''
     Input the Path to the data ex. /media/hd1/training_defs/math10/1004_001.tar.gz
+    tkn2idx: maps token -> index; use None to generate it from idx2tkn
+    idx2tkn: maps index -> token
     '''
+    if tkn2idx == None:
+        tkn2idx = {tok: idx for idx, tok in enumerate(idx2tkn)}
+
     _xml_lst = [path,]
     stream = stream_arxiv_paragraphs(_xml_lst, samples=6000)
     #os.path.join(base_dir,'training_defs/math10/1008_001.xml.gz'),

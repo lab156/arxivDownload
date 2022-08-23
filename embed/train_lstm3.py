@@ -1,5 +1,27 @@
 from train_lstm import *
 
+def argParse3():
+    '''
+    Parsing all arguments 
+    specific for this script 
+    '''
+    import argparse
+    parser = argparse.ArgumentParser(description="Train LSTM model")
+    parser.add_argument('--epochs', type=int, default=2,
+            help="Number of epochs to train. Overrides default value")
+    parser.add_argument('--experiments', type=int, default=2,
+            help="Number of experiment loops to do.")
+    parser.add_argument('--cells', type=int, default=0,
+            help="Number of first layer LSTM cells.")
+    parser.add_argument('--startat', type=int, default=0,
+            help="Start the experiments at 64*value. Heads up with the 64.")
+    parser.add_argument('-p', '--profiling', action='store_true',
+            help="Set the profiling mode to True (default False)")
+    parser.add_argument('-m', '--mini', action='store_true',
+            help="Set a small version of the training data set.")
+    args = parser.parse_args()
+    return args
+
 def main():
     '''
     Increase the size of the neural network by changing the number of LSTM
@@ -31,13 +53,13 @@ wembed_basename = 'embeddings/glove_model_18-31_15-08'
 
     og_save_path_dir = cfg['save_path_dir']
 #    for num, decay in enumerate(np.linspace(0.4, 0.8, args.experiments)):
-    for num in range(1, args.experiments):
-        cells = 64*num
+    for num in range(args.experiments):
+        cells = 64*(num + 1) + 64*int(args.startat)
         cfg['lstm_cells'] = cells
         logger.info("\n Starting Experiment {} -- training with Number of Cells: {} \n"\
-                        .format(num, cells))
+                        .format(num + 1 , cells))
 
-        cfg['save_path_dir'] = os.path.join(og_save_path_dir , 'exp_{0:0>3}'.format(num))
+        cfg['save_path_dir'] = os.path.join(og_save_path_dir , 'exp_{0:0>3}'.format(num + 1))
         os.makedirs(cfg['save_path_dir'], exist_ok=True)
 
         model = lstm_model_one_layer(embed_matrix, cfg)
