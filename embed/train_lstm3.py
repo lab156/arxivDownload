@@ -8,6 +8,8 @@ def main():
     Options:
     --experiments: Number of sizes in steps of 64 to try.
     -m: minified version of the data set.
+
+wembed_basename = 'embeddings/glove_model_18-31_15-08'
     '''
     args = argParse()
     xml_lst, cfg = gen_cfg(parsed_args = args)
