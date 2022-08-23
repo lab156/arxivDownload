@@ -33,7 +33,7 @@ def main():
 
 wembed_basename = 'embeddings/glove_model_18-31_15-08'
     '''
-    args = argParse()
+    args = argParse3()
     xml_lst, cfg = gen_cfg(parsed_args = args)
 
     logging.basicConfig(filename=os.path.join(cfg['save_path_dir'], 'training.log'),
