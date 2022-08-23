@@ -58,7 +58,8 @@ def gen_cfg(**kwargs):
 
     cfg['wembed_path'] = os.path.join(cfg['base_dir'],
                         #'embeddings/glove_model_18-31_15-08')
-                        'embeddings/model_16-05_15-08')
+                        #'embeddings/model_16-05_15-08',
+                        cfg['wembed_basename'])
     if cfg['model_type'] == 'lstm':
         cfg['model_name'] = lstm_model_one_layer.__name__
 

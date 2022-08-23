@@ -13,3 +13,4 @@
 
 'lstm_cells' = 128 # Required LSTM layer parameter
 'epochs' = 2
+wembed_basename = 'embeddings/glove_model_18-31_15-08'

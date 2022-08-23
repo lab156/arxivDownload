@@ -43,7 +43,8 @@ def main():
         calls, ep_times = model_callbacks(cfg)
         ### FIT THE MODEL ###
         history = model.fit(train_seq, np.array(training[1]),
-                        epochs=cfg['epochs'], validation_data=(validation_seq, np.array(validation[1])),
+                        epochs=cfg['epochs'], validation_data=(validation_seq,
+                                              np.array(validation[1])),
                         batch_size=512,
                         verbose=1,
                         callbacks=calls)
@@ -52,7 +53,8 @@ def main():
         ## change from np.float32 to float for JSON conversion
         history.history['lr'] = [float(l) for l in history.history['lr']]
 
-        cfg = cutoff_predict_metrics(model, validation_seq, validation, test_seq, test, cfg)
+        cfg = cutoff_predict_metrics(model, validation_seq, validation,
+                test_seq, test, cfg)
 
         #save_weights_tokens(model, idx2tkn, history, cfg, subdir='exp_{0:0>3}'.format(num))
         save_tokens_model(model, idx2tkn, history, cfg)
