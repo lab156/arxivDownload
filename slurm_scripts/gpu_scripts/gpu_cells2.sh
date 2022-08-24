@@ -18,7 +18,7 @@ singularity run --nv --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt
 
 
 # CREATE RESULTS DIRECTORY
-results_dir=$PROJECT/cells_search2
-mkdir $results_dir
-cp -r /tmp/trainer/* $results_dir
+#results_dir=$PROJECT/cells_search2
+#mkdir $results_dir
+#cp -r /tmp/trainer/* $results_dir
 
