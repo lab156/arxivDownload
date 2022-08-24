@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --time=0-20:00:00
 #SBATCH --job-name=cells_search
-#SBATCH --output=cells_search.txt
+#SBATCH --output=cells_search_%j.txt
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 #SBATCH --partition=GPU-shared
@@ -13,7 +13,7 @@
 
 
 #singularity run --nv $PROJECT/lstm_cells.sif --epochs 15 --experiments 10
-singularity run --nv --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir $HOME/singul/runner.sif python3 embed/train_lstm3.py --epochs 15 --experiments 10 \
+singularity run --nv --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir $HOME/singul/runner.sif python3 embed/train_lstm3.py --epochs 15 --experiments 5 \
     --startat 7
 
 

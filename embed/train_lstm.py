@@ -84,20 +84,16 @@ def gen_cfg(**kwargs):
     # CREATE LOG FILE AND OBJECT
     hoy = dt.now()
     timestamp = hoy.strftime("%b-%d_%H-%M")
+    cfg['timestamp'] = timestamp
     if cfg['model_type'] == 'lstm':
         cfg['save_path_dir'] = os.path.join(cfg['local_dir'],
                 'trained_models/lstm_classifier/lstm_' + timestamp)
-    else:
+    elif cfg['model_type'] == 'conv':
         cfg['save_path_dir'] = os.path.join(cfg['local_dir'],
                 'trained_models/conv_classifier/conv_' + timestamp)
+    else:
+        raise NotImplementedError(f"Model type {cfg['model_type']} is unknown!!")
 
-    os.makedirs(cfg['save_path_dir'], exist_ok=True)
-
-
-    # CREATE PROFILING LOGS DIRECTORY
-    if cfg['profiling'] == True:
-        cfg['prof_dir'] = os.path.join(cfg['save_path_dir'], 'profiling_log')
-        os.makedirs(cfg['prof_dir'], exist_ok=True)
         
     # xml_lst is too long to go in the config
     xml_lst = glob(cfg['base_dir'] + cfg['glob_data_source'])
@@ -105,6 +101,16 @@ def gen_cfg(**kwargs):
     # SET THE MODEL ARCHITECTURE
     
     return xml_lst, cfg
+
+def create_dirs(cfg):
+    # CREATE SAVE PATH DIR
+    os.makedirs(cfg['save_path_dir'], exist_ok=True)
+
+
+    # CREATE PROFILING LOGS DIRECTORY
+    if cfg['profiling'] == True:
+        cfg['prof_dir'] = os.path.join(cfg['save_path_dir'], 'profiling_log')
+        os.makedirs(cfg['prof_dir'], exist_ok=True)
 
 def model_callbacks(cfg):
     '''
@@ -439,6 +445,7 @@ def argParse():
 def main():
     args = argParse()
     xml_lst, cfg = gen_cfg(parsed_args = args)
+    create_dirs(cfg)
 
     logging.basicConfig(filename=os.path.join(cfg['save_path_dir'], 'training.log'),
             level=logging.INFO)

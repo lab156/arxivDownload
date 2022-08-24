@@ -13,6 +13,8 @@ def argParse3():
             help="Number of experiment loops to do.")
     parser.add_argument('--cells', type=int, default=0,
             help="Number of first layer LSTM cells.")
+    parser.add_argument('--out_save_dir', default=None,
+            help="Full path to save results at each iteration. Default is PERMSTORAGE")
     parser.add_argument('--startat', type=int, default=0,
             help="Start the experiments at 64*value. Heads up with the 64.")
     parser.add_argument('-p', '--profiling', action='store_true',
@@ -36,6 +38,19 @@ wembed_basename = 'embeddings/glove_model_18-31_15-08'
     args = argParse3()
     xml_lst, cfg = gen_cfg(parsed_args = args)
 
+    if args.out_save_dir is not None:
+        assert os.path.isdir(args.out_save_dir), \
+        f"The dir at path {args.out_save_dir} does not exist."
+        if cfg['model_type'] == 'lstm':
+            cfg['save_path_dir'] = os.path.join(args.out_save_dir,
+                    'trained_models/lstm_classifier/lstm_' + cfg['timestamp'])
+        elif cfg['model_type'] == 'conv':
+            cfg['save_path_dir'] = os.path.join(args.out_save_dir,
+                    'trained_models/conv_classifier/conv_' + cgf['timestamp'])
+        else:
+            raise NotImplementedError(f"Model type {cfg['model_type']} is unknown!!")
+    create_dirs(cfg)
+
     logging.basicConfig(filename=os.path.join(cfg['save_path_dir'], 'training.log'),
             level=logging.INFO)
     logger.info("GPU devices: {}".format(list_physical_devices('GPU')))
@@ -51,16 +66,13 @@ wembed_basename = 'embeddings/glove_model_18-31_15-08'
     cfg['callbacks'] = ['epoch_times', 'ls_schedule', 'early_stop',]
     cfg['AdamCfg'] = { 'lr': 0.001, 'lr_decay': 0.5,}
 
-    og_save_path_dir = cfg['save_path_dir']
+    #og_save_path_dir = cfg['save_path_dir']
 #    for num, decay in enumerate(np.linspace(0.4, 0.8, args.experiments)):
     for num in range(args.experiments):
         cells = 64*(num + 1) + 64*int(args.startat)
         cfg['lstm_cells'] = cells
         logger.info("\n Starting Experiment {} -- training with Number of Cells: {} \n"\
                         .format(num + 1 , cells))
-
-        cfg['save_path_dir'] = os.path.join(og_save_path_dir , 'exp_{0:0>3}'.format(num + 1))
-        os.makedirs(cfg['save_path_dir'], exist_ok=True)
 
         model = lstm_model_one_layer(embed_matrix, cfg)
 
@@ -81,7 +93,8 @@ wembed_basename = 'embeddings/glove_model_18-31_15-08'
                 test_seq, test, cfg)
 
         #save_weights_tokens(model, idx2tkn, history, cfg, subdir='exp_{0:0>3}'.format(num))
-        save_tokens_model(model, idx2tkn, history, cfg)
+        save_tokens_model(model, idx2tkn, history, cfg,
+                subdir='exp_{0:0>3}'.format(num + 1))
 
 
 if __name__ == '__main__':

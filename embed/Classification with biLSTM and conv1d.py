@@ -409,4 +409,7 @@ test_model('/media/hd1/training_defs/math10/1001_001.xml.gz',
 
 print(toml.dumps(cfg))
 
+assert os.path.isdir('/home/luis/rm_me/'), \
+     "the path does not exists"
+
 
