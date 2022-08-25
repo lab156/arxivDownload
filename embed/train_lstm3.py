@@ -55,6 +55,7 @@ wembed_basename = 'embeddings/glove_model_18-31_15-08'
             level=logging.INFO)
     logger.info("GPU devices: {}".format(list_physical_devices('GPU')))
     logger.info("Length of the xml_lst is: {}".format(len(xml_lst)))
+    logger.info(f"Saving results to {cfg['save_path_dir']}")
 
     train_seq, validation_seq, test_seq,\
     idx2tkn, tkn2idx, training, validation,\

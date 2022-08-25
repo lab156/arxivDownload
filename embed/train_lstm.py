@@ -86,13 +86,12 @@ def gen_cfg(**kwargs):
     timestamp = hoy.strftime("%b-%d_%H-%M")
     cfg['timestamp'] = timestamp
     if cfg['model_type'] == 'lstm':
-        cfg['save_path_dir'] = os.path.join(cfg['local_dir'],
-                'trained_models/lstm_classifier/lstm_' + timestamp)
+        path_str = 'trained_models/lstm_classifier/lstm_' + timestamp
     elif cfg['model_type'] == 'conv':
-        cfg['save_path_dir'] = os.path.join(cfg['local_dir'],
-                'trained_models/conv_classifier/conv_' + timestamp)
+        path_str = 'trained_models/conv_classifier/conv_' + timestamp
     else:
         raise NotImplementedError(f"Model type {cfg['model_type']} is unknown!!")
+    cfg['save_path_dir'] = os.path.join(cfg['base_dir'], path_str)
 
         
     # xml_lst is too long to go in the config
