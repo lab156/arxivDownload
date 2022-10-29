@@ -17,6 +17,7 @@
 # * [Connect to the metadata database](#first-bullet)
 # * [tSNE visualization of word embeddings](#tsne)
 # * [Radar graphs of term's categories](#radar)
+# * Generation of Word clouds
 
 # +
 import numpy as np
@@ -718,11 +719,13 @@ def plot_wordcloud(text, mask=None, max_words=200, max_font_size=100, figure_siz
     plt.tight_layout()  
     plt.savefig('article_wm.png')
     
-plot_wordcloud(df[df.target==1]['value vector'], title='Similar words')
+#plot_wordcloud(df[df.target==1]['value vector'], title='Similar words')
+
+
 # -
 
-article_name = '1703.01772'
-for name, fobj in  peep.tar_iter('/media/hd1/promath/math17/1703_004.tar.gz', '.xml'):
+article_name = '1803.'
+for name, fobj in  peep.tar_iter('/media/hd1/promath/math18/1803_004.tar.gz', '.xml'):
     if article_name in name:
         article = px.DefinitionsXML(fobj)
         art_str = " ".join([article.recutext(a) for a in article.para_list()])
@@ -893,6 +896,7 @@ ax.set_title("Click somewhere on a line.\nRight-click to deselect.\n"
 mplcursors.cursor(lines)  # or just mplcursors.cursor()
 
 plt.show()
+
 
 
 

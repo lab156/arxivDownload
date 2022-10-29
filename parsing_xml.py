@@ -53,6 +53,9 @@ html_dict = { 'math_tag': 'math',
         'cite_tag': 'cite',
         }
 
+def dummy_recutext(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
+    raise ValueError("This function should not have been called!!!")
+
 def recutext_xml(root, nsstr='{http://dlmf.nist.gov/LaTeXML}'):
     ret_str = empty_if_none(root.text)
     #print('root is', root.tag, root.text, root.tail)
@@ -179,6 +182,7 @@ class DefinitionsXML(object):
                 #raise EmptyXMLError(self.file_path)
                 print('The file ', self.file_path, ' is empty.')
                 self.exml = empty_xml 
+                self.recutext = dummy_recutext
                 self.parse = ParsingResult.EMPTY
             elif  'invalid character in attribute value' in e.args[0] or 'PCDATA invalid Char' in e.args[0]:
                 if self.filetype == 'xml': 

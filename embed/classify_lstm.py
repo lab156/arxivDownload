@@ -42,8 +42,9 @@ import peep_tar as peep
 import classifier_models as M
 
 # GET the Important Environment Paths
-base_dir = os.environ.get('BASE_DIR', '/media/hd1') # This is where the model resides i.e. /opt or /media/hd1
-mine_out_dir = os.environ.get('MINE_OUT_DIR', '/tmp/rm_me_dir')  # This is temporary fast storage
+# the variables PERMSTORAGE and TEMPFASTSTORAGE are defined in the singularity container
+base_dir = os.environ.get('PERMSTORAGE', '/media/hd1') 
+mine_out_dir = os.environ.get('TEMPFASTSTORAGE', '/tmp/rm_me_dir')  # This is temporary fast storage
 #data_dir = os.environ['DATA_DIR']  
 # DATA_DIR is where the data that will be classified resides /media/hd1 or $LOCAL
 
@@ -258,7 +259,7 @@ if __name__ == '__main__':
     logger.info("CONFIG cfg = {}".format(cfg))
 
     # TEST
-    test_result = test_model(train_example_path)
+    test_result = test_model(train_example_path, cfg)
     logger.info(f'TEST Loss: {test_result[0]:1.3f} and Accuracy: {test_result[1]:1.3f}')
 
     if args.mine is not None:
