@@ -169,6 +169,53 @@ def mine_dirs(dir_lst, cfg):
             logger.info("Writing file to: {} CLASSIFICATION TIME: {} Writing Time {}"\
                              .format(gz_out_path, class_time, writing_time))
 
+def mine_individual_file(filepath, cfg):
+    '''
+    Mines an individual tar.gz file from promath. More granular mining than `mine_dirs` 
+    mines a xml.gz 
+    filepath:
+        Full path of the the tar.gz file to extract ex. /media/hd1/promath/math01/0103_001.tar.gz
+
+    Saves to a directory with path cfg['save_path']/math01/0103_001.tar.gz
+    '''
+    opt_prob = float(cfg['opt_prob'])
+    logger.info('Classifying the contents of {}'.format(filepath))
+    try:
+        # data_path is set globally to '' (empty string)
+        # example filepath /media/hd1/promath/math01/0103_001.tar.gz
+        full_path, tfile = os.path.split(filepath)
+        dirname = os.path.split(full_path)[1]
+        # expect full_path = /media/hd1/promath/math01
+        # dirname = math01
+        # tfile = 0103_001.tar.gz
+        assert os.path.isdir(full_path), f"{full_path} is not a dir" 
+        #assert os.path.isfile(tfile), f"File: {tfile} not found"
+    except FileNotFoundError:
+        print(' %s Not Found'%full_path)
+    out_path = os.path.join(cfg['save_path'], dirname)
+    os.makedirs(out_path, exist_ok=True)
+   
+    #for tfile in tar_lst:
+    Now = dt.now()
+    #clf = lstm_model
+    vzer = Vectorizer()
+    def_root = untar_clf_append(filepath, out_path,\
+            model, vzer, thresh=opt_prob)
+    #print(etree.tostring(def_root, pretty_print=True).decode())
+    gz_filename = os.path.basename(tfile).split('.')[0] + '.xml.gz' 
+    #print(gz_filename)
+    gz_out_path = os.path.join(out_path, gz_filename) 
+    class_time = (dt.now() - Now)
+    Now = dt.now()
+    #import pdb; pdb.set_trace()
+    with gzip.open(gz_out_path, 'wb') as out_f:
+        print("Writing to dfdum zipped file to: %s"%gz_out_path)
+        out_f.write(etree.tostring(def_root, encoding='utf8', pretty_print=True))
+    writing_time = (dt.now() - Now) 
+    logger.info("Writing file to: {} CLASSIFICATION TIME: {} Writing Time {}"\
+                     .format(gz_out_path, class_time, writing_time))
+
+
 #mine_dirs(['math96',])
 
 def lstm_model_one_layer(cfg):
@@ -260,6 +307,7 @@ if __name__ == '__main__':
         logger.info("cfg['model_type'] could not be found, assuming lstm_one_layer")
         model = lstm_model_one_layer(cfg)
         
+    # READ THE MODEL AND LOAD WEIGHTS
     model.load_weights(tf_model_dir + '/model_weights')
     logger.info("CONFIG cfg = {}".format(cfg))
 
@@ -269,7 +317,8 @@ if __name__ == '__main__':
 
     if args.mine is not None:
         logger.info('List of Mining dirs: {}'.format(args.mine))
-        mine_dirs(args.mine, cfg)
+        #mine_dirs(args.mine, cfg)
+        mine_individual_file(args.mine[0], cfg)
     else:
         logger.info('--mine is empty there will be no mining.')
 

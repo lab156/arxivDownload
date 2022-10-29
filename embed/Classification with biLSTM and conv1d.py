@@ -54,6 +54,11 @@ from math import sqrt
 from train_utils import TimeHistory, def_scheduler
 # -
 
+filepath = '/media/hd1/promath/math01/0103_001.tar.gz'
+pn, bs = os.path.split(filepath)
+pn,bs
+assert os.path.isdir(bs), "No es dir"
+
 from train_lstm import *
 args = []
 xml_lst, cfg = gen_cfg(config_path='../config.toml')
