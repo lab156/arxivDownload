@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --time=0-01:00:00
-#SBATCH --job-name=arxiv_model
+#SBATCH --time=0-3:00:00
+#SBATCH --job-name=train_w2v
 #SBATCH --output=w2v_%j.log
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 #SBATCH --nodes=1
-#SBATCH --partition=RM-shared
+#SBATCH --partition=RM
 #SBATCH --account=dms200016p
 
 # copy and modify set_local_var.sh file

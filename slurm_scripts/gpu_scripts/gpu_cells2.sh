@@ -13,7 +13,7 @@
 
 
 #singularity run --nv $PROJECT/lstm_cells.sif --epochs 15 --experiments 10
-singularity run --nv --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir $HOME/singul/runner.sif python3 embed/train_lstm3.py --epochs 15 --experiments 5 \
+singularity run --nv --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir $HOME/singul/runner.sif python3 embed/train_lstm3.py --epochs 15 --experiments 10 \
     --startat 7
 
 

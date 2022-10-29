@@ -251,10 +251,15 @@ if __name__ == '__main__':
             'idx2tkn.pickle'))
     print(tkn2idx['commutative'])
     
-    if cfg['model_type'] == 'lstm':
+    cfg_model_type = cfg.get('model_type', None)
+    if cfg_model_type == 'lstm':
         model = lstm_model_one_layer(cfg)
-    elif cfg['model_type'] == 'conv':
+    elif cfg_model_type == 'conv':
         model = M.conv_model_globavgpool(cfg, logger)
+    else:
+        logger.info("cfg['model_type'] could not be found, assuming lstm_one_layer")
+        model = lstm_model_one_layer(cfg)
+        
     model.load_weights(tf_model_dir + '/model_weights')
     logger.info("CONFIG cfg = {}".format(cfg))
 
