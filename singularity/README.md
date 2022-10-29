@@ -1,5 +1,5 @@
 ## Working examples:
-* Using runner sif
+* Using runner.sif singularity container to classify paragraphs [master 242d718]
 ```bash
 singularity run --nv --bind $HOME/path/arxivDownload:/opt/arxivDownload,/media/hd1:/opt/data_dir \
    $$HOME/singul/runner.sif python3 embed/classify_lstm.py 
