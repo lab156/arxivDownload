@@ -74,7 +74,6 @@ def open_cfg_dict(path):
         cfg = json.load(cfg_fobj)
     return cfg
 
-
 #Define these variables Globally
 idx2tkn = ()
 tkn2idx = {}
@@ -104,12 +103,12 @@ def padding_fun(seq, cfg):
 ######################################################
 
 class Vectorizer():
-    def __init__(self):
-        pass
+    def __init__(self, cfg):
+        self.cfg = cfg
     def transform(self, L):
-        return padding_fun([text2seq(d) for d in L], cfg)
+        return padding_fun([text2seq(d) for d in L], self.cfg)
 
-def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
+def untar_clf_append(tfile, out_path, clf, vzer, cfg, thresh=0.5, min_words=15):
     '''
     Arguments:
     `tfile` tarfile with arxiv format ex. 1401_001.tar.gz
@@ -119,6 +118,7 @@ def untar_clf_append(tfile, out_path, clf, vzer, thresh=0.5, min_words=15):
     '''
     opt_prob = float(cfg['opt_prob'])
     root = etree.Element('root')
+    #print(f"**Peeping into file {fname}  **")
     for fname, tar_fobj in peep.tar_iter(tfile, '.xml'):
         #print(f"**Peeping into file {fname}  **")
         try:
@@ -152,9 +152,9 @@ def mine_dirs(dir_lst, cfg):
         for tfile in tar_lst:
             Now = dt.now()
             #clf = lstm_model
-            vzer = Vectorizer()
+            vzer = Vectorizer(cfg)
             def_root = untar_clf_append(tfile, out_path,\
-                    model, vzer, thresh=opt_prob)
+                    model, vzer, cfg, thresh=opt_prob)
             #print(etree.tostring(def_root, pretty_print=True).decode())
             gz_filename = os.path.basename(tfile).split('.')[0] + '.xml.gz' 
             print(gz_filename)
@@ -169,15 +169,19 @@ def mine_dirs(dir_lst, cfg):
             logger.info("Writing file to: {} CLASSIFICATION TIME: {} Writing Time {}"\
                              .format(gz_out_path, class_time, writing_time))
 
-def mine_individual_file(filepath, cfg):
+def mine_individual_file(_model_, filepath, cfg):
     '''
     Mines an individual tar.gz file from promath. More granular mining than `mine_dirs` 
     mines a xml.gz 
     filepath:
-        Full path of the the tar.gz file to extract ex. /media/hd1/promath/math01/0103_001.tar.gz
+        Full path of the the tar.gz file to extract 
+             ex. /media/hd1/promath/math01/0103_001.tar.gz
 
     Saves to a directory with path cfg['save_path']/math01/0103_001.tar.gz
+
+    _model_ may be path of tf.model or a fully usable tf model
     '''
+    print('Entro mine_individual_file')
     opt_prob = float(cfg['opt_prob'])
     logger.info('Classifying the contents of {}'.format(filepath))
     try:
@@ -189,19 +193,25 @@ def mine_individual_file(filepath, cfg):
         # dirname = math01
         # tfile = 0103_001.tar.gz
         assert os.path.isdir(full_path), f"{full_path} is not a dir" 
-        #assert os.path.isfile(tfile), f"File: {tfile} not found"
     except FileNotFoundError:
-        print(' %s Not Found'%full_path)
+        print(f'{full_path} Not Found')
     out_path = os.path.join(cfg['save_path'], dirname)
     os.makedirs(out_path, exist_ok=True)
    
     #for tfile in tar_lst:
     Now = dt.now()
     #clf = lstm_model
-    vzer = Vectorizer()
+    vzer = Vectorizer(cfg)
+
+    #print("Justo antes de load_model_logic")
+    # deal with _model_
+    if isinstance(_model_, str):
+        Model_loaded = load_model_logic(cfg, _model_)
+    else:
+        Model_loaded = _model_   # assume the model is already loaded
+
     def_root = untar_clf_append(filepath, out_path,\
-            model, vzer, thresh=opt_prob)
-    #print(etree.tostring(def_root, pretty_print=True).decode())
+            Model_loaded, vzer, cfg, thresh=opt_prob)
     gz_filename = os.path.basename(tfile).split('.')[0] + '.xml.gz' 
     #print(gz_filename)
     gz_out_path = os.path.join(out_path, gz_filename) 
@@ -215,10 +225,29 @@ def mine_individual_file(filepath, cfg):
     logger.info("Writing file to: {} CLASSIFICATION TIME: {} Writing Time {}"\
                      .format(gz_out_path, class_time, writing_time))
 
-
 #mine_dirs(['math96',])
 
-def lstm_model_one_layer(cfg):
+def load_model_logic(cfg, tf_model_dir):
+    '''
+    try to find the type of model e.g. lstm, conv, etc
+    '''
+    cfg_model_type = cfg.get('model_type', None)
+    print("Estoy en load_model_logic")
+    if cfg_model_type == 'lstm':
+        model = lstm_model_one_layer(cfg, tf_model_dir)
+    elif cfg_model_type == 'conv':
+        model = M.conv_model_globavgpool(cfg, logger)
+    else:
+        logger.info("cfg['model_type'] could not be found, assuming lstm_one_layer")
+        model = lstm_model_one_layer(cfg)
+
+    return model
+
+def lstm_model_one_layer(cfg, tf_model_dir=None):
+    """
+    if tf_model_dir = None, return the blank model with random weights
+    """
+    print("estoy en lstm_model_one_layer 1")
     lstm_model = Sequential([
         Embedding(cfg['tot_words'], cfg['embed_dim'], 
                   input_length=cfg['max_seq_len'],# weights=[embed_matrix],
@@ -230,8 +259,17 @@ def lstm_model_one_layer(cfg):
         Dropout(0.2),
         Dense(1, activation='sigmoid')
     ])
-    lstm_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    lstm_model.compile(loss='binary_crossentropy', 
+            optimizer='adam', metrics=['accuracy'])
     lstm_model.summary(print_fn=logger.info) 
+    print("estoy en lstm_model_one_layer 2")
+
+    # READ THE MODEL AND LOAD WEIGHTS
+    if tf_model_dir is not None:
+        lstm_model.load_weights(tf_model_dir + '/model_weights')
+        logger.info("CONFIG cfg = {}".format(cfg))
+    print("estoy en lstm_model_one_layer 3")
+
     return lstm_model
 
 def model_callback(cfg):
@@ -243,7 +281,7 @@ def model_callback(cfg):
                             profile_batch="2,22")
 
 
-def test_model(path, cfg):
+def test_model(_model_, path, cfg):
     xml_lst = [path,]
     stream = stream_arxiv_paragraphs(xml_lst, samples=6000)
 #os.path.join(base_dir,'training_defs/math10/1008_001.xml.gz'),
@@ -251,7 +289,8 @@ def test_model(path, cfg):
     Now1 = dt.now()
     for s in stream:
         all_data += list(zip(s[0], s[1]))
-    logger.info('The length of the (test) all_data is {} the first element of xml_lst is: {}'\
+    logger.info(
+    'The length of the (test) all_data is {} the first element of xml_lst is: {}'\
             .format(len(all_data), xml_lst[0]))
     test = list(zip(*( all_data )))
     test_seq = [text2seq(t) for t in test[0]]
@@ -261,7 +300,7 @@ def test_model(path, cfg):
     Now2 = dt.now()
 
     #tboard_call = model_callback(cfg)
-    ret = model.evaluate(test_seq, np.array(test[1]),
+    ret = _model_.evaluate(test_seq, np.array(test[1]),
             )
             #callbacks=[tboard_call,])
     evaluation_t = (dt.now() - Now2)
@@ -270,10 +309,7 @@ def test_model(path, cfg):
 
     return ret
 
-#########################
-#### MAIN FUNCTION ######
-#########################
-if __name__ == '__main__':
+def parse_args():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='',
@@ -284,8 +320,18 @@ if __name__ == '__main__':
             help='Path to data to mine, ex. /media/hd1/promath/math96')
     args = parser.parse_args()
 
-    if args.model != '' :
-        tf_model_dir = args.model
+    return args
+
+
+#########################
+#### MAIN FUNCTION ######
+#########################
+if __name__ == '__main__':
+
+    args = parse_args()
+
+    # Model directory is a mandatory argument
+    tf_model_dir = args.model
 
     if args.out != '' :
         mine_out_dir = args.out
@@ -297,29 +343,18 @@ if __name__ == '__main__':
     idx2tkn, tkn2idx = open_idx2tkn_make_tkn2idx(os.path.join(tf_model_dir,\
             'idx2tkn.pickle'))
     print(tkn2idx['commutative'])
-    
-    cfg_model_type = cfg.get('model_type', None)
-    if cfg_model_type == 'lstm':
-        model = lstm_model_one_layer(cfg)
-    elif cfg_model_type == 'conv':
-        model = M.conv_model_globavgpool(cfg, logger)
-    else:
-        logger.info("cfg['model_type'] could not be found, assuming lstm_one_layer")
-        model = lstm_model_one_layer(cfg)
-        
-    # READ THE MODEL AND LOAD WEIGHTS
-    model.load_weights(tf_model_dir + '/model_weights')
-    logger.info("CONFIG cfg = {}".format(cfg))
+
+    model = load_model_logic(cfg, tf_model_dir)
 
     # TEST
-    test_result = test_model(train_example_path, cfg)
-    logger.info(f'TEST Loss: {test_result[0]:1.3f} and Accuracy: {test_result[1]:1.3f}')
+    test_result = test_model(model, train_example_path, cfg)
+    logger.info(
+        f'TEST Loss: {test_result[0]:1.3f} and Accuracy: {test_result[1]:1.3f}')
 
     if args.mine is not None:
         logger.info('List of Mining dirs: {}'.format(args.mine))
         #mine_dirs(args.mine, cfg)
-        mine_individual_file(args.mine[0], cfg)
+        mine_individual_file(args.model, args.mine[0], cfg)
     else:
         logger.info('--mine is empty there will be no mining.')
-
 
