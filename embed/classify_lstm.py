@@ -74,39 +74,36 @@ def open_cfg_dict(path):
         cfg = json.load(cfg_fobj)
     return cfg
 
-#Define these variables Globally
-idx2tkn = ()
-tkn2idx = {}
-
-def open_idx2tkn_make_tkn2idx(path):
-    global idx2tkn 
-    global tkn2idx
-    with open(path, 'rb') as f:
-        idx2tkn = pickle.load(f)
-    tkn2idx = {tok: idx for idx, tok in enumerate(idx2tkn)}
-    return idx2tkn, tkn2idx
-
-def text2seq(text):
-    if type(text) == str:
-        text = normalize_text(text).split()
-    return [tkn2idx.get(s, 0) for s in text]
-
-def padding_fun(seq, cfg):
-    # Apply pad_sequence using the cfg dictionary
-    return pad_sequences(seq, maxlen=cfg['max_seq_len'],
-                            padding='post', 
-                            truncating='post',
-                            value=tkn2idx['�']) 
 
 ######################################################
 # START THE CLASSIFICATION OF ARTICLE PARAGRAPHS     #
 ######################################################
 
 class Vectorizer():
-    def __init__(self, cfg):
+    def __init__(self, idx_path, cfg):
         self.cfg = cfg
+        self.idx2tkn, self.tkn2idx = self.open_idx2tkn_make_tkn2idx(idx_path)
+
     def transform(self, L):
-        return padding_fun([text2seq(d) for d in L], self.cfg)
+        return self.padding_fun([self.text2seq(d) for d in L], self.cfg)
+
+    def open_idx2tkn_make_tkn2idx(self, path):
+        with open(path, 'rb') as f:
+            idx2tkn = pickle.load(f)
+        tkn2idx = {tok: idx for idx, tok in enumerate(idx2tkn)}
+        return idx2tkn, tkn2idx
+
+    def text2seq(self, text):
+        if type(text) == str:
+            text = normalize_text(text).split()
+        return [self.tkn2idx.get(s, 0) for s in text]
+
+    def padding_fun(self, seq, cfg):
+        # Apply pad_sequence using the cfg dictionary
+        return pad_sequences(seq, maxlen=cfg['max_seq_len'],
+                                padding='post', 
+                                truncating='post',
+                                value=self.tkn2idx['�']) 
 
 def untar_clf_append(tfile, out_path, clf, vzer, cfg, thresh=0.5, min_words=15):
     '''
@@ -132,7 +129,7 @@ def untar_clf_append(tfile, out_path, clf, vzer, cfg, thresh=0.5, min_words=15):
             print(f"{repr(ee)}, 'file: ', {fname}, ' is empty'")
     return root
     
-def mine_dirs(dir_lst, cfg):
+def mine_dirs(dir_lst, vzer, cfg):
     # dir_list has full paths
     opt_prob = float(cfg['opt_prob'])
     for k, dirname in enumerate(dir_lst):
@@ -152,7 +149,7 @@ def mine_dirs(dir_lst, cfg):
         for tfile in tar_lst:
             Now = dt.now()
             #clf = lstm_model
-            vzer = Vectorizer(cfg)
+            #vzer = Vectorizer(cfg)
             def_root = untar_clf_append(tfile, out_path,\
                     model, vzer, cfg, thresh=opt_prob)
             #print(etree.tostring(def_root, pretty_print=True).decode())
@@ -169,7 +166,7 @@ def mine_dirs(dir_lst, cfg):
             logger.info("Writing file to: {} CLASSIFICATION TIME: {} Writing Time {}"\
                              .format(gz_out_path, class_time, writing_time))
 
-def mine_individual_file(_model_, filepath, cfg):
+def mine_individual_file(_model_, filepath, vzer, cfg):
     '''
     Mines an individual tar.gz file from promath. More granular mining than `mine_dirs` 
     mines a xml.gz 
@@ -181,7 +178,6 @@ def mine_individual_file(_model_, filepath, cfg):
 
     _model_ may be path of tf.model or a fully usable tf model
     '''
-    print('Entro mine_individual_file')
     opt_prob = float(cfg['opt_prob'])
     logger.info('Classifying the contents of {}'.format(filepath))
     try:
@@ -201,7 +197,7 @@ def mine_individual_file(_model_, filepath, cfg):
     #for tfile in tar_lst:
     Now = dt.now()
     #clf = lstm_model
-    vzer = Vectorizer(cfg)
+    #vzer = Vectorizer(cfg)
 
     #print("Justo antes de load_model_logic")
     # deal with _model_
@@ -232,7 +228,6 @@ def load_model_logic(cfg, tf_model_dir):
     try to find the type of model e.g. lstm, conv, etc
     '''
     cfg_model_type = cfg.get('model_type', None)
-    print("Estoy en load_model_logic")
     if cfg_model_type == 'lstm':
         model = lstm_model_one_layer(cfg, tf_model_dir)
     elif cfg_model_type == 'conv':
@@ -247,7 +242,6 @@ def lstm_model_one_layer(cfg, tf_model_dir=None):
     """
     if tf_model_dir = None, return the blank model with random weights
     """
-    print("estoy en lstm_model_one_layer 1")
     lstm_model = Sequential([
         Embedding(cfg['tot_words'], cfg['embed_dim'], 
                   input_length=cfg['max_seq_len'],# weights=[embed_matrix],
@@ -262,13 +256,11 @@ def lstm_model_one_layer(cfg, tf_model_dir=None):
     lstm_model.compile(loss='binary_crossentropy', 
             optimizer='adam', metrics=['accuracy'])
     lstm_model.summary(print_fn=logger.info) 
-    print("estoy en lstm_model_one_layer 2")
 
     # READ THE MODEL AND LOAD WEIGHTS
     if tf_model_dir is not None:
         lstm_model.load_weights(tf_model_dir + '/model_weights')
         logger.info("CONFIG cfg = {}".format(cfg))
-    print("estoy en lstm_model_one_layer 3")
 
     return lstm_model
 
@@ -281,7 +273,7 @@ def model_callback(cfg):
                             profile_batch="2,22")
 
 
-def test_model(_model_, path, cfg):
+def test_model(_model_, path, vzer, cfg):
     xml_lst = [path,]
     stream = stream_arxiv_paragraphs(xml_lst, samples=6000)
 #os.path.join(base_dir,'training_defs/math10/1008_001.xml.gz'),
@@ -293,8 +285,8 @@ def test_model(_model_, path, cfg):
     'The length of the (test) all_data is {} the first element of xml_lst is: {}'\
             .format(len(all_data), xml_lst[0]))
     test = list(zip(*( all_data )))
-    test_seq = [text2seq(t) for t in test[0]]
-    test_seq = padding_fun(test_seq, cfg)
+    test_seq = [vzer.text2seq(t) for t in test[0]]
+    test_seq = vzer.padding_fun(test_seq, cfg)
     prep_data_t = (dt.now() - Now1)
 
     Now2 = dt.now()
@@ -340,21 +332,23 @@ if __name__ == '__main__':
     cfg = open_cfg_dict(os.path.join(tf_model_dir, 'cfg_dict.json'))
     cfg['save_path'] = mine_out_dir
     cfg['tboard_path'] = os.path.join(mine_out_dir, 'tboard_logs') 
-    idx2tkn, tkn2idx = open_idx2tkn_make_tkn2idx(os.path.join(tf_model_dir,\
-            'idx2tkn.pickle'))
-    print(tkn2idx['commutative'])
+    #idx2tkn, tkn2idx = open_idx2tkn_make_tkn2idx(os.path.join(tf_model_dir,\
+    #        'idx2tkn.pickle'))
+    V = Vectorizer(os.path.join(tf_model_dir,'idx2tkn.pickle'), cfg)
+    print(V.tkn2idx['commutative'])
 
     model = load_model_logic(cfg, tf_model_dir)
 
     # TEST
-    test_result = test_model(model, train_example_path, cfg)
+    test_result = test_model(model, train_example_path, V, cfg)
     logger.info(
         f'TEST Loss: {test_result[0]:1.3f} and Accuracy: {test_result[1]:1.3f}')
 
     if args.mine is not None:
         logger.info('List of Mining dirs: {}'.format(args.mine))
         #mine_dirs(args.mine, cfg)
-        mine_individual_file(args.model, args.mine[0], cfg)
+        for f in args.mine:
+            mine_individual_file(args.model, f, V, cfg)
     else:
         logger.info('--mine is empty there will be no mining.')
 
