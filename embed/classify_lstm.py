@@ -14,6 +14,7 @@ except ModuleNotFoundError:
     print('Module pickle5 not found. Continuing without it')
     import pickle
 
+import tensorflow as tf
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
                       GRU, Dropout, GlobalAveragePooling1D, Conv1D
@@ -166,7 +167,7 @@ def mine_dirs(dir_lst, vzer, cfg):
             logger.info("Writing file to: {} CLASSIFICATION TIME: {} Writing Time {}"\
                              .format(gz_out_path, class_time, writing_time))
 
-def mine_individual_file(_model_, filepath, vzer, cfg):
+def mine_individual_file(_model_, filepath, vzer, cfg, tf_device='/gpu:0'):
     '''
     Mines an individual tar.gz file from promath. More granular mining than `mine_dirs` 
     mines a xml.gz 
@@ -206,8 +207,9 @@ def mine_individual_file(_model_, filepath, vzer, cfg):
     else:
         Model_loaded = _model_   # assume the model is already loaded
 
-    def_root = untar_clf_append(filepath, out_path,\
-            Model_loaded, vzer, cfg, thresh=opt_prob)
+    with tf.device(tf_device):
+        def_root = untar_clf_append(filepath, out_path,\
+                Model_loaded, vzer, cfg, thresh=opt_prob)
     gz_filename = os.path.basename(tfile).split('.')[0] + '.xml.gz' 
     #print(gz_filename)
     gz_out_path = os.path.join(out_path, gz_filename) 
