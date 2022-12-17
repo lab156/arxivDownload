@@ -15,7 +15,7 @@ def long_mat_mul(gpu):
     # multiply two matrices on the `gpu` device
     with tf.device(gpu):
         print(f'mat multi on {gpu}')
-        for _ in range(10_000):
+        for _ in range(100):
             a = tf.constant([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
             b = tf.constant([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
             c = tf.matmul(a, b)
@@ -40,5 +40,37 @@ def main_threadpool_gpu_lst():
     with mp.ThreadPool(2) as pool:
         print(pool.map(mat_mul, gpu_lst))
         
-if __name__ == "__main__":
+def main_create_2_gpus():   
+    gpus = tf.config.list_physical_devices('GPU')
+    print(f'#######  Found gpu-s {gpus} ##########')
+    # this is to print GPU debugging info
+    tf.debugging.set_log_device_placement(True)
+    if gpus:
+      # Create 2 virtual GPUs with 1GB memory each
+      try:
+        tf.config.set_logical_device_configuration(
+            gpus[0],
+            [tf.config.LogicalDeviceConfiguration(memory_limit=1024),
+             tf.config.LogicalDeviceConfiguration(memory_limit=1024)])
+        logical_gpus = tf.config.list_logical_devices('GPU')
+        print("###### ", len(gpus), "Physical GPU,", len(logical_gpus), "Logical GPUs")
+      except RuntimeError as e:
+        # Virtual devices must be set before GPUs have been initialized
+        print(e)
+        
     paral_threadpool_exec()
+    
+        
+if __name__ == "__main__":
+    #paral_threadpool_exec()
+    main_create_2_gpus()
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
