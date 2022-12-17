@@ -207,9 +207,9 @@ def mine_individual_file(_model_, filepath, vzer, cfg, tf_device='/gpu:0'):
     else:
         Model_loaded = _model_   # assume the model is already loaded
 
-    with tf.device(tf_device):
-        def_root = untar_clf_append(filepath, out_path,\
-                Model_loaded, vzer, cfg, thresh=opt_prob)
+    #with tf.device(tf_device):
+    def_root = untar_clf_append(filepath, out_path,\
+            Model_loaded, vzer, cfg, thresh=opt_prob)
     gz_filename = os.path.basename(tfile).split('.')[0] + '.xml.gz' 
     #print(gz_filename)
     gz_out_path = os.path.join(out_path, gz_filename) 
