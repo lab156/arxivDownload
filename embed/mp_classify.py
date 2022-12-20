@@ -22,6 +22,10 @@ def tup_print(uno, dos, tres):
     print(uno, dos, tres)
 
 def main():
+    '''
+    Usage example:
+    singularity run --nv --bind $HOME/Documents/arxivDownload:/opt/arxivDownload,/media/hd1:/opt/data_dir $HOME/singul/runner.sif python3 embed/mp_classify.py --model /opt/data_dir/trained_models/lstm_classifier/lstm_Aug-19_17-22 --out /rm_me_path/with_mp_classify --mine /opt/data_dir/promath/math94/940{3,4,5}_001.tar.gz
+    '''
     mp.set_start_method('spawn', force=True)
     args = parse_args()
     logger = logging.getLogger(__name__)
@@ -52,7 +56,8 @@ def main():
         xla_gpu_lst = tf.config.list_physical_devices("XLA_GPU")
         logger.info(f'List of XLA GPUs: {xla_gpu_lst}')
 
-        with mp.Pool(processes=len(xla_gpu_lst)) as pool:
+        #with mp.Pool(processes=len(xla_gpu_lst)) as pool:
+        with mp.pool.ThreadPool(processes=len(xla_gpu_lst)) as pool:
             tarfile_lst = [(tf_model_dir, f, V, cfg) for f in args.mine]
             #pool.starmap(tup_print, tarfile_lst)
             pool.starmap(classy.mine_individual_file, tarfile_lst)
