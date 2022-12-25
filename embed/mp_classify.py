@@ -130,4 +130,5 @@ def main():
         logger.info('--mine is empty there will be no mining.')
 
 if __name__ == "__main__":
+    tf.debugging.set_log_device_placement(True)
     main_w_permanent_workers()
