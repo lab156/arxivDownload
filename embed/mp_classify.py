@@ -5,6 +5,8 @@ import multiprocessing as mp
 import os, sys
 import functools 
 import queue
+import time
+import random
 
 def parse_args():
     import argparse
@@ -25,6 +27,7 @@ def tup_print(uno, dos, tres):
 
 def worker_device(name):
     global task_queue
+    time.sleep(5*random.random()) # wait some random time
     with tf.device(name):
         while not task_queue.empty():
             ind, tf_model_dir, tarfile, V, cfg = task_queue.get(timeout=0.5)

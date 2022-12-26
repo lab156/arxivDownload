@@ -116,6 +116,7 @@ def long_mat_mul(gpu, duration):
 
 def worker_device(name):
     global task_queue
+    time.sleep(5*random.random()) # sleep some random time
     with tf.device(name):
         while not task_queue.empty():
             gpu, duration, ind = task_queue.get(timeout=0.5)
