@@ -8,6 +8,8 @@ import queue
 import time
 import random
 
+logger = logging.getLogger(__name__)
+
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser()
@@ -27,6 +29,7 @@ def worker_device(name):
     while not task_queue.empty():
         with tf.device(name):
             ind, tf_model_dir, tarfile, V, cfg = task_queue.get(timeout=0.5)
+            logger.info(f"Device {name} is taking file: {tarfile}.")
             classy.mine_individual_file(tf_model_dir, tarfile, V, cfg)
 
 def get_gpu_info(q="XLA_GPU"):
@@ -92,7 +95,6 @@ def main():
     '''
     #mp.set_start_method('spawn', force=True)
     args = parse_args()
-    logger = logging.getLogger(__name__)
 
     # Model directory is a mandatory argument
     tf_model_dir = args.model
