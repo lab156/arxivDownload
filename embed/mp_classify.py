@@ -7,6 +7,7 @@ import functools
 import queue
 import time
 import random
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,10 @@ def worker_device(name):
             try:
                 classy.mine_individual_file(tf_model_dir, tarfile, V, cfg)
             except (TypeError, RuntimeError, AssertionError) as ee:
-                logger.info(f"Worker {name} ERROR, model: {tf_model_dir} didn't load")
+                now = datetime.now().strftime("%H:%M:%S.%f")
+                logger.info(f"""
+                Worker {name} ERROR, model: {tf_model_dir} didn't load at {now}
+                """)
                 logger.info(ee)
             logger.info(f"Worker {name} finished working on {tarfile}.")
     logger.info(f"Worker {name} is done with the while loop.")
