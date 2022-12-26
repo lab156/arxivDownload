@@ -21,15 +21,11 @@ def parse_args():
 
     return args
 
-def tup_print(uno, dos, tres):
-    print(uno, dos, tres)
-
-
 def worker_device(name):
     global task_queue
     time.sleep(5*random.random()) # wait some random time
-    with tf.device(name):
-        while not task_queue.empty():
+    while not task_queue.empty():
+        with tf.device(name):
             ind, tf_model_dir, tarfile, V, cfg = task_queue.get(timeout=0.5)
             classy.mine_individual_file(tf_model_dir, tarfile, V, cfg)
 
@@ -127,7 +123,6 @@ def main():
         #with mp.Pool(processes=len(xla_gpu_lst)) as pool:
         with mp.pool.ThreadPool(processes=len(xla_gpu_lst)) as pool:
             tarfile_lst = [(tf_model_dir, f, V, cfg) for f in args.mine]
-            #pool.starmap(tup_print, tarfile_lst)
             pool.starmap(classy.mine_individual_file, tarfile_lst)
     else:
         logger.info('--mine is empty there will be no mining.')
