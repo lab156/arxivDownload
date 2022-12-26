@@ -34,6 +34,7 @@ def worker_device(name):
             ind, tf_model_dir, tarfile, V, cfg = task_queue.get(timeout=0.5)
             logger.info(f"Device {name} is taking file: {tarfile}.")
             classy.mine_individual_file(tf_model_dir, tarfile, V, cfg)
+            logger.info(f"Device {name} finished working on {tarfile}.")
 
 def get_gpu_info(q="XLA_GPU"):
     xla_gpu_lst = tf.config.list_physical_devices(q)
