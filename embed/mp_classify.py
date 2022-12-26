@@ -34,12 +34,10 @@ def worker_device(name):
             ind, tf_model_dir, tarfile, V, cfg = task_queue.get(timeout=0.5)
             logger.info(f"Worker {name} is taking file: {tarfile}.")
             try:
-                Model = classy.load_model_logic(cfg, tf_model_dir)
+                classy.mine_individual_file(tf_model_dir, tarfile, V, cfg)
             except (TypeError, RuntimeError, AssertionError) as ee:
-                logger.info(f"Worker {name} model: {tf_model_dir} failed to load")
+                logger.info(f"Worker {name} ERROR, model: {tf_model_dir} didn't load")
                 logger.info(ee)
-            logger.info(f"Worker {name} loaded model: {tf_model_dir}.")
-            classy.mine_individual_file(Model, tarfile, V, cfg)
             logger.info(f"Worker {name} finished working on {tarfile}.")
     logger.info(f"Worker {name} is done with the while loop.")
 
