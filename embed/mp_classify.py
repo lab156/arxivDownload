@@ -27,15 +27,16 @@ def worker_device(name):
     global task_queue
     #time.sleep(5*random.random()) # wait some random time
     sleep_secs = int(name[-1])
-    logger.info(f"Device {name} is sleeping for {sleep_secs} seconds.")
+    logger.info(f"Worker {name} is sleeping for {sleep_secs} seconds.")
     time.sleep(sleep_secs)
     while not task_queue.empty():
         with tf.device(name):
             ind, tf_model_dir, tarfile, V, cfg = task_queue.get(timeout=0.5)
-            logger.info(f"Device {name} is taking file: {tarfile}.")
+            logger.info(f"Worker {name} is taking file: {tarfile}.")
             Model = classy.load_model_logic(cfg, tf_model_dir)
+            logger.info(f"Worker {name} loaded model: {tf_model_dir}.")
             classy.mine_individual_file(Model, tarfile, V, cfg)
-            logger.info(f"Device {name} finished working on {tarfile}.")
+            logger.info(f"Worker {name} finished working on {tarfile}.")
 
 def get_gpu_info(q="XLA_GPU"):
     xla_gpu_lst = tf.config.list_physical_devices(q)
