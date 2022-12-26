@@ -25,7 +25,10 @@ def parse_args():
 
 def worker_device(name):
     global task_queue
-    time.sleep(5*random.random()) # wait some random time
+    #time.sleep(5*random.random()) # wait some random time
+    sleep_secs = int(name[-1])
+    logger.info(f"Device {name} is sleeping for {sleep_secs} seconds.")
+    time.sleep(sleep_secs)
     while not task_queue.empty():
         with tf.device(name):
             ind, tf_model_dir, tarfile, V, cfg = task_queue.get(timeout=0.5)
