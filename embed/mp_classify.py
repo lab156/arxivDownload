@@ -24,6 +24,20 @@ def parse_args():
 
     return args
 
+def worker_device_unsafe(name):
+    global task_queue
+    #time.sleep(5*random.random()) # wait some random time
+    sleep_secs = 3 + int(name[-1])
+    logger.info(f"Worker {name} is sleeping for {sleep_secs} seconds.")
+    time.sleep(sleep_secs)
+    while not task_queue.empty():
+        with tf.device(name):
+            ind, tf_model_dir, tarfile, V, cfg = task_queue.get(timeout=0.5)
+            logger.info(f"Worker {name} is taking file: {tarfile}.")
+            classy.mine_individual_file(tf_model_dir, tarfile, V, cfg)
+            logger.info(f"Worker {name} finished working on {tarfile}.")
+    logger.info(f"Worker {name} is done with the while loop.")
+
 def worker_device(name):
     global task_queue
     #time.sleep(5*random.random()) # wait some random time
@@ -99,7 +113,8 @@ def main_w_permanent_workers():
         logger.info(f'* Putting {ind} -- {tarfile} ')
 
     with mp.pool.ThreadPool(len(xla_gpu_lst)) as pool:
-        pool.map(worker_device, ['/gpu:'+repr(k) for k in range(len(xla_gpu_lst))])
+        pool.map(worker_device_unsafe, 
+                ['/gpu:'+repr(k) for k in range(len(xla_gpu_lst))])
 
 def main():
     '''
