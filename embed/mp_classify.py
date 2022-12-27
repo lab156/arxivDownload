@@ -27,7 +27,7 @@ def parse_args():
 def worker_device_unsafe(name):
     global task_queue
     #time.sleep(5*random.random()) # wait some random time
-    sleep_secs = 3 + int(name[-1])
+    sleep_secs = 3 + 5*int(name[-1])
     logger.info(f"Worker {name} is sleeping for {sleep_secs} seconds.")
     time.sleep(sleep_secs)
     while not task_queue.empty():
@@ -41,7 +41,7 @@ def worker_device_unsafe(name):
 def worker_device(name):
     global task_queue
     #time.sleep(5*random.random()) # wait some random time
-    sleep_secs = 3 + int(name[-1])
+    sleep_secs = 3 + 5*int(name[-1])
     logger.info(f"Worker {name} is sleeping for {sleep_secs} seconds.")
     time.sleep(sleep_secs)
     while not task_queue.empty():
