@@ -38,6 +38,22 @@ def worker_device_unsafe(name):
             logger.info(f"Worker {name} finished working on {tarfile}.")
     logger.info(f"Worker {name} is done with the while loop.")
 
+def worker_device_lock(name):
+    global task_queue, lock, tf_model_dir
+    Model = None
+    with tf.device(name):
+        while not task_queue.empty():
+            ind, tf_model_dir, tarfile, V, cfg = task_queue.get(timeout=0.5)
+            if Model == None:
+                lock.acquire()
+                Model = classy.load_model_logic(cfg, tf_model_dir)
+                logger.info(f"Worker {name} has loaded the model {tf_model_dir}.")
+                lock.release()
+            logger.info(f"Worker {name} is taking file: {tarfile}.")
+            classy.mine_individual_file(Model, tarfile, V, cfg)
+            logger.info(f"Worker {name} finished working on {tarfile}.")
+    logger.info(f"Worker {name} is done with the while loop.")
+
 def worker_device(name):
     global task_queue
     #time.sleep(5*random.random()) # wait some random time
@@ -75,6 +91,7 @@ def main_w_permanent_workers():
     logger = logging.getLogger(__name__)
 
     # Model directory is a mandatory argument
+    global tf_model_dir
     tf_model_dir = args.model
 
     if args.out != '' :
@@ -103,6 +120,9 @@ def main_w_permanent_workers():
     xla_gpu_lst = get_gpu_info()
     logger.info(f'List of XLA GPUs: {xla_gpu_lst}')
 
+    global lock
+    lock = mp.Lock()
+
     # QUEUE PREPARATION
     global task_queue 
     task_queue = queue.Queue()
@@ -113,7 +133,7 @@ def main_w_permanent_workers():
         logger.info(f'* Putting {ind} -- {tarfile} ')
 
     with mp.pool.ThreadPool(len(xla_gpu_lst)) as pool:
-        pool.map(worker_device_unsafe, 
+        pool.map(worker_device_lock, 
                 ['/gpu:'+repr(k) for k in range(len(xla_gpu_lst))])
 
 def main():
