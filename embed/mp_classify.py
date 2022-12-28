@@ -11,6 +11,31 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+def dir_diff(promath_path, inference_path, year_dir):
+    '''
+promath_path ex. '/media/hd1/promath/' 
+                 expected file format .tar.gz
+inference_path ex. '/media/hd1/glossary/NN.v1/' 
+                 expected formar .xml.gz
+year_dir: either a string "math91" or a list of strings ["math01", "math02", ]
+    '''
+    if isinstance(year_dir, str):
+        year_dir = [year_dir, ]
+        
+    # promath and inference path lists
+    pp_lst = []
+    pi_lst = []
+    for year in year_dir:
+        pp_lst += [os.path.join(year, os.path.split(n)[-1].split('.')[0])
+                for n in glob.glob(os.path.join(promath_path, year) + '/*.tar.gz')]
+        pi_lst += [os.path.join(year, os.path.split(n)[-1].split('.')[0])
+                for n in glob.glob(os.path.join(inference_path, year) + '/*.xml.gz')]
+        # output looks like ['math11/1106_003', '']
+        
+    pp_set = set(pp_lst)
+    pi_set = set(pi_lst)
+    return pp_set.difference(pi_set)
+
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser()
@@ -20,6 +45,9 @@ def parse_args():
         help="Path to dir 'mine_out_dir' to output mining results.")
     parser.add_argument('--mine', type=str, nargs='+',
             help='Path to data to mine, ex. /media/hd1/promath/math96')
+    parser.add_argument('--fix', action='store_true',
+            help='''Only add to the queue the files that are in --mine 
+            and not already in the --out dir''' )
     args = parser.parse_args()
 
     return args
