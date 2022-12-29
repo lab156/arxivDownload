@@ -13,6 +13,12 @@
 #     name: python3
 # ---
 
+# ### This Notebook does NER with LSTM both Training and Inference
+# 1) Training functions are in the `train_ner.py` 
+#
+# 2) Inference, in the `inference_ner.py` module
+#
+
 # + tags=["NER", "Tensorflow2.0"]
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -22,9 +28,9 @@ from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional,\
 from tensorflow.keras import Sequential, Model, Input
 from tensorflow.keras.utils import plot_model, to_categorical
 from tensorflow.keras.optimizers import Adam
-from tqdm.keras import TqdmCallback
+#from tqdm.keras import TqdmCallback
 import tensorflow as tf
-import tensorflow_addons as tfa
+#import tensorflow_addons as tfa
 import numpy as np
 import re
 from nltk import sent_tokenize, word_tokenize, pos_tag, ne_chunk
@@ -63,36 +69,49 @@ from embed_utils import open_w2v
 import clean_and_token_text as clean
 import train_ner as TN
 import inference_ner as IN
+
+# + magic_args="echo takes about 5 mins" language="script"
+# # PREPARE THE DATA  
+# cfg = TN.gen_cfg()
+#
+# text_lst = TN.get_wiki_pm_stacks_data(cfg)
+# sent_tok, tok_params = TN.gen_sent_tokzer(text_lst, cfg)
+# #logger.info(sent_tok._params.abbrev_types)
+#
+# def_lst = ner.bio_tag.put_pos_ner_tags(text_lst, sent_tok)
+# random.shuffle(def_lst)
+#
+# pos_ind_dict, pos_lst, cfg = TN.get_pos_ind_dict(def_lst, cfg)
+#
+# wind, embed_matrix, cfg = TN.open_word_embedding(cfg)
+#
+# train_def_lst, test_def_lst, valid_def_lst = TN.get_ranges_lst(def_lst, cfg)
+#
+# train_seq, train_pos_seq, train_bin_seq , train_lab = TN.prep_data4real(
+#         train_def_lst, wind, pos_ind_dict, cfg)
+# test_seq, test_pos_seq, test_bin_seq , test_lab = TN.prep_data4real(
+#         test_def_lst, wind, pos_ind_dict, cfg)
+# valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = TN.prep_data4real(
+#         valid_def_lst, wind, pos_ind_dict, cfg)
+
+
 # -
 
-# # This Notebook does NER with LSTM both Training and Inference
-# 1) Training functions are in the `train_ner.py` 
-# 2) Inference, in the `inference_ner.py` module
-#
 
-# +
-# PREPARE THE DATA  
-cfg = TN.gen_cfg()
+model_path = '/media/hd1/trained_models/ner_model/lstm_ner/ner_Sep-29_03-45/exp_001'
+cfg = IN.open_cfg_dict(os.path.join(model_path, 'cfg.json'))
+wind, tkn2idx = IN.read_word_index_tkn2idx(os.path.join(model_path, 'wordindex.pickle'))
+embed_matrix = np.zeros([cfg['input_dim'], cfg['output_dim']])
+#bimodel = TN.bilstm_model_w_pos(embed_matrix, cfg)
+#bimodel.load_weights(os.path.join(model_path, 'bilstm_with_pos'))
+model = tf.keras.models.load_model(os.path.join(model_path, 'bilstm_with_pos'))
 
-text_lst = TN.get_wiki_pm_stacks_data(cfg)
-sent_tok, tok_params = TN.gen_sent_tokzer(text_lst, cfg)
-#logger.info(sent_tok._params.abbrev_types)
+cfg
 
-def_lst = ner.bio_tag.put_pos_ner_tags(text_lst, sent_tok)
-random.shuffle(def_lst)
+IN.test_model(model, sent_tok, wind, pos_ind_dict, cfg)
 
-pos_ind_dict, pos_lst, cfg = TN.get_pos_ind_dict(def_lst, cfg)
-
-wind, embed_matrix, cfg = TN.open_word_embedding(cfg)
-
-train_def_lst, test_def_lst, valid_def_lst = TN.get_ranges_lst(def_lst, cfg)
-
-train_seq, train_pos_seq, train_bin_seq , train_lab = TN.prep_data4real(
-        train_def_lst, wind, pos_ind_dict, cfg)
-test_seq, test_pos_seq, test_bin_seq , test_lab = TN.prep_data4real(
-        test_def_lst, wind, pos_ind_dict, cfg)
-valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = TN.prep_data4real(
-        valid_def_lst, wind, pos_ind_dict, cfg)
+from functools import reduce
+reduce(lambda a, b: a+b, [[1,2], [2,3]])
 
 
 # + magic_args="echo dont want to join test and validation data" language="script"
@@ -106,29 +125,29 @@ valid_seq, valid_pos_seq, valid_bin_seq , valid_lab = TN.prep_data4real(
 # testq_bin_seq = np.concatenate((test_bin_seq, valid_bin_seq), axis=0)
 # testq_bin_seq.shape
 
-# +
-cfg.update({'input_dim': len(wind),
-      'output_dim': 200, #don't keep hardcoding this
-     'input_length': cfg['padseq']['maxlen'],
-     'pos_dim': 3,
-            'pos_constraint': 1/200,
-     'n_tags': 2,
-     'batch_size': 2000,
-     'lstm_units1': 150,
-     'lstm_units2': 150,
-     'adam': {'lr': 0.025, 'beta_1': 0.9, 'beta_2': 0.999},
-     'epochs': 150,
-           'train_test_split': 0.7,
-           'callbacks': ['early_stop'],
-           'profiling': False,})
-
-model_bilstm = TN.bilstm_model_w_pos(embed_matrix, cfg)
-#history = train_model(train_seq, train_lab, test_seq, test_lab, model_bilstm_lstm, cfg )
-calls, times = TN.model_callbacks(cfg)
-history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq], 
-            train_lab, epochs=cfg['epochs'], batch_size=cfg['batch_size'],
-            validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab),
-                          callbacks=calls)
+# + magic_args="echo this cell trains" language="script"
+# cfg.update({'input_dim': len(wind),
+#       'output_dim': 200, #don't keep hardcoding this
+#      'input_length': cfg['padseq']['maxlen'],
+#      'pos_dim': 3,
+#             'pos_constraint': 1/200,
+#      'n_tags': 2,
+#      'batch_size': 2000,
+#      'lstm_units1': 150,
+#      'lstm_units2': 150,
+#      'adam': {'lr': 0.025, 'beta_1': 0.9, 'beta_2': 0.999},
+#      'epochs': 150,
+#            'train_test_split': 0.7,
+#            'callbacks': ['early_stop'],
+#            'profiling': False,})
+#
+# model_bilstm = TN.bilstm_model_w_pos(embed_matrix, cfg)
+# #history = train_model(train_seq, train_lab, test_seq, test_lab, model_bilstm_lstm, cfg )
+# calls, times = TN.model_callbacks(cfg)
+# history = model_bilstm.fit([train_seq, train_pos_seq, train_bin_seq], 
+#             train_lab, epochs=cfg['epochs'], batch_size=cfg['batch_size'],
+#             validation_data=([test_seq, test_pos_seq, test_bin_seq], test_lab),
+#                           callbacks=calls)
 
 
 # +
@@ -148,9 +167,6 @@ ax2.plot(r.history['accuracy'], label='acc')
 ax2.plot(r.history['val_accuracy'], label='val_acc')
 ax2.grid()
 ax2.legend()
-
-# +
-# plot_model?
 # -
 
 plot_model(model_bilstm, show_layer_names=False, to_file='/home/luis/ner_model.png')

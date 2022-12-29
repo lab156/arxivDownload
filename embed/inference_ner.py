@@ -20,6 +20,9 @@ import string
 import json
 import logging
 from datetime import datetime as dt
+import train_ner as TN
+from functools import reduce
+
 
 
 import sklearn.metrics as metrics
@@ -172,7 +175,7 @@ def binary_features(dat):
     return out_lst
 
     
-def prep_data4real(_def_lst, wind, cfg):
+def prep_data4real(_def_lst, wind, pos_ind_dict, cfg):
     _data = [prep_data(d['ner'], wind, cfg) for d in _def_lst]
     _seq, _lab = zip(*_data)
     _pos_seq = [prep_pos(d['ner'], pos_ind_dict) for d in _def_lst]
@@ -237,9 +240,11 @@ def get_chunkscore(test_def_lst, preds, CutOFF):
         chunkscore.score(Tree_lst_gold[i], Tree_lst_pred[i])
     return chunkscore
 
-def test_model(model, sent_tok):
+def test_model(model, sent_tok, wind, pos_ind_dict, cfg):
     plmath = []
-    test_data = '/media/hd1/planetmath/datasets/planetmath_definitions.xml.gz'
+    #test_data = os.path.join(cfg['base_dir'],
+    #        'planetmath/datasets/planetmath_definitions.xml.gz')
+    test_data = '/opt/data_dir/planetmath/datasets/planetmath_definitions.xml.gz'
     with gzip.open(test_data, 'r') as xml_fobj:
         def_xml = etree.parse(xml_fobj)
         for art in def_xml.findall('article'):
@@ -248,10 +253,12 @@ def test_model(model, sent_tok):
     random.shuffle(text_lst)
     def_lst = ner.bio_tag.put_pos_ner_tags(text_lst, sent_tok)
     print('There are {} definitions.'.format(len(text_lst)))
-    test_seq, test_pos_seq, test_bin_seq , test_lab = prep_data4real(def_lst, wind, cfg)
+    test_seq, test_pos_seq, test_bin_seq , test_lab = prep_data4real(
+        def_lst, wind, pos_ind_dict, cfg)
     preds = model.predict([test_seq, test_pos_seq, test_bin_seq])
     model.evaluate([test_seq, test_pos_seq, test_bin_seq], test_lab)
     logging.getLogger().info(get_chunkscore(def_lst, preds, cfg['tboy']['cutoff']))
+    print(get_chunkscore(def_lst, preds, cfg['tboy']['cutoff']))
 
 
 # 
@@ -482,24 +489,29 @@ if __name__ == "__main__":
     logger.info(sent_tok._params.abbrev_types)
 
     # LOAD TF MODEL
-    model = bilstm_lstm_model_w_pos(cfg)
-    model.load_weights(os.path.join(tf_model_dir, 'bilstm_with_pos'))
+    #model = bilstm_lstm_model_w_pos(cfg)
+    #model = TN.bilstm_with_pos(cfg)
+    #model.load_weights(os.path.join(tf_model_dir, 'bilstm_with_pos'))
+    model = tf.keras.models.load_model(
+            os.path.join(tf_model_dir, 'bilstm_with_pos'))
 
     # TEST
     t1 = dt.now()
-    test_model(model, sent_tok)
+    test_model(model, sent_tok, wind, pos_ind_dict, cfg)
     logger.info("Testing time: {}".format((dt.now() - t1)))
 
     # INFERENCE
     logger.info("Starting inference")
     t2 = dt.now()
     #fname = args.mine+'math05/0509_001.xml.gz'
-    for fname in glob.glob(args.mine + 'math*/*.xml.gz'):
+    mine_lst = args.mine
+    print(f"Mining files: {mine_lst}")
+    for fname in mine_lst:
         t3 = dt.now()
         basename = os.path.basename(fname)
         dirname = os.path.dirname(fname)
         mathname = os.path.basename(dirname) # ej. math10
-        logger.debug(f" fname={fname}, basename={basename}") 
+        logger.info(f"Files for mining: {fname}, {basename}") 
         out_root = prep_raw_data(fname,
                 sent_tok, tkn2idx,
                 pos_ind_dict,

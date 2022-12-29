@@ -26,22 +26,6 @@ import pickle
 from ner.chunker import NamedEntityChunker, features
 import glob
 
-art_lst = glob.glob('/home/luis/rm_me_fixbug/1108_001/*/*.xml')
-for a in art_lst:
-    px.DefinitionsXML(a)
-
-bug_path = '/media/hd1/promath/math11/1108_001.tar.gz'
-cnt = 0
-for fname, tar_fobj in peep.tar_iter(bug_path, '.xml'):
-    cnt += 1
-    print(cnt)
-    try:
-        DD = px.DefinitionsXML(tar_fobj)
-    except etree.ParseError as ee:
-        print('The error is ', ee)
-        print(f"The name of the error file is {fname}")
-        print(tar_fobj.read())
-
 # +
 glossary_NN = '/home/luis/rm_me_glossary/test_conv/math01/'
 glossary_sgd = '/media/hd1/glossary/v3/math01/'

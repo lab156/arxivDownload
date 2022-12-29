@@ -171,19 +171,19 @@ def get_pos_ind_dict(def_lst, cfg):
     return  pos_ind_dict, pos_lst, cfg
 
 def open_word_embedding(cfg):
-    with open_w2v(os.path.join(cfg['base_dir'], cfg['embed_data_src'])) as embed_dict:
-        wind = ['<UNK>',] + list(embed_dict.keys())
-        cfg['emb_nvocab'] = len(wind) 
-        cfg['input_dim'] = len(wind)
+    embed_dict = open_w2v(os.path.join(cfg['base_dir'], cfg['embed_data_src'])) 
+    wind = ['<UNK>',] + list(embed_dict.keys())
+    cfg['emb_nvocab'] = len(wind) 
+    cfg['input_dim'] = len(wind)
 
-        cfg['output_dim'] = embed_dict['a'].shape[0] #choose a common word
+    cfg['output_dim'] = embed_dict['a'].shape[0] #choose a common word
 
-        embed_matrix = np.zeros((cfg['emb_nvocab'], cfg['output_dim']))
-        for word, vec in embed_dict.items():
-            #vect = embed_dict.get(word)
-            ind = wind.index(word)
-                #vect = vect/np.linalg.norm(vect)
-            embed_matrix[ind] = vec
+    embed_matrix = np.zeros((cfg['emb_nvocab'], cfg['output_dim']))
+    for word, vec in embed_dict.items():
+        #vect = embed_dict.get(word)
+        ind = wind.index(word)
+            #vect = vect/np.linalg.norm(vect)
+        embed_matrix[ind] = vec
     logger.info("Length of word index (wind) is {}".format(len(wind)))
     return wind, embed_matrix, cfg
 
@@ -294,10 +294,10 @@ def get_bilstm_lstm_model(embed_matrix, cfg_dict):
     return model
 
 def bilstm_model_w_pos(embed_matrix, cfg_dict):
-    
     words_in = Input(shape=(cfg_dict['input_length'], ), name='words-in')
     pos_in = Input(shape=(cfg_dict['input_length'], ), name='pos-in')
-    bin_feats = Input(shape=(cfg_dict['input_length'], cfg_dict['nbin_feats']), name='bin-features-in')
+    bin_feats = Input(shape=(cfg_dict['input_length'], cfg_dict['nbin_feats']),
+            name='bin-features-in')
     
     word_embed = Embedding(cfg_dict['input_dim'], 
                         output_dim=cfg_dict['output_dim'],
@@ -351,9 +351,9 @@ def model_callbacks(cfg):
     if 'mon_val_loss' in cfg['callbacks']:
         save_checkpoint = ModelCheckpoint(
                  os.path.join(cfg['save_path_dir'], 'model_saved'), \
-		 monitor='val_accuracy', verbose=1, \
-		 save_best_only=True, save_weights_only=False, \
-		 mode='max', save_freq='epoch')
+                monitor='val_accuracy', verbose=1, \
+                save_best_only=True, save_weights_only=False, \
+                mode='max', save_freq='epoch')
         cb.append(save_checkpoint)
 
     if 'epoch_times' in cfg['callbacks']:
