@@ -20,7 +20,7 @@ import string
 import json
 import logging
 from datetime import datetime as dt
-import train_ner as TN
+#import train_ner as TN
 from functools import reduce
 
 
@@ -41,7 +41,7 @@ import os, inspect, sys
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
-from unwiki import unwiki
+#from unwiki import unwiki
 import ner
 from embed_utils import open_w2v
 import clean_and_token_text as clean
