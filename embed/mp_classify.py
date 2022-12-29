@@ -12,7 +12,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-def dir_diff(promath_path, inference_path, year_dir):
+def dir_diff(promath_path, inference_path, year_dir=None):
     '''
 promath_path ex. '/media/hd1/promath/' 
                  expected file format .tar.gz
@@ -41,14 +41,13 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='',
-        help="Path to the trained model ex. '/media/hd1/trained_models/lstm_classifier/lstm_Aug-19_04-15")
+        help="""Path to the trained model 
+        ex. '/media/hd1/trained_models/lstm_classifier/lstm_Aug-19_04-15""")
     parser.add_argument('--out', type=str, default='',
         help="Path to dir 'mine_out_dir' to output mining results.")
     parser.add_argument('--mine', type=str, nargs='+',
-            help='Path to data to mine, ex. /media/hd1/promath/math96')
-    parser.add_argument('--fix', action='store_true',
-            help='''Only add to the queue the files that are in --mine 
-            and not already in the --out dir''' )
+            help='''Path to data to mine, ex. /media/hd1/promath/math96
+            or  /media/hd1/promath/math96/9601_001.tar.gz''')
     args = parser.parse_args()
 
     return args

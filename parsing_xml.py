@@ -222,10 +222,16 @@ class DefinitionsXML(object):
                     self.parse = ParsingResult.SUCC
                 else:
                     raise NotImplementedError('huge_tree not implemented for html')
-
+            elif 'StartTag: invalid element' in e.args[0]:
+                # example of this 1108.0460 in tarfile 1108_001
+                print('The XML is messed up -- {} -- {}'.format(self.file_path, e))
+                self.exml = empty_xml 
+                self.recutext = recutext_xml
+                self.parse = ParsingResult.FAIL
             else:
                 print('XML ParseError -- {} -- {}'.format(self.file_path, e))
                 self.exml = empty_xml 
+                self.recutext = recutext_xml
                 self.parse = ParsingResult.FAIL
 
         self.ns = {'latexml': 'http://dlmf.nist.gov/LaTeXML' }
