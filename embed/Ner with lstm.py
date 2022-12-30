@@ -110,10 +110,6 @@ cfg
 
 IN.test_model(model, sent_tok, wind, pos_ind_dict, cfg)
 
-from functools import reduce
-reduce(lambda a, b: a+b, [[1,2], [2,3]])
-
-
 # + magic_args="echo dont want to join test and validation data" language="script"
 # # JOIN TEST AND VALIDATION 
 # print(train_seq.shape)

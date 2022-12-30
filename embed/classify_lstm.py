@@ -260,9 +260,14 @@ def lstm_model_one_layer(cfg, tf_model_dir=None):
     lstm_model.summary(print_fn=logger.info) 
 
     # READ THE MODEL AND LOAD WEIGHTS
-    if tf_model_dir is not None:
+    try:
         lstm_model.load_weights(tf_model_dir + '/model_weights')
         logger.info("CONFIG cfg = {}".format(cfg))
+    except tf.python.framework.errors_impl.NotFoundError:
+        # Try if the model was saved as keras model.
+        logger.info('Trying with load_model directly with keras load_model')
+        lstm_model = tf.keras.models.load_model(
+                os.path.join(tf_model_dir, 'tf_model'))
 
     return lstm_model
 
