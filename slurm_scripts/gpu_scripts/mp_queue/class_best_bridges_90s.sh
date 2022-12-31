@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --time=0-10:00:00
-#SBATCH --job-name=c_00_10
-#SBATCH --output=class_oughts.txt
+#SBATCH --time=0-01:00:00
+#SBATCH --job-name=c_bb_90s
+#SBATCH --output=class_bb_90s.txt
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 ##SBATCH --partition=GPU-shared
@@ -14,12 +14,12 @@
 #source activate $AI_ENV
 
 export TF_CUDNN_RESET_RND_GEN_STATE=1
-OUTDIRNAME=with_mp_oughts
+OUTDIRNAME=best_bridges
 singularity run --nv \
     --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir \
     $HOME/singul/runner.sif python3 embed/mp_classify.py \
-    --model /opt/data_dir/trained_models/lstm_classifier/lstm_Aug-19_17-22 \
+    --model /opt/data_dir/trained_models/lstm_classifier/Bridges-2-best/exp_008 \
     --out $PROJECT/$OUTDIRNAME \
-    --mine /opt/data_dir/promath/math0*/*.tar.gz
+    --mine /opt/data_dir/promath/math9*/*.tar.gz
 cp -r /tmp/trainer $PROJECT/$OUTDIRNAME/trainer_logs
-cp ./class_oughts.txt $PROJECT/$OUTDIRNAME/trainer_logs
+cp ./class_bb_90s.txt $PROJECT/$OUTDIRNAME/trainer_logs
