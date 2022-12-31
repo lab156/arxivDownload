@@ -370,21 +370,25 @@ class Xtraction(object):
                 commentary_dict['file_error'] = out_mess
             else:
                 file_gz = ff.extractfile(filename)
-                gz_magic = magic.detect_from_content(file_gz.read(2048))
+                #gz_magic = magic.detect_from_content(file_gz.read(2048))
+                gz_magic = magic.from_buffer(file_gz.read(2048))
                 file_gz.seek(0)
 
                 # With the magic info of the file we can tell if it is pdf only or .cry encrypted
                 # TODO improve this with a regex
-                if '.tex.cry"' in gz_magic.name:
+                #if '.tex.cry"' in gz_magic.name:
+                if '.tex.cry"' in gz_magic:
                     out_mess = '.tex.cry file found %s'%filename
                     commentary_dict['file_error'] = out_mess
 
                 else:
                     with gzip.open(file_gz,'rb') as fgz:
-                        snd_magic = magic.detect_from_content(fgz.read(2048))
+                        #snd_magic = magic.detect_from_content(fgz.read(2048))
+                        snd_magic = magic.from_buffer(fgz.read(2048))
                         fgz.seek(0)
                         # if the filename stands for a directory
-                        if snd_magic.mime_type == 'application/x-tar':
+                        #if snd_magic.mime_type == 'application/x-tar':
+                        if 'application/x-tar' in snd_magic:
                             with tarfile.open(fileobj=fgz) as fb:
                                 fb.extractall(path=output_path)
                                 commentary_dict['extraction_tool'] = 'tarfile'

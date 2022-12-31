@@ -198,7 +198,8 @@ ff.close()
 ff = tarfile.open('tests/minitest.tar')
 fi = ff.getmembers()[2]
 fobj = ff.extractfile(fi.name)
-print("1)  ", magic.detect_from_content(fobj.read(2048)))
+#print("1)  ", magic.detect_from_content(fobj.read(2048)))
+print("1)  ", magic.from_buffer(fobj.read(2048)))
 fobj.seek(0)
 unz_file = tarfile.open(fileobj=fobj, mode='r:gz')
 unz_file.getmembers()
@@ -207,6 +208,8 @@ unz_file.getmembers()
 #unz_file.seek(0)
 #unz_tar = tarfile.open(fileobj=unz_file)
 #print(unz_tar.getmembers())
+
+magic.from_file('/media/hd1/arXiv_src/src/arXiv_src_0003_001.tar')
 
 # + jupyter={"outputs_hidden": true}
 with tarfile.open('tests/minitest2.tar') as ff:

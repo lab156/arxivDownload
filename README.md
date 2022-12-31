@@ -5,6 +5,14 @@
 #### Getting Labeled Definitions
 ### Classifying Definitions
 ### NER
+example with singularity:
+```
+singularity run --nv --bind $HOME/Documents/arxivDownload:/opt/arxivDownload,/media/hd1:/opt/data_dir 
+    $HOME/singul/runner.sif python3 embed/inference_ner.py \
+    --mine /opt/data_dir/glossary/inference_class_all/math96/*.xml.gz \
+    --model /opt/data_dir/trained_models/ner_model/lstm_ner/ner_Sep-29_03-45/exp_001 \
+    --out $HOME/rm_me_ner
+```
 #### Joining Phrases
 * `MP_scripts/mpi_only_loop.py`
 * `slurm_scripts/mpi_joiner.sh`
