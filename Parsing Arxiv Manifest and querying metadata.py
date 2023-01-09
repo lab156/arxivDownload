@@ -211,6 +211,9 @@ unz_file.getmembers()
 
 magic.from_file('/media/hd1/arXiv_src/src/arXiv_src_0003_001.tar')
 
+import os
+os.path.curdir
+
 # + jupyter={"outputs_hidden": true}
 with tarfile.open('tests/minitest2.tar') as ff:
     for fi in ff.getmembers()[1:]:

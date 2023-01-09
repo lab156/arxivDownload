@@ -183,7 +183,9 @@ class TestXtraction1(unittest.TestCase):
     '\\usepackage{fouriernc}\n',
     '\\newcommand{\\id}{\\mathbb{1}}\n',]
 
-        with open(os.path.join(self.check_dir2, '1804.01586','disloc-drag-semiiso-v2.tex'),'r') as tst_file:
+        with open(os.path.join(self.check_dir2, 
+            '1804.01586',
+            'disloc-drag-semiiso-v2.tex'),'r') as tst_file:
             tst_file_lines = tst_file.readlines()
             self.assertListEqual(expect_lst, tst_file_lines[:15])
             self.assertEqual(len(tst_file_lines), 1050)

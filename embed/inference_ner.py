@@ -23,8 +23,6 @@ from datetime import datetime as dt
 #import train_ner as TN
 from functools import reduce
 
-
-
 import sklearn.metrics as metrics
 #import matplotlib.pyplot as plt
 
@@ -46,7 +44,11 @@ import ner
 from embed_utils import open_w2v
 import clean_and_token_text as clean
 
-
+# SETUP LOGGING
+logging.basicConfig(filename=os.path.join('/tmp/trainer', 'ner_inference.log'),
+        level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.info("GPU devices: {}".format(list_physical_devices('GPU')))
 
 def bilstm_lstm_model_w_pos(cfg_dict):
     words_in = Input(shape=(cfg_dict['input_length'], ), name='words-in')
@@ -381,7 +383,7 @@ def crop_term_words(sent, P):
     return term_lst
             
     
-def prep_raw_data(xml_path, tok, word_dict, pos_dict, cfg, model=None):
+def prep_raw_data_and_mine(xml_path, tok, word_dict, pos_dict, cfg, model=None):
     '''
     xml_path: path to a compressed xml file of definitions
     
@@ -447,10 +449,30 @@ def prep_raw_data(xml_path, tok, word_dict, pos_dict, cfg, model=None):
     #    xml_fobj.write(etree.tostring(root, pretty_print=True).decode('utf8'))
     
     return root #word_seqs, pos_seqs, bin_seqs, def_indices
-        
 
+def mine_individual_file(fname_, sent_tok, tkn2idx, pos_ind_dict, cfg, model=None):
+    '''
+    fname_ is the full path of an .xml.gz file with all the definitions classified 
+    eg. /opt/data_dir/glossary/inference_class_all/math96/9601_001.xml.gz
+    '''
+    print(f"Mining files: {fname_}")
+    t3 = dt.now()
+    basename = os.path.basename(fname_)
+    dirname = os.path.dirname(fname_)
+    mathname = os.path.basename(dirname) # ej. math10
+    logger.info(f"Files for mining: {fname_}, {basename}") 
+    out_root = prep_raw_data_and_mine(fname_,
+            sent_tok, tkn2idx,
+            pos_ind_dict,
+            cfg, model=model)
 
-if __name__ == "__main__":
+    out_dir_math = os.path.join(cfg['outdir'], mathname)
+    os.makedirs(out_dir_math, exist_ok=True)
+    with gzip.open( os.path.join(out_dir_math, basename), 'wb') as out_fobj:
+        out_fobj.write(etree.tostring(out_root, encoding='utf8', pretty_print=True))
+    logger.info("Inference time on {}: {}".format(basename, (dt.now() - t3)))
+
+def parse_args():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--mine', type=str, nargs='+',
@@ -463,19 +485,18 @@ if __name__ == "__main__":
             default='/home/luis/NNglossary',
             help='Local path to save')
     args = parser.parse_args()
+    return args
+
+def main():
+    args = parse_args()
 
     if not os.path.isdir(args.out):
         os.makedirs(args.out)
-    logging.basicConfig(filename=os.path.join(args.out, 'inference.log'),
-            level=logging.INFO)
-    logger = logging.getLogger(__name__)
-
-    logger.info("GPU devices: {}".format(list_physical_devices('GPU')))
-
 
     # GET THE PATH AND config
     tf_model_dir = args.model
     cfg = open_cfg_dict(os.path.join(tf_model_dir, 'cfg.json'))
+    cfg.update({'outdir': args.out})
     logger.info(repr(cfg))
     # GET WORD INDICES
     wind, tkn2idx = read_word_index_tkn2idx(os.path.join(tf_model_dir,\
@@ -507,25 +528,11 @@ if __name__ == "__main__":
     mine_lst = args.mine
     print(f"Mining files: {mine_lst}")
     for fname in mine_lst:
-        t3 = dt.now()
-        basename = os.path.basename(fname)
-        dirname = os.path.dirname(fname)
-        mathname = os.path.basename(dirname) # ej. math10
-        logger.info(f"Files for mining: {fname}, {basename}") 
-        out_root = prep_raw_data(fname,
-                sent_tok, tkn2idx,
-                pos_ind_dict,
-                cfg, model=model)
-
-        out_dir_math = os.path.join(args.out, mathname)
-        if not os.path.isdir(out_dir_math):
-            os.makedirs(out_dir_math)
-        with gzip.open( os.path.join(out_dir_math, basename), 'wb') as out_fobj:
-            out_fobj.write(etree.tostring(out_root, encoding='utf8', pretty_print=True))
-        logger.info("Inference time on {}: {}".format(basename, (dt.now() - t3)))
+        mine_individual_file(fname,
+                  sent_tok, tkn2idx,
+                  pos_ind_dict,
+                  cfg, model=model)
     logger.info("TOTAL INFERENCE TIME: {}".format((dt.now() - t2)))
 
-
-
-
-
+if __name__ == "__main__":
+    main()

@@ -1,13 +1,30 @@
 ## Data Pipeline
 ### Downloading from arXiv
 ### Processing with LaTeXML
+The following untars the arxiv source tar and finds the _math_ files using an internet connection
+```bash
+python3 process.py \
+   /media/hd1/arXiv_src/src/arXiv_src_2101_023.tar \
+   $HOME/rm_me_process \
+   --term math
+```
 ### More Processing
 #### Getting Labeled Definitions
 ### Classifying Definitions
+Classifying with multiprocessing (also works on a single GPU)
+```bash
+singularity run --nv \
+      --bind $HOME/Documents/arxivDownload:/opt/arxivDownload,/media/hd1:/opt/data_dir \
+    $HOME/singul/runner.sif python3 embed/mp_classify.py \
+     --model /opt/data_dir/trained_models/lstm_classifier/lstm_Aug-19_17-22 \
+     --out /rm_me_path/with_mp_classify \
+     --mine /opt/data_dir/promath/math94/940{3,4,5}_001.tar.gz
+```
 ### NER
 example with singularity:
-```
-singularity run --nv --bind $HOME/Documents/arxivDownload:/opt/arxivDownload,/media/hd1:/opt/data_dir 
+```bash
+singularity run --nv 
+    --bind $HOME/Documents/arxivDownload:/opt/arxivDownload,/media/hd1:/opt/data_dir \
     $HOME/singul/runner.sif python3 embed/inference_ner.py \
     --mine /opt/data_dir/glossary/inference_class_all/math96/*.xml.gz \
     --model /opt/data_dir/trained_models/ner_model/lstm_ner/ner_Sep-29_03-45/exp_001 \
