@@ -34,7 +34,7 @@ from nltk import sent_tokenize, word_tokenize, pos_tag, ne_chunk
 import nltk.data
 from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktTrainer
 import pickle
-from collections import Iterable
+from collections.abc import Iterable
 from nltk.tag import ClassifierBasedTagger
 from nltk.chunk import ChunkParserI
 import string

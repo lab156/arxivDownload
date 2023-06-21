@@ -1,5 +1,4 @@
 # Where to find latexml in the local system
-# The lines should be correct bash so can be sourced
 # Always do config.toml for your local settings
 [executables]
 LATEXML_BIN="/usr/bin/site_perl/latexml"
@@ -23,3 +22,13 @@ MAXT=4800
 'epochs' = 2
 
 wembed_basename = 'embeddings/glove_model_18-31_15-08'
+
+[finetuning]
+checkpoint = 'bert-base-uncased'
+glob_data_source = 'training_defs/math18/*.xml.gz'
+'data_stream_batch_size'= 5000 ## raw examples to read from hard drive
+num_epochs = 1
+batch_size = 8
+initial_lr = 5e-05 ## learning rates for PolynomialDecay scheduler
+end_lr = 0.0
+

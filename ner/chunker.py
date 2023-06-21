@@ -2,7 +2,7 @@ from nltk.chunk import ChunkParserI
 from nltk.stem.snowball import SnowballStemmer
 import string
 from nltk.chunk import conlltags2tree, tree2conlltags
-from collections import Iterable
+from collections.abc import Iterable
 from nltk.tag import ClassifierBasedTagger
 
 class NamedEntityChunker(ChunkParserI):
