@@ -119,7 +119,7 @@ def prepare_data(ds, cfg):
     })
     
     # This function does no accept the return_tensors argument.
-    data_collator = DataCollatorWithPadding(tokenizer=tokenizer), return_tensors='tf')
+    data_collator = DataCollatorWithPadding(tokenizer=tokenizer, return_tensors='tf')
 
     # Take care of everyting using `to_tf_dataset()`
     tf_train_data = tkn_data['train'].to_tf_dataset(
