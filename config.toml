@@ -1,4 +1,5 @@
 # Where to find latexml in the local system
+# The lines should be correct bash so can be sourced
 # Always do config.toml for your local settings
 [executables]
 LATEXML_BIN="/usr/bin/site_perl/latexml"
@@ -24,6 +25,7 @@ MAXT=4800
 wembed_basename = 'embeddings/glove_model_18-31_15-08'
 
 [finetuning]
+shrink_data_factor=0.01
 checkpoint = 'bert-base-uncased'
 glob_data_source = 'training_defs/math18/*.xml.gz'
 'data_stream_batch_size'= 5000 ## raw examples to read from hard drive
