@@ -108,7 +108,7 @@ def prepare_data(ds, cfg):
 
     tkn_data = ds.map(tok_function, batched=True)
     
-    tkn_data = tkn_data.select(range(int(shrink_data_factor*len(tkn_data))))
+    tkn_data = tkn_data.select(range(int(cfg['shrink_data_factor']*len(tkn_data))))
     temp1_dd = tkn_data.train_test_split(test_size=0.1, shuffle=True)
     temp2_dd = temp1_dd['train'].train_test_split(test_size=0.1, shuffle=True)
 
