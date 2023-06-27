@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --time=1-10:00:00
-#SBATCH --job-name=ft-%j
-#SBATCH --output=finetune-%j.txt
+#SBATCH --job-name=finetuning
+#SBATCH --output=finetune.txt
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 #SBATCH --partition=GPU-shared
@@ -18,4 +18,4 @@ singularity run --nv \
     --model /opt/data_dir/finetuned_models/model_start \
 
 cp -r /tmp/trainer $PROJECT/$OUTDIRNAME/trainer_logs
-cp ./class_bb_2nd_half.txt $PROJECT/$OUTDIRNAME/trainer_logs
+cp ./finetune.txt $PROJECT/$OUTDIRNAME/trainer_logs
