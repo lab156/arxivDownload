@@ -18,5 +18,6 @@ singularity run --nv \
     --savedir /opt/data_dir/finetuned_models/model_start \
     --configpath /opt/arxivDownload/config.toml
 
+mkdir $PROJECT/$OUTDIRNAME/
 cp -r /tmp/trainer $PROJECT/$OUTDIRNAME/trainer_logs
 cp ./finetune.txt $PROJECT/$OUTDIRNAME/trainer_logs
