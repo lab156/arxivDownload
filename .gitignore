@@ -20,9 +20,15 @@ tmp.ps
 # configs that start with gitignore
 gitignore_*
 
+# Version control config
+config.toml
+
 #databases 
 #Gotta keep all databases with this extension
 #*.db need to include a test database
+#
+#Vim Session 
+*.session
 
 # beamer presentation files
 *.aux

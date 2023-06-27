@@ -422,17 +422,9 @@ def argParse():
     Parsing all arguments
     '''
     import argparse
-    parser = argparse.ArgumentParser(description="Train LSTM model")
-    parser.add_argument('--epochs', type=int, default=2,
-            help="Number of epochs to train. Overrides default value")
-    parser.add_argument('--experiments', type=int, default=2,
-            help="Number of experiment loops to do.")
-    parser.add_argument('--cells', type=int, default=0,
-            help="Number of first layer LSTM cells.")
-    parser.add_argument('-p', '--profiling', action='store_true',
-            help="Set the profiling mode to True (default False)")
-    parser.add_argument('-m', '--mini', action='store_true',
-            help="Set a small version of the training data set.")
+    parser = argparse.ArgumentParser(description="Fine tune Huggingface LLM")
+    parser.add_argument('--savepath', type=int, default=2,
+            help="Path to save the fine tuned model. ")
     args = parser.parse_args()
     return args
 

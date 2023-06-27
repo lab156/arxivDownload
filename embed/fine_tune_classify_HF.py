@@ -27,7 +27,8 @@ import sklearn.metrics as metrics
 #sys.path.insert(0,parentdir) 
 #sys.path.insert(0,parentdir+'/embed') 
 import sys,inspect
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+currentdir = os.path.dirname(
+        os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 from classifier_trainer.trainer import stream_arxiv_paragraphs
@@ -38,15 +39,16 @@ logger = logging.getLogger(__name__)
 
 
 def gen_cfg(**kwargs):
-    # GET the default values
-    config_path = kwargs.get('config_path', 'config.toml')
+    # GET the parse args default values
+    config_path = kwargs.get('configpath', 'config.toml')
     cfg = toml.load(config_path)['finetuning']
+    cfg.update(kwargs)
 
     # This is permanent storage
     cfg['base_dir'] = os.environ.get('PERMSTORAGE', '/media/hd1') 
     # This is temporary fast storage
     cfg['local_dir'] = os.environ.get('TEMPFASTSTORAGE',
-            '/tmp/rm_me_experiments')  
+            '/tmp/rm_me_finetuning')  
 
     # CREATE LOG FILE AND OBJECT
     hoy = dt.now()
@@ -60,24 +62,26 @@ def gen_cfg(**kwargs):
     xml_lst = glob.glob(
         os.path.join(cfg['base_dir'], cfg['glob_data_source']))
     
-    # SET THE MODEL ARCHITECTURE
     
     return xml_lst, cfg
 
-def parse_args(cfg):
+def parse_args():
+    '''
+    parse args should be run before gen_cfg
+    '''
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default='',
-        help="""Path to the trained model 
-        ex. '/media/hd1/trained_models/lstm_classifier/lstm_Aug-19_04-15""")
-    parser.add_argument('--out', type=str, default='',
-        help="Path to dir 'mine_out_dir' to output mining results.")
-    parser.add_argument('--mine', type=str, nargs='+',
-            help='''Path to data to mine, ex. /media/hd1/promath/math96
-            or  /media/hd1/promath/math96/9601_001.tar.gz''')
+    parser.add_argument('--savedir', type=str, default='',
+        help="""Path to save the finetuned model, dir name only.""")
+    parser.add_argument('--configpath', type=str, default='',
+        help="""Path to config.toml file.""")
     args = parser.parse_args()
 
-    return args
+    # make sure --savepath exists
+    if args.savedir != '':
+        os.makedirs(args.savedir, exist_ok=True)
+
+    return vars(args)
 
 def get_dataset(xml_lst, cfg):
     
@@ -119,7 +123,11 @@ def prepare_data(ds, cfg):
     })
     
     # This function does no accept the return_tensors argument.
-    data_collator = DataCollatorWithPadding(tokenizer=tokenizer, return_tensors='tf')
+    try:
+        data_collator = DataCollatorWithPadding(tokenizer=tokenizer,
+                return_tensors='tf')
+    except TypeError:
+        data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
     # Take care of everyting using `to_tf_dataset()`
     tf_train_data = tkn_data['train'].to_tf_dataset(
@@ -158,7 +166,8 @@ def make_HF_model(cfg):
     opt = Adam(learning_rate=lr_scheduler)
 
     #reload the model to change the optimizer
-    model = TFAutoModelForSequenceClassification.from_pretrained(cfg['checkpoint'], num_labels=2)
+    model = TFAutoModelForSequenceClassification.from_pretrained(cfg['checkpoint'],
+            num_labels=2)
 
     loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     #loss = tf.keras.losses.BinaryCrossentropy()
@@ -189,10 +198,13 @@ def find_best_cutoff(model, preds, test):
 
 def main():
     # Training
-    args = []
-    xml_lst, cfg = gen_cfg(config_path='config.toml')
+    args = parse_args()
+    xml_lst, cfg = gen_cfg(**args)
     assert len(xml_lst) > 0, 'Empty xml_lst'
     checkpoint = cfg['checkpoint']
+
+    xla_gpu_lst = tf.config.list_physical_devices("XLA_GPU")
+    logger.info(f'List of XLA GPUs: {xla_gpu_lst}')
     
     ds = get_dataset(xml_lst, cfg)
     
@@ -213,11 +225,21 @@ def main():
     for b in tf_test_data.as_numpy_iterator():
         targets.extend(list(b[1])) 
         
-    
     opt_prob, f1_max = find_best_cutoff(model, class_preds, targets)
+
+    logger.info(f"{opt_prob=} and {f1_max=}")
     print(f"{opt_prob=} and {f1_max=}")
-    metric_str = metrics.classification_report((class_preds > opt_prob).astype(int), targets)
+    metric_str = metrics.classification_report(
+            (class_preds > opt_prob).astype(int), targets)
     print(metric_str)
+    logger.info(metric_str)
+
+    #Save the model
+    if cfg['savedir'] != '':
+        print(f"Saving to {cfg['savedir']}")
+        model.save_pretrained(save_directory=cfg['savedir'])
+    else:
+        logger.warning("cfg['savedir'] is empty string, not saving model.")
     
 
 if __name__ == "__main__":
