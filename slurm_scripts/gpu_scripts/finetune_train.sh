@@ -15,7 +15,7 @@ OUTDIRNAME=finetune
 singularity run --nv \
     --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir \
     $PROJECT/singul/runnerTransHF.sif python3 embed/fine_tune_classify_HF.py \
-    --model /opt/data_dir/finetuned_models/model_start \
+    --savedir /opt/data_dir/finetuned_models/model_start \
 
 cp -r /tmp/trainer $PROJECT/$OUTDIRNAME/trainer_logs
 cp ./finetune.txt $PROJECT/$OUTDIRNAME/trainer_logs
