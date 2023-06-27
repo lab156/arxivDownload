@@ -16,6 +16,7 @@ singularity run --nv \
     --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir \
     $PROJECT/singul/runnerTransHF.sif python3 embed/fine_tune_classify_HF.py \
     --savedir /opt/data_dir/finetuned_models/model_start \
+    --configpath /opt/arxivDownload/config.toml
 
 cp -r /tmp/trainer $PROJECT/$OUTDIRNAME/trainer_logs
 cp ./finetune.txt $PROJECT/$OUTDIRNAME/trainer_logs
