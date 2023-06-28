@@ -35,8 +35,8 @@ from classifier_trainer.trainer import stream_arxiv_paragraphs
 
 from train_lstm import find_best_cutoff
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 def gen_cfg(**kwargs):
     # GET the parse args default values
@@ -57,11 +57,12 @@ def gen_cfg(**kwargs):
     path_str = 'trained_models/finetuning/HFTransformers_' + timestamp
     cfg['save_path_dir'] = os.path.join(cfg['base_dir'], path_str)
     
-        
     # xml_lst is too long to go in the config
     xml_lst = glob.glob(
         os.path.join(cfg['base_dir'], cfg['glob_data_source']))
     
+    FHandler = logging.FileHandler(cfg['local_dir']+"/training.log")
+    logger.addHandler(FHandler)
     
     return xml_lst, cfg
 
@@ -84,8 +85,8 @@ def parse_args():
     return vars(args)
 
 def get_dataset(xml_lst, cfg):
-    
-    stream = stream_arxiv_paragraphs(xml_lst, samples=cfg['data_stream_batch_size'])
+    stream = stream_arxiv_paragraphs(xml_lst,
+             samples=cfg['data_stream_batch_size'])
 
     all_data = []
     all_labels = []
@@ -233,13 +234,16 @@ def main():
             (class_preds > opt_prob).astype(int), targets)
     print(metric_str)
     logger.info(metric_str)
+    logger.warning(metric_str)
 
     #Save the model
     if cfg['savedir'] != '':
         print(f"Saving to {cfg['savedir']}")
         model.save_pretrained(save_directory=cfg['savedir'])
     else:
-        logger.warning("cfg['savedir'] is empty string, not saving model.")
+        logger.warning(
+        "cfg['savedir'] is empty string, not saving model.")
+    logger.info(cfg)
     
 
 if __name__ == "__main__":

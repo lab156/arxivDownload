@@ -10,7 +10,6 @@ import random
 import glob
 from datetime import datetime
 
-logger = logging.getLogger(__name__)
 
 def dir_diff(promath_path, inference_path, year_dir=None):
     '''
@@ -49,6 +48,10 @@ def parse_args():
             help='''Path to data to mine, ex. /media/hd1/promath/math96
             or  /media/hd1/promath/math96/9601_001.tar.gz''')
     args = parser.parse_args()
+
+    logging.basicConfig(filename='/tmp/logger.txt', filemode='w')
+    logging.setlevel(logging.INFO)
+    logger = logging.getLogger(__name__)
 
     return args
 
