@@ -11,7 +11,7 @@
 
 
 #export TF_CUDNN_RESET_RND_GEN_STATE=1
-OUTDIRNAME="finetune/ft-"$(date "+%Y-%m-%d_%H%M")
+OUTDIRNAME="finetune/class-"$(date "+%Y-%m-%d_%H%M")
 singularity run --nv \
     --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir \
     $PROJECT/singul/runnerTransHF.sif python3 embed/fine_tune_classify_HF.py \
