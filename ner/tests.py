@@ -1,14 +1,128 @@
 import unittest
 try:
     import bio_tag as iob
+    import llm_utils as lu
 except ModuleNotFoundError:
     from ner import bio_tag as iob
+    from ner import llm_utils as lu
 
 #RUN WITH: python -m unittest tests.py 
 
 class dummy_tok:
     def tokenize(self, s):
         return [s]
+
+class TestLlmUtils(unittest.TestCase):
+    def test_get_words_back(self):
+        special_toks = ['[UNK]', '[SEP]', '[PAD]', '[CLS]', '[MASK]']
+        test1 = ['Hi', 'my', 'Na', '##me']
+        gold1 = ['Hi', 'my', 'Name']
+        t1, p1 = lu.get_words_back(test1)
+        self.assertEqual(gold1, t1)
+
+        in_words, in_preds = (['[CLS]', 'More', 'precisely', ',', 'a', 'unitary', 'transformation', 'is', 'an', 'is', '##omo', '##rp', '##hism', 'between', 'two', 'Hi', '##lbert', 'spaces', '.', '[SEP]'],   
+				['O', 'O', 'O', 'O', 'O', 'B-defndum', 'I-defndum', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'])
+                 
+        out_words, out_preds = (['More', 'precisely', ',', 'a', 'unitary', 'transformation', 'is', 'an', 'isomorphism', 'between', 'two', 'Hilbert', 'spaces', '.'],
+ ['O', 'O', 'O', 'O', 'B-defndum', 'I-defndum', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'])
+        o_w, o_p = lu.get_words_back(in_words, in_preds, special_tokens=special_toks)
+        self.assertEqual(out_words, o_w)
+        self.assertEqual(out_preds, o_p)
+
+    def test_get_words_back2(self):
+        special_toks = ['[UNK]', '[SEP]', '[PAD]', '[CLS]', '[MASK]']
+
+        in_words, in_preds = (['[CLS]', 'a', 'b', '##b', '##b'],
+                              ['O',     'O', 'B-def', 'O', 'I-def'])
+                 
+        out_words, out_preds = (['a', 'bbb'],
+                                ['O', 'B-def'])
+ 
+        o_w, o_p = lu.get_words_back(in_words, in_preds, special_tokens=special_toks)
+        self.assertEqual(out_words, o_w)
+        self.assertEqual(out_preds, o_p)
+
+    def test_get_words_back3(self):
+        special_toks = ['[UNK]', '[SEP]', '[PAD]', '[CLS]', '[MASK]']
+
+        in_words, in_preds = (['a', '##b', '##b', '##b'],
+                              ['O', 'B-def', 'O', 'I-def'])
+                 
+        out_words, out_preds = (['abbb'],
+                                ['O',])
+ 
+        o_w, o_p = lu.get_words_back(in_words, in_preds, special_tokens=special_toks)
+        self.assertEqual(out_words, o_w)
+        self.assertEqual(out_preds, o_p)
+    
+    def test_join_math_tokens_inline(self):
+        test_inline = ['_',
+			 'inline',
+			 '_',
+			 'math',
+			 '_', ]
+        out, pred = lu.join_math_tokens(test_inline)
+        gold = ['_inline_math_']
+        self.assertEqual(gold, out)
+        self.assertEqual(['O'], pred)
+        
+    def test_join_math_tokens_display(self):
+        test_inline = ['_',
+			 'display',
+			 '_',
+			 'math',
+			 '_', ]
+        out, pred = lu.join_math_tokens(test_inline)
+        gold = ['_display_math_']
+        self.assertEqual(gold, out)
+        self.assertEqual(['O'], pred)
+        
+    def test_join_math_tokens_double(self):
+        test_inline = ['_',
+			 'display',
+			 '_',
+			 'math',
+			 '_', 
+             '_',
+			 'display',
+			 '_',
+			 'math',
+			 '_', ]
+        out, pred = lu.join_math_tokens(test_inline)
+        gold = ['_display_math_', '_display_math_']
+        self.assertEqual(gold, out)
+        self.assertEqual(['O', 'O'], pred)
+
+    def test_join_math_tokens_incomplete(self):
+        test_inline = ['_',
+			 'display',
+			 '_',
+			 'math',
+			 '_', 
+             '_',
+			 'display',
+			 '_',
+			 '_', ]
+        out, pred = lu.join_math_tokens(test_inline)
+        gold = ['_display_math_', '_', 'display', '_', '_']
+        self.assertEqual(gold, out)
+        self.assertEqual(['O', 'O', 'O', 'O', 'O'], pred)
+
+    def test_join_math_tokens_incomplete2(self):
+        test_inline = ['_',
+			 'display',
+			 '_',
+			 'math',
+			 '_', 
+             '_',
+			 'display',
+			 '_',
+             'math',
+			  ]
+        out, pred = lu.join_math_tokens(test_inline)
+        gold = ['_display_math_', '_', 'display', '_', 'math']
+        self.assertEqual(gold, out)
+        self.assertEqual(['O', 'O', 'O', 'O', 'O'], pred)
 
 class TestBIOTagger(unittest.TestCase):
     def test_short_sentence(self):
@@ -118,6 +232,107 @@ class TestBIOTagger(unittest.TestCase):
         check = iob.put_pos_ner_tags([in_data], dummy_tok())
         self.assertEqual(check, out_data)
 
+    def test_bio_tkn_tagger_basic(self):
+        title = 'hola macizo'.split()
+        sentence = 'como estal hola macizo mera verga o hola hola sos el hola macizo'.split()
+        out_data = [('como', 0),
+                 ('estal', 0),
+                  ('hola', 1),
+                   ('macizo', 2),
+                    ('mera', 0),
+                     ('verga', 0),
+                      ('o', 0),
+                       ('hola', 0),
+                        ('hola', 0),
+                         ('sos', 0),
+                          ('el', 0),
+                           ('hola', 1),
+                            ('macizo', 2)]
+        check = iob.bio_tkn_tagger(title, sentence)
+        self.assertEqual(check, out_data)
+
+    def test_bio_tkn_tagger_cap_unsensitive1(self):
+        title = 'hola Macizo'.split()
+        sentence = 'como estal hola macizo mera verga o hola hola sos el hola macizo'.split()
+        out_data = [('como', 0),
+                 ('estal', 0),
+                  ('hola', 1),
+                   ('macizo', 2),
+                    ('mera', 0),
+                     ('verga', 0),
+                      ('o', 0),
+                       ('hola', 0),
+                        ('hola', 0),
+                         ('sos', 0),
+                          ('el', 0),
+                           ('hola', 1),
+                            ('macizo', 2)]
+        check = iob.bio_tkn_tagger(title, sentence)
+        self.assertEqual(check, out_data)
+
+    def test_bio_tkn_tagger_cap_unsensitive2(self):
+        title = 'hola macizo'.split()
+        sentence = 'como estal Hola macizo mera verga o hola hola sos el hola Macizo'.split()
+        out_data = [('como', 0),
+                 ('estal', 0),
+                  ('Hola', 1),
+                   ('macizo', 2),
+                    ('mera', 0),
+                     ('verga', 0),
+                      ('o', 0),
+                       ('hola', 0),
+                        ('hola', 0),
+                         ('sos', 0),
+                          ('el', 0),
+                           ('hola', 1),
+                            ('Macizo', 2)]
+        check = iob.bio_tkn_tagger(title, sentence)
+        self.assertEqual(check, out_data)
+
+    def test_join_by_example_equal_args(self):
+        tokens = ['The', 'money', 'multiplier', 'is', 'defined', 'in', 'various', 'ways', '.']
+        golds = ['The', 'money', 'multiplier', 'is', 'defined', 'in', 'various', 'ways', '.']
+        out1, out2 = lu.join_by_example(tokens, golds)
+        self.assertEqual(out1, golds)
+        self.assertEqual(len(out2), len(golds))
+
+    def test_join_by_example_equal_args2(self):
+        tokens = ['The', 'money', 'multiplier', 'is', 'defined', 'in', 'various', 'ways', '.']
+        preds = ['O', 'B-DFNDUM', 'I-DFNDUM', 'O', 'O', 'O', 'O', 'O', 'O']
+        golds = ['The', 'money', 'multiplier', 'is', 'defined', 'in', 'various', 'ways', '.']
+        out1, out2 = lu.join_by_example(tokens, golds, preds=preds)
+        self.assertEqual(out1, golds)
+        self.assertEqual(len(out2), len(golds))
+
+    def test_join_by_example_spliter_and_join(self):
+        tokens = ['The', 'money', 'mul', 'tip', 'lier', 'is', 'defined', 'in', 'various', 'ways', '.']
+        preds = ['O', 'B-DFNDUM',  'I-DFNDUM', 'I-DFNDUM','I-DFNDUM', 'O', 'O', 'O', 'O', 'O', 'O']
+        golds = ['The', 'money', 'multiplier', 'is', 'defined', 'in', 'various', 'ways', '.']
+        gold_labels = ['O', 'B-DFNDUM', 'I-DFNDUM', 'O', 'O', 'O', 'O', 'O', 'O']
+        out1, out2 = lu.join_by_example(tokens, golds, preds=preds)
+        self.assertEqual(out1, golds)
+        self.assertEqual(len(out2), len(golds))
+        self.assertEqual(out2, gold_labels)
+
+    def test_join_by_example_merge_labels(self):
+        tokens = ['The', 'money', 'mul', 'tip', 'lier', 'is', 'defined', 'in', 'various', 'ways', '.']
+        preds = ['O', 'O',  'I-DFNDUM', 'B-DFNDUM','O', 'O', 'O', 'O', 'O', 'O', 'O']
+        golds = ['The', 'money', 'multiplier', 'is', 'defined', 'in', 'various', 'ways', '.']
+        gold_labels = ['O', 'O', 'B-DFNDUM', 'O', 'O', 'O', 'O', 'O', 'O']
+        out1, out2 = lu.join_by_example(tokens, golds, preds=preds)
+        self.assertEqual(out1, golds)
+        self.assertEqual(len(out2), len(golds))
+        self.assertEqual(out2, gold_labels)
+
+    def test_join_by_example_double_join(self):
+        tokens = ['The', 'mon', 'ey', 'mul', 'tip', 'lier', 'is', 'defined', 'in', 'various', 'ways', '.']
+        preds = ['O', 'O', 'B-DFNDUM',  'I-DFNDUM', 'I-DFNDUM','I-DFNDUM', 'O', 'O', 'O', 'O', 'O', 'O']
+        golds = ['The', 'money', 'multiplier', 'is', 'defined', 'in', 'various', 'ways', '.']
+        gold_labels = ['O', 'B-DFNDUM', 'I-DFNDUM', 'O', 'O', 'O', 'O', 'O', 'O']
+        out1, out2 = lu.join_by_example(tokens, golds, preds=preds)
+        self.assertEqual(out1, golds)
+        self.assertEqual(len(out2), len(golds))
+        self.assertEqual(out2, gold_labels)
 
 
 

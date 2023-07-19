@@ -5,7 +5,7 @@ tag_def = 'DFNDUM'
 tag = {'O': 'O', 'B': 'B-' + tag_def, 'I': 'I-' + tag_def }
 tag_ind = {}
 for ind, val in enumerate(tag.values()):
-    tag_ind[val] = ind + 1
+    tag_ind[val] = ind 
 
 def bio_tagger(title, sent):
     '''
@@ -54,7 +54,7 @@ def bio_tkn_tagger(title, sent, int_tags=True):
     out_lst = []
     k = 0
     while k <= sent_len - title_len :
-        matches = all([ sent[k + i] == title[i]
+        matches = all([ sent[k + i].lower() == title[i].lower()
             for i in range(title_len)])
         if matches:
             out_lst += [(sent[k + j], bio_tag[j]) for j in range(title_len)]
@@ -69,6 +69,36 @@ def bio_tkn_tagger(title, sent, int_tags=True):
     if int_tags:
         out_lst = [(p[0], tag_ind[p[1]]) for p in out_lst]
     return out_lst
+
+def put_ner_tags(defl, tok):
+    '''
+    INPUTS
+    ------
+    defl: list of tuples with the format (title, section, definition)
+    tokenizer: sentence tokenizer, splits paragraphs into sentences and 
+               identifies abbreviations.
+    - Checks if the definiendum is contained in the sentence 
+    - Puts NO POS, for POS see next function
+    '''
+    tokens_lst = []
+    ner_tags_lst = []
+    title_lst = []
+    for i in range(len(defl)):
+        try:
+            #title, section, defin_raw = wiki[i].split('-#-%-')
+            #defin_all = unwiki.loads(eval(defin_raw))
+            title, section, defin_all = defl[i]
+            for d in tok.tokenize(defin_all):
+                if title.lower().strip() in d.lower():
+                    def_ner = bio_tkn_tagger(title.strip().split(), 
+                                             word_tokenize(d))
+                    tokens, ner_tags = zip(*def_ner)
+                    tokens_lst.append(tokens)
+                    ner_tags_lst.append(ner_tags)
+                    title_lst.append(title)
+        except ValueError:
+            print('parsing error')
+    return tokens_lst, ner_tags_lst, title_lst
 
 def put_pos_ner_tags(defl, tok):
     '''
