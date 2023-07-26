@@ -10,10 +10,10 @@ from transformers import (AutoTokenizer,
                           pipeline,
                          )
 
-try:
-    from transformers import DataCollatorForTokenClassification
-except ImportError:
-    from transformers.data.data_collator import default_data_collator as DataCollatorForTokenClassification
+#try:
+from transformers import DataCollatorForTokenClassification
+#except ImportError:
+#    from transformers.data.data_collator import default_data_collator as DataCollatorForTokenClassification
 
 from transformers.keras_callbacks import KerasMetricCallback
 
