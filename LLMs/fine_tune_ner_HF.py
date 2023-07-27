@@ -2,12 +2,14 @@ import sys
 sys.path = [p for p in sys.path if 'luis' not in p]
 import numpy as np
 import tensorflow as tf
+print('Using TF version: ', tf.__version__)
 from datasets import load_dataset, Dataset, DatasetDict
+from tensorflow.keras.optimizers.schedules import PolynomialDecay
+from tensorflow.keras.optimizers import Adam
 
 from transformers import (AutoTokenizer,
                           create_optimizer,
                           TFAutoModelForTokenClassification,
-                          pipeline,
                          )
 
 #try:
@@ -15,7 +17,7 @@ from transformers import DataCollatorForTokenClassification
 #except ImportError:
 #    from transformers.data.data_collator import default_data_collator as DataCollatorForTokenClassification
 
-from transformers.keras_callbacks import KerasMetricCallback
+#from transformers.keras_callbacks import KerasMetricCallback
 
 import evaluate
 from nltk import word_tokenize
@@ -121,6 +123,28 @@ def prepare_ds(cfg, model, tokenizer):
     data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer,
                      return_tensors="tf")
 
+#    tf_train_set = tokenized_ds['train'].to_tf_dataset(
+#           columns=['attention_mask', 'input_ids', 'token_type_ids'],
+#           label_cols=['token_type_ids'],
+#           shuffle=True,
+#           collate_fn=data_collator,
+#           batch_size=8 )
+#
+#    tf_valid_set = tokenized_ds['valid'].to_tf_dataset(
+#           columns=['attention_mask', 'input_ids', 'token_type_ids'],
+#           label_cols=['ner_tags'],
+#           shuffle=True,
+#           collate_fn=data_collator,
+#           batch_size=8 )
+#
+#    tf_test_set = tokenized_ds['test'].to_tf_dataset(
+#           columns=['attention_mask', 'input_ids', 'token_type_ids'],
+#           label_cols=['ner_tags'],
+#           shuffle=False,
+#           collate_fn=data_collator,
+#           batch_size=8 )
+#
+
     tf_train_set = model.prepare_tf_dataset(
         tokenized_ds["train"],
         shuffle=True,
@@ -128,7 +152,7 @@ def prepare_ds(cfg, model, tokenizer):
         collate_fn=data_collator,
     )
 
-    tf_validation_set = model.prepare_tf_dataset(
+    tf_valid_set = model.prepare_tf_dataset(
         tokenized_ds["valid"],
         shuffle=False,
         batch_size=cfg['batch_size'],
@@ -142,8 +166,9 @@ def prepare_ds(cfg, model, tokenizer):
         collate_fn=data_collator,
     )
 
+
     return (tf_train_set, 
-            tf_validation_set,
+            tf_valid_set,
             tf_test_set,
             ds,
            )
@@ -262,7 +287,6 @@ def main():
 
     args = parse_args()
     cfg = gen_cfg(**args)
-    print(cfg['num_labels']) 
 
     xla_gpu_lst = tf.config.list_physical_devices("XLA_GPU")
     logger.info(f'List of XLA GPUs: {xla_gpu_lst}')
@@ -284,22 +308,33 @@ def main():
 
     cfg['num_train_steps'] = (len(ds['train']) // cfg['batch_size'] *
             cfg['epochs'])
+
+    print(f"####### {cfg['num_train_steps']=}")
     optimizer, lr_schedule = create_optimizer(
-        init_lr = cfg['init_lr'],
+        init_lr = 2e-5,  #cfg['init_lr'],
         num_train_steps=cfg['num_train_steps'],
-        weight_decay_rate=cfg['weight_decay_rate'],
-        num_warmup_steps=cfg['num_warmup_steps'],
+        weight_decay_rate=0.01,   #cfg['weight_decay_rate'],
+        num_warmup_steps=10,        #cfg['num_warmup_steps'],
     )
 
-        
-    model.compile(optimizer=optimizer)
+    lr_schedule = PolynomialDecay(
+            initial_learning_rate=5e-5, 
+            end_learning_rate=0.0, 
+            decay_steps=cfg['num_train_steps'],
+                )
 
-    metric_callback = KerasMetricCallback(metric_fn=compute_metrics,
-            eval_dataset=tf_validation_data)
-    callbacks = [metric_callback,]
+    #opt = Adam(learning_rate=lr_schedule)
+    opt = Adam(learning_rate=2.5e-5)
+
+        
+    model.compile(optimizer=opt)
+
+    #metric_callback = KerasMetricCallback(metric_fn=compute_metrics,
+    #        eval_dataset=tf_validation_data)
+    #callbacks = [metric_callback,]
     model.fit(x=tf_train_data,
               validation_data=tf_validation_data,
-              epochs=cfg['epochs'])
+              epochs=cfg['epochs'],)
               #callbacks=callbacks)
 
     chscore = compute_chunkscore(ds['test'], model, tokenizer, cfg)
