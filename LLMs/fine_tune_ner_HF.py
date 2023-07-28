@@ -17,7 +17,7 @@ from transformers import DataCollatorForTokenClassification
 #except ImportError:
 #    from transformers.data.data_collator import default_data_collator as DataCollatorForTokenClassification
 
-#from transformers.keras_callbacks import KerasMetricCallback
+from transformers.keras_callbacks import KerasMetricCallback
 
 import evaluate
 from nltk import word_tokenize
@@ -40,7 +40,7 @@ import ner.llm_utils as llu
 
 from nltk.chunk import conlltags2tree, ChunkScore
 
-#seqeval = evaluate.load('seqeval')
+seqeval = evaluate.load('seqeval')
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -215,7 +215,7 @@ def compute_metrics(p):
         for prediction, label in zip(predictions, labels)
     ]
     
-    #results = seqeval.compute(predictions=true_predictions, references=true_labels)
+    results = seqeval.compute(predictions=true_predictions, references=true_labels)
     
     return {
         'precision': results['overall_precision'],
@@ -323,19 +323,20 @@ def main():
             decay_steps=cfg['num_train_steps'],
                 )
 
-    #opt = Adam(learning_rate=lr_schedule)
-    opt = Adam(learning_rate=2.5e-5)
+    opt = Adam(learning_rate=lr_schedule)
+    #opt = Adam(learning_rate=2.5e-5)
 
         
     model.compile(optimizer=opt)
 
-    #metric_callback = KerasMetricCallback(metric_fn=compute_metrics,
-    #        eval_dataset=tf_validation_data)
-    #callbacks = [metric_callback,]
+    metric_callback = KerasMetricCallback(metric_fn=compute_metrics,
+            eval_dataset=tf_validation_data)
+    callbacks = [metric_callback,]
+
     model.fit(x=tf_train_data,
               validation_data=tf_validation_data,
-              epochs=cfg['epochs'],)
-              #callbacks=callbacks)
+              epochs=cfg['epochs'],
+              callbacks=callbacks)
 
     chscore = compute_chunkscore(ds['test'], model, tokenizer, cfg)
     print(chscore)
