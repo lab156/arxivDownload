@@ -34,6 +34,9 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 sys.path.insert(0,parentdir+'/embed') 
 
+#SILENCE NON-ERROR WARNINGS
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 import train_ner as tn
 import ner
 import ner.llm_utils as llu
@@ -64,7 +67,7 @@ def gen_cfg(**kwargs):
     hoy = dt.now()
     timestamp = hoy.strftime("%b-%d_%H-%M")
     cfg['save_path_dir'] = os.path.join(cfg['local_dir'],
-            'trained_ner/lstm_ner/ner_' + timestamp)
+            'trained_ner/trans_HF_ner/ner_' + timestamp)
     os.makedirs(cfg['save_path_dir'], exist_ok=True)
 
     FHandler = logging.FileHandler(cfg['local_dir']+"/training.log")
@@ -78,15 +81,15 @@ def parse_args():
     '''
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--savedir', type=str, default='',
-        help="""Path to save the finetuned model, dir name only.""")
+    #parser.add_argument('--savedir', type=str, default='',
+    #    help="""Path to save the finetuned model, dir name only.""")
     parser.add_argument('--configpath', type=str, default='',
         help="""Path to config.toml file.""")
     args = parser.parse_args()
 
     # make sure --savepath exists
-    if args.savedir != '':
-        os.makedirs(args.savedir, exist_ok=True)
+    #if args.savedir != '':
+    #    os.makedirs(args.savedir, exist_ok=True)
 
     return vars(args)
 
@@ -342,6 +345,16 @@ def main():
     print(chscore)
     logger.info(chscore)
     logger.info(f"{cfg=}")
+
+    #Save the model
+    if cfg['save_path_dir'] != '':
+        print(f"Saving to {cfg['save_path_dir']}")
+        logger.info(f"Saving to {cfg['save_path_dir']}")
+        model.save_pretrained(save_directory=cfg['save_path_dir'])
+    else:
+        logger.warning(
+        "cfg['save_path_dir'] is empty string, not saving model.")
+    logger.info(cfg)
 
 if __name__ == "__main__":
     main()
