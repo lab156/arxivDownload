@@ -17,7 +17,7 @@ singularity run --nv \
     $PROJECT/singul/runnerNERNew.sif python3 LLMs/fine_tune_ner_HF.py \
     --configpath /opt/arxivDownload/config.toml
 
-#mkdir $PROJECT/$OUTDIRNAME/
+mkdir -p $PROJECT/$OUTDIRNAME/
 cp -r /tmp/trainer $PROJECT/$OUTDIRNAME/trainer_logs
 cp ./finetune_ner.txt $PROJECT/$OUTDIRNAME/trainer_logs
 
