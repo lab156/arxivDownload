@@ -67,7 +67,7 @@ def gen_cfg(**kwargs):
     hoy = dt.now()
     timestamp = hoy.strftime("%b-%d_%H-%M")
     cfg['save_path_dir'] = os.path.join(cfg['local_dir'],
-            'trained_ner/trans_HF_ner/ner_' + timestamp)
+            'trans_HF_ner/ner_' + timestamp)
     os.makedirs(cfg['save_path_dir'], exist_ok=True)
 
     FHandler = logging.FileHandler(cfg['local_dir']+"/training.log")
@@ -354,7 +354,6 @@ def main():
     else:
         logger.warning(
         "cfg['save_path_dir'] is empty string, not saving model.")
-    logger.info(cfg)
 
 if __name__ == "__main__":
     main()

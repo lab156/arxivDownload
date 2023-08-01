@@ -11,13 +11,13 @@
 
 
 #export TF_CUDNN_RESET_RND_GEN_STATE=1
-OUTDIRNAME="finetune_ner/class-"$(date "+%Y-%m-%d_%H%M")
+OUTDIRNAME="finetune_ner/ner-"$(date "+%Y-%m-%d_%H%M")
 singularity run --nv \
     --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir \
     $PROJECT/singul/runnerNERNew.sif python3 LLMs/fine_tune_ner_HF.py \
     --configpath /opt/arxivDownload/config.toml
 
 mkdir -p $PROJECT/$OUTDIRNAME/
-cp -r /tmp/trainer $PROJECT/$OUTDIRNAME/trainer_logs
+cp -r /tmp/trainer $PROJECT/$OUTDIRNAME
 cp ./finetune_ner.txt $PROJECT/$OUTDIRNAME/trainer_logs
 
