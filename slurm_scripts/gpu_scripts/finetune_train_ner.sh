@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=0-10:00:00
+#SBATCH --time=0-2:00:00
 #SBATCH --job-name=finetuning
 #SBATCH --output=finetune_ner.txt
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
@@ -19,5 +19,5 @@ singularity run --nv \
 
 mkdir -p $PROJECT/$OUTDIRNAME/
 cp -r /tmp/trainer $PROJECT/$OUTDIRNAME
-cp ./finetune_ner.txt $PROJECT/$OUTDIRNAME/trainer_logs
+cp ./finetune_ner.txt $PROJECT/$OUTDIRNAME/trainer_logs.txt
 
