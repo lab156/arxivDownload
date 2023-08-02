@@ -1,7 +1,11 @@
-import sys
+import sys, os
 sys.path = [p for p in sys.path if 'luis' not in p]
 import numpy as np
+
+#SILENCE NON-ERROR WARNINGS
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
+
 print('Using TF version: ', tf.__version__)
 from datasets import load_dataset, Dataset, DatasetDict
 from tensorflow.keras.optimizers.schedules import PolynomialDecay
@@ -26,7 +30,7 @@ import toml
 from datetime import datetime as dt
 import logging
 
-import sys, os, inspect
+import inspect
 #currentdir = os.path.abspath(os.path.curdir)
 #parentdir = os.path.dirname(currentdir)
 currentdir = os.path.dirname(
@@ -35,8 +39,6 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 sys.path.insert(0,parentdir+'/embed') 
 
-#SILENCE NON-ERROR WARNINGS
-#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import train_ner as tn
 import ner
