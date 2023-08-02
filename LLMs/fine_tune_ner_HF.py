@@ -10,6 +10,7 @@ from tensorflow.keras.optimizers import Adam
 from transformers import (AutoTokenizer,
                           create_optimizer,
                           TFAutoModelForTokenClassification,
+                          pipeline,
                          )
 
 #try:
@@ -274,6 +275,75 @@ def compute_chunkscore(ds_test, model, tokenizer, cfg):
             dif_len_lst.append(j)
     return chunkscore
 
+def sanity_check(model, tokenizer):
+	text = """We define a Banach space as a complete vector normed space."""
+	#text = ''
+	#j = 19
+	#for t in ds['test'][j]['tokens']:
+	#    text += t + ' '
+	print(f'{text=}')
+	classifier = pipeline('ner', model=model, tokenizer=tokenizer)
+	print('The pipeline result is: ', classifier(text))
+
+	inputs = tokenizer(text, return_tensors='tf')
+	logits = model(**inputs).logits
+	predicted_ids = tf.math.argmax(logits, axis=-1)
+	predicted_token_class = [model.config.id2label[t] 
+                 for t in predicted_ids[0].numpy().tolist()]
+
+	for i in range(len(predicted_token_class)):
+		print(inputs.tokens()[i], predicted_token_class[i])
+
+	#tt = tokenizer(ds['test'][j]['tokens'], return_tensors='tf', is_split_into_words=True)
+	tt = tokenizer(text, return_tensors='tf', is_split_into_words=False)
+	logits = model(**tt).logits
+	print(f"{logits=}")
+
+	# Grouping entities
+	predicted_ids = tf.math.argmax(logits, axis=-1)[0]
+	predictions = predicted_ids.numpy().tolist()
+	results = []
+	inputs_with_offsets = tokenizer(text, return_offsets_mapping=True)
+	tokens = inputs_with_offsets.tokens()
+	offsets = inputs_with_offsets['offset_mapping']
+
+	probs = tf.math.softmax(logits, axis=-1)[0]
+	probs = probs.numpy().tolist()
+
+	#start, end = inputs.word_to_chars(10)
+	end = 0
+
+	idx = 0
+	while idx < len(predictions):
+		pred = predictions[idx]
+		label = model.config.id2label[pred]
+		if label != 'O':
+			label = label[2:]
+			start, end = offsets[idx] # 2nd output is the end of word
+			#idx += 1
+			
+			# Grab all tokens labeled with an I-label
+			all_scores = []
+			while (
+				idx < len(predictions)
+				and model.config.id2label[predictions[idx]][2:] == label
+				   ):
+				all_scores.append(probs[idx][pred])
+				_, end = offsets[idx]
+				idx += 1
+				
+			score = np.mean(all_scores).item()
+			word = text[start:end]
+			results.append(
+				{'entity': label, 
+				 'score': score,
+				 'word': word,
+				'start': start,
+				'end': end,}
+			)
+		idx += 1
+	print(results)
+
 
 def main():
     # get tokenizer
@@ -292,8 +362,8 @@ def main():
     args = parse_args()
     cfg = gen_cfg(**args)
 
-    xla_gpu_lst = tf.config.list_physical_devices("XLA_GPU")
-    logger.info(f'List of XLA GPUs: {xla_gpu_lst}')
+    gpu_lst = tf.config.list_physical_devices("GPU")
+    logger.info(f'List of GPUs: {gpu_lst}')
 
     tokenizer = AutoTokenizer.from_pretrained(cfg['checkpoint'])
     
@@ -346,6 +416,8 @@ def main():
     print(chscore)
     logger.info(chscore)
     logger.info(f"{cfg=}")
+
+    sanity_check(model, tokenizer)
 
     #Save the model
     if cfg['save_path_dir'] != '':
