@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --time=0-2:00:00
-#SBATCH --job-name=finetuning
-#SBATCH --output=finetune_ner.txt
+#SBATCH --job-name=ft-ner
+#SBATCH --output=ft_ner-%j.txt
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 #SBATCH --partition=GPU-shared
@@ -19,5 +19,5 @@ singularity run --nv \
 
 mkdir -p $PROJECT/$OUTDIRNAME/
 cp -r /tmp/trainer $PROJECT/$OUTDIRNAME
-cp ./finetune_ner.txt $PROJECT/$OUTDIRNAME/trainer_logs.txt
+cp ./ft_ner-$SLURM_JOB_NAME.txt $PROJECT/$OUTDIRNAME/trainer_logs.txt
 
