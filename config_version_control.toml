@@ -43,3 +43,4 @@ weight_decay_rate=0.01
 num_warmup_steps=0
 num_labels=3
 epochs=3
+shrink_data_factor=0.2

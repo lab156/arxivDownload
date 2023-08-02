@@ -110,6 +110,7 @@ def prepare_ds(cfg, model, tokenizer):
         'pos': pos_lst,
     }
     ds = Dataset.from_dict(data_dict)
+    ds = ds.select(range(int(cfg['shrink_data_factor']*len(ds))))
     temp1_dd = ds.train_test_split(test_size=0.1, shuffle=True)
     temp2_dd = temp1_dd['train'].train_test_split(test_size=0.1, shuffle=True)
 
@@ -205,7 +206,7 @@ def compute_metrics(p):
     module evaluate was not installed in the initial Singularity container
     '''
     predictions, labels = p
-    predictions = np.argmax(predictions, axis=2)
+    predictions = np.argmax(predictions, axis=-1)
     label_list = ['O', 'B-DFNDUM', 'I-DFNDUM']
     
     true_predictions = [
