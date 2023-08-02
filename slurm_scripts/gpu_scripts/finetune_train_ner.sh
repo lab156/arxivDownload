@@ -19,5 +19,5 @@ singularity run --nv \
 
 mkdir -p $PROJECT/$OUTDIRNAME/
 cp -r /tmp/trainer $PROJECT/$OUTDIRNAME
-cp ./ft_ner-$SLURM_PROCID.txt $PROJECT/$OUTDIRNAME/trainer_logs.txt
+cp ./ft_ner-$SLURM_JOB_ID.txt $PROJECT/$OUTDIRNAME/trainer_logs.txt
 
