@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=0-2:00:00
+#SBATCH --time=0-4:00:00
 #SBATCH --job-name=ft-ner
 #SBATCH --output=ft_ner-%j.txt
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
