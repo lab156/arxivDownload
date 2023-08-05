@@ -386,16 +386,16 @@ def main():
             cfg['epochs'])
 
     print(f"####### {cfg['num_train_steps']=}")
-    optimizer, lr_schedule = create_optimizer(
-        init_lr = 2e-5,  #cfg['init_lr'],
-        num_train_steps=cfg['num_train_steps'],
-        weight_decay_rate=0.01,   #cfg['weight_decay_rate'],
-        num_warmup_steps=10,        #cfg['num_warmup_steps'],
-    )
+    #optimizer, lr_schedule = create_optimizer(
+    #    init_lr = cfg['init_lr'],
+    #    num_train_steps=cfg['num_train_steps'],
+    #    weight_decay_rate=0.01,   #cfg['weight_decay_rate'],
+    #    num_warmup_steps=10,        #cfg['num_warmup_steps'],
+    #)
 
     lr_schedule = PolynomialDecay(
-            initial_learning_rate=5e-5, 
-            end_learning_rate=0.0, 
+            initial_learning_rate=cfg['init_lr'],
+            end_learning_rate=cfg['end_lr'], 
             decay_steps=cfg['num_train_steps'],
                 )
 

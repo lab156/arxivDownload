@@ -39,6 +39,7 @@ label_list = ['O', 'B-DFNDUM', 'I-DFNDUM']
 batch_size = 8
 batch_size_prep=8 # batch size for prepare_tf_dataset
 init_lr = 2e-5
+end_lr = 0.0
 weight_decay_rate=0.01
 num_warmup_steps=0
 num_labels=3
