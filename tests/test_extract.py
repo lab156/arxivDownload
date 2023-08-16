@@ -57,10 +57,10 @@ class TestDefiniendumInit(unittest.TestCase):
         bio = FarseBio()
         for fname, tfobj in peep.tar_iter('few_actual_articles.tar.gz', '.xml'):
             parsing_fobj = px.DefinitionsXML(tfobj)
-            try:
-                Def = X.Definiendum(parsing_fobj, clf, bio, vzer, None, min_words=200)
-            except ValueError:
-                pass
+            #try:
+            Def = X.Definiendum(parsing_fobj, clf, bio, vzer, None, min_words=200)
+            #except ValueError:
+            #    pass
         idx = Def.root.attrib['num']
         idx = int(idx)
         # This value should not depend on `min_words`
@@ -83,7 +83,7 @@ class TestDefiniendumInit(unittest.TestCase):
     def test_vectorizer_raises_valueerror(self):
         clf = RandClf()
         vzer = FarseVectorizer()
-        xml = peep.tar('/media/hd1/promath/math01/0103_001.tar.gz', '0103239')[1]
+        xml = peep.tar('some_empty_articles.tar.gz', 1)[1]
         with self.assertRaises(ValueError):
             X.Definiendum(xml, clf, None, vzer, None, min_words=40 )
 

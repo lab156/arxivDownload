@@ -55,8 +55,10 @@ def tar(tarpath, *args):
         if args:
             if isinstance(args[0], int):
                 contains = lambda ftype,fname: ftype in fname
-                xmlname = list(filter(partial(contains, '.xml'), tar_file.getnames()))[args[0]]
-                logname = list(filter(partial(contains, '.txt'), tar_file.getnames()))[args[0]]
+                xmlname = list(filter(partial(contains, '.xml'),
+                    tar_file.getnames()))[args[0]]
+                logname = list(filter(partial(contains, '.txt'),
+                    tar_file.getnames()))[args[0]]
             elif isinstance(args[0], str): 
                 # args[0] is something like  '2003_003/2003.00782/MJD_Q8Cp_arxiv.xml',
                 # middle_uid should be 2003.00782

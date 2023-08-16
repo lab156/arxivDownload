@@ -230,6 +230,8 @@ def main():
 
     logger.info(f"{opt_prob=} and {f1_max=}")
     print(f"{opt_prob=} and {f1_max=}")
+    cfg['opt_thresh'] = opt_prob
+    cfg['f1_max'] = f1_max
     metric_str = metrics.classification_report(
             (class_preds > opt_prob).astype(int), targets)
     print(metric_str)

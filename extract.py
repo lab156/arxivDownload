@@ -9,6 +9,9 @@ import nltk
 #from sqlalchemy.orm import sessionmaker
 #from sampling import create_dict
 import re
+import numpy as np
+
+from datasets import Dataset
 
 #TODO: All the xml tasks should be done by a helper
 #function that just gets fed all the critical info
@@ -26,6 +29,10 @@ class Definiendum():
                `thresh` parameter
         `bio`: iob or bio classifier
         `vzer`: word vectorizer
+        `tzer`: tokenizer function ex.
+                  def tok_function(example):
+                      # This function can be used with the Dataset.map() method
+                      return tokenizer(example['text'], truncation=True)
 
         Output: attrib .root is a XML tree with the format:
         <root>
@@ -36,14 +43,19 @@ class Definiendum():
         '''
         min_words = kwargs.get('min_words', 15)
         self.px = px
-        self.para_lst_idx = [(idx,p) for idx,p in enumerate(map(px.recutext, px.para_list()))\
+        self.para_lst_idx = [(idx,p) for idx,p in 
+                enumerate(map(px.recutext, px.para_list()))\
                          if len(p.split()) >= min_words]
         
         if self.para_lst_idx != []:
-            self.para_lst = list(zip(*(self.para_lst_idx)))[1]
+            # separate list of indices and text
+            self.para_index, self.para_lst = list(zip(*(self.para_lst_idx)))
         else:
             self.para_lst = []
         self.vzer = vzer
+        self.tzer = tzer
+        assert (self.vzer is None) ^ (self.tzer is None),\
+                print('vzer and tzer cannot be at the same time.')
         #self.clf = clf
         if bio is not None:
             self.chunk = lambda x: bio.parse(pos_tag(word_tokenize(self.clean_rm(x))))
@@ -52,15 +64,33 @@ class Definiendum():
         #first we need to vectorize
 
         if self.para_lst != []:
-            self.trans_vect = vzer.transform(self.para_lst)
+            if self.vzer is not None:
+                self.trans_vect = vzer.transform(self.para_lst)
+            elif self.tzer is not None:
+                # create ds
+                ds = Dataset({
+                    'text': self.para_lst,
+                    'idx':  self.para_index,
+                    })
+                def tok_function(x):
+                    # This function can be used with the Dataset.map() method
+                    # x['text'] should be a paragraph
+                    return tokenizer(x['text'], truncation=True)
+
+                self.trans_vect = ds.map(tok_function, batched=True)
         else:
             # the nltk vectorizer raises this error on the on the empty list
             # OTOH, the NN vectorizer is normally implemented ad-hoc
             # This exception evens the behaviour
             raise ValueError('trying to vectorize empty para_lst.')
         thresh = kwargs.get('thresh', None)
+
+        assert (tzer is None) or (thresh is None),\
+                'Incompatible parameters tzer not None means thresh should be None'
         if thresh is None:
+            # This should be the case for HF LLM models
             self.predictions = clf.predict(self.trans_vect)
+            self.predictions = np.argmax(self.predictions, axis=1)
         else:
             # clf.predict will give probabilities and thresh is the cutoff
             try:
@@ -70,7 +100,8 @@ class Definiendum():
                 print(ee)
                 print('length of trans_vect is: ', len(self.trans_vect))
             
-        # Create list of pairs of definitions paired with the index in which they appear in the article
+        # Create list of pairs of definitions paired with the index 
+        # in which they appear in the article
         self.def_lst = [p for ind, p in enumerate(self.para_lst_idx)
                 if self.predictions[ind]]
 
