@@ -35,6 +35,33 @@ class FarseBio():
     def parse(self, lst):
         return [0.0 for _ in lst]
 
+class MockTokenizer():
+    def __init__(self):
+        pass
+    def __call__(self, text, **kwargs):
+        if isinstance(text, str):
+            length = len(text.split)
+            return { 'input_ids': np.random.randint(3e5, size=length),
+                    'token_type_ids': np.zeros(length),
+                    'attention_mask': np.ones(length),
+                    }
+        else:
+            ii = [] # input_ids list
+            tti = [] # token_type_ids list
+            am = []  # attention mask_ids
+            for t in text:
+                length = len(t.split())
+                ii.append(np.random.randint(3e5, size=length))
+                tti.append(np.zeros(length))
+                am.append(np.ones(length))
+            return { 'input_ids': ii,
+                    'token_type_ids': tti, 
+                    'attention_mask': am,
+                    }
+    def pad(self, x, **kwargs):
+        return x[:10]
+
+
 class TestDefiniendumInit(unittest.TestCase):
     def test_definition_index_is_article_index1(self):
         clf = FarseClf()
@@ -57,10 +84,10 @@ class TestDefiniendumInit(unittest.TestCase):
         bio = FarseBio()
         for fname, tfobj in peep.tar_iter('few_actual_articles.tar.gz', '.xml'):
             parsing_fobj = px.DefinitionsXML(tfobj)
-            #try:
-            Def = X.Definiendum(parsing_fobj, clf, bio, vzer, None, min_words=200)
-            #except ValueError:
-            #    pass
+            try:
+                Def = X.Definiendum(parsing_fobj, clf, bio, vzer, None, min_words=20)
+            except ValueError:
+                pass
         idx = Def.root.attrib['num']
         idx = int(idx)
         # This value should not depend on `min_words`
@@ -85,5 +112,16 @@ class TestDefiniendumInit(unittest.TestCase):
         vzer = FarseVectorizer()
         xml = peep.tar('some_empty_articles.tar.gz', 1)[1]
         with self.assertRaises(ValueError):
-            X.Definiendum(xml, clf, None, vzer, None, min_words=40 )
+            X.Definiendum(xml, clf, None, vzer, None, min_words=40)
+
+    def test_incompatible_arguments(self):
+        clf = RandClf()
+        vzer = FarseVectorizer()
+        tzer = MockTokenizer()
+        xml = peep.tar('few_actual_articles.tar.gz', 1)[1]
+        with self.assertRaises(AssertionError):
+            X.Definiendum(xml, clf, None, vzer, tzer, min_words=40)
+        with self.assertRaises(AssertionError):
+            X.Definiendum(xml, clf, None, None, tzer, thresh=0.90, min_words=40)
+
 

@@ -12,6 +12,7 @@ import re
 import numpy as np
 
 from datasets import Dataset
+from transformers import DataCollatorWithPadding
 
 #TODO: All the xml tasks should be done by a helper
 #function that just gets fed all the critical info
@@ -63,34 +64,45 @@ class Definiendum():
             self.chunk = lambda x: []
         #first we need to vectorize
 
+        thresh = kwargs.get('thresh', None)
+        assert (tzer is None) or (thresh is None),\
+            print('Incompatible parameters tzer not None means thresh should be None')
+
         if self.para_lst != []:
             if self.vzer is not None:
                 self.trans_vect = vzer.transform(self.para_lst)
             elif self.tzer is not None:
                 # create ds
-                ds = Dataset({
+                ds = Dataset.from_dict({
                     'text': self.para_lst,
                     'idx':  self.para_index,
                     })
                 def tok_function(x):
                     # This function can be used with the Dataset.map() method
                     # x['text'] should be a paragraph
-                    return tokenizer(x['text'], truncation=True)
+                    return tzer(x['text'], truncation=True)
 
                 self.trans_vect = ds.map(tok_function, batched=True)
+                data_coll = DataCollatorWithPadding(tokenizer=tzer, 
+                        return_tensors='tf')
+                self.trans_vect = self.trans_vect.to_tf_dataset(
+                       columns=['attention_mask', 'input_ids', 'token_type_ids'],
+                         shuffle=False,
+                            collate_fn=data_coll,
+                               batch_size=8 )
         else:
             # the nltk vectorizer raises this error on the on the empty list
             # OTOH, the NN vectorizer is normally implemented ad-hoc
             # This exception evens the behaviour
             raise ValueError('trying to vectorize empty para_lst.')
-        thresh = kwargs.get('thresh', None)
 
-        assert (tzer is None) or (thresh is None),\
-                'Incompatible parameters tzer not None means thresh should be None'
+
         if thresh is None:
             # This should be the case for HF LLM models
             self.predictions = clf.predict(self.trans_vect)
-            self.predictions = np.argmax(self.predictions, axis=1)
+            if tzer is not None:
+                # This extra step is needed for logit predictions
+                self.predictions = np.argmax(self.predictions['logits'], axis=1)
         else:
             # clf.predict will give probabilities and thresh is the cutoff
             try:
@@ -215,9 +227,11 @@ if __name__ == '__main__':
                 root.append(ddum.root)
                 if k%25 == 0 and args.output:
                     with open(args.output, 'w') as out_f:
-                        out_f.write(etree.tostring(root, pretty_print=True).decode('utf8'))
+                        out_f.write(etree.tostring(root, pretty_print=True)\
+                                .decode('utf8'))
             except (TypeError, etree.ParseError):
-                print('file %s could not be parsed by parsing_xml'%os.path.basename(xml_path))
+                print('file %s could not be parsed by parsing_xml'%os.path.basename(
+                    xml_path))
             except ValueError as e:
                 print('In the file %s found the problem'%os.path.basename(xml_path))
                 print(e)

@@ -68,12 +68,14 @@ def tar(tarpath, *args):
                 def contains_uid(ftype, fname):
                     return (middle_uid in fname and ftype in fname)
                 try:
-                    xmlname = next(filter(partial(contains, '.xml'), tar_file.getnames()))
+                    xmlname = next(filter(partial(contains, '.xml'),
+                        tar_file.getnames()))
                 except StopIteration:
                     print(f"No xml results for {args[0]} in {tarpath}")
                     xmlname = None
                 try:
-                    logname = next(filter(partial(contains_uid, '.txt'), tar_file.getnames()))
+                    logname = next(filter(partial(contains_uid, '.txt'),
+                        tar_file.getnames()))
                 except StopIteration:
                     print(f"No txt results for {args[0]} in {tarpath}")
                     logname = None
