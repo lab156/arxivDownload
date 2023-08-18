@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --time=0-20:00:00
-#SBATCH --job-name=2nd-half
-#SBATCH --output=infer-2nd-half.txt
+#SBATCH --time=0-04:00:00
+#SBATCH --job-name=fix-math20
+#SBATCH --output=fix-math20.txt
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 ##SBATCH --partition=GPU-shared
@@ -24,6 +24,6 @@ singularity run --nv \
     $PROJECT/singul/runnerTransHF.sif python3 LLMs/mp_HF_classify_inference.py \
     --model /ocean/projects/mth220001p/lab232/finetune/class-2023-08-07_1327 \
     --out $PROJECT/$OUTDIRNAME \
-    --mine /opt/data_dir/promath/math{15,16,17,18,19,20}/*.tar.gz
+    --mine /opt/data_dir/promath/math20/*.tar.gz
 cp -r /tmp/trainer $PROJECT/$OUTDIRNAME/trainer_logs
-cp ./infer-2nd-half.txt $PROJECT/$OUTDIRNAME/trainer_logs
+cp ./fix-math20.txt $PROJECT/$OUTDIRNAME/trainer_logs

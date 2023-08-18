@@ -45,8 +45,9 @@ from embed_utils import open_w2v
 import clean_and_token_text as clean
 
 # SETUP LOGGING
-logging.basicConfig(filename=os.path.join('/tmp/trainer', 'ner_inference.log'),
-        level=logging.INFO)
+#logging.basicConfig(filename=os.path.join('/tmp/trainer', 'ner_inference.log'),
+#        level=logging.INFO)
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.info("GPU devices: {}".format(list_physical_devices('GPU')))
 
