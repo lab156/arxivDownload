@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --time=0-02:00:00
 #SBATCH --job-name=c_test-mp
-#SBATCH --output=class_test-mp.txt
+#SBATCH --output=class-mp.txt
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 ##SBATCH --partition=GPU-shared
@@ -25,4 +25,4 @@ singularity run --nv \
     --out $PROJECT/$OUTDIRNAME \
     --mine /opt/data_dir/promath/math0{0,1}/*_00{1,2,3,4}.tar.gz
 cp -r /tmp/trainer $PROJECT/$OUTDIRNAME/trainer_logs
-cp ./class_test-mp.txt $PROJECT/$OUTDIRNAME/trainer_logs
+cp ./class-mp.txt $PROJECT/$OUTDIRNAME/trainer_logs
