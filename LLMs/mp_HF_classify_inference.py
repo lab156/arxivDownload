@@ -59,17 +59,15 @@ def gen_cfg(args):
     cfg['base_dir'] = os.environ.get('PERMSTORAGE', '/media/hd1') 
     cfg['local_dir'] = os.environ.get('TEMPFASTSTORAGE',
             '/tmp')  # This is temporary fast storage
-    FHandler = logging.FileHandler(cfg['local_dir']+"/training.log")
-    logger.addHandler(FHandler)
     #config_path = args.get('configpath', 'config.toml')
 
     # This is permanent storage# This is permanent storage
 
     hoy = dt.now()
     timestamp = hoy.strftime("%b-%d_%H-%M")
-    cfg['save_path_dir'] = os.path.join(cfg['local_dir'],
-            'trans_HF_ner/ner_' + timestamp)
-    os.makedirs(cfg['save_path_dir'], exist_ok=True)
+    #cfg['save_path_dir'] = os.path.join(cfg['local_dir'],
+    #        'trans_HF_ner/ner_' + timestamp)
+    #os.makedirs(cfg['save_path_dir'], exist_ok=True)
     cfg['min_words'] = 15
 
     FHandler = logging.FileHandler(cfg['local_dir']+"/training.log")
