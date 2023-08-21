@@ -66,44 +66,94 @@ def join_math_tokens(word_lst, preds=None):
         j += 1
     return ret_words, ret_preds
 
-def join_by_example(tokens, golds, preds=None):
+def join_by_example(tokens_, golds_, preds=None):
     if preds == None:
-        preds = ['O' for _ in tokens]
+        preds = ['O' for _ in tokens_]
     else:
         preds = preds.copy()
-    tokens = tokens.copy()
+    tokens = tokens_.copy()
+    golds = golds_.copy()
     assert len(tokens) == len(preds), "Tokens and preds have different lengths"
     ret_lst = []
     ret_pred_lst = []
-    if len(tokens) > len(golds):
-        tokens.reverse()
-        preds.reverse()
-        j = 0
-        while j < len(golds):
+    #if len(tokens) > len(golds):
+    tokens.reverse()
+    preds.reverse()
+    j = 0
+    while j < min(len(golds), len(tokens)):
+        try:
             tok = tokens.pop()
             pred = preds.pop()
-            join_str = tok
-            temp_pred_lst = [pred,]
-            while (golds[j].startswith(join_str) and 
-                   join_str != golds[j] and 
-                   j < len(golds)):
-                #j += 1
+        except IndexError:
+            import pdb
+            pdb.set_trace()
+
+        join_str = tok
+        temp_pred_lst = [pred,]
+        while (golds[j].startswith(join_str) and 
+               join_str != golds[j] and 
+               j < len(golds)):
+            #j += 1
+            try:
                 join_str += tokens.pop()
-                temp_pred_lst.append(preds.pop())
-            ret_lst.append(join_str)
-            # Determine the best representation of the merged tokens
-            if 'B-DFNDUM' in temp_pred_lst:
-                temp_pred_str = 'B-DFNDUM'
-            elif 'I-DFNDUM' in temp_pred_lst:
-                temp_pred_str = 'I-DFNDUM'
-            else:
-                temp_pred_str = 'O'
-            ret_pred_lst.append(temp_pred_str)
-            j += 1
+            except IndexError:
+                print(f"""Truncation event {len(golds_)=} 
+                          {len(ret_lst)=}""")
+                j = len(golds)+1
+                break
+            temp_pred_lst.append(preds.pop())
+        ret_lst.append(join_str)
+        # Determine the best representation of the merged tokens
+        if 'B-DFNDUM' in temp_pred_lst:
+            temp_pred_str = 'B-DFNDUM'
+        elif 'I-DFNDUM' in temp_pred_lst:
+            temp_pred_str = 'I-DFNDUM'
+        else:
+            temp_pred_str = 'O'
+        ret_pred_lst.append(temp_pred_str)
+        j += 1
         #ret_lst.append(tokens.pop())
-    else:
-        ret_lst = tokens
-        ret_pred_lst = preds
-        assert len(tokens) == len(golds), \
-                f"length of predictions is less that standards {tokens[:15]}"
+    #else:
+    #    ret_lst = tokens
+    #    ret_pred_lst = preds
+    #    assert len(tokens) == len(golds), \
+    #            f"""length of predictions is less than golds {tokens=} \n
+    #                      {golds=}"""
     return ret_lst, ret_pred_lst
+
+def get_entity(words, preds, 
+        labels=['O', 'B-DFNDUM', 'I-DFNDUM']):
+    '''
+    returns a list of terms (definienda) from a labeled sentence
+    expect a list that has been through get_words_back and join_math_tokens first
+    '''
+    assert len(words) == len(preds), "Length of words and preds should be the same"
+
+    term_lst = []
+    k = 0 # main index
+    while k < len(preds):
+        cnt = 1
+        if preds[k] == labels[1]:
+            term = words[k]
+            while (k + cnt < len(preds) and 
+                    preds[k + cnt] == labels[2]):
+                term += ' ' + words[k + cnt]
+                cnt += 1
+            term_lst.append(term)
+        k = k + cnt
+    return term_lst
+
+def crop_terms(tokens, preds, **kwargs):
+    words, preds = get_words_back(tokens, preds=preds, 
+                      special_tokens=kwargs['special_tokens'])
+    golds = kwargs.get('golds', None)
+
+    if golds is None:
+        words, preds = join_math_tokens(words, preds=preds)
+    else:
+        words, preds = join_by_example(words, golds, preds=preds)
+
+    term_lst = get_entity(words, preds)
+    return list(set(term_lst))
+
+

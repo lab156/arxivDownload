@@ -41,8 +41,8 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 #from unwiki import unwiki
 import ner
-from embed_utils import open_w2v
-import clean_and_token_text as clean
+#from embed_utils import open_w2v  could not import from LLMs
+#import clean_and_token_text as clean
 
 # SETUP LOGGING
 #logging.basicConfig(filename=os.path.join('/tmp/trainer', 'ner_inference.log'),
