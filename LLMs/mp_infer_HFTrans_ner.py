@@ -24,6 +24,7 @@ import ner.llm_utils as llu
 import embed.inference_ner as ninf
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 def add_dfndum(D, term):
     # Add term to definition element D in a dfndum tag
@@ -89,7 +90,10 @@ def prep_raw_data_and_mine(xml_path, tok, tokenizer,  cfg, model):
             range(len(all_word_sents)//cfg['inference_batch_size'] + 1)]
 
     if len(all_word_sents) == 0:
-        raise ValueError('all_word_sents has length zero.')
+        logger.info(
+        f'all_word_sents has length zero. {xml_path} has no definitions.')
+        print(f'all_word_sents has length zero. {xml_path} has no definitions.')
+        return root
 
     predictions = []
     concat_tokens = []
@@ -163,7 +167,6 @@ def get_gpu_info(q="XLA_GPU"):
 
     print( "############################################################")
     print(f"### The len of GPU devices found is: {len(xla_gpu_lst)} ####")
-    print(f" {len(xla_gpu_lst)} ")
     print( "############################################################")
     return xla_gpu_lst
 
@@ -188,12 +191,17 @@ def main():
     args = parse_args()
 
     xla_gpu_lst = get_gpu_info('GPU')
-    logger.info(f'List of XLA GPUs: {xla_gpu_lst}')
 
     os.makedirs(args.out, exist_ok=True)
+    
+    FHandler = logging.FileHandler(os.path.join(args.out, 'ner_inference.log'), 
+            mode='a')
+    logger.addHandler(FHandler)
+    logger.info(f'List of XLA GPUs: {xla_gpu_lst}')
 
     # GET THE PATH AND config
     # Model directory is a mandatory argument
+    logger.warning('hola macizo')
     global tf_model_dir
     tf_model_dir = args.model
     cfg = {'outdir': args.out,
@@ -237,5 +245,4 @@ def main():
 if __name__ == "__main__":
     #tf.debugging.set_log_device_placement(True)
     main()
-
 
