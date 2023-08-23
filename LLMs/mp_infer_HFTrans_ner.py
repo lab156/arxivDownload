@@ -32,12 +32,12 @@ def add_dfndum(D, term):
     dfndum.text = term
     return D
 
-def tokenizer_mapper(x):
-    tt = tokenizer(x['sentences'], 
-            return_tensors='tf', 
-            is_split_into_words=False, 
-            padding=True, truncation=True)
-    return tt
+#def tokenizer_mapper(x):
+#    tt = tokenizer(x['sentences'], 
+#            return_tensors='tf', 
+#            is_split_into_words=False, 
+#            padding=True, truncation=True)
+#    return tt
 
 
 def prep_raw_data_and_mine(xml_path, tok, tokenizer,  cfg, model):
@@ -88,6 +88,8 @@ def prep_raw_data_and_mine(xml_path, tok, tokenizer,  cfg, model):
     ibs = cfg['inference_batch_size']
     slice_lst = [slice(s*ibs, (s+1)*ibs, 1) for s in 
             range(len(all_word_sents)//cfg['inference_batch_size'] + 1)]
+    if len(all_word_sents)%cfg['inference_batch_size'] == 0:
+        slice_lst = slice_lst[:-1]
 
     if len(all_word_sents) == 0:
         logger.info(
