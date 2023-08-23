@@ -4,10 +4,10 @@
 #SBATCH --output=ner_test.txt
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
-#SBATCH --partition=GPU-shared
-#SBATCH --gpus=1
-##SBATCH --partition=GPU
-##SBATCH --gpus=8
+##SBATCH --partition=GPU-shared
+##SBATCH --gpus=1
+#SBATCH --partition=GPU
+#SBATCH --gpus=8
 
 # Change Parameters and Variables
 # --time
@@ -27,5 +27,5 @@ singularity run --nv \
     --mine /opt/data_dir/HFTrans_infer_all/math0{0,1}/*.xml.gz \
     --senttok /opt/data_dir/punkt_params.pickle 
 
-cp -r /tmp/infer_ner $PROJECT/$OUTDIRNAME/infer_ner
-cp ./ner_test.txt $PROJECT/$OUTDIRNAME/infer_ner
+cp -r /tmp/infer_ner $PROJECT/$OUTDIRNAME/
+cp ./ner_test.txt $PROJECT/$OUTDIRNAME/
