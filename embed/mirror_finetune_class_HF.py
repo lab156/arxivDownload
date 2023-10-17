@@ -136,7 +136,7 @@ def prepare_data(ds, cfg):
            label_cols=['label'],
            shuffle=True,
            collate_fn=data_collator,
-           batch_size= cfg['batch_size'] )
+           batch_size=cfg['batch_size'] )
 
     tf_valid_data = tkn_data['valid'].to_tf_dataset(
            columns=['attention_mask', 'input_ids', 'token_type_ids'],
@@ -150,7 +150,7 @@ def prepare_data(ds, cfg):
            label_cols=['label'],
            shuffle=False,
            collate_fn=data_collator,
-           batch_size= cfg['batch_size'])
+           batch_size=cfg['batch_size']  )
     
     return (tf_train_data, 
             tf_valid_data,
@@ -208,6 +208,12 @@ def main():
     logger.info(f'List of XLA GPUs: {xla_gpu_lst}')
     
     ds = get_dataset(xml_lst, cfg)
+
+    mirrored_strategy = tf.distribute.MirroredStrategy()
+    cfg['batch_size'] = mirrored_strategy.num_replicas_in_sync * cfg['batch_size']
+
+    print('num_replicas_in_sync=', mirrored_strategy.num_replicas_in_sync)
+    logger.info(f'num_replicas_in_sync= {mirrored_strategy.num_replicas_in_sync}')
     
     (tf_train_data, 
     tf_valid_data,
@@ -215,8 +221,12 @@ def main():
     ) = prepare_data(ds, cfg)
     
     cfg['num_train_steps'] = len(tf_train_data)*cfg['num_epochs']
+
     
-    model = make_HF_model(cfg)
+    with mirrored_strategy.scope():
+        # define the model and compile
+        model = make_HF_model(cfg)
+    # fit should be out of the the with scope
     model.fit( tf_train_data, validation_data=tf_valid_data, epochs=cfg['num_epochs'])
     
     preds = model.predict(tf_test_data)#['logits']
