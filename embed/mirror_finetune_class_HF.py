@@ -122,6 +122,19 @@ def prepare_data(ds, cfg):
         'test': temp1_dd['test'],
         'valid': temp2_dd['test'],
     })
+
+    def add_missing_token_type(ex):
+        # return a zero array of the same length as attention_mask
+        ex['token_type_ids'] = [len(x)*[0] for x in ex['attention_mask']]
+        return ex
+
+    if cfg['checkpoint'].startswith('roberta'):
+        logger.info('fixing missing token_type_ids for roberta')
+        #tkn_data = tkn_data.map(add_missing_token_type, batched=True)
+        column_lst = ['attention_mask', 'input_ids'] 
+    else:
+        column_lst = ['attention_mask', 'input_ids', 'token_type_ids']
+
     
     # This function does no accept the return_tensors argument.
     try:
@@ -132,25 +145,25 @@ def prepare_data(ds, cfg):
 
     # Take care of everyting using `to_tf_dataset()`
     tf_train_data = tkn_data['train'].to_tf_dataset(
-           columns=['attention_mask', 'input_ids', 'token_type_ids'],
+           columns=column_lst,
            label_cols=['label'],
            shuffle=True,
            collate_fn=data_collator,
            batch_size=cfg['batch_size'] )
 
     tf_valid_data = tkn_data['valid'].to_tf_dataset(
-           columns=['attention_mask', 'input_ids', 'token_type_ids'],
+           columns=column_lst,
            label_cols=['label'],
            shuffle=True,
            collate_fn=data_collator,
            batch_size=cfg['batch_size'])
 
     tf_test_data = tkn_data['test'].to_tf_dataset(
-           columns=['attention_mask', 'input_ids', 'token_type_ids'],
+           columns=column_lst,
            label_cols=['label'],
            shuffle=False,
            collate_fn=data_collator,
-           batch_size=cfg['batch_size']  )
+           batch_size=cfg['batch_size'])
     
     return (tf_train_data, 
             tf_valid_data,
