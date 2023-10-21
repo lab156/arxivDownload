@@ -18,7 +18,7 @@
 
 
 export TF_CUDNN_RESET_RND_GEN_STATE=1
-OUTDIRNAME=ner_all_w_HFT
+OUTDIRNAME=ner_all_fixed
 singularity run --nv \
     --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir \
     $PROJECT/singul/runnerNERNew.sif python3 LLMs/mp_infer_HFTrans_ner.py \
