@@ -1,9 +1,0 @@
-[finetuning]
-shrink_data_factor=1.0
-checkpoint = 'roberta-large'
-glob_data_source = 'training_defs/math*/*.xml.gz'
-'data_stream_batch_size'= 5000 ## raw examples to read from hard drive
-num_epochs = 3
-batch_size = 8
-initial_lr = 5e-06 ## learning rates for PolynomialDecay scheduler
-end_lr = 0.0
