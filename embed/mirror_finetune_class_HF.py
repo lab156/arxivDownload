@@ -256,8 +256,8 @@ def main():
     # fit should be out of the the with scope
     model.fit( tf_train_data, validation_data=tf_valid_data, epochs=cfg['num_epochs'])
     
-    import pdb
-    pdb.set_trace()
+    #import pdb
+    #pdb.set_trace()
     preds = model.predict(tf_test_data)#['logits']
     class_preds = np.argmax(preds[0], axis=1)
     
