@@ -213,7 +213,6 @@ def find_best_cutoff(model, preds, test):
     pred_data = preds
 
     for thresh in np.arange(0.1, 0.901, 0.1):
-        print('its moving')
         thresh = np.round(thresh, 2)
         f1 = metrics.f1_score(test, (pred_data > thresh).astype(int))
         #print('F1 score at threshold {} is {}'.format(thresh, f1))
@@ -259,16 +258,16 @@ def main():
     
     #import pdb
     #pdb.set_trace()
+    now = dt.now()
     preds = model.predict(tf_test_data)#['logits']
-    print('out of predict')
     class_preds = np.argmax(preds[0], axis=1)
-    print('next')
+    now = (dt.now() - now)
+    logger.info(f"It took {now} secs to get out of predict.")
     
     targets = []
     for b in tf_test_data.as_numpy_iterator():
         targets.extend(list(b[1])) 
 
-        
     opt_prob, f1_max = find_best_cutoff(model, class_preds, targets)
 
     logger.info(f"{opt_prob=} and {f1_max=}")
