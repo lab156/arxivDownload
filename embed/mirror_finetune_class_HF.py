@@ -107,6 +107,7 @@ def get_dataset(xml_lst, cfg):
     
 def prepare_data(ds, cfg):
     tokenizer = AutoTokenizer.from_pretrained(cfg['checkpoint'])
+
     def tok_function(example):
     # This function can be used with the Dataset.map() method
         return tokenizer(example['text'], truncation=True)
@@ -128,12 +129,15 @@ def prepare_data(ds, cfg):
         ex['token_type_ids'] = [len(x)*[0] for x in ex['attention_mask']]
         return ex
 
+    column_lst = ['attention_mask', 'input_ids', 'token_type_ids']
     if cfg['checkpoint'].startswith('roberta'):
         logger.info('fixing missing token_type_ids for roberta')
         #tkn_data = tkn_data.map(add_missing_token_type, batched=True)
         column_lst = ['attention_mask', 'input_ids'] 
-    else:
-        column_lst = ['attention_mask', 'input_ids', 'token_type_ids']
+    if cfg['checkpoint'] == 'gpt2':
+        column_lst = ['attention_mask', 'input_ids'] 
+        assert tokenizer.pad_token is None, "tokenizer.pad_token is not None"
+        tokenizer.pad_token = tokenizer.eos_token
 
     
     # This function does no accept the return_tensors argument.
@@ -168,9 +172,10 @@ def prepare_data(ds, cfg):
     return (tf_train_data, 
             tf_valid_data,
             tf_test_data,
+            tokenizer,
            )
 
-def make_HF_model(cfg):
+def make_HF_model(cfg, tokenizer=None):
     lr_scheduler = PolynomialDecay(
         initial_learning_rate=cfg['initial_lr'], 
         end_learning_rate=cfg['end_lr'], 
@@ -180,8 +185,15 @@ def make_HF_model(cfg):
     opt = Adam(learning_rate=lr_scheduler)
 
     #reload the model to change the optimizer
-    model = TFAutoModelForSequenceClassification.from_pretrained(cfg['checkpoint'],
-            num_labels=2)
+    model = TFAutoModelForSequenceClassification.from_pretrained(
+                cfg['checkpoint'], num_labels=2)
+
+    if cfg['checkpoint'] == 'gpt2':
+        assert tokenizer is not None, "tokenizer should be set as argument not None"
+        logger.info(
+        f"""model.config.pad_token_id is {model.config.pad_token_id},
+          changing to tokenizer.eos_token""")
+        model.config.pad_token_id = tokenizer.eos_token_id
 
     loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     #loss = tf.keras.losses.BinaryCrossentropy()
@@ -227,10 +239,12 @@ def main():
 
     print('num_replicas_in_sync=', mirrored_strategy.num_replicas_in_sync)
     logger.info(f'num_replicas_in_sync= {mirrored_strategy.num_replicas_in_sync}')
+
     
     (tf_train_data, 
     tf_valid_data,
     tf_test_data,
+    tokenizer,
     ) = prepare_data(ds, cfg)
     
     cfg['num_train_steps'] = len(tf_train_data)*cfg['num_epochs']
@@ -238,10 +252,12 @@ def main():
     
     with mirrored_strategy.scope():
         # define the model and compile
-        model = make_HF_model(cfg)
+        model = make_HF_model(cfg, tokenizer=tokenizer)
     # fit should be out of the the with scope
     model.fit( tf_train_data, validation_data=tf_valid_data, epochs=cfg['num_epochs'])
     
+    import pdb
+    pdb.set_trace()
     preds = model.predict(tf_test_data)#['logits']
     class_preds = np.argmax(preds[0], axis=1)
     
@@ -269,7 +285,7 @@ def main():
         logger.warning(
         "cfg['savedir'] is empty string, not saving model.")
     logger.info(cfg)
-    
+
 
 if __name__ == "__main__":
     main()
