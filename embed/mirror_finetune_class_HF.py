@@ -260,13 +260,14 @@ def main():
     #import pdb
     #pdb.set_trace()
     preds = model.predict(tf_test_data)#['logits']
+    print('out of predict')
     class_preds = np.argmax(preds[0], axis=1)
+    print('next')
     
     targets = []
     for b in tf_test_data.as_numpy_iterator():
         targets.extend(list(b[1])) 
 
-    print('out of predict')
         
     opt_prob, f1_max = find_best_cutoff(model, class_preds, targets)
 
