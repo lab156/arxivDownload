@@ -33,7 +33,7 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 from classifier_trainer.trainer import stream_arxiv_paragraphs
 
-from train_lstm import find_best_cutoff
+#from train_lstm import find_best_cutoff
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -212,7 +212,7 @@ def find_best_cutoff(model, preds, test):
     #pred_data = model.predict(test_seq)
     pred_data = preds
 
-    for thresh in np.arange(0.1, 0.901, 0.01):
+    for thresh in np.arange(0.1, 0.901, 0.1):
         thresh = np.round(thresh, 2)
         f1 = metrics.f1_score(test, (pred_data > thresh).astype(int))
         #print('F1 score at threshold {} is {}'.format(thresh, f1))
