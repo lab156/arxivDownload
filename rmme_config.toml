@@ -1,9 +1,9 @@
 [finetuning]
 shrink_data_factor=0.01
-checkpoint = 'bert-base-uncased'
+checkpoint = 'gpt2'
 glob_data_source = 'training_defs/math18/*.xml.gz'
 'data_stream_batch_size'= 5000 ## raw examples to read from hard drive
 num_epochs = 1
-batch_size = 8
+batch_size = 2
 initial_lr = 5e-05 ## learning rates for PolynomialDecay scheduler
 end_lr = 0.0
