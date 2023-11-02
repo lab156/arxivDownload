@@ -6,7 +6,8 @@ import glob
 import numpy as np
 import toml
 import json
-from tqdm.notebook import tqdm
+#from tqdm.notebook import tqdm
+from tqdm import tqdm
 from torch.utils.data import  DataLoader
 #from ml_things import plot_dict, plot_confusion_matrix, fix_text
 from sklearn.metrics import classification_report, accuracy_score
