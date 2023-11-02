@@ -259,26 +259,42 @@ def main():
     #import pdb
     #pdb.set_trace()
     now = dt.now()
-    preds = model.predict(tf_test_data)#['logits']
-    class_preds = np.argmax(preds[0], axis=1)
-    now = (dt.now() - now)
-    logger.info(f"It took {now} secs to get out of predict.")
-    
-    targets = []
-    for b in tf_test_data.as_numpy_iterator():
-        targets.extend(list(b[1])) 
+    try:
+        #assert False
+        preds = model.predict(tf_test_data)#['logits']
+        class_preds = np.argmax(preds[0], axis=1)
+        now = (dt.now() - now)
+        logger.info(f"It took {now} secs to get out of predict.")
+        
+        targets = []
+        for b in tf_test_data.as_numpy_iterator():
+            targets.extend(list(b[1])) 
 
-    opt_prob, f1_max = find_best_cutoff(model, class_preds, targets)
+        opt_prob, f1_max = find_best_cutoff(model, class_preds, targets)
 
-    logger.info(f"{opt_prob=} and {f1_max=}")
-    print(f"{opt_prob=} and {f1_max=}")
-    cfg['opt_thresh'] = opt_prob
-    cfg['f1_max'] = f1_max
-    metric_str = metrics.classification_report(
-            (class_preds > opt_prob).astype(int), targets)
-    print(metric_str)
-    logger.info(metric_str)
-    logger.warning(metric_str)
+        logger.info(f"{opt_prob=} and {f1_max=}")
+        print(f"{opt_prob=} and {f1_max=}")
+        cfg['opt_thresh'] = opt_prob
+        cfg['f1_max'] = f1_max
+        metric_str = metrics.classification_report(
+                (class_preds > opt_prob).astype(int), targets)
+        print(metric_str)
+        logger.info(metric_str)
+    except tf.errors.ResourceExhaustedError as e:
+        logger.info(f"Caught OOM error {e} \n proceed to save the model")
+    except tf.errors.InvalidArgumentError as e:
+        logger.info(f"Caught Invalid argument error {e} \n proceed to save the model")
+        it = iter(tf_test_data)
+        example = next(it)
+        print(example)
+        example = next(it)
+        print(example)
+        test_cnt = 0
+        for t in tf_test_data:
+            test_cnt += 1
+            print(t[0]['input_ids'].shape)
+        print(f'{test_cnt=}')
+        
 
     #Save the model
     if cfg['savedir'] != '':
