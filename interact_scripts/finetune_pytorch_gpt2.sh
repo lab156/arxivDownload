@@ -4,6 +4,7 @@
 
 singularity run --nv \
     --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir \
-    $PROJECT/singul/runnerTransHF.sif python3 LLMs/finetune_class_HF_pytorch.py \
+    $PROJECT/singul/runnerPytorchTransHF.sif python3 \
+    LLMs/finetune_class_HF_pytorch.py \
     --savedir /opt/data_dir/result/model \
     --configpath /opt/arxivDownload/rmme_config.toml
