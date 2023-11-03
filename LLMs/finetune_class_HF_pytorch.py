@@ -507,7 +507,7 @@ def main():
 - train_acc: %.5f - valid_acc: %.5f"\
             %(epoch, train_loss, val_loss, train_acc, val_acc))
         print("train_loss: %.5f - val_loss: %.5f - train_acc: %.5f \
-                - valid_acc: %.5f"%(train_loss, val_loss, train_acc, val_acc))
+- valid_acc: %.5f"%(train_loss, val_loss, train_acc, val_acc))
         print()
 
         # Store the loss value for plotting the learning curve.
