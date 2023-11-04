@@ -482,13 +482,13 @@ def main():
                             num_training_steps = total_steps)
 
     # Store the average loss after each epoch so we can plot them.
-    all_loss = {'train_loss':[], 'val_loss':[]}
-    all_acc = {'train_acc':[], 'val_acc':[]}
+    train_stats = {'train_loss':[], 'val_loss':[],
+                   'train_acc':[], 'val_acc':[]}
 
     # Loop through each epoch.
     print('Epoch')
-    for epoch in tqdm(range(cfg['num_epochs'])):
-        print()
+    for epoch in range(cfg['num_epochs']):
+        print(f"##### EPOCH {epoch} / {cfg['num_epochs']} ####")
         print('Training on batches...')
         # Perform one full pass over the training set.
         train_labels, train_predict, train_loss = train(train_dataloader, 
@@ -511,10 +511,10 @@ def main():
         print()
 
         # Store the loss value for plotting the learning curve.
-        all_loss['train_loss'].append(train_loss)
-        all_loss['val_loss'].append(val_loss)
-        all_acc['train_acc'].append(train_acc)
-        all_acc['val_acc'].append(val_acc)
+        train_stats['train_loss'].append(train_loss)
+        train_stats['val_loss'].append(val_loss)
+        train_stats['train_acc'].append(train_acc)
+        train_stats['val_acc'].append(val_acc)
 
     preds = validation(test_dataloader, model, device)
     metric_str = metrics.classification_report(preds[0], preds[1])
@@ -526,6 +526,8 @@ def main():
         print(f"Saving to {cfg['savedir']}")
         model.save_pretrained(save_directory=cfg['savedir'])
         tokenizer.save_pretrained(save_directory=cfg['savedir'])
+        with open(cfg['savedir'], 'w') as fobj:
+            json.dump(train_stats, fobj)
     else:
         logger.warning(
         "cfg['savedir'] is empty string, not saving model.")
