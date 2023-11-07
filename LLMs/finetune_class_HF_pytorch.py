@@ -20,7 +20,9 @@ from transformers import (set_seed,
                           GPT2Tokenizer,
                           AdamW, 
                           get_linear_schedule_with_warmup,
-                          GPT2ForSequenceClassification)
+                          GPT2ForSequenceClassification,
+                          AutoTokenizer,
+                          AutoModelForSequenceClassification,)
 
 from datasets import load_dataset, Dataset, DatasetDict 
 from datetime import datetime as dt
@@ -458,7 +460,12 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logger.info(f"{device=}")
 
-    model, tokenizer = from_pretrained_model_and_tokenizer(device, cfg)
+    #model, tokenizer = from_pretrained_model_and_tokenizer(device, cfg)
+    tokenizer = AutoTokenizer.\
+            from_pretrained(cfg['checkpoint'], truncation=True)
+    model = AutoModelForSequenceClassification.\
+            from_pretrained(cfg['checkpoint'], num_labels=2)
+    model.to(device)
 
     ds = get_dataset(xml_lst, cfg)
     (train_dataloader,
@@ -488,7 +495,7 @@ def main():
     # Loop through each epoch.
     print('Epoch')
     for epoch in range(cfg['num_epochs']):
-        print(f"##### EPOCH {epoch} / {cfg['num_epochs']} ####")
+        print(f"##### EPOCH {epoch+1} / {cfg['num_epochs']} ####")
         print('Training on batches...')
         # Perform one full pass over the training set.
         train_labels, train_predict, train_loss = train(train_dataloader, 
@@ -526,7 +533,7 @@ def main():
         print(f"Saving to {cfg['savedir']}")
         model.save_pretrained(save_directory=cfg['savedir'])
         tokenizer.save_pretrained(save_directory=cfg['savedir'])
-        with open(cfg['savedir'], 'w') as fobj:
+        with open(os.path.join(cfg['savedir'], 'train_stats.json'), 'w') as fobj:
             json.dump(train_stats, fobj)
     else:
         logger.warning(
