@@ -494,6 +494,8 @@ def main():
 
     # Loop through each epoch.
     print('Epoch')
+    worse_in_a_row = 0
+    val_acc_best = 0
     for epoch in range(cfg['num_epochs']):
         print(f"##### EPOCH {epoch+1} / {cfg['num_epochs']} ####")
         print('Training on batches...')
@@ -523,18 +525,34 @@ def main():
         train_stats['train_acc'].append(train_acc)
         train_stats['val_acc'].append(val_acc)
 
+        if val_acc_best < val_acc:
+            # Improved
+            worse_in_a_row = 0
+            print(f"Saving to {cfg['savedir']}")
+            model.save_pretrained(save_directory=cfg['savedir'])
+            tokenizer.save_pretrained(save_directory=cfg['savedir'])
+            with open(os.path.join(cfg['savedir'], 'train_stats.json'), 'w') as fobj:
+                json.dump(train_stats, fobj)
+            val_acc_best = val_acc
+        else:
+            worse_in_a_row += 1
+
+        if worse_in_a_row >= 2:
+            break
+
+
     preds = validation(test_dataloader, model, device)
     metric_str = metrics.classification_report(preds[0], preds[1])
+    f1_score = metrics.f1_score(preds[0], preds[1])
     print(metric_str)
+    print(f"{f1_score=}")
+    logger.info(f"{f1_score=}")
+    cfg['f1_score'] = f1_score
     logger.info(metric_str)
 
     #Save the model
     if cfg['savedir'] != '':
-        print(f"Saving to {cfg['savedir']}")
-        model.save_pretrained(save_directory=cfg['savedir'])
-        tokenizer.save_pretrained(save_directory=cfg['savedir'])
-        with open(os.path.join(cfg['savedir'], 'train_stats.json'), 'w') as fobj:
-            json.dump(train_stats, fobj)
+        pass
     else:
         logger.warning(
         "cfg['savedir'] is empty string, not saving model.")
