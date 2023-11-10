@@ -88,11 +88,16 @@ def parse_args():
         help="""Path to save the finetuned model, dir name only.""")
     parser.add_argument('--configpath', type=str, default='',
         help="""Path to config.toml file.""")
+    parser.add_argument('--hfpath', type=str, default=None,
+        help="""Set the path to the hugging-face cache.""")
     args = parser.parse_args()
 
     # make sure --savepath exists
     if args.savedir != '':
         os.makedirs(args.savedir, exist_ok=True)
+
+    if args.hfpath is not None:
+        os.environ['TRANSFORMERS_CACHE'] = args.hfpath
 
     return vars(args)
 
