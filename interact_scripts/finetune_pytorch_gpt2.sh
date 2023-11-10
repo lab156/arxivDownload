@@ -7,4 +7,6 @@ singularity run --nv \
     $PROJECT/singul/runnerPytorchTransHF.sif python3 \
     LLMs/finetune_class_HF_pytorch.py \
     --savedir /opt/data_dir/result/model \
-    --configpath /opt/arxivDownload/rmme_config.toml
+    --configpath /opt/arxivDownload/rmme_config.toml \
+    --hfpath $PROJECT/HFcache
+
