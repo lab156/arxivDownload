@@ -8,5 +8,5 @@ singularity run --nv \
     LLMs/finetune_class_HF_pytorch.py \
     --savedir /opt/data_dir/result/model \
     --configpath /opt/arxivDownload/rmme_config.toml \
-    --hfpath $PROJECT/HFcache
+    --hfpath $PROJECT/hfcache
 
