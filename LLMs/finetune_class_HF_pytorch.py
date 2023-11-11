@@ -24,7 +24,7 @@ from transformers import (set_seed,
                           AutoTokenizer,
                           AutoModelForSequenceClassification,
                           MistralConfig,
-                          MistralTokenizer,
+                          LlamaTokenizer,
                           MistralForSequenceClassification,)
 
 from datasets import load_dataset, Dataset, DatasetDict 
@@ -205,7 +205,7 @@ def from_pretrained_model_and_tokenizer(device, cfg):
     # Get model's tokenizer.
     print('Loading tokenizer...')
     #tokenizer = GPT2Tokenizer.from_pretrained(
-    tokenizer = MistralTokenizer.from_pretrained(
+    tokenizer = LlamaTokenizer.from_pretrained(
                            pretrained_model_name_or_path=cfg['checkpoint'])
     # default to left padding
     tokenizer.padding_side = "left"
