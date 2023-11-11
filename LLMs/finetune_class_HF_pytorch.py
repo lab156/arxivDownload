@@ -22,7 +22,10 @@ from transformers import (set_seed,
                           get_linear_schedule_with_warmup,
                           GPT2ForSequenceClassification,
                           AutoTokenizer,
-                          AutoModelForSequenceClassification,)
+                          AutoModelForSequenceClassification,
+                          MistralConfig,
+                          MistralTokenizer,
+                          MistralForSequenceClassification,)
 
 from datasets import load_dataset, Dataset, DatasetDict 
 from datetime import datetime as dt
