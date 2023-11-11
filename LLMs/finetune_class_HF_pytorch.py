@@ -75,6 +75,9 @@ def gen_cfg(**kwargs):
     
     FHandler = logging.FileHandler(cfg['local_dir']+"/training.log")
     logger.addHandler(FHandler)
+
+    ## get environment variable
+    cfg['hf_transformers_cache'] = os.environ.get('TRANSFORMERS_CACHE', None)
     
     return xml_lst, cfg
 
@@ -88,16 +91,11 @@ def parse_args():
         help="""Path to save the finetuned model, dir name only.""")
     parser.add_argument('--configpath', type=str, default='',
         help="""Path to config.toml file.""")
-    parser.add_argument('--hfpath', type=str, default=None,
-        help="""Set the path to the hugging-face cache.""")
     args = parser.parse_args()
 
     # make sure --savepath exists
     if args.savedir != '':
         os.makedirs(args.savedir, exist_ok=True)
-
-    if args.hfpath is not None:
-        os.environ['TRANSFORMERS_CACHE'] = args.hfpath
 
     return vars(args)
 
@@ -126,7 +124,8 @@ class Gpt2ClassificationCollator(object):
     r"""
     Data Collator used for GPT2 in a classificaiton rask. 
     
-    It uses a given tokenizer and label encoder to convert any text and labels to numbers that 
+    It uses a given tokenizer and label encoder to convert any text and labels 
+    to numbers that 
     can go straight into a GPT2 model.
 
     This class is built with reusability in mind: it can be used as is as long
@@ -195,13 +194,15 @@ class Gpt2ClassificationCollator(object):
     
 def from_pretrained_model_and_tokenizer(device, cfg):
     # Get model configuration.
-    model_config = GPT2Config.from_pretrained(
+    #model_config = GPT2Config.from_pretrained(
+    model_config = MistralConfig.from_pretrained(
                            pretrained_model_name_or_path=cfg['checkpoint'],
                                               num_labels=2)
 
     # Get model's tokenizer.
     print('Loading tokenizer...')
-    tokenizer = GPT2Tokenizer.from_pretrained(
+    #tokenizer = GPT2Tokenizer.from_pretrained(
+    tokenizer = MistralTokenizer.from_pretrained(
                            pretrained_model_name_or_path=cfg['checkpoint'])
     # default to left padding
     tokenizer.padding_side = "left"
@@ -211,7 +212,8 @@ def from_pretrained_model_and_tokenizer(device, cfg):
 
     # Get the actual model.
     print('Loading model...')
-    model = GPT2ForSequenceClassification.from_pretrained(
+    #model = GPT2ForSequenceClassification.from_pretrained(
+    model = MistralForSequenceClassification.from_pretrained(
                            pretrained_model_name_or_path=cfg['checkpoint'],
                             config=model_config)
 
@@ -465,11 +467,11 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logger.info(f"{device=}")
 
-    #model, tokenizer = from_pretrained_model_and_tokenizer(device, cfg)
-    tokenizer = AutoTokenizer.\
-            from_pretrained(cfg['checkpoint'], truncation=True)
-    model = AutoModelForSequenceClassification.\
-            from_pretrained(cfg['checkpoint'], num_labels=2)
+    model, tokenizer = from_pretrained_model_and_tokenizer(device, cfg)
+    #tokenizer = AutoTokenizer.\
+    #        from_pretrained(cfg['checkpoint'], truncation=True)
+    #model = AutoModelForSequenceClassification.\
+    #        from_pretrained(cfg['checkpoint'], num_labels=2)
     model.to(device)
 
     ds = get_dataset(xml_lst, cfg)
@@ -522,7 +524,6 @@ def main():
             %(epoch, train_loss, val_loss, train_acc, val_acc))
         print("train_loss: %.5f - val_loss: %.5f - train_acc: %.5f \
 - valid_acc: %.5f"%(train_loss, val_loss, train_acc, val_acc))
-        print()
 
         # Store the loss value for plotting the learning curve.
         train_stats['train_loss'].append(train_loss)
@@ -534,6 +535,7 @@ def main():
             # Improved
             worse_in_a_row = 0
             print(f"Saving to {cfg['savedir']}")
+            print()
             model.save_pretrained(save_directory=cfg['savedir'])
             tokenizer.save_pretrained(save_directory=cfg['savedir'])
             with open(os.path.join(cfg['savedir'], 'train_stats.json'), 'w') as fobj:
