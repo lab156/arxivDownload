@@ -5,9 +5,7 @@
 #SBATCH --mail-user=lab232@pitt.edu #send email to this address if ...
 #SBATCH --mail-type=END,FAIL # ... job ends or fails
 #SBATCH --partition=GPU
-#SBATCH --gpus=4
-##SBATCH --partition=GPU
-##SBATCH --gpus=8
+#SBATCH --gpus=8
 
 # To be run in interact mode potentially with multiple gpus
 OUTDIRNAME="finetune/class-"$(date "+%Y-%m-%d_%H%M")
