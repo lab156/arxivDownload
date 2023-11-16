@@ -13,7 +13,7 @@ OUTDIRNAME="finetune/class-"$(date "+%Y-%m-%d_%H%M")
 export TRANSFORMERS_CACHE=$PROJECT/hfcache
 singularity run --nv \
     --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir \
-    $PROJECT/singul/runnerPytorchTransHF3.sif torchrun \
+    $PROJECT/singul/runnerPytorchTransHF4.sif torchrun \
     LLMs/mirror_pytorch_finetune_class_HF.py \
     --savedir /opt/data_dir/$OUTDIRNAME/model \
     --configpath /opt/arxivDownload/rmme_config.toml
