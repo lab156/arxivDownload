@@ -535,6 +535,8 @@ def main():
     #logger.info(f"{device=}")
     device = None
 
+    cfg['labels_ids'] = {'neg': 0, 'pos': 1}
+
     model, tokenizer = from_pretrained_model_and_tokenizer(device, cfg)
     ds = get_dataset(xml_lst, cfg)
     gpt2_classification_collator = Gpt2ClassificationCollator(
