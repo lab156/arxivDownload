@@ -250,7 +250,7 @@ def from_pretrained_model_and_tokenizer(device, cfg):
  
     return model, tokenizer
 
-def prepare_dataloaders(ds, tokenizer, cfg):
+def prepare_dataset(ds, tokenizer, cfg):
     ds = ds.select(range(int(cfg['shrink_data_factor']*len(ds))))
     temp1_ds = ds.train_test_split(test_size=0.1, shuffle=True)
     temp2_ds = temp1_ds['train'].train_test_split(test_size=0.1, shuffle=True)
@@ -263,39 +263,9 @@ def prepare_dataloaders(ds, tokenizer, cfg):
     
     cfg['labels_ids'] = {'neg': 0, 'pos': 1}
 
-    gpt2_classification_collator = Gpt2ClassificationCollator(
-            use_tokenizer=tokenizer, 
-            labels_encoder=cfg['labels_ids'], 
-          max_sequence_len=cfg['max_length'])
-
     # Create pytorch dataset.
 
-    # Move pytorch dataset into dataloader.
-    train_dataloader = DataLoader(ds['train'],
-                                  batch_size=cfg['batch_size'], 
-                                  shuffle=True, 
-                                  collate_fn=gpt2_classification_collator)
-    logger.info('Created `train_dataloader` with %d batches!'%len(train_dataloader))
-
-    # Create pytorch dataset.
-    # Move pytorch dataset into dataloader.
-    valid_dataloader = DataLoader(ds['valid'], 
-                                  batch_size=cfg['batch_size'], 
-                                  shuffle=False, 
-                                  collate_fn=gpt2_classification_collator)
-    logger.info('Created `eval_dataloader` with %d batches!'%len(valid_dataloader))
-
-    test_dataloader = DataLoader(ds['test'], 
-                                  batch_size=cfg['batch_size'], 
-                                  shuffle=False, 
-                                  collate_fn=gpt2_classification_collator)
-    logger.info('Created `test_dataloader` with %d batches!'%len(valid_dataloader))
-
-    return (train_dataloader,
-            valid_dataloader,
-            test_dataloader,
-            cfg,
-            )
+    return ds, cfg
 
 def train(dataloader, model, optimizer_, scheduler_, device_):
     r"""
@@ -427,10 +397,10 @@ def train_model(model, dataset, tokenizer, collator, cfg):
     trainer = Trainer(
       model=model,
       args=training_args,
-      train_dataset=tokenized_train,
-      eval_dataset=tokenized_test,
+      train_dataset=dataset['train'],
+      eval_dataset=dataset['valid'],
       tokenizer=tokenizer,
-      data_collator=data_collator,
+      data_collator=collator,
       compute_metrics=compute_metrics,
     )
     trainer.train()
@@ -539,6 +509,7 @@ def main():
 
     model, tokenizer = from_pretrained_model_and_tokenizer(device, cfg)
     ds = get_dataset(xml_lst, cfg)
+    ds, cfg = prepare_dataset(ds, tokenizer, cfg)
     gpt2_classification_collator = Gpt2ClassificationCollator(
             use_tokenizer=tokenizer, 
             labels_encoder=cfg['labels_ids'], 
