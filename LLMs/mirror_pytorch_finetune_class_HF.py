@@ -111,6 +111,8 @@ def parse_args():
         help="""Path to save the finetuned model, dir name only.""")
     parser.add_argument('--configpath', type=str, default='',
         help="""Path to config.toml file.""")
+    parser.add_argument('--load8bit', action='store_true', default=False,
+        help="""Load the model with 8 bit precision""")
     args = parser.parse_args()
 
     # make sure --savepath exists
@@ -233,9 +235,17 @@ def from_pretrained_model_and_tokenizer(device, cfg):
     # Get the actual model.
     print('Loading model...')
     #model = GPT2ForSequenceClassification.from_pretrained(
-    model = MistralForSequenceClassification.from_pretrained(
-                           pretrained_model_name_or_path=cfg['checkpoint'],
-                            config=model_config)
+    if cfg['load8bit']:
+        model = MistralForSequenceClassification.from_pretrained(
+                               pretrained_model_name_or_path=cfg['checkpoint'],
+                                config=model_config,
+                                device_map='auto',
+                                load_in_8bit=True)
+    else:
+        model = MistralForSequenceClassification.from_pretrained(
+                               pretrained_model_name_or_path=cfg['checkpoint'],
+                                config=model_config)
+
 
     # resize model embedding to match new tokenizer
     model.resize_token_embeddings(len(tokenizer))
