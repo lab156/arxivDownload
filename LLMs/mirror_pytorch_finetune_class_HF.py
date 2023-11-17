@@ -235,7 +235,9 @@ def from_pretrained_model_and_tokenizer(device, cfg):
     #model = GPT2ForSequenceClassification.from_pretrained(
     model = MistralForSequenceClassification.from_pretrained(
                            pretrained_model_name_or_path=cfg['checkpoint'],
-                            config=model_config)
+                            config=model_config,
+                            device_map='auto',
+                            load_in_8bit=True)
 
     # resize model embedding to match new tokenizer
     model.resize_token_embeddings(len(tokenizer))
