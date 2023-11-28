@@ -33,6 +33,35 @@ batch_size = 8
 initial_lr = 5e-05 ## learning rates for PolynomialDecay scheduler
 end_lr = 0.0
 
+[finetuning2]
+# uses AdamW optimizer 
+shrink_data_factor=0.01
+#checkpoint = 'mistralai/Mistral-7B-v0.1'
+checkpoint = 'gpt2'
+glob_data_source = 'training_defs/math18/*.xml.gz'
+'data_stream_batch_size'= 5000 ## raw examples to read from hard drive
+num_epochs = 10
+batch_size = 2
+initial_lr = 5e-06 ## learning rates for PolynomialDecay scheduler
+end_lr = 0.0
+weight_decay=0.01
+max_length=120
+n_workers = 2 # numbers of workers for dataloaders
+
+[peft-p-tuning-lora]
+shrink_data_factor=0.01
+#checkpoint = 'mistralai/Mistral-7B-v0.1'
+checkpoint = 'gpt2'
+glob_data_source = 'training_defs/math18/*.xml.gz'
+'data_stream_batch_size'= 5000 ## raw examples to read from hard drive
+num_epochs = 2
+batch_size = 4 # per_device training and eval batch size
+initial_lr = 5e-06 ## learning rates for PolynomialDecay scheduler
+end_lr = 0.0
+weight_decay=0.01
+max_length=120
+peft_conf='lora'   #Options are p-tuning or lora
+
 [finetuning-ner]
 checkpoint = 'bert-base-cased'
 label_list = ['O', 'B-DFNDUM', 'I-DFNDUM']
