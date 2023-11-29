@@ -2,6 +2,7 @@
 
 # To be run in interact mode potentially with multiple gpus
 
+export TRANSFORMERS_CACHE=$PROJECT/hfcache
 singularity run --nv \
     --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir \
     $PROJECT/singul/runnerPytorchTransHFPerf.sif \
