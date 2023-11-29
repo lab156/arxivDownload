@@ -28,6 +28,7 @@ from tqdm import tqdm
 
 #currentdir = os.path.abspath(os.path.curdir)
 #parentdir = os.path.dirname(currentdir)
+import inspect
 currentdir = os.path.dirname(
         os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.insert(0,parentdir) 
