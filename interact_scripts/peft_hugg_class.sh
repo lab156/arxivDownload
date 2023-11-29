@@ -4,7 +4,7 @@
 
 singularity run --nv \
     --bind $HOME/arxivDownload:/opt/arxivDownload,$PROJECT:/opt/data_dir \
-    $PROJECT/singul/runnerTransHFPerf.sif \
-    python3 embed/peft_tuning_and_lora_seq_cls.py \
+    $PROJECT/singul/runnerPytorchTransHFPerf.sif \
+    python3 LLMs/peft_tuning_and_lora_seq_cls.py \
     --savedir /opt/data_dir/result/model \
     --configpath /opt/arxivDownload/config_version_control.toml
