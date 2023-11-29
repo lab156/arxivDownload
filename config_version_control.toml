@@ -51,7 +51,8 @@ n_workers = 2 # numbers of workers for dataloaders
 [peft-p-tuning-lora]
 shrink_data_factor=0.01
 #checkpoint = 'mistralai/Mistral-7B-v0.1'
-checkpoint = 'gpt2'
+#checkpoint = 'gpt2'
+checkpoint = 'bigscience/bloom-1b1'
 glob_data_source = 'training_defs/math18/*.xml.gz'
 'data_stream_batch_size'= 5000 ## raw examples to read from hard drive
 num_epochs = 2
