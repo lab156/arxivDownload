@@ -26,8 +26,10 @@ import json
 from tqdm import tqdm
 
 
-currentdir = os.path.abspath(os.path.curdir)
-parentdir = os.path.dirname(currentdir)
+#currentdir = os.path.abspath(os.path.curdir)
+#parentdir = os.path.dirname(currentdir)
+currentdir = os.path.dirname(
+        os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.insert(0,parentdir) 
 sys.path.insert(0,parentdir+'/embed') 
 from classifier_trainer.trainer import stream_arxiv_paragraphs
