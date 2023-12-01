@@ -85,6 +85,92 @@ def gen_cfg(**kwargs):
     
     return xml_lst, cfg
 
+def validation(dataloader, device_):
+    r"""Validation function to evaluate model performance on a 
+  separate set of data.
+
+  This function will return the true and predicted labels so we can use later
+  to evaluate the model's performance.
+
+  This function is built with reusability in mind: it can be used as is as long
+    as the `dataloader` outputs a batch in dictionary format that can be passed 
+    straight into the model - `model(**batch)`.
+
+  Arguments:
+
+    dataloader (:obj:`torch.utils.data.dataloader.DataLoader`):
+          Parsed data into batches of tensors.
+
+    device_ (:obj:`torch.device`):
+          Device used to load tensors before feeding to model.
+
+  Returns:
+    
+    :obj:`List[List[int], List[int], float]`: List of [True Labels, Predicted
+        Labels, Train Average Loss]
+  """
+
+  # Use global variable for model.
+    global model
+
+  # Tracking variables
+    predictions_labels = []
+    true_labels = []
+  #total loss for this epoch.
+    total_loss = 0
+
+  # Put the model in evaluation mode--the dropout layers behave differently
+  # during evaluation.
+    model.eval()
+
+  # Evaluate data for one epoch
+    for batch in tqdm(dataloader, total=len(dataloader)):
+
+        # add original labels
+        true_labels += batch['labels'].numpy().flatten().tolist()
+
+        # move batch to device
+        batch = {k:v.type(torch.long).to(device_) for k,v in batch.items()}
+
+        # Telling the model not to compute or store gradients, saving memory and
+        # speeding up validation
+        with torch.no_grad():        
+
+        # Forward pass, calculate logit predictions.
+        # This will return the logits rather than the loss because we have
+        # not provided labels.
+        # token_type_ids is the same as the "segment ids", which 
+        # differentiates sentence 1 and 2 in 2-sentence tasks.
+        # The documentation for this `model` function is here: 
+        # https://huggingface.co/transformers/v2.2.0/model_doc/bert.html#transformers.BertForSequenceClassification
+            outputs = model(**batch)
+
+        # The call to `model` always returns a tuple, so we need to pull the 
+        # loss value out of the tuple along with the logits. We will use logits
+        # later to to calculate training accuracy.
+            loss, logits = outputs[:2]
+        
+        # Move logits and labels to CPU
+            logits = logits.detach().cpu().numpy()
+
+        # Accumulate the training loss over all of the batches so that we can
+        # calculate the average loss at the end. `loss` is a Tensor containing a
+        # single value; the `.item()` function just returns the Python value 
+        # from the tensor.
+            total_loss += loss.item()
+        
+        # get predicitons to list
+            predict_content = logits.argmax(axis=-1).flatten().tolist()
+
+        # update list
+            predictions_labels += predict_content
+
+  # Calculate the average loss over the training data.
+    avg_epoch_loss = total_loss / len(dataloader)
+
+  # Return all true labels and prediciton for future evaluations.
+    return true_labels, predictions_labels, avg_epoch_loss
+
 def parse_args():
     '''
     parse args should be run before gen_cfg
@@ -148,12 +234,97 @@ def make_label_int(examples):
     outs['new_label'] = [int(f) for f in examples['label']]
     return outs
 
+
+def validation(dataloader, model, device_):
+    r"""Validation function to evaluate model performance on a 
+  separate set of data.
+
+  This function will return the true and predicted labels so we can use later
+  to evaluate the model's performance.
+
+  This function is built with reusability in mind: it can be used as is as long
+    as the `dataloader` outputs a batch in dictionary format that can be passed 
+    straight into the model - `model(**batch)`.
+
+  Arguments:
+
+    dataloader (:obj:`torch.utils.data.dataloader.DataLoader`):
+          Parsed data into batches of tensors.
+
+    device_ (:obj:`torch.device`):
+          Device used to load tensors before feeding to model.
+
+  Returns:
+    
+    :obj:`List[List[int], List[int], float]`: List of [True Labels, Predicted
+        Labels, Train Average Loss]
+  """
+
+  # Tracking variables
+    predictions_labels = []
+    true_labels = []
+  #total loss for this epoch.
+    total_loss = 0
+
+  # Put the model in evaluation mode--the dropout layers behave differently
+  # during evaluation.
+    model.eval()
+
+  # Evaluate data for one epoch
+    for batch in tqdm(dataloader, total=len(dataloader)):
+
+        # add original labels
+        true_labels += batch['labels'].numpy().flatten().tolist()
+
+        # move batch to device
+        batch = {k:v.type(torch.long).to(device_) for k,v in batch.items()}
+
+        # Telling the model not to compute or store gradients, saving memory and
+        # speeding up validation
+        with torch.no_grad():        
+
+        # Forward pass, calculate logit predictions.
+        # This will return the logits rather than the loss because we have
+        # not provided labels.
+        # token_type_ids is the same as the "segment ids", which 
+        # differentiates sentence 1 and 2 in 2-sentence tasks.
+        # The documentation for this `model` function is here: 
+        # https://huggingface.co/transformers/v2.2.0/model_doc/bert.html#transformers.BertForSequenceClassification
+            outputs = model(**batch)
+
+        # The call to `model` always returns a tuple, so we need to pull the 
+        # loss value out of the tuple along with the logits. We will use logits
+        # later to to calculate training accuracy.
+            loss, logits = outputs[:2]
+        
+        # Move logits and labels to CPU
+            logits = logits.detach().cpu().numpy()
+
+        # Accumulate the training loss over all of the batches so that we can
+        # calculate the average loss at the end. `loss` is a Tensor containing a
+        # single value; the `.item()` function just returns the Python value 
+        # from the tensor.
+            total_loss += loss.item()
+        
+        # get predicitons to list
+            predict_content = logits.argmax(axis=-1).flatten().tolist()
+
+        # update list
+            predictions_labels += predict_content
+
+  # Calculate the average loss over the training data.
+    avg_epoch_loss = total_loss / len(dataloader)
+
+  # Return all true labels and prediciton for future evaluations.
+    return true_labels, predictions_labels, avg_epoch_loss
+
 def main():
     args = parse_args()
     xml_lst, cfg = gen_cfg(**args)
     assert len(xml_lst) > 0, 'Empty xml_lst'
 
     ds = get_dataset(xml_lst, cfg)
+    ds = Dataset.from_dict(ds[:5000])
     ds = ds.train_test_split(test_size=0.1, shuffle=True)
 
     if any(k in cfg['checkpoint'] for k in ("gpt", "opt", "bloom")):
@@ -248,6 +419,20 @@ def main():
     )
 
     trainer.train()
+
+    # Testing and Metric printing
+    test_dataloader = DataLoader(tokenized_datasets['test'],
+                                 batch_size=4,
+                                 shuffle=False,
+                                 collate_fn=data_collator)
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    true_labels, preds, avg_epoch_loss = validation(test_dataloader, model, device)
+
+    metric_str = metrics.classification_report(tlab, plab)
+    print(metric_str)
+
 
 if __name__ == '__main__':
     main()
