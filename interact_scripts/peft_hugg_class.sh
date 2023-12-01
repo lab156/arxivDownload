@@ -8,4 +8,4 @@ singularity run --nv \
     $PROJECT/singul/runnerPytorchTransHFPerf.sif \
     python3 LLMs/peft_tuning_and_lora_seq_cls.py \
     --savedir /opt/data_dir/result/model \
-    --configpath /opt/arxivDownload/config_version_control.toml
+    --configpath /opt/arxivDownload/config.toml
