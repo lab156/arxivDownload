@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+
+python run.py --cs_ip ${CS_IP_ADDR} --mode train "$@"
+ 

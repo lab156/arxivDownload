@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+srun --gres=cs:cerebras:1 --ntasks=7 --cpus-per-task=14 \
+  --kill-on-bad-exit singularity exec \
+  --bind /local1/cerebras/data,/local2/cerebras/data,/local3/cerebras/data,/local4/cerebras/data,$PROJECT \
+  /local1/cerebras/cbcore_latest.sif ./run_train "$@"
+
