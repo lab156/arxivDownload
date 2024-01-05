@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
 MODELZOODIR=$HOME/modelzoo/modelzoo/transformers/tf/gpt2
-python $MODELZOODIR/run.py --cs_ip ${CS_IP_ADDR} --mode train "$@"
+python $MODELZOODIR/run.py --cs_ip ${CS_IP_ADDR} --mode train "$@" \
+     --params $MODELZOODIR/configs/params_gpt2_small.yaml
  
