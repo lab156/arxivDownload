@@ -12,6 +12,9 @@ import databases.create_db_define_models as cre
 
 commentary_filename = 'latexml_commentary.txt'
 
+# TESTING WITH DOCTEST
+# python3 -m doctest -v process.py
+
 def write_dict(dic, filename):
     '''
     pretty print the commentary dictionary
@@ -102,6 +105,39 @@ def tar2api2(id_str, sep='/'):
         return name.group(1) + sep + name.group(2)
     else:
         raise Exception('No results found in string: %s'%id_str)
+
+def strip_search_name(id_str):
+    '''
+    >>> strip_search_name('1905_039/1905.12965/1905.12965.xml') 
+    '1905.12965'
+    >>> strip_search_name('0108_001/math.0108179/math.0108179.xml') 
+    'math/0108179'
+    >>> strip_search_name('9911_001/math.9911117/sdew.xml')
+    'math/9911117'
+    >>> strip_search_name('9902_001/math-ph.9902024/math-ph.9902024.xml') 
+    'math-ph/9902024'
+    '''
+    #Trying to match either 
+    regex1 = r'.+/([0-9]{4})\.([0-9]{4,5})'
+    # want to catch http://arxiv.org/abs/math/9212204v1
+    regex2 = r'.+/([a-z\-]+)\.([0-9]{7}).+'
+    if re.match(regex1, id_str):
+        #format_detected  '1804/1804.00239.gz'
+        name = re.match(r'.*([0-9]{4})\.([0-9]{4,5})',id_str)
+        try:
+            return_str = name.group(1) + '.' + name.group(2)
+        except AttributeError:
+            raise ValueError('Error: tar2api cannot find results in string: %s'%id_str)
+        return return_str
+    elif re.match(regex2, id_str):
+        # format detected http://arxiv.org/abs/math/9212204v1
+        name = re.match(r'.+/([a-z\-]+).([0-9]{7})', id_str)
+        if name:
+            return name.group(1) + '/' + name.group(2)
+        else:
+            raise ValueError('No results found in string: %s'%id_str)
+    else:
+        raise ValueError('The format of the id_str: %s was not matched by any known format'%id_str)
 
 def Tar2api(id_str, sep='/'):
     '''
@@ -212,7 +248,8 @@ class Xtraction(object):
             resu = q.filter_by(filename = right_name)
             foreign_key_id = resu.first().id
 
-            Q_lst = session.query(cre.Article).filter(cre.Article.tarfile_id == foreign_key_id).all()
+            Q_lst = session.query(cre.Article)\
+                    .filter(cre.Article.tarfile_id == foreign_key_id).all()
             self.query_results = []
             for q in Q_lst:
                 q_dict = {}

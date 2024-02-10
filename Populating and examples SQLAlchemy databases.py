@@ -6,12 +6,14 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.0
+#       jupytext_version: 1.16.1
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
+
+# # 
 
 # +
 from lxml import etree
@@ -23,8 +25,9 @@ import os
 sys.path.insert(0,'arxiv.py/')
 import arxiv
 import databases.create_db_define_models as cre
+import json
 
-with open('/mnt/arXiv_src/src/arXiv_src_manifest.xml', 'r') as f:
+with open('/home/luis/arXiv_src_manifest.xml', 'r') as f:
     mani = etree.parse(f)
     
 # Get list of filenames with xpath
@@ -37,9 +40,76 @@ fname_set = set([f.text for f in fname])
 # %autoreload 2
 import process as pro
 
-# + jupyter={"outputs_hidden": true}
+# +
 fname_lst = set([f.text for f in fname])
-sorted(fname_lst)[1400:]
+
+def find_tarfile_by_article_name(art_name, mani):
+    '''
+    art_name has format 1808.02977
+    mani is the XML etree format of the arXiv Manifest file
+    Returns the name of the tarfile e.j. src/arXiv_src_1703_010.tar that contains art_name
+
+
+    A file element has format:
+  <file>
+    <content_md5sum>c8ebda58033d726b5143cb8e984191a6</content_md5sum>
+    <filename>src/arXiv_src_2109_073.tar</filename>
+    <first_item>2109.12333</first_item>
+    <last_item>2109.12505</last_item>
+    <md5sum>d3f498182f99d4b171838206569f86bf</md5sum>
+    <num_items>173</num_items>
+    <seq_num>73</seq_num>
+    <size>524304144</size>
+    <timestamp>2021-10-05 05:32:00</timestamp>
+    <yymm>2109</yymm>
+  </file>
+
+    '''
+    yearmonth, tarnum = art_name.split('.')
+    filename_elems = mani.xpath(f'//file/filename[starts-with(text(), "src/arXiv_src_{yearmonth}")]')
+    file_elems = [f.getparent() for f in filename_elems]
+    first_last_pairs = [(f.find('first_item').text, 
+                         f.find('last_item').text,
+                         f.find('filename').text)
+                       for f in file_elems]
+    # first_last_pairs has format:
+    #[('1808.00001', '1808.00314'),
+    #('1808.00315', '1808.00638'),
+    for pair in first_last_pairs:
+        first = int(pair[0].split('.')[1])
+        secnd = int(pair[1].split('.')[1])
+        if first <= int(tarnum) and int(tarnum) <= secnd:
+            return pair[2]
+find_tarfile_by_article_name('1812.1100827', mani) 
+# -
+
+# Open the query errors file, search the arxiv api and get tarfile names
+with open('data/query_errors_ricci.json', 'r') as fobj:
+    err_lst = json.loads(fobj.read())
+qres_lst = pro.sliced_article_query(err_lst)
+tarfile_lst = [find_tarfile_by_article_name(t, mani) for t in err_lst]
+
+# + magic_args="echo This writes to the database" language="script"
+# # Write the new registers in the database
+# database = 'sqlite:////media/hd1/databases/arxiv5.db'
+# tarname = tarfile_lst[18]
+# engine = sa.create_engine(database, echo=False)                                
+# engine.connect()                                                               
+# SMaker = sa.orm.sessionmaker(bind=engine)                                      
+# session = SMaker()                                                             
+# q = session.query(cre.ManifestTarFile)                                         
+#
+# foreign_key_lst = []
+# # fill this list in the same order as tarfile_lst
+# for tarname in tarfile_lst:
+#     resu = q.filter_by(filename = tarname)
+#     foreign_key_id = resu.first().id                                               
+#     foreign_key_lst.append(foreign_key_id)
+#
+# session.add_all([cre.new_article_register(qres_lst[i], foreign_key_lst[i])\
+#                  for i in range(len(qres_lst))])                                          
+# session.commit()
+#
 
 # +
 # Connect to the database

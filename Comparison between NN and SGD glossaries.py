@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.5.2
+#       jupytext_version: 1.16.1
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -31,11 +31,23 @@ from sklearn import linear_model
 from sklearn.metrics import mean_squared_error, r2_score
 
 from embed.clean_and_token_text import normalize_text
+import pandas as pd
+
+#import sqlalchemy as sa
+#from sqlalchemy.orm import sessionmaker
+import sqlite3 as sql
+import process as pro
+
+from datetime import datetime as dt
 
 pars = etree.XMLParser(recover=True)
 # -
 
-NN_path = '/home/luis/NNglossary/'
+# ## Reading the Glossaries
+# * Comparing sized of different glossaries
+# * and finding intersections of the sets of terms
+
+NN_path = '/media/hd1/glossary/HFT.v1/'
 SGD_path = '/media/hd1/glossary/v3/'
 File_lst_NN = glob.glob(NN_path + 'math*/*')
 File_lst_SGD = glob.glob(SGD_path + 'math*/*')
@@ -43,7 +55,8 @@ File_lst_SGD = glob.glob(SGD_path + 'math*/*')
 # Simple example to parse files 
 xml_root = etree.parse(File_lst_NN[0]).getroot()
 print(etree.tostring(xml_root[0], pretty_print=True).decode('utf-8'))
-
+#ll = xml_root.findall('.//dfndum')
+#normalize_text(ll[0].text)
 
 # +
 def read_all_files(Path):
@@ -75,6 +88,9 @@ def read_all_files(Path):
     return norm_term_cnt, term_cnt, tot_dfndum_lst_cumcnt,\
            definition_cnt, article_cnt, new_dfndum_lst, term_cnt, rep_ratio
 
+# ntc: New Term Counter
+# tc:  Term Count
+# 
     
 sgd_ntc, sgd_tc, sgd_all, sgd_deftion_cnt,\
 sdg_art_cnt, new_dfndum_lst, term_cnt, rep_ratio = read_all_files(SGD_path)
@@ -115,8 +131,96 @@ print(f"AVG term per definition SGD: {sgd_all[-1]/sgd_deftion_cnt}")
 print(f"AVG term per definition NN: {nn_all[-1]/nn_deftion_cnt}")
 print("The most common terms in the intersection are:")
 for p in In_cnt.most_common()[:25]:
-    print(f"{p[0]} & {p[1]} \\\\")
+    print(f"{p[0]:<20}  {p[1]:<20} ")
+
+
 # -
+
+# # Working Searches
+# * 1905_039/1905.12965/1905.12965.xml -> 1905.12965
+# * 0108_001/math.0108179/math.0108179.xml -> math/0108179
+# * 9911_001/math.9911117/sdew.xml -> 
+# * 9902_001/math-ph.9902024/math-ph.9902024.xml ->
+#
+# These searches resulted in a successful unique result with the following SQL:
+#
+# ```select pk, arxiv_url, published_parsed from articles WHERE arxiv_url LIKE '%math/0108179%';```
+
+def search_term_attach(Path, search_term):
+    # Search for `term` optionally append surrounding info
+    search_lst = []
+    for xml_path in glob.glob(Path + 'math*/*.xml.gz'):
+        gtree = etree.parse(xml_path).getroot()
+        ##dfndum_lst = xml_root.findall('.//dfndum')
+        for ddum in gtree.iter(tag='dfndum'):
+            term = normalize_text(ddum.text).replace(' ', '_')
+            if search_term in term:
+                art_elem = ddum.getparent().getparent()
+                search_lst.append((term, art_elem.attrib['name']))
+                #print(art_elem.attrib['name'])
+                #print(etree.tostring(ddum.getparent(), pretty_print=True).decode('utf-8'))
+    return list(set(search_lst))
+query_lst = search_term_attach(NN_path, 'ricci')
+print(f'The query returned {len(query_lst)} results.')
+#def query_db(article_lst):
+#    # Connect to the database
+#    database = 'sqlite:////media/hd1/databases/arxiv2.db'
+#    eng = sa.create_engine(database, echo=False)
+#    eng.connect()
+#    SMaker = sessionmaker(bind=eng)
+#    sess = SMaker()
+#    return 0
+#
+#query_db(100)
+
+conn = sql.connect('/media/hd1/databases/arxiv5.db')
+cur = conn.cursor()
+res_lst = []
+err_lst = []
+for q_str_it in tqdm(query_lst):
+    q_str = pro.strip_search_name(q_str_it[1])
+    conn = cur.execute(
+        f"""select pk, arxiv_url, published_parsed from articles 
+        WHERE arxiv_url LIKE '%{q_str}%';""")
+    try:
+        res = conn.fetchall()[0]
+        res_lst.append(res)
+    except IndexError:
+        err_lst.append(q_str)
+        
+    # optionally merge duplicates
+#res_lst = list(set(res_lst))
+#Q_str_lst = [{'art': strip_search_name(s[1])} for s in query_lst]
+#Q_str_lst = [strip_search_name(s[1]) for s in query_lst]
+
+
+# +
+# GET DATE OBJECT FROM QUERY RESULTS
+date_lst = [dt.fromisoformat(r[2]) for r in res_lst]
+min_date = min(date_lst)
+timedelta_lst = [(d - min_date).seconds for d in date_lst]
+yymm_cnt = Counter([(d.year, d.month) for d in date_lst])
+
+
+#fig=plt.figure(figsize=(8, 5))
+#plt.style.use('ggplot')
+#reversed_range.reverse()
+#ax = plt.subplot(111)
+#plt.hist(timedelta_lst,bins=25)
+# -
+
+query_df = pd.DataFrame({'date': date_lst, 'count':[1 for _ in range(len(date_lst))]})
+query_df = query_df.groupby(query_df['date']).sum()
+#query_df.set_index('date',verify_integrity=True).sort_index()
+resample_df = query_df.resample('6M').sum()
+resample_df.plot()
+
+# write query and error lists to disk
+import json
+with open('data/query_date_ricci.json', 'w') as fobj:
+    fobj.write(json.dumps(res_lst))
+with open('data/query_errors_ricci.json', 'w') as fobj:
+    fobj.write(json.dumps(err_lst))
 
 # print the most common 25 multiword
 stop_cnt = 0
@@ -130,7 +234,7 @@ for p in In_cnt.most_common():
 # +
 # number of terms in a Defdum
 fig=plt.figure(figsize=(4, 8))
-n_words = [len(w.split()) for w in In_cnt.keys()]
+n_words = [len(w.split()) for w in nn_tc.keys()]
 len_cnt = Counter(n_words)
 plt.style.use('ggplot')
 
@@ -166,6 +270,8 @@ phrases_cnt = [ph for ph in nn_ntc.most_common() if len(ph[0].split()) > 1]
 phrases_cnt[s:s+15]
 #term_cnt['local stability properties']
 
+
+nn_ntc['ricci flow']
 
 tot_dfndum_lst = nn_all
 print(f"Total # of term: {tot_dfndum_lst[-1]:,d}")
@@ -270,3 +376,5 @@ for xml_path in tqdm(glob.glob(NN_path + 'math*/*.xml.gz')):
         for d in art.findall('.//definition'):
             if int(d.attrib['index']) > N:
                 print("Name: {} -- index: {} -- num: {}".format(art.attrib['name'], d.attrib['index'], N))
+
+
