@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+nt}{\PYGZlt{}definition} \PYG{n+na}{index=}\PYG{l+s}{\PYGZdq{}8\PYGZdq{}}\PYG{n+nt}{\PYGZgt{}}
+\PYG{n+nt}{\PYGZlt{}stmnt\PYGZgt{}} A sequence \PYGZus{}inline\PYGZus{}math\PYGZus{} of non\PYGZhy{}zero vectors in a Banach space \PYGZus{}inline\PYGZus{}math\PYGZus{} is said to be
+a Schauder basic sequence if it is a Schauder basis of its closed linear span (see \PYGZus{}citation\PYGZus{}).
+This is equivalent to say that there exists a constant \PYGZus{}inline\PYGZus{}math\PYGZus{} such that for every \PYGZus{}inline\PYGZus{}math\PYGZus{}
+with \PYGZus{}inline\PYGZus{}math\PYGZus{} and every \PYGZus{}inline\PYGZus{}math\PYGZus{} we have (1) \PYGZus{}display\PYGZus{}math\PYGZus{} The least constant \PYGZus{}inline\PYGZus{}math\PYGZus{}
+for which inequality () holds is called the basis constant of \PYGZus{}inline\PYGZus{}math\PYGZus{}. A Schauder basic sequence
+\PYGZus{}inline\PYGZus{}math\PYGZus{} is said to be monotone if \PYGZus{}inline\PYGZus{}math\PYGZus{}. It is said to be seminormalized
+(respectively normalized) if there exists \PYGZus{}inline\PYGZus{}math\PYGZus{} such that \PYGZus{}inline\PYGZus{}math\PYGZus{}
+(respectively \PYGZus{}inline\PYGZus{}math\PYGZus{}) for every \PYGZus{}inline\PYGZus{}math\PYGZus{}. \PYG{n+nt}{\PYGZlt{}/stmnt\PYGZgt{}}
+\PYG{n+nt}{\PYGZlt{}dfndum\PYGZgt{}}Schauder basic sequence\PYG{n+nt}{\PYGZlt{}/dfndum\PYGZgt{}}
+\PYG{n+nt}{\PYGZlt{}dfndum\PYGZgt{}}basis constant\PYG{n+nt}{\PYGZlt{}/dfndum\PYGZgt{}}
+\PYG{n+nt}{\PYGZlt{}dfndum\PYGZgt{}}Schauder basic sequence\PYG{n+nt}{\PYGZlt{}/dfndum\PYGZgt{}}
+\PYG{n+nt}{\PYGZlt{}dfndum\PYGZgt{}}seminormalized\PYG{n+nt}{\PYGZlt{}/dfndum\PYGZgt{}\PYGZlt{}/definition\PYGZgt{}}
+\end{Verbatim}

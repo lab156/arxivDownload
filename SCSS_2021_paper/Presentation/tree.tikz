@@ -1,0 +1,15 @@
+﻿\begin{tikzpicture}
+
+\node {Integral Domain} [sibling distance = 2.3cm, level distance = 1.5cm]
+    child {[red] node (P) [fill=white] {PID} 
+       child {node [text width=1.5cm]{Bezout Identity}}
+       child {node [text width=1.5cm]{Valuation domain}}
+    edge from parent [blue] }
+    child {node (G) {gcd}}
+    child {node {HFD}}
+    child {node [text width=1.7cm] {Euclidean Domain}
+    child {node {integer}}
+    edge from parent };
+\draw [blue] (P) .. controls ++(315:1) and ++(225:1) .. (G);
+ 
+\end{tikzpicture}
