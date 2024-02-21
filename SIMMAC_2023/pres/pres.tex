@@ -83,7 +83,7 @@
 \begin{frame}[fragile]
     \frametitle{Origen de los Datos}
     \begin{itemize}
-        \item arXiv permite descargar el codigo fuente de muchísimos artículos.
+        \item arXiv permite descargar el codigo fuente en \LaTeX{} de muchísimos artículos.
             \pause
         \item Algunos autores marcan sus definiciones con un ambiente de \emph{definition}
             \begin{minted}[linenos=true]{latex}
@@ -110,7 +110,7 @@
 %%%%  FRAME  %%%%
 \begin{frame}
     \frametitle{Entrenando al Clasificador}
-    Usando estos datos podemos entrenar \textbf{clasificador de secuencias} (Sequence Classifier). \pause Ejemplo tomado de \textcolor{blue}{arxiv.org/abs/0805.2034}
+    Usando estos datos podemos entrenar un \textbf{clasificador de secuencias} (Sequence Classifier). \pause Ejemplo tomado de \textcolor{blue}{arxiv.org/abs/0805.2034}
     \begin{center}
         \includegraphics[width=0.7\textwidth]{../Images/def2.png}
     \end{center}
@@ -155,18 +155,17 @@ for epoch in tqdm(range(epochs)):
 \begin{frame}
     \frametitle{Métricas y Resultados}
     \begin{columns}
+        \begin{column}{0.7\textwidth}
+            \begin{center}
+                \includegraphics[width=0.9\textwidth]{../Images/taskbars.png}
+            \end{center}
+        \end{column}
         \begin{column}{0.3\textwidth}
             \begin{itemize}
                 \item El desempeño de los LLMs es mejor.
                     \pause
                 \item BERT es el mejor.
-                    \pause
             \end{itemize}
-        \end{column}
-        \begin{column}{0.7\textwidth}
-            \begin{center}
-                \includegraphics[width=0.9\textwidth]{../Images/taskbars.png}
-            \end{center}
         \end{column}
     \end{columns}
 \end{frame}
@@ -215,7 +214,7 @@ hilbert space &  1,795 \\
     \frametitle{Información y Agradecimientos}
     \begin{columns}
         \begin{column}{0.6\textwidth}
-            Esta trabajo comenzo como parte del \textbf{Formal Abstracts Project}.
+            Esta trabajo es parte del \textbf{Formal Abstracts Project}.
         \end{column}
         \begin{column}{0.4\textwidth}
             \begin{center}
