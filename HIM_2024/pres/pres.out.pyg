@@ -1,0 +1,18 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} IMPORT HUGGINGFACE LIBRARIES}
+\PYG{k+kn}{from} \PYG{n+nn}{transformers} \PYG{k+kn}{import} \PYG{p}{(}\PYG{n}{AutoTokenizer}\PYG{p}{,}
+                  \PYG{n}{AutoModelForSequenceClassification}\PYG{p}{,}
+                  \PYG{n}{TFAutoModelForTokenClassification}\PYG{p}{,}
+                  \PYG{n}{DataCollatorWithPadding}\PYG{p}{,)}
+
+\PYG{c+c1}{\PYGZsh{}checkpoint = \PYGZdq{}roberta\PYGZhy{}large\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}checkpoint = \PYGZdq{}bigscience/bloom\PYGZhy{}1b1\PYGZdq{}}
+\PYG{n}{checkpoint} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}gpt2\PYGZdq{}}
+
+\PYG{c+c1}{\PYGZsh{} NUMBER OF ITERATIONS (3 \PYGZhy{} 5)}
+\PYG{k}{for} \PYG{n}{epoch} \PYG{o+ow}{in} \PYG{n}{tqdm}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{epochs}\PYG{p}{)):}
+    \PYG{n}{train\PYGZus{}labels}\PYG{p}{,} \PYG{n}{train\PYGZus{}predict}\PYG{p}{,} \PYG{n}{train\PYGZus{}loss} \PYG{o}{=} \PYGZbs{}
+    \PYG{n}{train}\PYG{p}{(}\PYG{n}{train\PYGZus{}dataloader}\PYG{p}{,}
+        \PYG{n}{optimizer}\PYG{p}{,} \PYG{n}{scheduler}\PYG{p}{,} \PYG{n}{device}\PYG{p}{)}
+    \PYG{o}{...} \PYG{o}{...} \PYG{o}{...}
+\end{Verbatim}

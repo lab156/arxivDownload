@@ -1,0 +1,23 @@
+\frametitle{Source of the Data}
+    \begin{itemize}
+        \item arXiv keeps the \LaTeX{} source code of many articles and makes them easily downloadable.
+            \pause
+        \item Some authors mark definitions with a \texttt{definition} environment.
+            \begin{minted}[linenos=true]{latex}
+\begin{definition}
+    A Banach space is a vector space X ...
+\end{definition}
+    \end{minted}
+    \pause
+\item To identify the term being defined, we use Wikipedia, Stacks Project, etc.
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \includegraphics[width=0.9\textwidth]{../Images/wiki_thin_banach.png}
+        \end{column}
+        \pause
+        \begin{column}{0.6\textwidth}
+            \includegraphics[width=0.8\textwidth]{../Images/stacks_defs.png}
+        \end{column}
+    \end{columns}
+
+\end{itemize}
