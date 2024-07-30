@@ -1,5 +1,5 @@
-%\documentclass[10pt]{beamer}
-\documentclass[10pt, handout]{beamer}
+\documentclass[10pt]{beamer}
+%\documentclass[10pt, handout]{beamer}
 %\usetheme{Madrid}
 %\newlength{\pageheight}
 %\setlength{\pageheight}{10cm}
@@ -54,27 +54,26 @@
 
 %%%%  FRAME  %%%%
 \begin{frame}
-    \frametitle{Objetives}
+    \frametitle{Objectives}
     \begin{itemize}
         \item Extract \emph{all} the \textcolor<2>{red}{math terms}  used in the \arxiv{} using \textcolor<3>{red}{LLMs}.
-            \note{Un termino matematico.\\
-                No solo de arxiv, sino de cualquier literatura matematica}
             \begin{columns}
                 \begin{column}{0.5\textwidth}
             \begin{center}
                 \includegraphics[width=0.6\textwidth]{../Images/ArXiv_logo_2022.svg.png}
             \end{center}
         \end{column}
+
         \begin{column}{0.5\textwidth}
-            \begin{center}
-                \includegraphics[width=0.6\textwidth]{../Images/all_llm_logos.jpeg}
-            \end{center}
+        \includegraphics[width=0.3\textwidth]{../Images/Google_BERT_v1.jpg}
+
+        \includegraphics[width=0.3\textwidth]{../Images/llama.png}
+        \includegraphics[width=0.4\textwidth]{../Images/download.jpeg}
 
         \end{column}
     \end{columns}
     \onslide<4>
         \item Organize the terms   according to their importance and their meaning.   
-            \note{importancia y significado no son muy especificos y esto es a proposito.}
     \end{itemize}
 \end{frame}
 
@@ -92,7 +91,7 @@
 \end{definition}
     \end{minted}
     \pause
-\item To identify the term being defined, we use Wikipedia, Stacks Project, etc.
+\item To identify the term being defined, we use Wikipedia, Stacks Project, PlanetMath, etc.
     \begin{columns}
         \begin{column}{0.4\textwidth}
             \includegraphics[width=0.9\textwidth]{../Images/wiki_thin_banach.png}
@@ -109,18 +108,18 @@
 
 %%%%  FRAME  %%%%
 \begin{frame}
-    \frametitle{Finetuning a Model}
-    Using this data we can train a \textbf{text classifier} (Sequence Classifier). To find all paragraphs that ``\textit{look}'' like a definition. \pause From \textcolor{blue}{arxiv.org/abs/0805.2034}
+    \frametitle{Finetuning a Pretrained Model}
+    Using this data we can train a \textbf{text classifier} (Sequence Classifier). To find all paragraphs that ``\textit{look}'' like a definition (Ginev 19). \pause From \textcolor{blue}{arxiv.org/abs/0805.2034}
     \begin{center}
         \includegraphics[width=0.7\textwidth]{../Images/def2.png}
     \end{center}
-    \phantom{ After this, we train a \textbf{token classifier}, to find the term that is being defined.}
+    \phantom{After this, we train a \textbf{token classifier}, to find the term that is being defined.}
 \end{frame}
 
 %%%%  FRAME  %%%%
 \begin{frame}
-    \frametitle{Training  the Classifier}
-    Using this data we can train a \textbf{text classifier} (Sequence Classifier). To find all paragraphs that ``\textit{look}'' like a definition (Ginev 19). \pause From \textcolor{blue}{arxiv.org/abs/0805.2034}
+    \frametitle{Finetuning a Pretrained Model}
+    Using this data we can train a \textbf{text classifier} (Sequence Classifier). To find all paragraphs that ``\textit{look}'' like a definition (Ginev 19). From \textcolor{blue}{arxiv.org/abs/0805.2034}
     \begin{center}
         \includegraphics[width=0.7\textwidth]{../Images/def_highlighted.png}
     \end{center}
@@ -162,14 +161,13 @@ for epoch in tqdm(range(epochs)):
         \end{column}
         \begin{column}{0.3\textwidth}
             \begin{itemize}
-                \item LLM's performance is the best
+                \item LLM's performance is better than neural and BOW-methods
                     \pause
                 \item BERT had the best performance.
             \end{itemize}
         \end{column}
     \end{columns}
 \end{frame}
-
 
 %%%%  FRAME  %%%%
 \begin{frame}
@@ -209,25 +207,6 @@ hilbert space &  1,795 \\
     \end{columns}
 \end{frame}
 
-%%%%  FRAME  %%%%
-%\begin{frame}
-%    \frametitle{Información y Agradecimientos}
-%    \begin{columns}
-%        \begin{column}{0.6\textwidth}
-%            Esta trabajo es parte del \textbf{Formal Abstracts Project}.
-%        \end{column}
-%        \begin{column}{0.4\textwidth}
-%            \begin{center}
-%                \includegraphics[width=0.9\textwidth]{../Images/fabstracts2.png}
-%            \end{center}
-%        \end{column}
-%    \end{columns}
-%        \pause
-%        Todo el súpercomputo se realizó gracias al apoyo de \textbf{Neocortex} en el PSC 
-%            \begin{center}
-%                \includegraphics[width=0.8\textwidth]{../Images/neocortex_pic.png}
-%            \end{center}
-%\end{frame}
 
 
 %%%%  FRAME  %%%%
@@ -236,8 +215,43 @@ hilbert space &  1,795 \\
     \framesubtitle{With word embeddings and cosine similarity}
             \begin{figure}
                 \centering
-                \includegraphics[width=0.5\textwidth]{../Images/scatter_option5.png}
+                \includegraphics[width=0.9\textwidth]{../Images/scatter_option5.png}
             \end{figure}
+\end{frame}
+
+%%%%  FRAME  %%%%
+\begin{frame}
+    \frametitle{Organizing the Terms by Similarity}
+    Nearest Neighbors gives 
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.75\textwidth]{../Images/showcenters.png}
+            \end{figure}
+\end{frame}
+
+%%%%  FRAME  %%%%
+\begin{frame}
+    \frametitle{Organizing the Terms by Dependency}
+    \begin{itemize}
+        \item We can estimate the variance of a term, how diverse its usage is. \pause
+        \item Together with the mean gives a point in the upper half-plane model of hyperbolic geometry (Costa 2015).
+            \pause
+        \item It can be said for terms that are nearby, that higher terms depend on lower ones: The \textbf{is-a} score (Tifrea 2018)
+            \pause
+            \begin{tabular}{rclr}
+                \centering
+hausdorff\_space & \textbf{is-a}  &   topology  &  0.4556 \\
+minimal\_polynomial & \textbf{is-a} & characteristic\_polynomial  &  0.2699 \\
+ufd   & \textbf{is-a}   &      pid &  -0.3642 \\
+commutative\_ring & \textbf{is-a} & integral\_domain  & -0.5173 \\
+\end{tabular}
+\pause
+\item It does not work when the terms have more than one meaning.
+            \begin{tabular}{rclr}
+                \centering
+ufd  & \textbf{is-a}  & field  & 2.2690 \\
+\end{tabular}
+    \end{itemize}
 \end{frame}
 
 %%%%  FRAME  %%%%
@@ -252,44 +266,24 @@ hilbert space &  1,795 \\
 
 %%%%  FRAME  %%%%
 \begin{frame}
-    \frametitle{Organizing the Terms by Dependency}
-    \begin{itemize}
-        \item We can estimate the variance of a term, how diverse its usage is. \pause
-        \item Using this KL divergence trick we can interpret them as points in an upper-half model of hyperbolic geometry.
-            \pause
-        \item It can be said for terms that are nearby, that higher terms depend on lower ones: The \textbf{is-a} score (Tifrea 18)
-            \pause
-            \begin{tabular}{rclr}
-                \centering
-hausdorff\_space & \textbf{is-a}  &   topology  &  0.4556 \\
-minimal\_polynomial & \textbf{is-a} & characteristic\_polynomial  &  0.2699 \\
-ufd   & \textbf{is-a}   &      pid &  -0.3642 \\
-commutative\_ring & \textbf{is-a} & integral\_domain  & -0.5173 \\
-\end{tabular}
-\pause
-            \begin{tabular}{rclr}
-                \centering
-ufd  & \textbf{is-a}  & field  & 2.2690 \\
-\end{tabular}
-    \end{itemize}
-\end{frame}
-
-
-%%%%  FRAME  %%%%
-\begin{frame}
     \frametitle{Generating a Knowledge Graph}
-    Picture of knowledge graph
+    Searching for Nearest Neighbors and sorting by \textbf{is-a} score. Gives a dependency graph.
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.99\textwidth]{../Images/number_theory_dgraph.png}
+            \end{figure}
 \end{frame}
 
 
 %%%%  FRAME  %%%%
 \begin{frame}
+    \frametitle{WIP: Alignment with Formal Libraries}
     \begin{itemize}
-        \item This can be used to associate entities in different knowledge graphs.
+        \item This can be used to associate entities in different knowledge graphs in the following way:
             \pause
-        \item Hyperbolic embeddings methods work well on hierarchical structures.
+        \item Given a few number of identified nodes in each graph. We can find the best transformation from KG$_1$ to KG$_2$. For example, 
+            the \texttt{HyperKA} (Sun 2020)
     \end{itemize}
-    \frametitle{Alignment with Libraries}
             \begin{figure}
                 \centering
                 \includegraphics[width=0.5\textwidth]{../Images/example.png}
@@ -309,6 +303,17 @@ ufd  & \textbf{is-a}  & field  & 2.2690 \\
 %        \item Dejar de usar preprocesadores del código fuente de \LaTeX{}.
 %    \end{itemize}
 %\end{frame}
+
+
+%%%%  FRAME  %%%%
+\begin{frame}
+    \frametitle{Conclusions}
+    \begin{itemize}
+        \item This approach  generates a comprehensive list of terms and definitions.
+        \item Provides fast search results for internal and possibly external relationship of similarity and dependency.
+        \item Really interested about possible applications to flexiformal documents or the tetrapod model.
+    \end{itemize}
+\end{frame}
 
 \begin{frame}
 \titlepage

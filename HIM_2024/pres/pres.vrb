@@ -9,7 +9,7 @@
 \end{definition}
     \end{minted}
     \pause
-\item To identify the term being defined, we use Wikipedia, Stacks Project, etc.
+\item To identify the term being defined, we use Wikipedia, Stacks Project, PlanetMath, etc.
     \begin{columns}
         \begin{column}{0.4\textwidth}
             \includegraphics[width=0.9\textwidth]{../Images/wiki_thin_banach.png}
