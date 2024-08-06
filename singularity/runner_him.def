@@ -4,7 +4,7 @@ From: /ocean/containers/ngc/tensorflow_23.06-tf2-py3.sif
 # Build with: sudo singularity build lstm_train.sif lstm_train.def
 
 %files
-    /ocean/projects/mth220001p/lab232/extract-defs /opt/extract-defs
+    #/ocean/projects/mth220001p/lab232/extract-defs /opt/extract-defs
     #/media/hd1/training_defs /opt/training_defs
     #/media/hd1/embeddings/model4ner_19-33_02-01/vectors.bin /opt/embeddings/model4ner_19-33_02-01/vectors.bin 
 
@@ -28,13 +28,13 @@ From: /ocean/containers/ngc/tensorflow_23.06-tf2-py3.sif
     pip3 install nltk
     python3 -m nltk.downloader -d /usr/nltk_data punkt
     python3 -m nltk.downloader -d /usr/nltk_data averaged_perceptron_tagger
-    cd /opt
-    git clone https://github.com/lab156/arxivDownload.git
-    cd arxivDownload
-    git submodule init
-    git submodule update
+    #cd /opt
+    #git clone https://github.com/lab156/arxivDownload.git
+    #cd arxivDownload
+    #git submodule init
+    #git submodule update
 
-    echo "export DATA_DIR=$LOCAL" >> $SINGULARITY_ENVIRONMENT
+    #echo "export DATA_DIR=$LOCAL" >> $SINGULARITY_ENVIRONMENT
 
 %runscript
     #python3 /opt/arxivDownload/embed/train_ner_cells_exp.py $*
