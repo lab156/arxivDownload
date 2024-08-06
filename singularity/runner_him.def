@@ -19,6 +19,7 @@ From: /ocean/containers/ngc/tensorflow_23.06-tf2-py3.sif
     pip3 install lxml
     pip3 install chardet
     pip3 install transformers
+    pip3 install datasets
     pip3 install sklearn
     pip3 install langdetect
     pip3 install Unidecode
