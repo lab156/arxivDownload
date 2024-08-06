@@ -39,7 +39,7 @@ def main():
       'max_length': 150, # check mp_infer_HFTrans_ner.py
       }
 
-    xdefs_root = args.xdefs
+    xdefs_root = args['xdefs']
     xdefs_inputs = join(xdefs_root, 'lm-inputs/defsCT')
     xdefs_outputs = join(xdefs_root, 'lm-outputs/defsCT')
     xdefs_inputs_filelst = sorted(os.listdir(xdefs_inputs))
