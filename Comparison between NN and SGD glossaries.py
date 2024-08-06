@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.4
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -47,13 +47,13 @@ pars = etree.XMLParser(recover=True)
 # * Comparing sized of different glossaries
 # * and finding intersections of the sets of terms
 
-NN_path = '/media/hd1/glossary/HFT.v1/'
-SGD_path = '/media/hd1/glossary/v3/'
+NN_path = '/home/luis/zornMedia/glossary/HFT.v1/'
+SGD_path = '/home/luis/zornMedia/glossary/NN.v3/'
 File_lst_NN = glob.glob(NN_path + 'math*/*')
 File_lst_SGD = glob.glob(SGD_path + 'math*/*')
 
 # Simple example to parse files 
-xml_root = etree.parse(File_lst_NN[0]).getroot()
+xml_root = etree.parse(File_lst_NN[100]).getroot()
 print(etree.tostring(xml_root[0], pretty_print=True).decode('utf-8'))
 #ll = xml_root.findall('.//dfndum')
 #normalize_text(ll[0].text)
@@ -108,8 +108,8 @@ sgd_nn_diff = sgd_set.difference(nn_set)
 In_tot_cnt = sum([sgd_ntc[t] + nn_ntc[t] for t in In])
 nn_sgd_tot_cnt = sum([sgd_ntc[t] + nn_ntc[t] for t in nn_sgd_diff])
 sgd_nn_tot_cnt = sum([sgd_ntc[t] + nn_ntc[t] for t in sgd_nn_diff])
-print(f"Length of {len(sgd_set) = }")
-print(f"Length of {len(nn_set) = }")
+print(f"Length of {len(sgd_set) = :,}")
+print(f"Length of {len(nn_set) = :,}")
 print('The Intersection has {:,} -- {:1.2f}% has total cnt: {:,}'.format(len(In),
                                                                        len(In)/len(Un),
                                                                       In_tot_cnt))
@@ -121,19 +121,17 @@ print('SGD - NN has         {:,} -- {:1.2f}% has total cnt: {:,}'.format(len(sgd
                                                      len(sgd_nn_diff)/len(Un),
                                                                         sgd_nn_tot_cnt))
 In_cnt = Counter({t:sgd_ntc[t] + nn_ntc[t] for t in In })
-print(f"{sgd_deftion_cnt = }")
-print(f"{nn_deftion_cnt = }")
+print(f"{sgd_deftion_cnt = :,}")
+print(f"{nn_deftion_cnt = :,}")
 print(f"{sgd_deftion_cnt/sdg_art_cnt = }")
 print(f"{nn_deftion_cnt/nn_art_cnt = }")
-print(f"Total count for SGD: {sgd_all[-1]}")
-print(f"Total count for NN: {nn_all[-1]}")
+print(f"Total count for SGD: {sgd_all[-1]:,}")
+print(f"Total count for NN: {nn_all[-1]:,}")
 print(f"AVG term per definition SGD: {sgd_all[-1]/sgd_deftion_cnt}")
 print(f"AVG term per definition NN: {nn_all[-1]/nn_deftion_cnt}")
 print("The most common terms in the intersection are:")
-for p in In_cnt.most_common()[:25]:
-    print(f"{p[0]:<20}  {p[1]:<20} ")
-
-
+#for p in In_cnt.most_common()[:25]:
+#    print(f"{p[0]:<20}  {p[1]:<20} ")
 # -
 
 # # Working Searches

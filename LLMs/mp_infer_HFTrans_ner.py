@@ -32,7 +32,7 @@ def add_dfndum(D, term):
     dfndum.text = term
     return D
 
-#def tokenizer_mapper(x):
+# def tokenizer_mapper(x):
 #    tt = tokenizer(x['sentences'], 
 #            return_tensors='tf', 
 #            is_split_into_words=False, 

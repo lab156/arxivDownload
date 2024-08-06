@@ -277,8 +277,9 @@ def compute_chunkscore(ds_test, model, tokenizer, cfg):
             dif_len_lst.append(j)
     return chunkscore
 
-def sanity_check(model, tokenizer):
-	text = """We define a Banach space as a complete vector normed space."""
+def sanity_check(model, tokenizer, text=None):
+    if text == None:
+    	text = """We define a Banach space as a complete vector normed space."""
 	#text = ''
 	#j = 19
 	#for t in ds['test'][j]['tokens']:

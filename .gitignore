@@ -9,6 +9,9 @@ rootkey.*
 #python cache
 __pycache__
 
+#virtual environment
+venv/*
+
 #Data file
 data
 # TAGS files from ctags
