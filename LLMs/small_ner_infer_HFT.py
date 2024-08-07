@@ -22,7 +22,7 @@ def get_term(out_str):
 reg_expr2 = re.compile('Definition\s+[\d\.]+\s+(.+)')
 def get_text(in_str):
     Defin = reg_expr2.findall(in_str)
-    return Defin
+    return Defin[0]
 
 reg_expr3 = re.compile('\$.+?\$')
 def remove_latex_formulas(text):
@@ -155,6 +155,9 @@ def main():
                  text = remove_latex_formulas(get_text(xdefs_in_lst[5])))
 
 if __name__ == "__main__":
+    '''
+       singularity run --nv --bind $HOME/arxivDownload/:/opt/arxivDownload,$PROJECT:/opt/data_dir $PROJECT/singul/tfrunner.sif python3 /opt/arxivDownload/LLMs/small_ner_infer_HFT.py --xdefs /opt/data_dir/extract-defs --model /opt/data_dir/finetune_ner/ner-2023-08-02_1334/trainer/trans_HF_ner/ner_Aug-02_13-34/
+       '''
     main()
 
     
