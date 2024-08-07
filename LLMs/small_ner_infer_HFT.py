@@ -50,7 +50,7 @@ def sanity_check(model, tokenizer, text=None):
     predicted_token_class = [model.config.id2label[t] 
                  for t in predicted_ids[0].numpy().tolist()]
 
-    for i in range(min(5,len(predicted_token_class))):
+    for i in range(min(10,len(predicted_token_class))):
         print(inputs.tokens()[i], predicted_token_class[i])
 
     #tt = tokenizer(ds['test'][j]['tokens'], return_tensors='tf', is_split_into_words=True)
@@ -62,6 +62,10 @@ def sanity_check(model, tokenizer, text=None):
     predicted_ids = tf.math.argmax(logits, axis=-1)[0]
     predictions = predicted_ids.numpy().tolist()
     concat_tokens = [tt.tokens(j) for j in range(tt['input_ids'].shape[0])]
+
+    print(f"{concat_tokens=}")
+    ccc = [model.config.id2label[p] for p in predictions]
+    print(f"{ccc}")
 
     special_token_lst = list(tokenizer.special_tokens_map.values())
 
