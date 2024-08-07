@@ -139,7 +139,7 @@ def main():
         
     print(get_text(xdefs_in_lst[15]) )
     tf_model_dir = args['model']
-    cfg = {'outdir': args['out'],
+    cfg = {#'outdir': args['out'],
             'max_length': 150, 
             'inference_batch_size': 250}
     #with open(os.path.join(tf_model_dir, 'config.json')) as fobj:
