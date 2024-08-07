@@ -173,14 +173,13 @@ def main():
         with open(join(args['out'], 'compare.json'), 'w+') as fobj:
             fobj.write(json.dumps(dict_lst))
             
-    
-    #if args['n'] < 0:
-    #    text_in = None
-    #else:
-    #    text_in = remove_latex_formulas(get_text(xdefs_in_lst[args['n']]))
+    if args['n'] < 0:
+        text_in = None
+    else:
+        text_in = remove_latex_formulas(get_text(xdefs_in_lst[args['n']]))
         
-    #sanity_check(Model, tokenizer, 
-    #             text = text_in)
+    sanity_check(Model, tokenizer, 
+                 text = text_in)
 
 
 
