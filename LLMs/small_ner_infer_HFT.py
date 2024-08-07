@@ -162,7 +162,7 @@ def main():
     if args['out'] is not None:
         assert os.path.isdir(args['out']), f"Error, {args['out']} is not a directory"
         dict_lst = []
-        for i in len(xdefs_out_lst):
+        for i in range(len(xdefs_out_lst)):
             results = sanity_check(Model, tokenizer, 
                          text = remove_latex_formulas(get_text(xdefs_in_lst[i])))
             temp_dict = {'text': xdefs_in_lst[i],
