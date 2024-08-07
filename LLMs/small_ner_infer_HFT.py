@@ -12,26 +12,6 @@ from transformers import (AutoTokenizer,
 
 from transformers import DataCollatorForTokenClassification
 
-def parse_args():
-    '''
-    parse args should be run before gen_cfg
-    '''
-    import argparse
-    parser = argparse.ArgumentParser()
-    #parser.add_argument('--savedir', type=str, default='',
-    #    help="""Path to save the finetuned model, dir name only.""")
-    parser.add_argument('--xdefs', type=str, default='',
-        help="""path to the JUrban/extract-defs cloned repository""")
-    parser.add_argument('--model', type=str,
-            default='/home/luis/ner_model',
-            help='Path to the tensorflow model directory')
-    args = parser.parse_args()
-
-    # make sure --savepath exists
-    #if args.savedir != '':
-    #    os.makedirs(args.savedir, exist_ok=True)
-
-    return vars(args)
 
 reg_expr = re.compile('"(.+?)"+')
 def get_term(out_str):
@@ -115,6 +95,27 @@ def sanity_check(model, tokenizer, text=None):
         idx += 1
     print(results)
 
+def parse_args():
+    '''
+    parse args should be run before gen_cfg
+    '''
+    import argparse
+    parser = argparse.ArgumentParser()
+    #parser.add_argument('--savedir', type=str, default='',
+    #    help="""Path to save the finetuned model, dir name only.""")
+    parser.add_argument('--xdefs', type=str, default='',
+        help="""path to the JUrban/extract-defs cloned repository""")
+    parser.add_argument('--model', type=str,
+            default='/home/luis/ner_model',
+            help='Path to the tensorflow model directory')
+    args = parser.parse_args()
+
+    # make sure --savepath exists
+    #if args.savedir != '':
+    #    os.makedirs(args.savedir, exist_ok=True)
+
+    return vars(args)
+
 def main():
     args = parse_args()
     #print(f'{args=}')
@@ -147,7 +148,7 @@ def main():
     #    cfg['checkpoint'] = json.loads(fobj.read())['_name_or_path']
     Model = TFAutoModelForTokenClassification\
             .from_pretrained(tf_model_dir)
-    sanity_check(Model, tokenizer)
+    sanity_check(Model, tokenizer, text=get_text(xdefs_in_lst[5]))
 
 if __name__ == "__main__":
     main()
