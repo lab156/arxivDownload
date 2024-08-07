@@ -119,7 +119,7 @@ def main():
     args = parse_args()
     #print(f'{args=}')
     
-    cfg = {'checkpoint': 'bert-base-uncased',
+    cfg = {'checkpoint': 'bert-large-cased',
       'max_length': 150, # check mp_infer_HFTrans_ner.py
       }
 
