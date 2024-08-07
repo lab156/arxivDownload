@@ -46,8 +46,8 @@ def sanity_check(model, tokenizer, text=None):
     predicted_token_class = [model.config.id2label[t] 
                  for t in predicted_ids[0].numpy().tolist()]
 
-    #for i in range(len(predicted_token_class)):
-        #print(inputs.tokens()[i], predicted_token_class[i])
+    for i in range(len(predicted_token_class)):
+        print(inputs.tokens()[i], predicted_token_class[i])
 
     #tt = tokenizer(ds['test'][j]['tokens'], return_tensors='tf', is_split_into_words=True)
     tt = tokenizer(text, return_tensors='tf', is_split_into_words=False)
