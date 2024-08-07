@@ -157,7 +157,7 @@ def main():
     if args['n'] < 0:
         text_in = None
     else:
-        text_in = remove_latex_formulas(get_text(xdefs_in_lst[5]))
+        text_in = remove_latex_formulas(get_text(xdefs_in_lst[args['n']]))
         
     sanity_check(Model, tokenizer, 
                  text = text_in)
