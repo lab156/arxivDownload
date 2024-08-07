@@ -24,6 +24,9 @@ def get_text(in_str):
     Defin = reg_expr2.findall(in_str)
     return Defin
 
+reg_expr3 = re.compile('\$.+?\$')
+def remove_latex_formulas(text):
+    return re.sub(reg_expr3,'_inline_math_', text)
 
 def sanity_check(model, tokenizer, text=None):
     if text == None:
@@ -148,7 +151,8 @@ def main():
     #    cfg['checkpoint'] = json.loads(fobj.read())['_name_or_path']
     Model = TFAutoModelForTokenClassification\
             .from_pretrained(tf_model_dir)
-    sanity_check(Model, tokenizer, text=get_text(xdefs_in_lst[5]))
+    sanity_check(Model, tokenizer, 
+                 text = remove_latex_formulas(get_text(xdefs_in_lst[5])))
 
 if __name__ == "__main__":
     main()
