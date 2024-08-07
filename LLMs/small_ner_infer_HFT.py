@@ -69,11 +69,11 @@ def sanity_check(model, tokenizer, text=None):
 
     special_token_lst = list(tokenizer.special_tokens_map.values())
 
-    term_lst = llu.crop_terms(concat_tokens, [model.config.id2label[p] for p in predictions],
+    term_lst = llu.crop_terms(concat_tokens[0], [model.config.id2label[p] for p in predictions],
                  special_tokens=special_token_lst)
                  #golds=text.split(),
 
-    print(term_lst[:10])
+    print(f"{term_lst=}")
     
     results = []
     inputs_with_offsets = tokenizer(text, return_offsets_mapping=True)
