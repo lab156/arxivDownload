@@ -161,12 +161,18 @@ def main():
 
     if args['out'] is not None:
         assert os.path.isdir(args['out']), f'Error, {args['out']} is not a directory'
+        dict_lst = []
         for i in len(xdefs_out_lst):
             results = sanity_check(Model, tokenizer, 
                          text = remove_latex_formulas(get_text(xdefs_in_lst[i])))
             temp_dict = {'text': xdefs_in_lst[i],
                          'extract-defs-term': get_term(xdefs_out_lst[i]),
                          'finetune-term': results[0]['word'] if len(results)>0 else None}
+            dict_lst.append(temp_dict)
+            
+        with open(join(args['out'], 'compare.json'), 'w+') as fobj:
+            fobj.write(json.dumps(dict_lst))
+            
     
     #if args['n'] < 0:
     #    text_in = None
