@@ -185,7 +185,7 @@ def main():
                          text = remove_latex_formulas(get_text(xdefs_in_lst[i])))
             temp_dict = {'text': xdefs_in_lst[i],
                          'extract-defs-term': get_term(xdefs_out_lst[i]),
-                         'my-term': term_lst }
+                         'my-term': results }
             dict_lst.append(temp_dict)
             
         with open(join(args['out'], 'compare.json'), 'w+') as fobj:
