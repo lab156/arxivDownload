@@ -2,6 +2,7 @@ import re
 import os
 from os.path import join
 import numpy as np
+import json
 
 import tensorflow as tf
 from transformers import (AutoTokenizer,
@@ -97,6 +98,7 @@ def sanity_check(model, tokenizer, text=None):
             )
         idx += 1
     print(results)
+    return results
 
 def parse_args():
     '''
@@ -111,6 +113,9 @@ def parse_args():
     parser.add_argument('--model', type=str,
             default='/home/luis/ner_model',
             help='Path to the tensorflow model directory')
+    parser.add_argument('--out', type=str,
+            default=None,
+            help='Path to output a json file with results.')
     parser.add_argument('-n', type=int, default=-1)
     args = parser.parse_args()
 
@@ -153,18 +158,29 @@ def main():
     #    cfg['checkpoint'] = json.loads(fobj.read())['_name_or_path']
     Model = TFAutoModelForTokenClassification\
             .from_pretrained(tf_model_dir)
+
+    if args['out'] is not None:
+        assert os.path.isdir(args['out']), f'Error, {args['out']} is not a directory'
+        for i in len(xdefs_out_lst):
+            results = sanity_check(Model, tokenizer, 
+                         text = remove_latex_formulas(get_text(xdefs_in_lst[i])))
+            temp_dict = {'text': xdefs_in_lst[i],
+                         'extract-defs-term': get_term(xdefs_out_lst[i]),
+                         'finetune-term': results[0]['word'] if len(results)>0 else None}
     
-    if args['n'] < 0:
-        text_in = None
-    else:
-        text_in = remove_latex_formulas(get_text(xdefs_in_lst[args['n']]))
+    #if args['n'] < 0:
+    #    text_in = None
+    #else:
+    #    text_in = remove_latex_formulas(get_text(xdefs_in_lst[args['n']]))
         
-    sanity_check(Model, tokenizer, 
-                 text = text_in)
+    #sanity_check(Model, tokenizer, 
+    #             text = text_in)
+
+
 
 if __name__ == "__main__":
     '''
-       singularity run --nv --bind $HOME/arxivDownload/:/opt/arxivDownload,$PROJECT:/opt/data_dir $PROJECT/singul/tfrunner.sif python3 /opt/arxivDownload/LLMs/small_ner_infer_HFT.py --xdefs /opt/data_dir/extract-defs --model /opt/data_dir/finetune_ner/ner-2023-08-02_1334/trainer/trans_HF_ner/ner_Aug-02_13-34/
+       singularity run --nv --bind $HOME/arxivDownload/:/opt/arxivDownload,$PROJECT:/opt/data_dir $PROJECT/singul/tfrunner.sif python3 /opt/arxivDownload/LLMs/small_ner_infer_HFT.py --xdefs /opt/data_dir/extract-defs --model /opt/data_dir/finetune_ner/ner-2023-08-02_1334/trainer/trans_HF_ner/ner_Aug-02_13-34/ -n 24
        '''
     main()
 
