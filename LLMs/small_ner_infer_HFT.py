@@ -160,7 +160,7 @@ def main():
             .from_pretrained(tf_model_dir)
 
     if args['out'] is not None:
-        assert os.path.isdir(args['out']), f'Error, {args['out']} is not a directory'
+        assert os.path.isdir(args['out']), f"Error, {args['out']} is not a directory"
         dict_lst = []
         for i in len(xdefs_out_lst):
             results = sanity_check(Model, tokenizer, 
