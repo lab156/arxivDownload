@@ -50,7 +50,7 @@ def sanity_check(model, tokenizer, text=None):
     predicted_token_class = [model.config.id2label[t] 
                  for t in predicted_ids[0].numpy().tolist()]
 
-    for i in range(len(predicted_token_class)):
+    for i in range(min(5,len(predicted_token_class))):
         print(inputs.tokens()[i], predicted_token_class[i])
 
     #tt = tokenizer(ds['test'][j]['tokens'], return_tensors='tf', is_split_into_words=True)
@@ -66,8 +66,8 @@ def sanity_check(model, tokenizer, text=None):
     special_token_lst = list(tokenizer.special_tokens_map.values())
 
     term_lst = llu.crop_terms(concat_tokens, [model.config.id2label[p] for p in predictions],
-                 golds=text.split(),
                  special_tokens=special_token_lst)
+                 #golds=text.split(),
 
     print(term_lst[:10])
     
