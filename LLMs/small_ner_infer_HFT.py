@@ -13,6 +13,10 @@ from transformers import (AutoTokenizer,
 
 from transformers import DataCollatorForTokenClassification
 
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir) 
+import ner.llm_utils as llu
 
 reg_expr = re.compile('"(.+?)"+')
 def get_term(out_str):
@@ -57,6 +61,16 @@ def sanity_check(model, tokenizer, text=None):
     # Grouping entities
     predicted_ids = tf.math.argmax(logits, axis=-1)[0]
     predictions = predicted_ids.numpy().tolist()
+    concat_tokens = [tt.tokens(j) for j in range(tt['input_ids'].shape[0])]
+
+    special_token_lst = list(tokenizer.special_tokens_map.values())
+
+    term_lst = llu.crop_terms(concat_tokens, [model.config.id2label[p] for p in predictions],
+                 golds=text.split(),
+                 special_tokens=special_token_lst)
+
+    print(term_lst)
+    
     results = []
     inputs_with_offsets = tokenizer(text, return_offsets_mapping=True)
     tokens = inputs_with_offsets.tokens()
