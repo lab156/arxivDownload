@@ -116,7 +116,7 @@ def sanity_check(model, tokenizer, text=None):
             )
         idx += 1
     print(results)
-    return results
+    return term_lst
 
 def parse_args():
     '''
@@ -185,7 +185,7 @@ def main():
                          text = remove_latex_formulas(get_text(xdefs_in_lst[i])))
             temp_dict = {'text': xdefs_in_lst[i],
                          'extract-defs-term': get_term(xdefs_out_lst[i]),
-                         'finetune-term': results[0]['word'] if len(results)>0 else None}
+                         'my-term': results[0]['word'] if len(results)>0 else None}
             dict_lst.append(temp_dict)
             
         with open(join(args['out'], 'compare.json'), 'w+') as fobj:
