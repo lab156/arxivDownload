@@ -66,7 +66,7 @@ def sanity_check(model, tokenizer, text=None):
     special_token_lst = list(tokenizer.special_tokens_map.values())
 
     term_lst = llu.crop_terms(concat_tokens, [model.config.id2label[p] for p in predictions],
-                 golds=text.split(),
+                 golds=text,
                  special_tokens=special_token_lst)
 
     print(term_lst)
