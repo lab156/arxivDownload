@@ -37,7 +37,7 @@ def sanity_check(model, tokenizer, text=None):
     #    text += t + ' '
     print(f'{text=}')
     classifier = pipeline('ner', model=model, tokenizer=tokenizer)
-    print('The pipeline result is: ', classifier(text))
+    #print('The pipeline result is: ', classifier(text))
 
     inputs = tokenizer(text, return_tensors='tf')
     logits = model(**inputs).logits
@@ -45,13 +45,13 @@ def sanity_check(model, tokenizer, text=None):
     predicted_token_class = [model.config.id2label[t] 
                  for t in predicted_ids[0].numpy().tolist()]
 
-    for i in range(len(predicted_token_class)):
-        print(inputs.tokens()[i], predicted_token_class[i])
+    #for i in range(len(predicted_token_class)):
+        #print(inputs.tokens()[i], predicted_token_class[i])
 
     #tt = tokenizer(ds['test'][j]['tokens'], return_tensors='tf', is_split_into_words=True)
     tt = tokenizer(text, return_tensors='tf', is_split_into_words=False)
     logits = model(**tt).logits
-    print(f"{logits=}")
+    #print(f"{logits=}")
 
     # Grouping entities
     predicted_ids = tf.math.argmax(logits, axis=-1)[0]
@@ -111,6 +111,7 @@ def parse_args():
     parser.add_argument('--model', type=str,
             default='/home/luis/ner_model',
             help='Path to the tensorflow model directory')
+    parser.add_argument('-n', type=int, default=-1)
     args = parser.parse_args()
 
     # make sure --savepath exists
@@ -141,8 +142,9 @@ def main():
     # LLM loading and preparation
     tokenizer = AutoTokenizer\
             .from_pretrained(cfg['checkpoint'])
+
         
-    print(get_text(xdefs_in_lst[15]) )
+    #print(get_text(xdefs_in_lst[15]) )
     tf_model_dir = args['model']
     cfg = {#'outdir': args['out'],
             'max_length': 150, 
@@ -151,8 +153,14 @@ def main():
     #    cfg['checkpoint'] = json.loads(fobj.read())['_name_or_path']
     Model = TFAutoModelForTokenClassification\
             .from_pretrained(tf_model_dir)
+    
+    if args['n'] < 0:
+        text_in = None
+    else:
+        text_in = remove_latex_formulas(get_text(xdefs_in_lst[5]))
+        
     sanity_check(Model, tokenizer, 
-                 text = remove_latex_formulas(get_text(xdefs_in_lst[5])))
+                 text = text_in)
 
 if __name__ == "__main__":
     '''
