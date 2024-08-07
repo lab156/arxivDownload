@@ -69,7 +69,7 @@ def sanity_check(model, tokenizer, text=None):
                  golds=text,
                  special_tokens=special_token_lst)
 
-    print(term_lst)
+    print(term_lst[:10])
     
     results = []
     inputs_with_offsets = tokenizer(text, return_offsets_mapping=True)
