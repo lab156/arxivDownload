@@ -30,4 +30,3 @@ From: /home/luis/singul/tensorflow:20.06-tf2-py3_v2.sif
 
 %runscript
     python3 /opt/arxivDownload/embed/classify_lstm.py $*
-

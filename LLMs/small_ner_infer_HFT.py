@@ -116,6 +116,7 @@ def sanity_check(model, tokenizer, text=None):
 
 def main():
     args = parse_args()
+    #print(f'{args=}')
     
     cfg = {'checkpoint': 'bert-base-uncased',
       'max_length': 150, # check mp_infer_HFTrans_ner.py
@@ -137,8 +138,8 @@ def main():
             .from_pretrained(cfg['checkpoint'])
         
     print(get_text(xdefs_in_lst[15]) )
-    tf_model_dir = args.model
-    cfg = {'outdir': args.out,
+    tf_model_dir = args['model']
+    cfg = {'outdir': args['out'],
             'max_length': 150, 
             'inference_batch_size': 250}
     #with open(os.path.join(tf_model_dir, 'config.json')) as fobj:
