@@ -186,7 +186,7 @@ def main():
             results = sanity_check(Model, tokenizer, 
                          text = remove_latex_formulas(get_text(xdefs_in_lst[i])))
             temp_dict = {'text': xdefs_in_lst[i],
-                         'extract-defs-term': get_term(xdefs_out_lst[i]),
+                         'extract-defs-term': get_term(xdefs_out_lst[i]) if len(xdefs_out_lst) > i else None,
                          'my-term': results }
             dict_lst.append(temp_dict)
             
