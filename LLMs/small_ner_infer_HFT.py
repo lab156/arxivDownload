@@ -190,7 +190,7 @@ def main():
             dict_lst.append(temp_dict)
             
         with open(join(args['out'], 
-                       f'compare_{args['index']:0>3}.json'), 'w+') as fobj:
+                       f"compare_{args['index']:0>3}.json"), 'w+') as fobj:
             fobj.write(json.dumps(dict_lst))
             
     if args['n'] < 0:
