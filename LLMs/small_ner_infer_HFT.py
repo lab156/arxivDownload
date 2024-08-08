@@ -135,6 +135,7 @@ def parse_args():
             default=None,
             help='Path to output a json file with results.')
     parser.add_argument('-n', type=int, default=-1)
+    parser.add_argument('--index', type=int, default=0)
     args = parser.parse_args()
 
     # make sure --savepath exists
@@ -157,9 +158,9 @@ def main():
     xdefs_inputs_filelst = sorted(os.listdir(xdefs_inputs))
     xdefs_outputs_filelst = sorted(os.listdir(xdefs_outputs))
     
-    with open(join(xdefs_outputs, xdefs_outputs_filelst[0]), 'r') as fobj:
+    with open(join(xdefs_outputs, xdefs_outputs_filelst[args['index']]), 'r') as fobj:
         xdefs_out_lst = fobj.readlines()
-    with open(join(xdefs_inputs, xdefs_inputs_filelst[0]), 'r') as fobj:
+    with open(join(xdefs_inputs, xdefs_inputs_filelst[args['index']]), 'r') as fobj:
         xdefs_in_lst = fobj.readlines()
 
     # LLM loading and preparation
@@ -188,7 +189,8 @@ def main():
                          'my-term': results }
             dict_lst.append(temp_dict)
             
-        with open(join(args['out'], 'compare.json'), 'w+') as fobj:
+        with open(join(args['out'], 
+                       f'compare_{args['index']:0>3}.json'), 'w+') as fobj:
             fobj.write(json.dumps(dict_lst))
             
     if args['n'] < 0:
