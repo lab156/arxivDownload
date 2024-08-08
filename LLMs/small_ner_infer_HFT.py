@@ -25,7 +25,7 @@ def get_term(out_str):
     return Defin
 
 reg_expr2 = re.compile(
-    '(?:Definition\s+[\d\.]+\s+(.+)|[\d\.]+\s+Definition\s+(.+))')
+    '(?:Definition\s+[\d\.]+\s+(.+)|[\d\.]+\s+Definition\.?\s+(.+))')
 def get_text(in_str):
     Defin = reg_expr2.findall(in_str)
     return ''.join(Defin[0])
