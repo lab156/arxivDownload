@@ -24,10 +24,11 @@ def get_term(out_str):
     Defin = reg_expr.findall(out_str)
     return Defin
 
-reg_expr2 = re.compile('Definition\s+[\d\.]+\s+(.+)')
+reg_expr2 = re.compile(
+    '(?:Definition\s+[\d\.]+\s+(.+)|[\d\.]+\s+Definition\s+(.+))')
 def get_text(in_str):
     Defin = reg_expr2.findall(in_str)
-    return Defin[0]
+    return ''.join(Defin[0])
 
 reg_expr3 = re.compile('\$.+?\$')
 def remove_latex_formulas(text):
