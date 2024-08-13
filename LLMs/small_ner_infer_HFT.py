@@ -136,7 +136,8 @@ def parse_args():
             default=None,
             help='Path to output a json file with results.')
     parser.add_argument('-n', type=int, default=-1)
-    parser.add_argument('--index', type=int, default=0)
+    parser.add_argument('--index', type=int, default=0,
+            help='index completes the filename, defsCT_00[index]')
     args = parser.parse_args()
 
     # make sure --savepath exists
@@ -184,25 +185,26 @@ def main():
         dict_lst = []
         for i in range(len(xdefs_in_lst)):
             results = sanity_check(Model, tokenizer, 
-                         text = remove_latex_formulas(get_text(xdefs_in_lst[i])))
-            temp_dict = {'text': xdefs_in_lst[i],
-                         'extract-defs-term': get_term(xdefs_out_lst[i]) if len(xdefs_out_lst) > i else None,
-                         'my-term': results }
+                  text = remove_latex_formulas(get_text(xdefs_in_lst[i])))
+                  temp_dict = {'text': xdefs_in_lst[i],
+                  'extract-defs-term': get_term(xdefs_out_lst[i]) 
+                               if len(xdefs_out_lst) > i else None,
+                               'my-term': results }
             dict_lst.append(temp_dict)
             
         with open(join(args['out'], 
                        f"compare_{args['index']:0>3}.json"), 'w+') as fobj:
             fobj.write(json.dumps(dict_lst))
-            
-    if args['n'] < 0:
-        text_in = None
     else:
-        text_in = remove_latex_formulas(get_text(xdefs_in_lst[args['n']]))
-        
-    sanity_check(Model, tokenizer, 
-                 text = text_in)
-
-
+        if args['n'] < 0:
+            text_in = None
+        else:
+            text_in = remove_latex_formulas(
+                get_text(xdefs_in_lst[args['n']]))
+            
+        results = sanity_check(Model, tokenizer, 
+                     text = text_in)
+        print(f"{results=}")
 
 if __name__ == "__main__":
     '''
