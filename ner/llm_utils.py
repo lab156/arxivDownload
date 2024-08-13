@@ -133,7 +133,7 @@ def get_entity(words, preds,
     k = 0 # main index
     while k < len(preds):
         cnt = 1
-        if preds[k] == labels[1]:
+        if preds[k] == labels[1] or labels[2]:
             term = words[k]
             while (k + cnt < len(preds) and 
                     preds[k + cnt] == labels[2]):
