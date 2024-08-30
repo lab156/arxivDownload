@@ -14,7 +14,8 @@ import gzip
 from datasets import Dataset, DatasetDict
 
 from transformers import (AutoTokenizer,
-                         TFAutoModelForTokenClassification,)
+                         TFAutoModelForTokenClassification
+A,)
 
 import os, inspect, sys
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
