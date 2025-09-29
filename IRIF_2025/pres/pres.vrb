@@ -1,11 +1,11 @@
 \frametitle{Source of the Data}
     \begin{itemize}
-        \item arXiv keeps the \LaTeX{} source code of many articles and makes them easily downloadable.
+        \item arXiv keeps the \LaTeX{} source code of many articles and makes them easily downloadable. Parsing is done with \texttt{LaTeXML}, by Bruce Miller.
             \pause
         \item Some authors mark definitions with a \texttt{definition} environment.
             \begin{minted}[linenos=true]{latex}
 \begin{definition}
-    A Banach space is a complete normed space X.
+    A Banach space is a complete normed space.
 \end{definition}
     \end{minted}
     \pause

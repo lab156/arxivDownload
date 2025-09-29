@@ -82,12 +82,12 @@
 \begin{frame}[fragile]
     \frametitle{Source of the Data}
     \begin{itemize}
-        \item arXiv keeps the \LaTeX{} source code of many articles and makes them easily downloadable.
+        \item arXiv keeps the \LaTeX{} source code of many articles and makes them easily downloadable. Parsing is done with \texttt{LaTeXML}, by Bruce Miller.
             \pause
         \item Some authors mark definitions with a \texttt{definition} environment.
             \begin{minted}[linenos=true]{latex}
 \begin{definition}
-    A Banach space is a complete normed space X.  
+    A Banach space is a complete normed space.  
 \end{definition}
     \end{minted}
     \pause
@@ -174,7 +174,7 @@ for epoch in tqdm(range(epochs)):
     \frametitle{A look at the Results}
     \begin{columns}
         \begin{column}{0.4\textwidth}
-            Terms with multiple words only \\
+            Terms with multiple words (2018)\\
             \begin{tabular}{lr}
                 \toprule
                 \textbf{Term} & \textbf{\#}  \\
@@ -233,7 +233,7 @@ hilbert space &  1,795 \\
 \begin{frame}
     \frametitle{Organizing the Terms by Dependency}
     \begin{itemize}
-        \item We can estimate the variance of a term, how diverse its usage is. \pause
+        \item We can estimate the \textit{variance} of a term, how diverse its usage is. \pause
         \item Together with the mean gives a point in the upper half-plane model of hyperbolic geometry (Costa 2015).
             \pause
         \item It can be said for terms that are nearby, that higher terms depend on lower ones: The \textbf{is-a} score (Tifrea 2018)
@@ -255,14 +255,14 @@ ufd  & \textbf{is-a}  & field  & 2.2690 \\
 \end{frame}
 
 %%%%  FRAME  %%%%
-\begin{frame}
-    \frametitle{Alignment with Libraries}
-            \begin{figure}
-                \centering
-                \includegraphics[width=0.5\textwidth]{../Images/example.png}
-                \caption{Zequn Sun and Muhao Chen, Knowledge Association with Hyperbolic Knowledge Graph Embeddings}
-            \end{figure}
-\end{frame}
+%\begin{frame}
+%    \frametitle{WIP: Alignment with Libraries}
+%            \begin{figure}
+%                \centering
+%                \includegraphics[width=0.5\textwidth]{../Images/example.png}
+%                \caption{Zequn Sun and Muhao Chen, Knowledge Association with Hyperbolic Knowledge Graph Embeddings}
+%            \end{figure}
+%\end{frame}
 
 %%%%  FRAME  %%%%
 \begin{frame}
